@@ -1,7 +1,22 @@
 
-\subsection{Effectiveness of {\tech}}\label{sec:effmeasure}
+\subsection{RQ1: Bytecode Prevalence}\label{sec:effmeasure}
 
+RQ1 measures how often Python bytecode artifacts appear in real distributions.  We count packages containing \texttt{.pyc} files, \texttt{\_\_pycache\_\_} directories, source-less bytecode modules, bundled bytecode artifacts, dynamically loaded code objects, and PyInstaller-style payloads.  Results should be reported both per package and per artifact, because a single package can contain many bytecode objects.
 
-\find{
+\begin{table}[t]
+  \centering
+  \caption{Bytecode prevalence across datasets. Replace placeholders with measured values.}
+  \label{tab:prevalence}
+  \begin{tabular}{lrrrr}
+    \toprule
+    Dataset & Packages & With \texttt{.pyc} & Source-less & Dynamic load \\
+    \midrule
+    Popular PyPI & TBD & TBD & TBD & TBD \\
+    Random PyPI & TBD & TBD & TBD & TBD \\
+    Suspicious/Malicious & TBD & TBD & TBD & TBD \\
+    Bundles & TBD & TBD & TBD & TBD \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
-}
+The main reporting claim for RQ1 should identify whether bytecode artifacts are rare leftovers or recurring distribution artifacts.  We also report common locations, including cache directories, package subtrees, loader resources, archive members, and bundled module stores.

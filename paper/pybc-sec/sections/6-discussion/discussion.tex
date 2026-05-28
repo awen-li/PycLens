@@ -1,7 +1,21 @@
 \section{Discussion} \label{sec:diss}
 
-\begin{itemize}[leftmargin=1.25em]
-  \item Acknowledge limitations honestly.
-  \item Describe potential improvements or extensions.
-  \item Discuss assumptions and their implications.
-\end{itemize}
+\subsection{Implications for Package Security}
+
+Source-only package analysis is incomplete when distributions contain executable bytecode without matching source.  Package scanners should inventory \texttt{.pyc} files, inspect marshalled code objects, flag bytecode/source mismatches, and preserve decompilation failures as evidence for manual review.  A failed source recovery step should not be treated as a clean result.
+
+\subsection{Implications for Runtime Hardening}
+
+CPython need not support arbitrary malformed bytecode as trusted input, but it should fail predictably at documented validation boundaries.  Assertions, aborts, sanitizer findings, and segmentation faults indicate hardening opportunities even when the triggering artifact is malformed.  The source-reachability analysis helps prioritize findings that can be reached through ordinary source separately from findings that require direct bytecode construction.
+
+\subsection{Implications for Malware Analysis}
+
+Compiled Python payloads complicate triage because the analyst may see a small source-level loader while the payload resides in a code object.  Bytecode-aware signatures, opcode-level behavior extraction, and explicit handling for version-specific bytecode can improve malware analysis workflows.  Decompilation remains useful, but it should be one component of a broader bytecode analysis pipeline.
+
+\subsection{Threats to Validity}
+
+Dataset bias is a primary threat: PyPI samples may not represent all deployments, malicious package collections may overrepresent suspicious patterns, and bundled applications are difficult to collect systematically.  Tool bias is also possible because decompiler results depend on selected tools and versions.  Runtime testing may overproduce malformed inputs, especially under raw byte mutation, and deduplication can over- or under-count unique failures.  We mitigate these threats by using multiple datasets, reporting failure categories explicitly, and separating malformed-input handling from source-reachable behavior.
+
+\subsection{Limitations}
+
+Several limitations remain.  First, {\tech} cannot prove that all dynamically loaded bytecode has been recovered; loaders may decrypt, decompress, download, or synthesize code objects in ways that are not visible statically.  Second, source correspondence is limited by interpreter availability.  If the exact Python version cannot be reconstructed, comparison may be conservative or inconclusive.  Third, bytecode equivalence is not the same as full semantic equivalence, and behavior checks are limited to executions that are safe, deterministic, and covered by the test harness.  Fourth, decompiler results reflect the selected tools and versions; future decompilers may recover artifacts that are currently classified as recovery failures.  Fifth, robustness findings from malformed bytecode are not automatically security vulnerabilities.  They require manual triage, source-reachability analysis, and responsible disclosure when appropriate.

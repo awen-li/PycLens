@@ -1,7 +1,13 @@
-\section{Implementation and Limitations} \label{sec:impl}
-
+\section{Implementation} \label{sec:impl}
 
 \subsection{Key Component Implementation} \label{sec:impl:components}
 
+{\tech} is implemented as a modular analysis pipeline.  The artifact inventory component walks extracted package trees and archive contents, normalizes paths, identifies Python source and bytecode files, and records hashes for reproducibility.  The bytecode parser reads \texttt{.pyc} headers, validates magic numbers, unmarshals code objects in an isolated interpreter process, and emits a normalized representation of code-object metadata and disassembled instructions.  Nested code objects are analyzed recursively so that functions, lambdas, comprehensions, class bodies, and embedded code objects are not missed.
 
-\subsection{Limitations} \label{sec:impl:limits}
+The source correspondence component compiles candidate source files with the interpreter version inferred from bytecode metadata whenever possible.  Because Python bytecode is version-sensitive, {\tech} treats interpreter mismatch as an explicit outcome rather than silently comparing artifacts across incompatible versions.  The comparison engine supports exact bytecode comparison and relaxed structural comparison over opcodes, constants, names, local variables, nested-code shape, control-flow edges, and exception-table layout.
+
+The recovery component invokes decompilers as external tools and records both tool-level failures and downstream validation failures.  Recovered source is parsed, compiled, and compared against the original code object.  The runtime component executes inputs inside sandboxed workers with timeouts, resource limits, and per-version interpreter isolation.  Debug and sanitizer builds can be used to distinguish clean Python exceptions from native-level assertion failures, aborts, and memory-safety findings.
+
+\subsection{Ethical and Safety Considerations}\label{sec:impl:ethics}
+
+The study does not execute unknown packages on the host system.  Package installation, import probing, decompilation, and runtime tests are performed in isolated environments with network access disabled unless a dataset-construction step explicitly requires downloading public artifacts.  Malicious or suspicious samples are handled as research data, and bytecode-only crashes are reported as robustness findings rather than automatically being labeled exploitable vulnerabilities.  When a finding indicates a potential interpreter security issue, it should be disclosed through the appropriate upstream security process before public release.

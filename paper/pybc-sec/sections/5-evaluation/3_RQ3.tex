@@ -1,5 +1,19 @@
-\subsection{Ablation: Impact of Semantic Components}\label{sec:RQ3}
+\subsection{RQ3: Tooling Gap}\label{sec:RQ3}
 
-\find{
+RQ3 evaluates how well current tools recover or analyze Python bytecode artifacts.  For each decompiler, we measure decompilation success, syntactic validity of recovered source, recompilation success, bytecode equivalence after recompilation, and behavior preservation when safe execution is possible.  We also test whether source-level scanners observe behavior that exists only in bytecode artifacts.
 
-}
+\begin{table}[t]
+  \centering
+  \caption{Recovery workflow outcomes. Replace placeholders with measured values.}
+  \label{tab:recovery}
+  \begin{tabular}{lrrrr}
+    \toprule
+    Tool & Decompiled & Recompiled & Equivalent & Main failure \\
+    \midrule
+    pycdc & TBD & TBD & TBD & TBD \\
+    Other & TBD & TBD & TBD & TBD \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Failure causes include unsupported Python versions, unsupported opcodes, unusual control flow, exception-table mismatches, malformed code-object metadata, and dynamic loading patterns that hide the bytecode from ordinary file-based analysis.  The main interpretation is conservative: a decompiler failure is a tooling limitation, not proof that the bytecode has no source or no behavior.

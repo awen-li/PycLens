@@ -1,48 +1,58 @@
 
 \section{Evaluation} \label{sec:eval}
 
-\begin{itemize}[leftmargin=1.25em]
-  \item Coverage, accuracy, or effectiveness evaluation.
-  \item Bug-finding capability.
-  \item Performance and overhead analysis.
-  \item Scalability experiments.
-  \item Ablation study showing the contribution of each component.
-  \item Comparison with baseline methods.
-\end{itemize}
-
-We evaluate \tech{} through a series of research questions designed to assess its effectiveness, efficiency, and design choices.
+We evaluate \tech{} through five research questions designed to measure bytecode prevalence, source visibility, tooling coverage, runtime robustness, and source reachability.
 \begin{description}[style=unboxed,leftmargin=0cm]
 \denseitems
-\vspace{2pt}
-\item[\textbf{RQ1:}] \emph{xxxx?}
-\item[\textbf{RQ2:}] \emph{xxxx?}
-\item[\textbf{RQ3:}] \emph{xxxx?}
+\item[\textbf{RQ1:}] \emph{How often do Python bytecode artifacts appear in real-world software distributions?}
+\item[\textbf{RQ2:}] \emph{When bytecode artifacts are present, do they have corresponding source, and does the available source match the bytecode?}
+\item[\textbf{RQ3:}] \emph{How well do existing tools recover or analyze Python bytecode artifacts?}
+\item[\textbf{RQ4:}] \emph{How does CPython behave when processing unusual or mutated bytecode artifacts?}
+\item[\textbf{RQ5:}] \emph{How often are bytecode-level behaviors or failures reproducible from ordinary Python source?}
 \end{description}
 
-\vspace{2pt}
 \noindent
 {\bf Experiment Environment.}
+Experiments are conducted in isolated Linux containers.  Runtime tests use CPython 3.10, 3.11, and 3.12, with debug or sanitizer builds enabled for robustness triage when available.  Each execution uses a timeout, memory limit, disabled network access, and a fresh working directory.
 
-
-\vspace{2pt}
 \noindent
-{\bf Baseline Fuzzers for Comparison.}
+{\bf Datasets.}
+The evaluation uses popular PyPI packages, randomly sampled PyPI packages, known malicious or suspicious packages, Python application bundles, and CPython/runtime testing corpora.  For each artifact, we record distribution type, file inventory, source availability, bytecode version, hashes, and dynamic loading indicators.
 
-
-\vspace{2pt}
 \noindent
-{\bf Benchmarks and Initial Seeds.}
+{\bf Baselines and Tools.}
+For recovery analysis, we compare against representative Python bytecode decompilers such as \texttt{pycdc}~\cite{pycdc}.  For runtime robustness, we compare structured bytecode variants against a raw byte-mutation baseline and report results separately to avoid conflating malformed serialization failures with code-object execution behavior.
 
-
-\vspace{2pt}
 \noindent
 \textbf{Performance Metrics.}
+We report package-level prevalence, artifact-level source correspondence, decompilation success, recompilation success, bytecode or behavior equivalence, runtime outcome distributions, unique abnormal outcomes, and source-reachability classifications.
 
+\noindent
+\textbf{Evaluation Sufficiency.}
+The evaluation is structured to support the paper's motivation end to end.  RQ1 establishes whether bytecode artifacts appear often enough to matter.  RQ2 tests whether source-level analysis can see the same executable content.  RQ3 tests whether recovery tools can close the gap.  RQ4 measures the runtime boundary exposed by bytecode artifacts.  RQ5 determines whether bytecode-level findings are reachable from source.  Together, these questions support the central claim only if the results show both prevalence and loss of source-level coverage; runtime findings are interpreted separately as robustness evidence.
 
 \input{sections/5-evaluation/1_RQ1}
 \input{sections/5-evaluation/2_RQ2}
 \input{sections/5-evaluation/3_RQ3}
 
 
-\subsection{Regarding the Vulnerabilities Discovered}
+\subsection{Runtime Robustness and Source Reachability}\label{sec:eval:runtime}
 
+Table~\ref{tab:runtime-results} reports the runtime outcome distribution across CPython versions.  We classify failures into marshal/header parsing failures, code-object metadata failures, opcode/stack/control-flow failures, and execution-time interpreter failures.  This classification is essential because a malformed byte stream rejected by the loader has a different security interpretation from a structurally meaningful code object that reaches an assertion failure or native crash during execution.
+
+\begin{table}[t]
+  \centering
+  \caption{Runtime robustness outcomes. Replace placeholders with measured counts.}
+  \label{tab:runtime-results}
+  \begin{tabular}{lrrrrr}
+    \toprule
+    Version & Inputs & Exceptions & Assertions & Aborts & Segfaults \\
+    \midrule
+    3.10 & TBD & TBD & TBD & TBD & TBD \\
+    3.11 & TBD & TBD & TBD & TBD & TBD \\
+    3.12 & TBD & TBD & TBD & TBD & TBD \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+For each abnormal outcome, we attempt decompilation, recompilation, and re-execution under the same runtime.  A finding is source-reproducible only if the recovered source produces the same failure signature.  Otherwise, it is classified as decompilation failed, recompilation failed, behavior changed, source unavailable, or inconclusive.  The expected result is not simply a crash count, but a map of which bytecode-level behaviors are reachable from source-level workflows and which remain visible only through bytecode-aware analysis.

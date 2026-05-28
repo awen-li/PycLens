@@ -1,2 +1,22 @@
 
-\subsection{Efficiency of {\tech}}\label{sec:RQ2}
+\subsection{RQ2: Source Visibility}\label{sec:RQ2}
+
+RQ2 asks whether bytecode artifacts have corresponding source and whether the source matches the bytecode.  We classify each artifact as source-present and matching, source-present but mismatched, source-missing, dynamically generated or loaded, bundled or packed, decompilation-resistant, or unknown.  A source-present artifact is considered matching only when compiling the candidate source under the expected Python version yields equivalent bytecode under the comparison policy.
+
+\begin{table}[t]
+  \centering
+  \caption{Source correspondence categories. Replace placeholders with measured values.}
+  \label{tab:source-visibility}
+  \begin{tabular}{lrrrr}
+    \toprule
+    Artifact class & Count & Source present & Matching & Missing \\
+    \midrule
+    Import cache & TBD & TBD & TBD & TBD \\
+    Source-less module & TBD & TBD & TBD & TBD \\
+    Embedded marshal & TBD & TBD & TBD & TBD \\
+    Bundle payload & TBD & TBD & TBD & TBD \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The key result for this question is the portion of executable bytecode not fully visible through source inspection.  Source mismatch is especially important because source-level scanners may analyze a nearby file while the runtime consumes different behavior from bytecode.

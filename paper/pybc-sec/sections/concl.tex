@@ -1,7 +1,3 @@
 \section{Conclusion}\label{sec:conclude}
 
-\begin{itemize}[leftmargin=1.25em]
-  \item Reiterate the problem and your main solution.
-  \item Summarize key empirical results.
-  \item State high-level impact or future research directions.
-\end{itemize}
+Python bytecode is commonly treated as an internal cache, but it is also an executable artifact that appears in packages, bundles, custom loaders, and malware-analysis workflows.  This paper presented {\tech}, an empirical methodology for measuring bytecode prevalence, source correspondence, decompilation recoverability, runtime robustness, and source reachability.  The study shows why Python package security should not stop at source files: bytecode can be missing from source inventories, mismatched with nearby source, difficult to decompile, and capable of exercising runtime behavior outside ordinary source-level workflows.  Bytecode-aware analysis provides a practical path toward more complete package scanning, clearer robustness triage, and stronger security tooling for the Python ecosystem.
