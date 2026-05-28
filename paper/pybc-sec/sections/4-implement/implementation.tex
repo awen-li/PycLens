@@ -7,60 +7,7 @@
 \begin{figure}[t]
   \centering
   \scriptsize
-  \begin{tikzpicture}[
-    font=\scriptsize,
-    >=Latex,
-    stage/.style={
-      draw=black!70,
-      rounded corners=1.5pt,
-      align=center,
-      minimum width=2.25cm,
-      minimum height=0.82cm,
-      fill=black!4
-    },
-    data/.style={
-      draw=black!70,
-      align=center,
-      minimum width=2.05cm,
-      minimum height=0.7cm,
-      fill=blue!6
-    },
-    result/.style={
-      draw=black!70,
-      align=center,
-      minimum width=2.05cm,
-      minimum height=0.7cm,
-      fill=green!7
-    },
-    arrow/.style={->, line width=0.45pt, draw=black!75}
-  ]
-    \node[data] (datasets) {Datasets\\{\footnotesize PyPI, malware, bundles}};
-    \node[stage, right=0.55cm of datasets] (extract) {Artifact\\Extraction};
-    \node[stage, right=0.55cm of extract] (correspond) {Source\\Correspondence};
-    \node[stage, right=0.55cm of correspond] (recover) {Recovery and\\Tooling};
-    \node[stage, right=0.55cm of recover] (runtime) {Runtime and\\Reachability};
-
-    \node[result, below=0.5cm of extract] (rq1) {RQ1\\Prevalence};
-    \node[result, below=0.5cm of correspond] (rq2) {RQ2\\Visibility};
-    \node[result, below=0.5cm of recover] (rq3) {RQ3\\Tooling};
-    \node[result, below=0.5cm of runtime] (rq45) {RQ4--RQ5\\Robustness};
-
-    \draw[arrow] (datasets) -- (extract);
-    \draw[arrow] (extract) -- (correspond);
-    \draw[arrow] (correspond) -- (recover);
-    \draw[arrow] (recover) -- (runtime);
-
-    \draw[arrow] (extract) -- (rq1);
-    \draw[arrow] (correspond) -- (rq2);
-    \draw[arrow] (recover) -- (rq3);
-    \draw[arrow] (runtime) -- (rq45);
-
-    \node[align=center, above=0.35cm of correspond, text width=3.0cm] (meta)
-      {versioned code objects, hashes, metadata, and execution outcomes};
-    \draw[arrow] (meta.south west) -- (extract.north);
-    \draw[arrow] (meta.south) -- (correspond.north);
-    \draw[arrow] (meta.south east) -- (recover.north);
-  \end{tikzpicture}
+  \includegraphics[width=0.48\textwidth]{graphs/pymorph.pdf}
   \caption{Overview of the PyBC-Sec empirical study pipeline.  The pipeline collects Python software artifacts, extracts bytecode and code-object metadata, checks source correspondence, evaluates recovery tools, and classifies runtime robustness and source reachability outcomes.}
   \Description{A left-to-right pipeline starts from datasets, proceeds through artifact extraction, source correspondence, recovery and tooling, and runtime and reachability analysis, and maps these stages to RQ1 through RQ5.}
   \label{fig:pipeline-overview}
