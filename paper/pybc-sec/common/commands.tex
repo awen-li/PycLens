@@ -1,0 +1,68 @@
+% ---------- Common macros ----------
+\newcommand{\find}[1]{%
+\begin{tcolorbox}[tile,size=fbox,boxsep=2mm,boxrule=0pt,top=0pt,bottom=0pt,
+borderline={0.6mm}{0pt}{black!66!white},colback=black!5!white]
+\em #1
+\end{tcolorbox}
+}
+
+\newcommand{\question}[1]{%
+\begin{tcolorbox}[tile,size=fbox,boxsep=1.5mm,boxrule=0pt,top=0pt,bottom=0pt,
+borderline west={1mm}{0pt}{blue!5!white},colback=blue!5!white]
+\em #1
+\end{tcolorbox}
+}
+
+\newcommand{\modify}[1]{\textcolor{blue}{#1}}
+\newcommand{\changemark}[1]{{\color{black}#1}}
+\newcommand{\redout}[1]{\sout{#1}}
+
+\newcommand{\Honggfuzz}{\href{https://github.com/google/honggfuzz}{Honggfuzz}}
+\newcommand{\AFLpp}{\href{https://github.com/AFLplusplus/AFLplusplus}{AFL++}}
+
+\newcommand{\firstAuthor}{$^{\pdftooltip{\textrm{\faUser}}{first author}}$}
+\newcommand{\corrAuthor}{$^{\pdftooltip{\textrm{\faEnvelope}}{corresponding author}}$}
+
+\newcommand{\denseitems}{\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}}
+
+\newcommand{\tclcolor}{\cellcolor[HTML]{C0C0C0}}
+
+\newboolean{COMMENTSON} 
+\setboolean{COMMENTSON}{true}   
+\ifthenelse{\boolean{COMMENTSON}}
+{
+\newcommand{\WL}[2]{\todo[color=red!40,linecolor=red,bordercolor=red]{Wen: #2 } #1}
+\newcommand{\wen}[1]{\todo[inline,color=red!40,linecolor=red,bordercolor=red]{Wen: #1 }}
+}
+
+\definecolor{DarkOrange}{rgb}{0.8,0.3,0.0} 
+\definecolor{DarkCyan}{rgb}{0.0, 0.55, 0.55}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+
+% ---- Paper identity ----
+\newcommand{\papertitle}{Semantic-Driven Multi-Driver Fuzzing}
+\newcommand{\papertitleshort}{Semantic Multi-Driver Fuzzing}
+
+\newcommand{\tech}{\mbox{\textsc{DriveSched}}}
+\newcommand{\tool}{\tech}
+
+% ---- Keywords ----
+\newcommand{\paperkeywords}{Fuzzing, Program Analysis, Software Security}
+
+% ---- Authors ----
+\newcommand{\authorAname}{Wen Li}
+\newcommand{\authorAaffil}{Utah State University}
+\newcommand{\authorAemail}{awen.li@usu.edu}
+
+\newcommand{\authorBname}{Coauthor Name}
+\newcommand{\authorBaffil}{Somewhere University}
+\newcommand{\authorBemail}{coauthor@example.com}
+
+% appendix for journal
+\newcommand{\appendixcontent}{%
+  \appendix
+}

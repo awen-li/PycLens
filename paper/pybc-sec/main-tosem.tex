@@ -1,0 +1,49 @@
+% venues/main-tosem.tex
+\documentclass[acmtosem,screen]{acmart}
+
+\input{common/preamble}
+\input{common/commands}
+
+\setcopyright{acmcopyright}
+
+\begin{document}
+
+\title[\papertitleshort]{\papertitle}
+
+\author{\authorAname}
+\affiliation{%
+  \institution{\authorAaffil}
+  \country{USA}
+}
+\email{\authorAemail}
+
+\author{\authorBname}
+\affiliation{%
+  \institution{\authorBaffil}
+  \country{USA}
+}
+\email{\authorBemail}
+
+\input{sections/0-abstract/abstract}
+\keywords{\paperkeywords}
+
+\maketitle
+
+
+
+\input{sections/1-intro/introduction}
+\input{sections/2-motivation/motivation}
+\input{sections/3-design/0_overview}
+\input{sections/4-implement/implementation}
+\input{sections/5-evaluation/0_evaluation}
+\input{sections/6-discussion/discussion}
+\input{sections/7-related/related}
+\input{sections/concl}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{reference}
+
+\appendixcontent
+\input{sections/8-appendix/appendix}
+
+\end{document}

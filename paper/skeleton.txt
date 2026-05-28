@@ -1,0 +1,529 @@
+# Beyond Source: An Empirical Study of Python Bytecode Security Risks
+
+## 1. Introduction
+
+Python security research and tooling are largely source-centric. Package scanners, dependency analyzers, malware detectors, and many program-analysis workflows primarily inspect `.py` files, package metadata, install scripts, and dependency relations. However, Python programs are not executed directly from source. They are compiled into code objects and bytecode, and CPython routinely materializes bytecode as `.pyc` files. Bytecode artifacts can also appear in cached imports, source-less distributions, custom loaders, packaged applications, and malware or supply-chain settings.
+
+This creates a gap between what security tools commonly inspect and what the interpreter may actually consume. A package may contain compiled bytecode without corresponding source, bytecode that differs from available source, dynamically loaded marshalled code objects, or compiled payloads that are difficult to recover into analyzable Python source. Recent supply-chain incidents involving compiled Python payloads suggest that bytecode artifacts are not merely internal cache files; they can be used to hide behavior from source-level inspection.
+
+At the same time, bytecode-level analysis is difficult. Python bytecode is version-sensitive and structurally constrained: opcodes have typed operands, stack effects must remain consistent, jumps must target valid boundaries, exception tables must match code layout, and code-object metadata must agree with constants, names, locals, closures, and flags. Raw bytecode mutation may expose crashes, but it often produces malformed artifacts that are hard to interpret or relate to practical source-level behavior. Decompilation is also unreliable for compiler-unusual or corrupted bytecode.
+
+This paper presents an empirical study of Python bytecode as a security-relevant artifact. We study how often bytecode appears in real software distributions, whether bytecode artifacts remain visible from source, how well existing tools recover or analyze them, and how CPython behaves when processing unusual bytecode-level inputs. Our goal is not to claim that arbitrary untrusted bytecode should be safe to execute. Rather, we ask whether the Python ecosystem and its analysis tools have sufficient visibility into bytecode artifacts that appear in practice, and whether CPython fails gracefully at this boundary.
+
+**Contributions.**
+
+* We conduct an empirical study of Python bytecode artifacts in real-world software distributions, measuring their prevalence, forms, and source visibility.
+* We characterize source/bytecode gaps, including source-missing bytecode, source-mismatched bytecode, dynamically loaded bytecode, and decompilation failures.
+* We evaluate tooling support for bytecode recovery and analysis, including decompilation success and failure modes.
+* We study CPython runtime robustness when processing unusual or mutated bytecode artifacts across multiple versions.
+* We derive implications for Python package analysis, malware detection, bytecode-aware security tooling, and runtime hardening.
+
+## 2. Background and Related Work
+
+### 2.1 Python Bytecode and Code Objects
+
+Explain the Python compilation pipeline:
+
+```text
+source code ? AST ? code object ? bytecode execution
+```
+
+Cover:
+
+* `.pyc` files and `__pycache__`
+* code objects and `marshal`
+* CPython version-specific bytecode
+* constants, names, locals, cell/free variables
+* control-flow and jump targets
+* exception tables and metadata
+* source-less bytecode loading and custom loaders
+
+Key point:
+
+> Bytecode is not simply a cache artifact; it is an executable representation consumed by the interpreter and related tooling.
+
+### 2.2 Security Relevance of Bytecode Artifacts
+
+Discuss practical scenarios:
+
+* package distributions containing `.pyc`
+* cached bytecode in deployment artifacts
+* source-less Python modules
+* PyInstaller or bundled Python applications
+* custom import loaders
+* malware or supply-chain packages using compiled payloads
+* analysis tools that inspect or execute Python artifacts
+
+Clarify scope:
+
+> We do not assume arbitrary `.pyc` files are safe or trusted. The study examines visibility, tooling, and robustness risks when bytecode artifacts appear in real workflows.
+
+### 2.3 Python Package and Supply-Chain Security
+
+Summarize prior work on:
+
+* PyPI malware studies
+* dependency and package ecosystem studies
+* install-time behavior analysis
+* typosquatting and dependency confusion
+* source-level scanners and malware detectors
+
+Gap:
+
+> Prior work largely focuses on source files, metadata, dependencies, or runtime behavior, but does not systematically treat bytecode artifacts as first-class security objects.
+
+### 2.4 Python Decompilation and Bytecode Analysis
+
+Discuss:
+
+* Python decompilers
+* version compatibility issues
+* limitations for compiler-unusual bytecode
+* source reconstruction vs behavior recovery
+* tooling assumptions about `.py` visibility
+
+Gap:
+
+> Existing decompilers aim to recover source from bytecode, but the ecosystem-level prevalence, recoverability, and security implications of bytecode artifacts remain under-studied.
+
+### 2.5 Runtime Robustness and Bytecode Fuzzing
+
+Discuss:
+
+* compiler/interpreter testing
+* source-level fuzzing
+* bytecode mutation
+* raw mutation limitations
+* malformed vs structurally meaningful bytecode
+
+Gap:
+
+> Raw bytecode fuzzing can expose crashes, but it does not explain how much of the bytecode risk surface is source-visible, source-reconstructable, or practically relevant to package analysis.
+
+## 3. Study Goals and Research Questions
+
+This study asks whether Python bytecode artifacts create a meaningful security visibility and robustness gap beyond source-level analysis.
+
+### RQ1: Bytecode Prevalence
+
+**How often do Python bytecode artifacts appear in real-world software distributions?**
+
+We measure the presence of:
+
+* `.pyc` files
+* `__pycache__` directories
+* source-less bytecode modules
+* bundled bytecode artifacts
+* dynamically loaded code objects
+* PyInstaller or packaged bytecode payloads
+
+Expected result type:
+
+> Bytecode artifacts are not rare internal leftovers; they appear in multiple real distribution and deployment forms.
+
+### RQ2: Source Visibility
+
+**When bytecode artifacts are present, do they have corresponding source, and does the available source match the bytecode?**
+
+We classify bytecode artifacts as:
+
+* source-present and source-matching
+* source-present but source-mismatched
+* source-missing
+* dynamically generated or dynamically loaded
+* bundled or packed
+* decompilation-resistant
+
+Expected result type:
+
+> A nontrivial portion of bytecode artifacts may not be fully visible through source-level inspection.
+
+### RQ3: Tooling Gap
+
+**How well do existing tools recover or analyze Python bytecode artifacts?**
+
+We evaluate:
+
+* decompiler success rate
+* recompile success rate
+* semantic or bytecode equivalence after recompilation
+* failure causes
+* whether source-level scanners inspect bytecode-only behavior
+
+Failure categories:
+
+* unsupported Python version
+* unsupported opcode
+* compiler-unusual control flow
+* exception-table mismatch
+* malformed code object
+* dynamic loading
+* decompilation succeeds but recompilation changes behavior
+
+Expected result type:
+
+> Source recovery is incomplete, and source-level tooling may miss bytecode-only behavior.
+
+### RQ4: Runtime Robustness
+
+**How does CPython behave when processing unusual or mutated bytecode artifacts?**
+
+We evaluate across CPython versions:
+
+* clean rejection
+* Python-level exception
+* timeout
+* assertion failure
+* abort
+* segmentation fault
+* sanitizer finding
+
+We distinguish:
+
+* malformed artifact failures
+* marshal/header parsing failures
+* code-object metadata failures
+* opcode/stack/control-flow failures
+* execution-time interpreter failures
+
+Expected result type:
+
+> Bytecode-level testing exposes interpreter robustness issues, but these must be classified carefully to separate malformed-input crashes from meaningful bytecode-execution failures.
+
+### RQ5: Source Reachability
+
+**How often are bytecode-level behaviors or failures reproducible from ordinary Python source?**
+
+For bytecode artifacts and runtime failures, we test:
+
+* decompile to source
+* recompile source
+* re-execute
+* compare behavior or failure signature
+
+Classifications:
+
+* source-reproducible
+* decompilation failed
+* recompilation failed
+* behavior changed after recompilation
+* failure not reproduced
+* source unavailable
+
+Expected result type:
+
+> Source reachability is limited, which motivates bytecode-aware security analysis and distinguishes bytecode-level findings from source-level vulnerabilities.
+
+## 4. Study Methodology
+
+### 4.1 Dataset Construction
+
+Use multiple datasets to avoid bias:
+
+1. Popular PyPI packages
+   Top packages by downloads or dependency centrality.
+
+2. Random PyPI packages
+   Random sample across package popularity and age.
+
+3. Known malicious or suspicious PyPI packages
+   Packages reported by security vendors or public advisories.
+
+4. Python application bundles
+   PyInstaller-style bundles, wheels, Docker images, or release artifacts.
+
+5. CPython/runtime testing corpus
+   Existing Python tests and generated bytecode artifacts for robustness evaluation.
+
+For each package or artifact, collect:
+
+* package name/version
+* distribution type: wheel, sdist, bundle, image
+* file inventory
+* `.py`, `.pyc`, `__pycache__`
+* import/load behavior
+* source availability
+* bytecode version
+* metadata and hashes
+
+### 4.2 Bytecode Artifact Extraction
+
+For each artifact:
+
+* locate `.pyc` and marshalled code objects
+* parse bytecode headers
+* recover Python version if possible
+* extract code objects
+* disassemble bytecode
+* extract opcode histograms
+* recover nested code objects
+* identify exception tables, closures, and metadata
+* detect dynamic loading patterns such as `marshal`, `importlib`, or loader APIs
+
+### 4.3 Source Correspondence Analysis
+
+For each bytecode artifact:
+
+1. Search for corresponding `.py` source.
+2. Compile source under the expected Python version.
+3. Compare compiled bytecode with observed bytecode.
+4. Classify as source-matching, source-mismatched, source-missing, or unknown.
+
+Comparison dimensions:
+
+* opcode sequence
+* constants
+* names
+* locals
+* CFG shape
+* nested code objects
+* exception table
+* line/position metadata
+
+### 4.4 Decompilation and Recovery Analysis
+
+Run one or more decompilers on bytecode artifacts.
+
+Measure:
+
+* decompilation success
+* syntactic validity of recovered source
+* recompilation success
+* bytecode equivalence after recompilation
+* behavior equivalence when executable
+* failure reason when recovery fails
+
+Important distinction:
+
+> Decompilation failure does not prove no source exists; it indicates that current recovery tools failed to produce a source-level representation.
+
+### 4.5 Runtime Robustness Testing
+
+Use bytecode-level inputs to test CPython versions.
+
+Inputs:
+
+* real bytecode artifacts
+* mutated bytecode artifacts
+* structured bytecode variants if available
+* raw byte-level mutation baseline
+
+Targets:
+
+* CPython 3.10.x
+* CPython 3.11.x
+* CPython 3.12.x
+* optionally debug/sanitizer builds
+
+Outcome classes:
+
+* load failure
+* Python exception
+* normal termination
+* timeout
+* assertion failure
+* abort
+* segmentation fault
+* sanitizer finding
+
+Deduplication:
+
+* signal type
+* top stack frame
+* failure location
+* assertion message
+* crash address bucket
+* input hash
+* code-object feature signature
+
+### 4.6 Source Reachability Check
+
+For each abnormal outcome:
+
+1. Attempt decompilation.
+2. Recompile recovered source.
+3. Re-execute under the same runtime.
+4. Compare failure signature.
+
+Classify:
+
+* source-reproducible
+* bytecode-only under current tools
+* decompilation failed
+* recompilation failed
+* behavior mismatch
+* inconclusive
+
+### 4.7 Ethical and Scope Considerations
+
+Clarify:
+
+* The study does not execute unknown packages outside isolation.
+* Bytecode artifacts are analyzed in sandboxed environments.
+* The study does not claim arbitrary `.pyc` files are safe to execute.
+* Bytecode-only crashes are reported as robustness findings, not automatically exploitable vulnerabilities.
+* Source reachability is reported separately.
+
+## 5. Results
+
+### 5.1 RQ1 Results: Bytecode Prevalence
+
+Report:
+
+* percentage of packages containing `.pyc`
+* percentage containing `__pycache__`
+* percentage containing source-less bytecode
+* distribution by package type
+* distribution by popularity
+* distribution by benign vs suspicious/malicious packages
+* common locations of bytecode artifacts
+
+Example table:
+
+```text
+Dataset | Packages | With .pyc | Source-less .pyc | Dynamic bytecode loading | Bundled bytecode
+```
+
+Main finding format:
+
+> Finding 1: Bytecode artifacts appear in X% of sampled packages and are more common in bundled or suspicious packages than in ordinary source distributions.
+
+### 5.2 RQ2 Results: Source Visibility
+
+Report:
+
+* source-matching rate
+* source-missing rate
+* source-mismatched rate
+* dynamically loaded bytecode rate
+* source/bytecode equivalence categories
+
+Example table:
+
+```text
+Artifact class | Count | Source present | Source matching | Source mismatched | Source missing
+```
+
+Main finding format:
+
+> Finding 2: Source-level inspection is incomplete for bytecode artifacts: Y% lack corresponding source or differ from available source.
+
+### 5.3 RQ3 Results: Tooling Gap
+
+Report:
+
+* decompilation success rate
+* recompile success rate
+* behavior preservation rate
+* failure reasons
+* version-specific tool limitations
+* scanner visibility gaps
+
+Example table:
+
+```text
+Decompiler | Success | Recompile success | Equivalent behavior | Common failure cause
+```
+
+Main finding format:
+
+> Finding 3: Existing decompilation and source-level analysis tools leave a measurable bytecode visibility gap.
+
+### 5.4 RQ4 Results: Runtime Robustness
+
+Report:
+
+* total inputs tested
+* outcome distribution
+* unique abnormal outcomes
+* per-version counts
+* failure types: assertion, abort, segfault, sanitizer
+* root-cause categories if manually inspected
+
+Example table:
+
+```text
+Version | Inputs | Python exceptions | Assertions | Aborts | Segfaults | Sanitizer findings
+```
+
+Main finding format:
+
+> Finding 4: Bytecode-level testing exposes CPython robustness failures, but failure interpretation requires separating malformed artifact handling from execution of structurally meaningful bytecode.
+
+### 5.5 RQ5 Results: Source Reachability
+
+Report:
+
+* abnormal outcomes attempted for source recovery
+* decompilation success
+* recompilation success
+* same-failure reproduction
+* bytecode-only/inconclusive rate
+* main blockers to source reachability
+
+Example table:
+
+```text
+Failure class | Findings | Decompiled | Recompiled | Same failure | Not reproduced | Main blocker
+```
+
+Main finding format:
+
+> Finding 5: Many bytecode-level behaviors are not recovered by current source reconstruction workflows, showing that source-level testing and analysis do not fully cover the bytecode risk surface.
+
+## 6. Discussion
+
+### 6.1 Implications for Package Security
+
+* Source-only scanning is incomplete.
+* Package analysis should inspect `.pyc` and marshalled code objects.
+* Bytecode/source mismatch should be flagged.
+* Decompilation failure should not imply safety.
+
+### 6.2 Implications for Runtime Hardening
+
+* CPython should fail gracefully on malformed or unusual bytecode artifacts.
+* Debug assertions and sanitizer failures indicate hardening opportunities.
+* Bytecode validation boundaries should be better documented and tested.
+
+### 6.3 Implications for Malware Analysis
+
+* Compiled Python payloads can hide behavior.
+* Decompilation limitations affect malware triage.
+* Bytecode-aware signatures and behavior extraction are needed.
+
+### 6.4 Implications for Future Testing
+
+* Raw mutation finds many failures but lacks structure.
+* Source-level testing has reachability but misses bytecode-only behavior.
+* Future work should combine bytecode-level exploration with source-reachability constraints.
+
+## 7. Threats to Validity
+
+### Dataset Bias
+
+* PyPI samples may not represent all Python deployments.
+* Known malicious packages may overrepresent suspicious patterns.
+* Bundled applications may be difficult to collect systematically.
+
+### Tool Bias
+
+* Decompiler results depend on selected tools and versions.
+* Source equivalence is difficult to define exactly.
+* Some decompilation failures may be tool limitations rather than inherent source absence.
+
+### Runtime Testing Bias
+
+* Raw bytecode mutation may overproduce malformed inputs.
+* Debug/sanitizer builds may expose failures not visible in release builds.
+* Deduplication may over- or under-count unique failures.
+
+### Interpretation Bias
+
+* Bytecode-only failure does not imply direct exploitability.
+* Source non-reproducibility does not prove no source trigger exists.
+* The study measures visibility and robustness risks, not complete exploit chains.
+
+## 8. Conclusion
+
+Python bytecode artifacts are a practical but under-studied security surface. They appear in real software distributions and supply-chain settings, can be missing or mismatched with source, are not always recoverable by decompilation, and can expose runtime robustness issues. These findings show that Python security analysis should not stop at source code. Future Python package analysis, malware detection, and runtime testing should treat bytecode artifacts as first-class security objects.

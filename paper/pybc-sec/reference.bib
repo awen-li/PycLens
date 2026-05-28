@@ -1,0 +1,690 @@
+%TEX root = reference.tex
+
+%-- Non-standard abbreviations (journals):
+% @STRING{lncs     = "Lecture Notes in Computer Science"}
+%@STRING{ACMTOPLAS = "ACM Transactions on Programming Languages and Systems"}
+%@STRING{ACMTOSEM = "ACM Transactions on Software Engineering and Methodology"}
+%@STRING{COMMACM = "Communications of the ACM"}
+%@STRING{EMSE    = "Empirical Software Engineering"}
+%@STRING{IEEETSE = "IEEE Transactions on Software Engineering"}
+%@STRING{JSS     = "Journal of Systems and Software"}
+%@STRING{JSTVR   = "Journal of Software Testing, Verification and Reliability"}
+
+%-- Non-standard abbreviations (conf.s):
+%@STRING{icse98   = "Proceedings of 20$^{th}$ International Conference on
+%Software Engineering"}
+%@STRING{ASE     = "Proceedings of IEEE/ACM International Conference on Automated Software Engineering"}
+%@STRING{COMPSAC = "Proceedings of IEEE International Computer Software and Applications Conference"}
+%@STRING{CSM     = "Proceedings of IEEE Conference on Software Maintenance"}
+%@STRING{DBTEST  = "Proceedings of ACM International Workshop on Testing Database Systems"}
+%@STRING{ESECFSE = "Proceedings of joint European Software Engineering Conference and ACM International Symposium on the Foundations of Software Engineering"}
+%@STRING{FSE     = "Proceedings of ACM International Symposium on the Foundations of Software Engineering"}
+%@STRING{FSETOOL = "Proceedings of ACM International Symposium on the Foundations of Software Engineering - Tool Demonstrations"}
+%@STRING{ICSE    = "Proceedings of IEEE/ACM International Conference on Software Engineering"}
+%@STRING{ICSM    = "Proceedings of IEEE International Conference on Software Maintenance"}
+%@STRING{ICST    = "Proceedings of IEEE International Conference on Software Testing, Verification and Validation"}
+%@STRING{ISSRE   = "Proceedings of IEEE International Symposium on Software Reliability Engineering"}
+%@STRING{ISSTA   = "Proceedings of ACM International Symposium on Software Testing and Analysis"}
+%@STRING{IWPC    = "Proceedings of International Workshop on Program Comprehension"},
+%@STRING{IWPD    = "Proceedings of IEEE International Workshop on Program Debugging"}
+%@STRING{OOPSLA  = "Proceedings of ACM SIGPLAN Conference on Object-Oriented Programing, Systems, Languages, and Applications"}
+%@STRING{PLDI    = "Proceedings of ACM Conference on Programming Language Design and Implementation"}
+%@STRING{POPL    = "Proceedings of ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages"}
+%@STRING{SAS     = "Proceedings of International Symposium on Static Analysis"}
+%@STRING{SIGCSE  = "Proceeding of ACM Technical Symposium on Computer Science Education"}
+%@STRING{SOAP    = "Proceeding of ACM SIGPLAN International Workshop on the State Of the Art in Java Program Analysis"}
+%@STRING{TAICPART = "Proceedings of Testing: Academic and Industrial Conference - Practice and Research Techniques"}
+%@STRING{WODA    = "Proceedings of ACM International Workshop on Dynamic Systems Analysis"}
+%@STRING{CSMR    = "Proceedings of European Conference on Software Maintainance and Reengineering"}
+%@STRING{SCAM    = "Proceedings of IEEE Working Conference on Source Code Analysis and Manipulation"}
+
+
+
+@MISC{afl-fuzz,
+  author =       {{M.Zalewski.}},
+  title =        {{Technical "whitepaper" for afl-fuzz}},
+  howpublished = {\url{https://lcamtuf.coredump.cx/afl/technical_details.txt}},
+  year =         {2014}
+}
+
+@MISC{ossfuzz,
+  author =       {{google}},
+  title =        {{Continuous Fuzzing Framework for Open Source Software}},
+  howpublished = {\url{https://github.com/google/oss-fuzz}},
+  year =         {2022}
+}
+
+@MISC{arrow,
+  author =       {{Apache}},
+  title =        {{A universal columnar format and multi-language toolbox for fast data interchange and in-memory analytics.}},
+  howpublished = {\url{https://github.com/apache/arrow}},
+  year =         {2024}
+}
+
+@MISC{avconv,
+  author =       {{avconv}},
+  title =        {{A command line toolbox to manipulate, convert and stream multimedia content.}},
+  howpublished = {\url{https://github.com/libav/libav}},
+  year =         {2024}
+}
+
+@MISC{libxml2,
+  author =       {{GNOME}},
+  title =        {{an XML toolkit implemented in C.}},
+  howpublished = {\url{https://github.com/GNOME/libxml2}},
+  year =         {2024}
+}
+
+@MISC{podofo,
+  author =       {{PoDoFo}},
+  title =        {{a free portable C++ library to work with the PDF file format.}},
+  howpublished = {\url{https://github.com/podofo/podofo}},
+  year =         {2024}
+}
+
+@MISC{xpdf,
+  author =       {{XpdfReader}},
+  title =        {{an open source project includes a PDF viewer along with a collection of command line tools which perform various functions on PDF files.}},
+  howpublished = {\url{https://www.xpdfreader.com/opensource.html}},
+  year =         {2024}
+}
+
+@MISC{json,
+  author =       {{nlohmann}},
+  title =        {{a json implementation for modern C++.}},
+  howpublished = {\url{https://github.com/nlohmann/json}},
+  year =         {2024}
+}
+
+@MISC{openh264,
+  author =       {{cisco}},
+  title =        {{a codec library which supports H.264 encoding and decoding.}},
+  howpublished = {\url{https://github.com/cisco/openh264}},
+  year =         {2024}
+}
+
+@MISC{tiff2bw,
+  author =       {{libtiff}},
+  title =        {{a codec library for the Tag Image File Format (TIFF).}},
+  howpublished = {\url{https://gitlab.com/libtiff/libtiff}},
+  year =         {2024}
+}
+
+@MISC{exiv2,
+  author =       {{exiv2}},
+  title =        {{a C++ library and a command-line utility to read, write, delete and modify Exif, IPTC, XMP and ICC image metadata.}},
+  howpublished = {\url{https://github.com/Exiv2/exiv2}},
+  year =         {2024}
+}
+
+@MISC{libpng,
+  author =       {{pnggroup}},
+  title =        {{libpng: A C Library for PNG Image Processing}},
+  howpublished = {\url{https://github.com/pnggroup/libpng}},
+  year =         {2024}
+}
+
+@MISC{jhead,
+  author =       {{Matthias Wandel}},
+  title =        {{jhead: Exif Jpeg header manipulation tool}},
+  howpublished = {\url{https://github.com/MatthiasWandel/jhead}},
+  year =         {2024}
+}
+
+@MISC{libhtp,
+  author =       {{OISF}},
+  title =        {{libhtp: A Security-Oriented HTTP Parser Library}},
+  howpublished = {\url{https://github.com/OISF/libhtp}},
+  year =         {2024}
+}
+
+@MISC{libsrtp,
+  author =       {{Cisco Systems, Inc.}},
+  title =        {{libsrtp: Secure Real-time Transport Protocol Library}},
+  howpublished = {\url{https://github.com/cisco/libsrtp}},
+  year =         {2024}
+}
+
+@MISC{mp3gain,
+  author =       {{Glen Sawyer}},
+  title =        {{MP3Gain: Lossless Volume Adjustment for MP3 Files}},
+  howpublished = {\url{https://github.com/ibc/mp3gain}},
+  year =         {2024}
+}
+
+@MISC{spdlog,
+  author =       {{Gabi Melman}},
+  title =        {{spdlog: Fast C++ Logging Library}},
+  howpublished = {\url{https://github.com/gabime/spdlog}},
+  year =         {2024}
+}
+
+@MISC{mp4v2,
+  author =       {{MPEG4IP Developers}},
+  title =        {{mp4v2: A C++ Library for MP4 File Manipulation}},
+  howpublished = {\url{https://github.com/TechSmith/mp4v2}},
+  year =         {2024}
+}
+
+@MISC{pigz,
+  author =       {{Mark Adler}},
+  title =        {{pigz: Parallel Implementation of gzip}},
+  howpublished = {\url{https://github.com/madler/pigz}},
+  year =         {2024}
+}
+
+@MISC{sablotron,
+  author =       {{Ginger Alliance}},
+  title =        {{Sablotron: An XSLT Processor Library}},
+  howpublished = {\url{https://github.com/gingerall/sablotron}},
+  year =         {2024}
+}
+
+@MISC{uriparser,
+  author =       {{Sebastian Pipping}},
+  title =        {{uriparser: A Strictly Compliant URI Parsing Library}},
+  howpublished = {\url{https://github.com/uriparser/uriparser}},
+  year =         {2024}
+}
+
+@MISC{bzip2,
+  author =       {{Julian Seward}},
+  title =        {{bzip2: A High-Quality Data Compressor}},
+  howpublished = {\url{https://sourceware.org/bzip2}},
+  year =         {2024}
+}
+
+@misc{mdp,
+  author       = {{Michael Göhler}},
+  title        = {{mdp: A command-line based markdown presentation tool}},
+  howpublished = {\url{https://github.com/visit1985/mdp}},
+  year         = {2024}
+}
+
+@misc{pycdc,
+  author       = {{Michael Hansen}},
+  title        = {{pycdc: A Python Byte-code Disassembler/Decompiler}},
+  howpublished = {\url{https://github.com/zrax/pycdc}},
+  year         = {2024}
+}
+
+
+@misc{tcpdump,
+  author       = {{The Tcpdump Group}},
+  title        = {{tcpdump: The classic command-line packet analyzer}},
+  howpublished = {\url{https://github.com/the-tcpdump-group/tcpdump}},
+  year         = {2024}
+}
+
+@misc{tippecanoe,
+  author       = {{Mapbox}},
+  title        = {{Tippecanoe: Build vector tilesets from large collections of GeoJSON features}},
+  howpublished = {\url{https://github.com/felt/tippecanoe}},
+  year         = {2024}
+}
+
+@article{manes2018fuzzing,
+  title={Fuzzing: Art, science, and engineering},
+  author={Manes, Valentin JM and Han, HyungSeok and Han, Choongwoo and Cha, Sang Kil and Egele, Manuel and Schwartz, Edward J and Woo, Maverick},
+  journal={arXiv preprint arXiv:1812.00140},
+  year={2018}
+}
+
+@inproceedings{aschermann2019redqueen,
+  title={REDQUEEN: Fuzzing with Input-to-State Correspondence.},
+  author={Aschermann, Cornelius and Schumilo, Sergej and Blazytko, Tim and Gawlik, Robert and Holz, Thorsten},
+  booktitle={NDSS},
+  volume={19},
+  pages={1--15},
+  year={2019}
+}
+@inproceedings{pailoor2018moonshine,
+  title={Moonshine: Optimizing $\{$OS$\}$ fuzzer seed selection with trace distillation},
+  author={Pailoor, Shankara and Aday, Andrew and Jana, Suman},
+  booktitle={27th $\{$USENIX$\}$ Security Symposium},
+  pages={729--743},
+  year={2018}
+}
+@inproceedings{yue2020ecofuzz,
+  title={EcoFuzz: Adaptive Energy-Saving Greybox Fuzzing as a Variant of the Adversarial Multi-Armed Bandit},
+  author={Yue, Tai and Wang, Pengfei and Tang, Yong and Wang, Enze and Yu, Bo and Lu, Kai and Zhou, Xu},
+  booktitle={29th $\{$USENIX$\}$ Security Symposium},
+  pages = {2307--2324},
+  year={2020}
+}
+@inproceedings{reinfuzz,
+  title={Reinforcement Learning-based Hierarchical Seed Scheduling for Greybox Fuzzing},
+  author={Jinghan Wang and Chengyu Song and Heng Yin},
+  booktitle={NDSS},
+  year={2021}
+}
+@inproceedings{peng2018t,
+  title={T-Fuzz: fuzzing by program transformation},
+  author={Peng, Hui and Shoshitaishvili, Yan and Payer, Mathias},
+  booktitle={2018 IEEE Symposium on Security and Privacy (SP)},
+  pages={697--710},
+  year={2018},
+  organization={IEEE}
+}
+
+@inproceedings{vikram2021growing,
+  title={Growing a Test Corpus with Bonsai Fuzzing},
+  author={Vikram, Vasudev and Padhye, Rohan and Sen, Koushik},
+  booktitle=ICSE,
+  year={2021}
+}
+@inproceedings{you2019profuzzer,
+  title={Profuzzer: On-the-fly input type probing for better zero-day vulnerability discovery},
+  author={You, Wei and Wang, Xueqiang and Ma, Shiqing and Huang, Jianjun and Zhang, Xiangyu and Wang, XiaoFeng and Liang, Bin},
+  booktitle={2019 IEEE Symposium on Security and Privacy (SP)},
+  pages={769--786},
+  year={2019},
+  organization={IEEE}
+}
+
+@inproceedings{fioraldi2020afl++,
+  title={AFL++: Combining incremental steps of fuzzing research},
+  author={Fioraldi, Andrea and Maier, Dominik and Ei{\ss}feldt, Heiko and Heuse, Marc},
+  booktitle={14th $\{$USENIX$\}$ Workshop on Offensive Technologies ($\{$WOOT$\}$ 20)},
+  year={2020}
+}
+
+@inproceedings{gan2020greyone,
+  title={$\{$GREYONE$\}$: Data Flow Sensitive Fuzzing},
+  author={Gan, Shuitao and Zhang, Chao and Chen, Peng and Zhao, Bodong and Qin, Xiaojun and Wu, Dong and Chen, Zuoning},
+  booktitle={29th $\{$USENIX$\}$ Security Symposium ($\{$USENIX$\}$ Security 20)},
+  pages={2577--2594},
+  year={2020}
+}
+
+@inproceedings{lyu2019mopt,
+  title={$\{$MOPT$\}$: Optimized mutation scheduling for fuzzers},
+  author={Lyu, Chenyang and Ji, Shouling and Zhang, Chao and Li, Yuwei and Lee, Wei-Han and Song, Yu and Beyah, Raheem},
+  booktitle={28th $\{$USENIX$\}$ Security Symposium ($\{$USENIX$\}$ Security 19)},
+  pages={1949--1966},
+  year={2019}
+}
+
+@inproceedings{rawat2017vuzzer,
+  title={VUzzer: Application-aware Evolutionary Fuzzing.},
+  author={Rawat, Sanjay and Jain, Vivek and Kumar, Ashish and Cojocar, Lucian and Giuffrida, Cristiano and Bos, Herbert},
+  booktitle={NDSS},
+  volume={17},
+  pages={1--14},
+  year={2017}
+}
+
+@article{bohme2017coverage,
+  title={Coverage-based greybox fuzzing as markov chain},
+  author={B{\"o}hme, Marcel and Pham, Van-Thuan and Roychoudhury, Abhik},
+  journal={IEEE Transactions on Software Engineering},
+  volume={45},
+  number={5},
+  pages={489--506},
+  year={2017},
+  publisher={IEEE}
+}
+
+@inproceedings{sun2021healer,
+  title={HEALER: Relation Learning Guided Kernel Fuzzing},
+  author={Sun, Hao and Shen, Yuheng and Wang, Cong and Liu, Jianzhong and Jiang, Yu and Chen, Ting and Cui, Aiguo},
+  booktitle={Proceedings of the ACM SIGOPS 28th Symposium on Operating Systems Principles (SOSP)},
+  pages={344--358},
+  year={2021}
+}
+@inproceedings{liang2022pata,
+  title={{PATA}: Fuzzing with Path Aware Taint Analysis},
+  author={Liang, Jie and Wang, Mingzhe and Zhou, Chijin and Wu, Zhiyong and Jiang, Yu and Liu, Jianzhong and Liu, Zhe and Sun, Jiaguang},
+  booktitle={IEEE Symposium on Security and Privacy (SP)},
+  pages={154--170},
+  year={2022}
+}
+
+@inproceedings{bohme2017directed,
+  title={Directed greybox fuzzing},
+  author={B{\"o}hme, Marcel and Pham, Van-Thuan and Nguyen, Manh-Dung and Roychoudhury, Abhik},
+  booktitle={Proceedings of the 2017 ACM SIGSAC Conference on Computer and Communications Security},
+  pages={2329--2344},
+  year={2017}
+}
+
+@inproceedings{chen2018hawkeye,
+  title={Hawkeye: Towards a desired directed grey-box fuzzer},
+  author={Chen, Hongxu and Xue, Yinxing and Li, Yuekang and Chen, Bihuan and Xie, Xiaofei and Wu, Xiuheng and Liu, Yang},
+  booktitle={Proceedings of the 2018 ACM SIGSAC Conference on Computer and Communications Security},
+  pages={2095--2108},
+  year={2018}
+}
+
+@inproceedings{you2017semfuzz,
+  title={Semfuzz: Semantics-based automatic generation of proof-of-concept exploits},
+  author={You, Wei and Zong, Peiyuan and Chen, Kai and Wang, XiaoFeng and Liao, Xiaojing and Bian, Pan and Liang, Bin},
+  booktitle={Proceedings of the 2017 ACM SIGSAC Conference on Computer and Communications Security},
+  pages={2139--2154},
+  year={2017}
+}
+
+@inproceedings{zong2020fuzzguard,
+  title={Fuzzguard: Filtering out unreachable inputs in directed grey-box fuzzing through deep learning},
+  author={Zong, Peiyuan and Lv, Tao and Wang, Dawei and Deng, Zizhuang and Liang, Ruigang and Chen, Kai},
+  booktitle={29th $\{$USENIX$\}$ Security Symposium},
+  pages={2255--2269},
+  year={2020}
+}
+
+@inproceedings{she2022effective,
+  title={Effective Seed Scheduling for Fuzzing with Graph Centrality Analysis},
+  author={She, Dongdong and Shah, Abhishek and Jana, Suman},
+  booktitle={2022 2022 IEEE Symposium on Security and Privacy (SP)(SP). IEEE Computer Society, Los Alamitos, CA, USA},
+  year={2022}
+}
+
+
+@inproceedings{tan2007ilea,
+  title={ILEA: Inter-language analysis across Java and C},
+  author={Tan, Gang and Morrisett, Greg},
+  booktitle={Proceedings of the 22nd annual ACM SIGPLAN conference on Object-oriented programming systems, languages and applications},
+  pages={39--56},
+  year={2007}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Webs
+@misc{GitHub,
+    howpublished={\url{https://octoverse.github.com/}},
+    title = {The 2020 State of the OCTO——VERSE},
+    author = {GitHub},
+    year={2020}
+}
+
+@misc{LibFuzzer,
+	howpublished = {\url{https://llvm.org/docs/LibFuzzer.html}},
+	author={LLVM},
+	title = {{LibFuzzer: A library for coverage-guided fuzz testing}},
+    year = {2020}
+}
+
+@misc{deepseek2023r1,
+  author       = {{DeepSeek AI}},
+  title        = {{DeepSeek-Coder R1: General-Purpose Code Language Models}},
+  year         = {2023},
+  howpublished = {\url{https://huggingface.co/deepseek-ai/DeepSeek-R1}},
+}
+
+@misc{peachfuzzer,
+	howpublished = {\url{https://peachtech.gitlab.io/peach-fuzzer-community/}},
+	author={Michael Eddington},
+	title = {{Peach Fuzzer}},
+    year = {2004}
+}
+
+@misc{busybox,
+	howpublished = {\url{https://www.busybox.net/}},
+	author={Bruce Perens},
+	title = {{busybox}},
+    year = {1995}
+}
+
+@inproceedings{ball1996efficient,
+  title={Efficient path profiling},
+  author={Ball, Thomas and Larus, James R},
+  booktitle={Proceedings of the 29th Annual IEEE/ACM International Symposium on Microarchitecture. MICRO 29},
+  pages={46--57},
+  year={1996},
+  organization={IEEE}
+}
+
+@article{harrold2005representation,
+  title={Representation and analysis of software},
+  author={Harrold, Mary Jean and Rothermel, Gregg and Orso, Alex},
+  journal={Lecture Notes},
+  year={2005},
+  publisher={Citeseer}
+}
+
+@inproceedings{lattner2004llvm,
+  title={LLVM: A compilation framework for lifelong program analysis \& transformation},
+  author={Lattner, Chris and Adve, Vikram},
+  booktitle={International Symposium on Code Generation and Optimization, 2004. CGO 2004.},
+  pages={75--86},
+  year={2004},
+  organization={IEEE}
+}
+
+@inproceedings{lam2011soot,
+  title={The Soot framework for Java program analysis: a retrospective},
+  author={Lam, Patrick and Bodden, Eric and Lhot{\'a}k, Ondrej and Hendren, Laurie},
+  booktitle={Cetus Users and Compiler Infastructure Workshop (CETUS 2011)},
+  volume={15},
+  number={35},
+  year={2011}
+}
+
+@article{swiecki2016honggfuzz,
+  title={Honggfuzz},
+  author={Swiecki, Robert},
+  journal={Available online at: http://code.google.com/p/honggfuzz},
+  year={2016}
+}
+
+@article{rustfuzz,
+  title={Rust-fuzz},
+  author={{Rust Fuzzing Authority}},
+  journal={Available online at: https://github.com/rust-fuzz},
+  year={2020}
+}
+@inproceedings{jiang2021rulf,
+  title={RULF: Rust library fuzzing via API dependency graph traversal},
+  author={Jiang, Jianfeng and Xu, Hui and Zhou, Yangfan},
+  booktitle={2021 36th IEEE/ACM International Conference on Automated Software Engineering (ASE)},
+  pages={581--592},
+  year={2021},
+  organization={IEEE}
+}
+
+
+@inproceedings{nilizadeh2019diffuzz,
+  title={DifFuzz: differential fuzzing for side-channel analysis},
+  author={Nilizadeh, Shirin and Noller, Yannic and Pasareanu, Corina S},
+  booktitle={2019 IEEE/ACM 41st International Conference on Software Engineering (ICSE)},
+  pages={176--187},
+  year={2019},
+  organization={IEEE}
+}
+@inproceedings{kersten2017poster,
+  title={POSTER: AFL-based Fuzzing for Java with Kelinci},
+  author={Kersten, Rody and Luckow, Kasper and P{\u{a}}s{\u{a}}reanu, Corina S},
+  booktitle={Proceedings of the 2017 ACM SIGSAC Conference on Computer and Communications Security},
+  pages={2511--2513},
+  year={2017}
+}
+
+@article{xue2018ndroid,
+  title={NDroid: Toward tracking information flows across multiple Android contexts},
+  author={Xue, Lei and Qian, Chenxiong and Zhou, Hao and Luo, Xiapu and Zhou, Yajin and Shao, Yuru and Chan, Alvin TS},
+  journal={IEEE Transactions on Information Forensics and Security},
+  volume={14},
+  number={3},
+  pages={814--828},
+  year={2018},
+  publisher={IEEE}
+}
+@inproceedings{wen22usenixsecurity,
+  title={{PolyCruise}: A Cross-Language Dynamic Information Flow Analysis},
+  author={Wen Li and Jiang Ming and Xiapu Luo and Haipeng Cai},
+  booktitle={31st {USENIX} Security Symposium},
+  Keywords = {cross-language program analysis, multi-language software, software security},
+  url_project = {https://bitbucket.org/wsucailab/polycruise/},
+  url_pdf = {http://chapering.github.io/pubs/sec22.pdf},
+  url_CVEs = {https://bitbucket.org/wsucailab/polycruise/src/master/Experiments/PoC/AllVulnerabilities.pdf},
+  pages = {2513--2530},
+  year={2022}
+}
+
+@inproceedings{zhou2021finding,
+  title={Finding the Missing Piece: Permission Specification Analysis for Android NDK},
+  author={Zhou, Hao and Wang, Haoyu and Wu, Shuohan and Luo, Xiapu and Zhou, Yajin and Chen, Ting and Wang, Ting},
+  booktitle={2021 36th IEEE/ACM International Conference on Automated Software Engineering (ASE)},
+  pages={505--516},
+  year={2021},
+  organization={IEEE}
+}
+
+
+@inproceedings{groce2018extensible,
+  title={An extensible, regular-expression-based tool for multi-language mutant generation},
+  author={Groce, Alex and Holmes, Josie and Marinov, Darko and Shi, August and Zhang, Lingming},
+  booktitle={2018 IEEE/ACM 40th International Conference on Software Engineering: Companion (ICSE-Companion)},
+  pages={25--28},
+  year={2018},
+  organization={IEEE}
+}
+@inproceedings{fragoso2020gillian,
+  title={Gillian, part i: a multi-language platform for symbolic execution},
+  author={Fragoso Santos, Jos{\'e} and Maksimovi{\'c}, Petar and Ayoun, Sacha-{\'E}lie and Gardner, Philippa},
+  booktitle={Proceedings of the 41st ACM SIGPLAN Conference on Programming Language Design and Implementation},
+  pages={927--942},
+  year={2020}
+}
+@inproceedings{fin2001amleto,
+  title={Amleto: A multi-language environment for functional test generation},
+  author={Fin, Alessandro and Fummi, Franco and Pravadelli, Graziano},
+  booktitle={Proceedings International Test Conference},
+  pages={821--829},
+  year={2001},
+  organization={IEEE}
+}
+@inproceedings{dinh2021favocado,
+  title={Favocado: Fuzzing the Binding Code of JavaScript Engines Using Semantically Correct Test Cases},
+  author={Dinh, Sung Ta and Cho, Haehyun and Martin, Kyle and Oest, Adam and Zeng, Kyle and Kapravelos, Alexandros and Ahn, Gail-Joon and Bao, Tiffany and Wang, Ruoyu and Doup{\'e}, Adam and others},
+  booktitle={NDSS},
+  year={2021}
+}
+@inproceedings{liu2020fans,
+  title={$\{$FANS$\}$: Fuzzing Android Native System Services via Automated Interface Analysis},
+  author={Liu, Baozheng and Zhang, Chao and Gong, Guang and Zeng, Yishun and Ruan, Haifeng and Zhuge, Jianwei},
+  booktitle={29th USENIX Security Symposium},
+  pages={307--323},
+  year={2020}
+}
+
+@inproceedings{li2021understanding,
+  title={Understanding language selection in multi-language software projects on GitHub},
+  author={Li, Wen and Meng, Na and Li, Li and Cai, Haipeng},
+  booktitle={IEEE/ACM 43rd International Conference on Software Engineering: Companion Proceedings},
+  pages={256--257},
+  year={2021}
+}
+@article{grichi2020impact,
+  title={On the impact of interlanguage dependencies in multilanguage systems empirical case study on java native interface applications (JNI)},
+  author={Grichi, Manel and Abidi, Mouna and Jaafar, Fehmi and Eghan, Ellis E and Adams, Bram},
+  journal={IEEE Transactions on Reliability},
+  volume={70},
+  number={1},
+  pages={428--440},
+  year={2020},
+  publisher={IEEE}
+}
+
+@inproceedings{choi2019grey,
+  title={Grey-box concolic testing on binary code},
+  author={Choi, Jaeseung and Jang, Joonun and Han, Choongwoo and Cha, Sang Kil},
+  booktitle={2019 IEEE/ACM 41st International Conference on Software Engineering (ICSE)},
+  pages={736--747},
+  year={2019},
+  organization={IEEE}
+}
+
+@InProceedings{wen22fse,
+  title={On the Vulnerability Proneness of Multilingual Code},
+  author={Wen Li and Li Li and Haipeng Cai},
+  booktitle={ACM Joint Meeting on European Software Engineering Conference and Symposium on the Foundations of Software Engineering (ESEC/FSE)},
+  year={2022}
+}
+@InProceedings{liwen2020oaf,
+	title={{PCA}: Memory Leak Detection using Partial Call-Path Analysis},
+	author={Wen Li and Haipeng Cai and Yulei Sui and David Manz},
+	booktitle={ACM Joint Meeting on European Software Engineering Conference and Symposium on the Foundations of Software Engineering (ESEC/FSE), Tool track},
+	year={2020},
+	pages     = {1621--1625},
+	doi={10.1145/3368089.3417923},
+	url_pdf = {http://chapering.github.io/pubs/fse20-pca.pdf},
+	url_project={https://github.com/Daybreak2019/PCA},
+	Keywords = {static analysis, vulnerability, software security, LLVM}
+}
+
+@inproceedings{xqfu21usenixsecurity,
+	title={{FlowDist}: Multi-Staged Refinement-Based Dynamic Information Flow Analysis for Distributed Software Systems},
+	author={Xiaoqin Fu and Haipeng Cai},
+	booktitle={30th {USENIX} Security Symposium ({USENIX} Security)},
+	url_project = {https://bitbucket.org/wsucailab/flowdist},
+	url_pdf = {http://chapering.github.io/pubs/sec21.pdf},
+	Keywords = {software security, distributed systems, taint analysis, dynamic analysis},
+	pages={2093--2110},
+	year={2021}
+}
+@InProceedings{haoran22fsenier,
+	title={Language-Agnostic Dynamic Analysis of Multilingual Code: Promises, Pitfalls, and Prospects},
+	author={Haoran Yang and Wen Li and Haipeng Cai},
+	booktitle={ACM Joint Meeting on European Software Engineering Conference and Symposium on the Foundations of Software Engineering (ESEC/FSE), Ideas, Visions and Reflections},
+	url_pdf = {http://chapering.github.io/pubs/fsenier22haoran.pdf},
+	doi={10.1145/3540250.3560880},
+	year={2022},
+	Keywords = {cross-language program analysis, multi-language software, dynamic analysis}
+}
+@InProceedings{wen22fsetool,
+	title={{PolyFax}: A Toolkit for Characterizing Multi-Language Software},
+	author={Wen Li and Li Li and Haipeng Cai},
+	booktitle={ACM Joint Meeting on European Software Engineering Conference and Symposium on the Foundations of Software Engineering (ESEC/FSE), Tool Demos},
+	year={2022}
+}
+
+@inproceedings{sui2016sparse,
+  title={Sparse flow-sensitive pointer analysis for multithreaded programs},
+  author={Sui, Yulei and Di, Peng and Xue, Jingling},
+  booktitle={Proceedings of the 2016 International Symposium on Code Generation and Optimization},
+  pages={160--170},
+  year={2016}
+}
+
+@inproceedings{bohme2016coverage,
+  title={Coverage-based greybox fuzzing as markov chain},
+  author={B{\"o}hme, Marcel and Pham, Van-Thuan and Roychoudhury, Abhik},
+  booktitle={Proceedings of the 2016 ACM SIGSAC Conference on Computer and Communications Security},
+  pages={1032--1043},
+  year={2016}
+}
+
+@inproceedings{li2023polyfuzz,
+  title={PolyFuzz: Holistic Greybox Fuzzing of Multi-Language Systems},
+  author={Li, Wen and Ruan, Jinyang and Yi, Guangbei and Cheng, Long and Luo, Xiapu and Cai, Haipeng},
+  booktitle={32nd USENIX Security Symposium (USENIX Security 23)},
+  pages={1379--1396},
+  year={2023}
+}
+
+@inproceedings{li2023pyrtfuzz,
+  title={Pyrtfuzz: Detecting bugs in python runtimes via two-level collaborative fuzzing},
+  author={Li, Wen and Yang, Haoran and Luo, Xiapu and Cheng, Long and Cai, Haipeng},
+  booktitle={Proceedings of the 2023 ACM SIGSAC Conference on Computer and Communications Security},
+  pages={1645--1659},
+  year={2023}
+}
+
+@inproceedings{wang2017skyfire,
+  title={Skyfire: Data-driven seed generation for fuzzing},
+  author={Wang, Junjie and Chen, Bihuan and Wei, Lei and Liu, Yang},
+  booktitle={2017 IEEE Symposium on Security and Privacy (SP)},
+  pages={579--594},
+  year={2017},
+  organization={IEEE}
+}
+
+@inproceedings{fu2022griffin,
+  title={Griffin: Grammar-free DBMS fuzzing},
+  author={Fu, Jingzhou and Liang, Jie and Wu, Zhiyong and Wang, Mingzhe and Jiang, Yu},
+  booktitle={Proceedings of the 37th IEEE/ACM International Conference on Automated Software Engineering},
+  pages={1--12},
+  year={2022}
+}
