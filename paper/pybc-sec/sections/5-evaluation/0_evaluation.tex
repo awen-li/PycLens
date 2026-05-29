@@ -1,44 +1,44 @@
 
 \section{Results}\label{sec:results}
 
-This section reports the study results by research question.  The current draft keeps result tables as placeholders until the final measurements are inserted, but the reporting structure is fixed to match the goals in Section~\ref{sec:study} and the methodology in Section~\ref{sec:method}.
+This section reports the study results by research question.  The current draft keeps result tables as placeholders until the final measurements are inserted, but the reporting structure is fixed to match the four goals in Section~\ref{sec:study} and the methodology in Section~\ref{sec:method}.
 
 \noindent
 {\bf Experiment Environment.}
-Experiments are conducted in isolated Linux containers.  Runtime tests use CPython 3.10, 3.11, and 3.12, with debug or sanitizer builds enabled for robustness triage when available.  Each execution uses a timeout, memory limit, disabled network access, and a fresh working directory.
+Experiments are conducted in isolated Linux environments.  Package collection downloads public PyPI artifacts; later analysis phases run locally with explicit timeouts and version-specific CPython interpreters.  Runtime fuzzing is organized by CPython version, and abnormal outcomes are reported as robustness findings requiring triage rather than automatically as vulnerabilities.
 
 \noindent
 {\bf Datasets.}
-The evaluation uses popular PyPI packages, randomly sampled PyPI packages, known malicious or suspicious packages, Python application bundles, and CPython/runtime testing corpora.  For each artifact, we record distribution type, file inventory, source availability, bytecode version, hashes, and dynamic loading indicators.
+The package dataset is drawn from PyPI.  For each artifact, we record distribution type, file inventory, source availability, bytecode version, hashes, and dynamic loading indicators.  RQ3 uses CPython unittest-derived bytecode seeds prepared per interpreter version rather than package bytecode, because the robustness question concerns adversarial bytecode processing rather than the benign artifacts observed in RQ1.
 
 \noindent
 {\bf Baselines and Tools.}
-For recovery analysis, we compare against representative Python bytecode decompilers such as \texttt{pycdc}~\cite{pycdc}.  For runtime robustness, we compare structured bytecode variants against a raw byte-mutation baseline and report results separately to avoid conflating malformed serialization failures with code-object execution behavior.
+For RQ2 and RQ4, we use selected bytecode-analysis and decompilation tools, including standard-library loading/disassembly and available decompilers.  Tool failures are recorded with explicit reasons such as missing interpreter, timeout, unsupported bytecode, nonzero exit, or no usable source output.
 
 \noindent
 \textbf{Performance Metrics.}
-We report package-level prevalence, artifact-level source correspondence, decompilation success, recompilation success, bytecode or behavior equivalence, runtime outcome distributions, unique abnormal outcomes, and source-reachability classifications.
+We report package-level prevalence, bytecode transparency, practical analyzability levels, per-tool success and failure reasons, fuzzing outcome distributions, unique abnormal outcomes when available, and tool-bounded source-reproduction classifications.
 
 \noindent
 \textbf{Evaluation Sufficiency.}
-The evaluation is structured to support the paper's motivation end to end.  RQ1 establishes whether bytecode artifacts appear often enough to matter.  RQ2 tests whether source-level analysis can see the same executable content.  RQ3 tests whether recovery tools can close the gap.  RQ4 measures the runtime boundary exposed by bytecode artifacts.  RQ5 determines whether bytecode-level findings are reachable from source.  Together, these questions support the central claim only if the results show both prevalence and loss of source-level coverage; runtime findings are interpreted separately as robustness evidence.
+The evaluation is structured to support the paper's motivation end to end.  RQ1 establishes whether bytecode artifacts appear and whether they are transparent to source-level inspection.  RQ2 tests whether selected tools can practically analyze the observed bytecode in a version-aware setup.  RQ3 measures the runtime boundary exposed by malformed or adversarial bytecode.  RQ4 determines whether selected source-recovery workflows can reproduce bytecode-level findings.  Together, these questions support the central claim only if prevalence, analyzability limits, and robustness findings are interpreted with their stated scope.
 
 \input{sections/5-evaluation/1_RQ1}
 \input{sections/5-evaluation/2_RQ2}
 \input{sections/5-evaluation/3_RQ3}
 
 
-\subsection{Runtime Robustness and Source Reachability}\label{sec:eval:runtime}
+\subsection{RQ4: Source Reproduction}\label{sec:eval:runtime}
 
-Table~\ref{tab:runtime-results} reports the runtime outcome distribution across CPython versions.  We classify failures into marshal/header parsing failures, code-object metadata failures, opcode/stack/control-flow failures, and execution-time interpreter failures.  This classification is essential because a malformed byte stream rejected by the loader has a different security interpretation from a structurally meaningful code object that reaches an assertion failure or native crash during execution.
+RQ4 reports whether selected source-recovery workflows can reproduce bytecode-level findings from RQ3.  We classify each finding by the first blocking point in the workflow: no selected decompiler available, decompilation failure, uncompilable source, behavior mismatch, or same-behavior reproduction.
 
 \begin{table}[t]
   \centering
-  \caption{Runtime robustness outcomes. Replace placeholders with measured counts.}
-  \label{tab:runtime-results}
+  \caption{Tool-bounded source reproduction for RQ3 findings. Replace placeholders with measured counts.}
+  \label{tab:source-reproduction}
   \begin{tabular}{lrrrrr}
     \toprule
-    Version & Inputs & Exceptions & Assertions & Aborts & Segfaults \\
+    Version & Findings & Decompiled & Compiled & Reproduced & Not reproduced \\
     \midrule
     3.10 & TBD & TBD & TBD & TBD & TBD \\
     3.11 & TBD & TBD & TBD & TBD & TBD \\
@@ -47,4 +47,4 @@ Table~\ref{tab:runtime-results} reports the runtime outcome distribution across 
   \end{tabular}
 \end{table}
 
-For each abnormal outcome, we attempt decompilation, recompilation, and re-execution under the same runtime.  A finding is source-reproducible only if the recovered source produces the same failure signature.  Otherwise, it is classified as decompilation failed, recompilation failed, behavior changed, source unavailable, or inconclusive.  The expected result is not simply a crash count, but a map of which bytecode-level behaviors are reachable from source-level workflows and which remain visible only through bytecode-aware analysis.
+For each abnormal outcome, we attempt decompilation, recompilation, and re-execution under the same runtime using the selected tools.  A finding is source-reproduced only if the recovered source produces the same behavior class.  Otherwise, it is classified as not reproduced by selected tools, with the concrete reason recorded as decompilation failed, recompilation failed, behavior changed, tool unavailable, or inconclusive.  This phrasing is deliberate: it avoids claiming that no source reproducer exists when the study only shows that the selected tools did not produce one.

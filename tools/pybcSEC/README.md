@@ -171,3 +171,23 @@ data/rq3/fuzz_runs.csv
 data/rq3/rq3_summary.csv
 data/rq3/fuzz/<cpython-tag>/
 ```
+
+Run the RQ4 source-reproduction analysis after RQ3:
+
+```bash
+pybcSEC --reproduce-source 3.10
+```
+
+RQ4 checks whether bytecode findings discovered in RQ3 can be reproduced
+through ordinary source using the selected decompilation tools. The result is
+tool-bounded: if no source candidate reproduces a finding, pybcSEC reports it
+as `not_reproduced_by_selected_tools`, not as proof that no source-level
+reproduction exists.
+
+RQ4 outputs are written under:
+
+```text
+data/rq4/source_reproduction.csv
+data/rq4/rq4_summary.csv
+data/rq4/source_candidates/<cpython-tag>/
+```

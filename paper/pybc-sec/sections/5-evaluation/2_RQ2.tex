@@ -1,22 +1,22 @@
 
-\subsection{RQ2: Source Visibility}\label{sec:RQ2}
+\subsection{RQ2: Practical Analyzability}\label{sec:RQ2}
 
-RQ2 asks whether bytecode artifacts have corresponding source and whether the source matches the bytecode.  We classify each artifact as source-present and matching, source-present but mismatched, source-missing, dynamically generated or loaded, bundled or packed, decompilation-resistant, or unknown.  A source-present artifact is considered matching only when compiling the candidate source under the expected Python version yields equivalent bytecode under the comparison policy.
+RQ2 asks whether observed bytecode artifacts can be analyzed by selected tools in a version-aware environment.  For each \texttt{.pyc} file found in RQ1, we run standard-library loading and disassembly, then selected decompilers when available.  Each tool result records both the status and the concrete failure reason, so failures caused by missing interpreters, unsupported bytecode versions, timeouts, and decompiler errors are not conflated.
 
 \begin{table}[t]
   \centering
-  \caption{Source correspondence categories. Replace placeholders with measured values.}
-  \label{tab:source-visibility}
-  \begin{tabular}{lrrrr}
+  \caption{Practical analyzability levels for observed bytecode artifacts. Replace placeholders with measured values.}
+  \label{tab:tool-analyzability}
+  \begin{tabular}{lrrrrr}
     \toprule
-    Artifact class & Count & Source present & Matching & Missing \\
+    Version & \texttt{.pyc} files & Loadable & Disassemblable & Partial decompile & Full decompile \\
     \midrule
-    Import cache & TBD & TBD & TBD & TBD \\
-    Source-less module & TBD & TBD & TBD & TBD \\
-    Embedded marshal & TBD & TBD & TBD & TBD \\
-    Bundle payload & TBD & TBD & TBD & TBD \\
+    CPython 3.8 & TBD & TBD & TBD & TBD & TBD \\
+    CPython 3.9 & TBD & TBD & TBD & TBD & TBD \\
+    CPython 3.10 & TBD & TBD & TBD & TBD & TBD \\
+    CPython 3.12 & TBD & TBD & TBD & TBD & TBD \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-The key result for this question is the portion of executable bytecode not fully visible through source inspection.  Source mismatch is especially important because source-level scanners may analyze a nearby file while the runtime consumes different behavior from bytecode.
+The key interpretation is practical rather than theoretical.  If bytecode becomes analyzable after the matching CPython interpreter is installed, the earlier failure is an environment limitation.  If selected tools still fail in a matched environment, the result indicates a current tooling limitation.  RQ2 therefore reports what the selected analysis stack can inspect today, not a proof that the bytecode is or is not recoverable by all possible tools.

@@ -10,7 +10,7 @@ Python decompilers such as \texttt{pycdc}~\cite{pycdc} attempt to reconstruct so
 
 \subsection{Runtime Testing and Fuzzing}
 
-Fuzzing and runtime testing have exposed many classes of implementation bugs~\cite{manes2018fuzzing,li2023pyrtfuzz}.  Python runtime fuzzing has studied interpreter behavior from source-level and runtime-level inputs, while byte-level fuzzing can expose parser and loader failures.  {\tech} differs by combining bytecode-level testing with source-reachability classification, allowing robustness findings to be interpreted in terms of whether ordinary Python source can reproduce them.
+Fuzzing and runtime testing have exposed many classes of implementation bugs~\cite{manes2018fuzzing,li2023pyrtfuzz}.  Python runtime fuzzing has studied interpreter behavior from source-level and runtime-level inputs, while byte-level fuzzing can expose parser and loader failures.  {\tech} differs by combining bytecode-level testing with tool-bounded source-reproduction analysis, allowing robustness findings to be interpreted in terms of whether selected source-recovery workflows can reproduce them.
 
 \subsection{Program Analysis Beyond Source}
 

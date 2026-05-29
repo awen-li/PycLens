@@ -1,22 +1,21 @@
 
-\subsection{RQ1: Bytecode Prevalence}\label{sec:effmeasure}
+\subsection{RQ1: Bytecode Prevalence and Transparency}\label{sec:effmeasure}
 
-RQ1 measures how often Python bytecode artifacts appear in real distributions.  We count packages containing \texttt{.pyc} files, \texttt{\_\_pycache\_\_} directories, source-less bytecode modules, bundled bytecode artifacts, dynamically loaded code objects, and PyInstaller-style payloads.  Results should be reported both per package and per artifact, because a single package can contain many bytecode objects.
+RQ1 measures how often Python bytecode artifacts appear in PyPI distributions and whether they are transparent to source-level inspection.  We count artifacts containing \texttt{.pyc} files, \texttt{\_\_pycache\_\_} directories, source-less bytecode candidates, and dynamic loading indicators.  Results are reported both per distribution artifact and per bytecode file because one artifact can contain many bytecode files.
 
 \begin{table}[t]
   \centering
-  \caption{Bytecode prevalence across datasets. Replace placeholders with measured values.}
+  \caption{Bytecode prevalence and transparency in PyPI artifacts. Replace placeholders with measured values.}
   \label{tab:prevalence}
-  \begin{tabular}{lrrrr}
+  \begin{tabular}{lrrrrr}
     \toprule
-    Dataset & Packages & With \texttt{.pyc} & Source-less & Dynamic load \\
+    Artifact type & Artifacts & With bytecode & \texttt{.pyc} files & Source-less & Dynamic load \\
     \midrule
-    Popular PyPI & TBD & TBD & TBD & TBD \\
-    Random PyPI & TBD & TBD & TBD & TBD \\
-    Suspicious/Malicious & TBD & TBD & TBD & TBD \\
-    Bundles & TBD & TBD & TBD & TBD \\
+    Wheel & TBD & TBD & TBD & TBD & TBD \\
+    Source distribution & TBD & TBD & TBD & TBD & TBD \\
+    Other archive & TBD & TBD & TBD & TBD & TBD \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-The main reporting claim for RQ1 should identify whether bytecode artifacts are rare leftovers or recurring distribution artifacts.  We also report common locations, including cache directories, package subtrees, loader resources, archive members, and bundled module stores.
+The reporting claim for RQ1 should be scoped to the measured PyPI population.  If bytecode appears rarely, the result still matters because it establishes that package distributions can carry executable artifacts outside ordinary source inventories.  If bytecode appears frequently, the result strengthens the case for bytecode-aware package scanning.  In both cases, transparency categories explain whether source-level tools would plausibly observe the executable content.

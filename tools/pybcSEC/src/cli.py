@@ -30,6 +30,7 @@ from collectors import (
 )
 import scanner as bytecode_scan
 import cpython_fuzz
+import source_repro
 import tool_analysis
 
 
@@ -543,6 +544,46 @@ def fuzz_cpython(args: argparse.Namespace) -> int:
     return 0
 
 
+def reproduce_source(args: argparse.Namespace) -> int:
+    print("[RQ4] checking source-level reproducibility of bytecode findings")
+    versions_csv = args.data_dir / "scan" / "cpython_versions.csv"
+    if args.versions:
+        tags = sorted({cpython_fuzz.version_to_tag(version) for version in args.versions})
+    else:
+        tags = sorted(
+            set(cpython_fuzz.read_version_tags(versions_csv))
+            | {
+                path.name
+                for path in (args.data_dir / "rq3" / "fuzz").glob("cpython-*")
+                if path.is_dir()
+            }
+        )
+    if not tags:
+        raise SystemExit("no RQ4 CPython versions found. Run pybcSEC fuzz-cpython first.")
+    print("RQ4 CPython versions: " + ", ".join(tags))
+    rows = source_repro.analyze_reproducibility(
+        tags,
+        data_dir=args.data_dir,
+        timeout=args.timeout,
+    )
+    csv_out = args.data_dir / "rq4" / "source_reproduction.csv"
+    summary_csv = args.data_dir / "rq4" / "rq4_summary.csv"
+    source_repro.write_csv(csv_out, rows)
+    source_repro.write_summary_csv(summary_csv, rows)
+    findings = {row.finding for row in rows}
+    reproduced = {row.finding for row in rows if row.reproduced}
+    print(
+        "RQ4 summary: findings={findings}, tool_reproduced={reproduced}, not_reproduced_by_selected_tools={not_reproduced}".format(
+            findings=len(findings),
+            reproduced=len(reproduced),
+            not_reproduced=len(findings - reproduced),
+        )
+    )
+    print(f"wrote RQ4 source reproduction report to {csv_out}")
+    print(f"wrote RQ4 summary to {summary_csv}")
+    return 0
+
+
 def add_collection_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--package", action="append", help="Package name; may be repeated")
     parser.add_argument("--package-file", type=Path, help="Text file containing one package per line")
@@ -731,6 +772,17 @@ def add_fuzz_cpython_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.set_defaults(func=fuzz_cpython)
 
 
+def add_reproduce_source_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser(
+        "reproduce-source",
+        help="RQ4: check whether RQ3 bytecode findings are reproducible from ordinary source.",
+    )
+    parser.add_argument("versions", nargs="*", help="Optional CPython versions to analyze, such as 3.10 or cpython-310")
+    parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for study data")
+    parser.add_argument("--timeout", type=int, default=30, help="Per-finding timeout in seconds")
+    parser.set_defaults(func=reproduce_source)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
@@ -738,6 +790,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         argv = ["run"]
     elif argv[0] == "--fuzzing":
         argv = ["fuzz-cpython", *argv[1:]]
+    elif argv[0] == "--reproduce-source":
+        argv = ["reproduce-source", *argv[1:]]
 
     parser = argparse.ArgumentParser(
         description="pybcSEC study tool for data collection and bytecode scanning."
@@ -752,6 +806,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     add_prepare_analysis_env_parser(subparsers)
     add_analyze_tools_parser(subparsers)
     add_fuzz_cpython_parser(subparsers)
+    add_reproduce_source_parser(subparsers)
     args = parser.parse_args(argv)
     return args.func(args)
 

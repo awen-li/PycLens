@@ -1,19 +1,20 @@
-\subsection{RQ3: Tooling Gap}\label{sec:RQ3}
+\subsection{RQ3: CPython Robustness}\label{sec:RQ3}
 
-RQ3 evaluates how well current tools recover or analyze Python bytecode artifacts.  For each decompiler, we measure decompilation success, syntactic validity of recovered source, recompilation success, bytecode equivalence after recompilation, and behavior preservation when safe execution is possible.  We also test whether source-level scanners observe behavior that exists only in bytecode artifacts.
+RQ3 evaluates how CPython behaves when processing malformed or adversarial bytecode artifacts.  For each CPython version, {\tech} prepares version-matched \texttt{.pyc} seeds from CPython unittest-derived source seeds and runs honggfuzz against the bytecode-processing harness.  Outcomes are grouped into normal processing, Python-level exception, timeout, crash, abort, and other abnormal termination.
 
 \begin{table}[t]
   \centering
-  \caption{Recovery workflow outcomes. Replace placeholders with measured values.}
-  \label{tab:recovery}
-  \begin{tabular}{lrrrr}
+  \caption{CPython bytecode fuzzing outcomes. Replace placeholders with measured values.}
+  \label{tab:runtime-results-rq3}
+  \begin{tabular}{lrrrrr}
     \toprule
-    Tool & Decompiled & Recompiled & Equivalent & Main failure \\
+    Version & Seeds & Runs & Exceptions & Timeouts & Crashes \\
     \midrule
-    pycdc & TBD & TBD & TBD & TBD \\
-    Other & TBD & TBD & TBD & TBD \\
+    CPython 3.10 & TBD & TBD & TBD & TBD & TBD \\
+    CPython 3.11 & TBD & TBD & TBD & TBD & TBD \\
+    CPython 3.12 & TBD & TBD & TBD & TBD & TBD \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-Failure causes include unsupported Python versions, unsupported opcodes, unusual control flow, exception-table mismatches, malformed code-object metadata, and dynamic loading patterns that hide the bytecode from ordinary file-based analysis.  The main interpretation is conservative: a decompiler failure is a tooling limitation, not proof that the bytecode has no source or no behavior.
+The main interpretation is conservative.  A crash or abort is a robustness finding that requires triage; it is not automatically an exploitable vulnerability.  RQ3 is reported separately from RQ4 so that bytecode-level runtime behavior is not confused with source-level reachability.
