@@ -7,7 +7,7 @@
 \begin{figure}[t]
   \centering
   \scriptsize
-  \includegraphics[width=0.48\textwidth]{graphs/pymorph.pdf}
+  \includegraphics[width=0.99\textwidth]{paper/pybc-sec/sections/graphs/figure1_study_pipeline_overview.pdf}
   \caption{Overview of the PyBC-Sec empirical study pipeline.  The pipeline collects Python software artifacts, extracts bytecode and code-object metadata, checks source correspondence, evaluates recovery tools, and classifies runtime robustness and source reachability outcomes.}
   \Description{A left-to-right pipeline starts from datasets, proceeds through artifact extraction, source correspondence, recovery and tooling, and runtime and reachability analysis, and maps these stages to RQ1 through RQ5.}
   \label{fig:pipeline-overview}
@@ -36,6 +36,39 @@ We classify artifacts as source-present and matching, source-present but mismatc
 {\tech} evaluates source recovery by running selected decompilers on bytecode artifacts, checking whether recovered source is syntactically valid, recompiling recovered source, and comparing the resulting bytecode and behavior with the original when execution is safe and deterministic.  Failure categories include unsupported Python versions, unsupported opcodes, unusual control flow, exception-table mismatch, malformed code-object metadata, dynamic loading, and cases where decompilation succeeds but recompilation changes behavior.
 
 The justification for this phase is that source visibility cannot be answered by file presence alone.  A \texttt{.py} file may exist but compile to different bytecode, while a decompiler may produce source that parses but no longer preserves the original behavior.  A decompiler failure indicates a recovery limitation, not proof that source never existed.
+
+ C1. Availability
+  The tool must be publicly available and runnable locally.
+
+  C2. Python 3 support
+  The tool must support at least some modern Python 3 bytecode.
+
+  C3. Practical use
+  The tool should be widely referenced, packaged, or commonly used by reverse engineers / Python developers.
+
+  C4. Maintenance or stability
+  The tool should either be actively maintained or stable enough to serve as a baseline.
+
+  C5. Method diversity
+  The selected set should cover different analysis modes: parsing, disassembly, and decompilation.
+
+  Then map tools to criteria:
+
+  | Tool | Selection Reason |
+  |---|---|
+  | CPython marshal | Reference mechanism for loading code objects from .pyc payloads |
+  | CPython dis | Standard built-in bytecode disassembler |
+  | uncompyle6 | Established open-source Python bytecode decompiler, commonly referenced |
+  | decompyle3 | Python-3-focused successor/related decompiler |
+  | pycdc | Independent C++ decompiler/disassembler implementation |
+  | PyLingual | Recent decompiler with modern Python 3 support and active development |
+
+  Paper wording:
+
+  > We do not claim this set exhausts all Python bytecode tooling. Instead, it covers the main practical analysis levels available to users: loading, disassembly,
+  > and source-level decompilation. The set combines CPython reference functionality, established decompilers, an independent implementation, and a recent
+  > decompiler with broad Python 3 support.
+
 
 \subsection{Phase 4: Runtime Robustness and Source Reachability}\label{sec:method:runtime}
 

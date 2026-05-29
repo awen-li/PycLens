@@ -3,35 +3,42 @@
 
 This study asks whether Python bytecode artifacts create a meaningful security visibility and robustness gap beyond source-level analysis.  The study is motivated by three observations from Section~\ref{sec:background}: Python bytecode is executable, bytecode can appear without trustworthy source correspondence, and current security workflows often assume source is the primary analysis object.  Our goal is not to argue that arbitrary bytecode should be trusted.  Instead, we measure where bytecode appears, whether it is visible from source, whether existing tools recover it, and how runtime findings should be interpreted.
 
-\subsection{Study Goals}\label{sec:study:goals}
+\subsection{Study Goal and Research Questions}\label{sec:study:goals-rqs}
 
+\noindent\textbf{Study goal.}
+This work asks whether Python bytecode artifacts create a meaningful security visibility and robustness gap beyond source-level analysis.
+
+\noindent\textbf{To achieve this goal, we answer the following connected questions.}
+We structure the study as a causal chain: establish bytecode presence (exposure), test whether source-level views match executable bytecode (visibility), measure whether tools can recover what is missing (coverage), and characterize runtime behaviors and their source-reproducibility (robustness).
+
+\noindent\textbf{Goals.}
 We define four study goals.
 
 \noindent\textbf{G1: Measure bytecode exposure.}
-We first determine whether bytecode artifacts are common enough in realistic software distributions to matter for package security workflows.
+Determine whether bytecode artifacts are common enough in realistic software distributions to matter for package security workflows.
 
 \noindent\textbf{G2: Measure source visibility.}
-We then ask whether bytecode artifacts have corresponding source and whether the source actually matches the bytecode that can be loaded or executed.
+Determine whether bytecode artifacts have corresponding source and whether the available source matches the bytecode that can be loaded or executed.
 
 \noindent\textbf{G3: Measure tool coverage.}
-Because many workflows reduce bytecode back to source through decompilation, we evaluate whether recovery tools produce source that parses, recompiles, and preserves bytecode or behavior.
+Evaluate whether recovery tools produce source that parses, recompiles, and preserves bytecode or behavior.
 
 \noindent\textbf{G4: Interpret runtime robustness.}
-Finally, we study CPython behavior on unusual bytecode inputs and determine which abnormal outcomes are reproducible from ordinary Python source.
+Study CPython behavior on unusual or mutated bytecode inputs and determine which abnormal outcomes are reproducible from ordinary Python source.
 
-\subsection{Research Questions}\label{sec:study:rqs}
-
+\noindent\textbf{Research questions.}
 We organize the empirical study around five research questions.
 
 \begin{description}[style=unboxed,leftmargin=0cm]
 \denseitems
-\item[\textbf{RQ1:}] \emph{How often do Python bytecode artifacts appear in real-world software distributions?}
-\item[\textbf{RQ2:}] \emph{When bytecode artifacts are present, do they have corresponding source, and does the available source match the bytecode?}
-\item[\textbf{RQ3:}] \emph{How well do existing tools recover or analyze Python bytecode artifacts?}
-\item[\textbf{RQ4:}] \emph{How does CPython behave when processing unusual or mutated bytecode artifacts?}
-\item[\textbf{RQ5:}] \emph{How often are bytecode-level behaviors or failures reproducible from ordinary Python source?}
+\item[\textbf{RQ1 (G1/G2):}] How prevalent and transparent are bytecode artifacts in Python distributions?
+\item[\textbf{RQ2 (G3):}] \emph{How well do existing tools recover or analyze Python bytecode artifacts?}
+\item[\textbf{RQ2 (G3):}] \emph{How effectively do existing tools decompile and inspect Python bytecode artifacts?}
+\item[\textbf{RQ4 (G4):}] \emph{What bytecode behaviors cannot be expressed or reproduced through ordinary Python source?}
 \end{description}
 
-\subsection{Alignment with the Study Design}\label{sec:study:alignment}
+Section~\ref{sec:method} describes the methodology used to answer each question, and Section~\ref{sec:results} reports results using the same RQ structure.
 
-The research questions follow the causal chain behind the paper's motivation.  RQ1 establishes whether bytecode artifacts appear in practice.  RQ2 determines whether source-level analysis observes the same executable content.  RQ3 evaluates whether existing recovery tools can close the visibility gap.  RQ4 measures the runtime boundary exposed by bytecode artifacts.  RQ5 prevents overclaiming by separating source-reproducible behaviors from bytecode-only behaviors under current tools.  Section~\ref{sec:method} describes the methodology used to answer each question, and Section~\ref{sec:results} reports results using the same RQ structure.
+Packaged bytecode exists in real Python distributions. Existing tools may not fully analyze it. CPython can exhibit unusual behavior on crafted bytecode. 
+Some of these behaviors are not reproducible from ordinary source, so bytecode deserves direct security study.
+ 
