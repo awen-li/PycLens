@@ -1,2 +1,0 @@
-[console_scripts]
-pybcSEC = cli:main
