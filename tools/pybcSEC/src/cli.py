@@ -25,36 +25,19 @@ from typing import Sequence
 
 from collectors import (
     CollectionConfig,
-    GitHubReleaseCollector,
     PYPI_DISTRIBUTIONS,
     PyPICollector,
-    SuspiciousPyPICollector,
 )
 import scanner as bytecode_scan
+import tool_analysis
 
 
 DEFAULT_DATA_DIR = Path("data")
 DEFAULT_SMOKE_DATA_DIR = DEFAULT_DATA_DIR / "smoke"
 DEFAULT_INPUT_DIR = DEFAULT_DATA_DIR / "inputs"
 DEFAULT_PYPI_PACKAGES = DEFAULT_INPUT_DIR / "pypi_packages.txt"
-DEFAULT_SUSPICIOUS_PYPI_PACKAGES = DEFAULT_INPUT_DIR / "suspicious_pypi_packages.txt"
-DEFAULT_GITHUB_REPOSITORIES = DEFAULT_INPUT_DIR / "github_repositories.txt"
 PYPI_SIMPLE_URL = "https://pypi.org/simple/"
 DEFAULT_SMOKE_ITEMS_PER_SOURCE = 1000
-DEFAULT_SUSPICIOUS_PYPI_SEEDS = (
-    "ctx",
-    "colourama",
-    "pymafka",
-    "pygrata",
-    "request",
-)
-DEFAULT_GITHUB_REPOSITORY_SEEDS = (
-    "pyinstaller/pyinstaller",
-    "mitmproxy/mitmproxy",
-    "ansible/ansible",
-    "psf/black",
-    "pypa/pip",
-)
 
 
 class SimpleIndexParser(HTMLParser):
@@ -123,13 +106,25 @@ def select_pypi_input_names(names: Sequence[str], size: str, seed: int) -> list[
     return sorted(rng.sample(list(names), count))
 
 
-def first_n_or_exit(values: Sequence[str], count: int, source_name: str, path: Path) -> list[str]:
+def first_n_or_exit(values: Sequence[str], count: int, path: Path) -> list[str]:
     if len(values) < count:
         raise SystemExit(
-            f"smoke-test needs {count} {source_name} items, but {path} has {len(values)}. "
+            f"requested {count} PyPI items, but {path} has {len(values)}. "
             f"Add more entries to that input file or run with a smaller --items-per-source."
         )
     return list(values[:count])
+
+
+def limit_source_items(
+    values: Sequence[str],
+    count: int | None,
+    path: Path,
+) -> list[str]:
+    if count is None:
+        return list(values)
+    if count < 1:
+        raise SystemExit("--items-per-source must be positive")
+    return first_n_or_exit(values, count, path)
 
 
 def prepare_inputs(args: argparse.Namespace) -> int:
@@ -139,41 +134,21 @@ def prepare_inputs(args: argparse.Namespace) -> int:
     if input_list_ready(args.pypi_package_file) and not force:
         packages = read_package_names(args.pypi_package_file)
         print(f"using existing PyPI input list: {args.pypi_package_file} ({len(packages)} packages)")
-        ensure_curated_input_templates(args)
         return 0
 
     print(f"fetching PyPI package index from {PYPI_SIMPLE_URL}")
     names = fetch_pypi_names(args.timeout)
     packages = select_pypi_input_names(names, args.pypi_size, args.seed)
     write_lines(args.pypi_package_file, packages)
-    ensure_curated_input_templates(args)
 
     print(f"wrote {len(packages)} PyPI package names to {args.pypi_package_file}")
     return 0
-
-
-def ensure_curated_input_templates(args: argparse.Namespace) -> None:
-    if not input_list_ready(args.suspicious_pypi_package_file):
-        write_lines(args.suspicious_pypi_package_file, DEFAULT_SUSPICIOUS_PYPI_SEEDS)
-        print(
-            f"wrote {len(DEFAULT_SUSPICIOUS_PYPI_SEEDS)} suspicious PyPI seed names to {args.suspicious_pypi_package_file}"
-        )
-
-    if not input_list_ready(args.github_repo_file):
-        write_lines(args.github_repo_file, DEFAULT_GITHUB_REPOSITORY_SEEDS)
-        print(
-            f"wrote {len(DEFAULT_GITHUB_REPOSITORY_SEEDS)} GitHub release seed repositories to {args.github_repo_file}"
-        )
 
 
 def normalize_input_paths(args: argparse.Namespace) -> None:
     input_dir = args.data_dir / "inputs"
     if args.pypi_package_file is None:
         args.pypi_package_file = input_dir / "pypi_packages.txt"
-    if args.suspicious_pypi_package_file is None:
-        args.suspicious_pypi_package_file = input_dir / "suspicious_pypi_packages.txt"
-    if args.github_repo_file is None:
-        args.github_repo_file = input_dir / "github_repositories.txt"
 
 
 def resolve_packages(args: argparse.Namespace) -> list[str]:
@@ -214,41 +189,27 @@ def collect_pypi(args: argparse.Namespace) -> int:
 def collect_all(args: argparse.Namespace) -> int:
     normalize_input_paths(args)
     print("[phase 2/3] collecting dataset artifacts")
-    pypi_packages = read_optional_lines(args.pypi_package_file)
-    suspicious_packages = read_optional_lines(args.suspicious_pypi_package_file)
-    github_repos = read_optional_lines(args.github_repo_file)
+    count = getattr(args, "items_per_source", None)
+    pypi_packages = limit_source_items(
+        read_optional_lines(args.pypi_package_file),
+        count,
+        args.pypi_package_file,
+    )
 
-    if not any((pypi_packages, suspicious_packages, github_repos)):
+    if not pypi_packages:
         raise SystemExit(
-            "no real dataset inputs found. Create one or more files under data/inputs/:\n"
-            f"  {args.pypi_package_file}              ordinary PyPI package names\n"
-            f"  {args.suspicious_pypi_package_file}   suspicious/malicious PyPI package names\n"
-            f"  {args.github_repo_file}               GitHub repositories as owner/name"
+            "no PyPI dataset inputs found. Run prepare-inputs or create:\n"
+            f"  {args.pypi_package_file}              ordinary PyPI package names"
         )
 
     total_records = 0
     manifests: list[Path] = []
 
-    if pypi_packages:
-        print(f"source pypi: {len(pypi_packages)} packages")
-        collector = PyPICollector(collection_config(args, PYPI_DISTRIBUTIONS))
-        records = collector.collect(pypi_packages)
-        manifests.append(collector.write_outputs(records))
-        total_records += len(records)
-
-    if suspicious_packages:
-        print(f"source suspicious_pypi: {len(suspicious_packages)} packages")
-        collector = SuspiciousPyPICollector(collection_config(args, PYPI_DISTRIBUTIONS))
-        records = collector.collect(suspicious_packages)
-        manifests.append(collector.write_outputs(records))
-        total_records += len(records)
-
-    if github_repos:
-        print(f"source github_releases: {len(github_repos)} repositories")
-        collector = GitHubReleaseCollector(collection_config(args, ("wheel", "zip", "archive")))
-        records = collector.collect(github_repos)
-        manifests.append(collector.write_outputs(records))
-        total_records += len(records)
+    print(f"source pypi: {len(pypi_packages)} packages")
+    collector = PyPICollector(collection_config(args, PYPI_DISTRIBUTIONS))
+    records = collector.collect(pypi_packages)
+    manifests.append(collector.write_outputs(records))
+    total_records += len(records)
 
     print(f"wrote {total_records} collection records across {len(manifests)} manifests")
     for manifest in manifests:
@@ -258,6 +219,8 @@ def collect_all(args: argparse.Namespace) -> int:
 
 def run_pipeline(args: argparse.Namespace) -> int:
     normalize_input_paths(args)
+    if args.items_per_source is not None and args.pypi_size == "all":
+        args.pypi_size = str(args.items_per_source)
     prepare_inputs(args)
     collect_all(args)
 
@@ -278,7 +241,7 @@ def smoke_test(args: argparse.Namespace) -> int:
     if count < 1:
         raise SystemExit("--items-per-source must be positive")
 
-    print(f"[smoke] preparing {count} items per source")
+    print(f"[smoke] preparing {count} PyPI items")
     pypi_package_file = args.data_dir / "inputs" / "pypi_packages.txt"
     if input_list_ready(pypi_package_file) and not args.force_inputs:
         pypi_packages = read_package_names(pypi_package_file)
@@ -290,36 +253,12 @@ def smoke_test(args: argparse.Namespace) -> int:
         write_lines(pypi_package_file, pypi_packages)
         print(f"[smoke] wrote {len(pypi_packages)} PyPI package names to {pypi_package_file}")
 
-    suspicious_package_file = args.input_dir / "suspicious_pypi_packages.txt"
-    github_repo_file = args.input_dir / "github_repositories.txt"
-    pypi_packages = first_n_or_exit(pypi_packages, count, "PyPI", pypi_package_file)
-    suspicious_packages = first_n_or_exit(
-        read_optional_lines(suspicious_package_file),
-        count,
-        "suspicious PyPI",
-        suspicious_package_file,
-    )
-    github_repos = first_n_or_exit(
-        read_optional_lines(github_repo_file),
-        count,
-        "GitHub release",
-        github_repo_file,
-    )
+    pypi_packages = first_n_or_exit(pypi_packages, count, pypi_package_file)
 
     print("[smoke] collecting source pypi")
     pypi_collector = PyPICollector(collection_config(args, PYPI_DISTRIBUTIONS))
     pypi_manifest = pypi_collector.write_outputs(pypi_collector.collect(pypi_packages))
     print(f"[smoke] wrote PyPI manifest: {pypi_manifest}")
-
-    print("[smoke] collecting source suspicious_pypi")
-    suspicious_collector = SuspiciousPyPICollector(collection_config(args, PYPI_DISTRIBUTIONS))
-    suspicious_manifest = suspicious_collector.write_outputs(suspicious_collector.collect(suspicious_packages))
-    print(f"[smoke] wrote suspicious PyPI manifest: {suspicious_manifest}")
-
-    print("[smoke] collecting source github_releases")
-    github_collector = GitHubReleaseCollector(collection_config(args, ("wheel", "zip", "archive")))
-    github_manifest = github_collector.write_outputs(github_collector.collect(github_repos))
-    print(f"[smoke] wrote GitHub release manifest: {github_manifest}")
 
     return scan(
         argparse.Namespace(
@@ -332,35 +271,6 @@ def smoke_test(args: argparse.Namespace) -> int:
             workers=args.workers,
         )
     )
-
-
-def collect_suspicious_pypi(args: argparse.Namespace) -> int:
-    packages = resolve_packages(args)
-
-    if not packages:
-        raise SystemExit("collect-suspicious-pypi requires --package or --package-file")
-
-    collector = SuspiciousPyPICollector(collection_config(args, PYPI_DISTRIBUTIONS))
-    records = collector.collect(packages)
-    csv_out = collector.write_outputs(records)
-    print(f"wrote {len(records)} collection records to {csv_out}")
-    return 0
-
-
-def collect_github_release(args: argparse.Namespace) -> int:
-    repos = list(args.repo or [])
-    if args.repo_file:
-        repos.extend(read_package_names(args.repo_file))
-    repos = list(dict.fromkeys(repos))
-
-    if not repos:
-        raise SystemExit("collect-github-release requires --repo or --repo-file")
-
-    collector = GitHubReleaseCollector(collection_config(args, ("wheel", "zip", "archive")))
-    records = collector.collect(repos)
-    csv_out = collector.write_outputs(records)
-    print(f"wrote {len(records)} collection records to {csv_out}")
-    return 0
 
 
 def collection_config(args: argparse.Namespace, default_include: Sequence[str]) -> CollectionConfig:
@@ -388,7 +298,7 @@ def normalize_max_age_years(value: int | None) -> int | None:
 
 def scan(args: argparse.Namespace) -> int:
     print("[phase 3/3] scanning unified artifact directory")
-    default_input = args.data_dir / "artifacts"
+    default_input = args.data_dir / "artifacts" / "pypi"
     if args.inputs:
         inputs = [str(item) for item in args.inputs]
         paths = bytecode_scan.expand_inputs(inputs, args.recursive)
@@ -433,6 +343,8 @@ def scan(args: argparse.Namespace) -> int:
     csv_out: Path = args.csv_out or args.data_dir / "scan" / "bytecode_scan.csv"
     csv_out.parent.mkdir(parents=True, exist_ok=True)
     bytecode_scan.write_csv(csv_out, results)
+    versions_out = args.data_dir / "scan" / "cpython_versions.csv"
+    bytecode_scan.write_python_versions_csv(versions_out, results)
     aggregate = bytecode_scan.aggregate(results)
     print_scan_summary(results, aggregate)
 
@@ -461,6 +373,7 @@ def scan(args: argparse.Namespace) -> int:
             pyc=aggregate["pyc_files"],
         )
     )
+    print(f"wrote CPython bytecode version summary to {versions_out}")
     return 0
 
 
@@ -498,6 +411,76 @@ def print_scan_event(path: Path, result: bytecode_scan.ScanResult) -> None:
         print(f"[scan-error] {path} {'|'.join(result.errors)}")
 
 
+def analyze_tools(args: argparse.Namespace) -> int:
+    print("[RQ2] analyzing practical bytecode analyzability")
+    scan_csv = args.scan_csv or args.data_dir / "scan" / "bytecode_scan.csv"
+    csv_out = args.csv_out or args.data_dir / "rq2" / "tool_analysis.csv"
+    versions_csv = args.data_dir / "scan" / "cpython_versions.csv"
+    interpreters = tool_analysis.load_interpreter_environment(
+        versions_csv,
+        data_dir=args.data_dir,
+    )
+    tool_envs = tool_analysis.load_tool_environment(args.data_dir, interpreters)
+    tool_analysis.print_interpreter_environment(interpreters)
+    artifacts = tool_analysis.read_bytecode_artifacts(scan_csv)
+    if args.limit:
+        artifacts = artifacts[: args.limit]
+        print(f"limited analysis to first {len(artifacts)} bytecode-containing artifacts")
+    results = tool_analysis.analyze_artifacts(
+        artifacts,
+        workers=args.workers,
+        external_timeout=args.timeout,
+        interpreters=interpreters,
+        tool_envs=tool_envs,
+    )
+    tool_analysis.write_csv(csv_out, results)
+    summary_csv = args.data_dir / "rq2" / "rq2_summary.csv"
+    tool_analysis.write_summary_csv(summary_csv, results)
+    summary = tool_analysis.summarize(results)
+    print(
+        "tool analysis summary: pyc_files={pyc}, source_present={src}, source_less={src_less}, "
+        "runtime_magic={magic}, marshal_ok={marshal_ok}, dis_ok={dis_ok}, "
+        "uncompyle6_ok={uncompyle6}, decompyle3_ok={decompyle3}, pycdc_ok={pycdc}, pylingual_ok={pylingual}".format(
+            pyc=summary["pyc_files"],
+            src=summary["source_present"],
+            src_less=summary["source_less"],
+            magic=summary["runtime_magic"],
+            marshal_ok=summary["marshal_ok"],
+            dis_ok=summary["dis_ok"],
+            uncompyle6=summary["uncompyle6_ok"],
+            decompyle3=summary["decompyle3_ok"],
+            pycdc=summary["pycdc_ok"],
+            pylingual=summary["pylingual_ok"],
+        )
+    )
+    print(
+        "analysis levels: L0_not_analyzable={l0}, L1_loadable_only={l1}, "
+        "L2_disassemblable={l2}, L3_partial_decompile={l3}, L4_full_decompile={l4}".format(
+            l0=summary["level_0"],
+            l1=summary["level_1"],
+            l2=summary["level_2"],
+            l3=summary["level_3"],
+            l4=summary["level_4"],
+        )
+    )
+    print(f"wrote {len(results)} tool-analysis rows to {csv_out}")
+    print(f"wrote RQ2 summary to {summary_csv}")
+    return 0
+
+
+def prepare_analysis_env(args: argparse.Namespace) -> int:
+    print("[RQ2] preparing CPython-specific analysis environments")
+    versions_csv = args.data_dir / "scan" / "cpython_versions.csv"
+    out_csv = tool_analysis.prepare_analysis_environment(
+        args.data_dir,
+        versions_csv,
+        args.timeout,
+    )
+    print(f"wrote analysis environment report to {out_csv}")
+    print(f"wrote tool version report to {args.data_dir / 'rq2' / 'tool_versions.csv'}")
+    return 0
+
+
 def add_collection_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--package", action="append", help="Package name; may be repeated")
     parser.add_argument("--package-file", type=Path, help="Text file containing one package per line")
@@ -522,26 +505,6 @@ def add_collection_arguments(parser: argparse.ArgumentParser) -> None:
     parser.set_defaults(func=collect_pypi)
 
 
-def add_common_collector_arguments(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for collected data")
-    parser.add_argument("--out-dir", type=Path, help="Artifact output directory; defaults to data/artifacts/<source>")
-    parser.add_argument("--csv-out", type=Path, help="CSV manifest path; defaults to data/sources/<source>/manifest.csv")
-    parser.add_argument("--json-out", type=Path, help="Optional detailed JSON manifest")
-    parser.add_argument(
-        "--include",
-        action="append",
-        default=None,
-        help="Collector-specific artifact kind filter; may be repeated",
-    )
-    parser.add_argument("--max-files-per-kind", type=int, default=1)
-    parser.add_argument("--timeout", type=int, default=30)
-    parser.add_argument("--delay", type=float, default=0.2)
-    parser.add_argument("--max-age-years", type=int, default=5, help="Only collect source artifacts uploaded within this many years where supported; use 0 for no age filter")
-    parser.add_argument("--workers", type=int, default=8, help="Parallel package download workers where supported")
-    parser.add_argument("--force", action="store_true", help="Redownload or recopy files that already exist")
-    parser.add_argument("--quiet", action="store_true", help="Only print the final summary")
-
-
 def add_prepare_inputs_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser(
         "prepare-inputs",
@@ -549,8 +512,6 @@ def add_prepare_inputs_parser(subparsers: argparse._SubParsersAction) -> None:
     )
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for dataset inputs")
     parser.add_argument("--pypi-package-file", type=Path)
-    parser.add_argument("--suspicious-pypi-package-file", type=Path)
-    parser.add_argument("--github-repo-file", type=Path)
     parser.add_argument("--pypi-size", default="all", help="Number of PyPI package names to use, or 'all'")
     parser.add_argument("--pypi-random-size", dest="pypi_size", help=argparse.SUPPRESS)
     parser.add_argument("--seed", type=int, default=0)
@@ -566,13 +527,11 @@ def add_run_parser(subparsers: argparse._SubParsersAction) -> None:
     )
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for study data")
     parser.add_argument("--pypi-package-file", type=Path, help=argparse.SUPPRESS)
-    parser.add_argument("--suspicious-pypi-package-file", type=Path, help=argparse.SUPPRESS)
-    parser.add_argument("--github-repo-file", type=Path, help=argparse.SUPPRESS)
     parser.add_argument("--pypi-size", default="all", help=argparse.SUPPRESS)
     parser.add_argument("--seed", type=int, default=0, help=argparse.SUPPRESS)
     parser.add_argument(
         "--include",
-        choices=(*PYPI_DISTRIBUTIONS, "other", "zip", "archive"),
+        choices=(*PYPI_DISTRIBUTIONS, "other"),
         action="append",
         default=None,
         help=argparse.SUPPRESS,
@@ -581,6 +540,7 @@ def add_run_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.add_argument("--timeout", type=int, default=60, help=argparse.SUPPRESS)
     parser.add_argument("--delay", type=float, default=0.2, help=argparse.SUPPRESS)
     parser.add_argument("--max-age-years", type=int, default=5, help=argparse.SUPPRESS)
+    parser.add_argument("--items-per-source", type=int, help="Collect first N PyPI packages")
     parser.add_argument("--workers", type=int, default=8, help="Parallel workers for download and scan")
     parser.add_argument("--force", action="store_true", help="Redownload or recopy collected artifacts")
     parser.add_argument("--force-inputs", action="store_true", help="Regenerate dataset input lists")
@@ -592,11 +552,10 @@ def add_run_parser(subparsers: argparse._SubParsersAction) -> None:
 def add_smoke_test_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser(
         "smoke-test",
-        help="Collect and scan a 1k-item sample from each configured source.",
+        help="Collect and scan a 1k-item PyPI sample.",
     )
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_SMOKE_DATA_DIR, help="Root directory for smoke-test data")
-    parser.add_argument("--input-dir", type=Path, default=DEFAULT_INPUT_DIR, help="Directory containing curated source input lists")
-    parser.add_argument("--items-per-source", type=int, default=DEFAULT_SMOKE_ITEMS_PER_SOURCE, help="Items to collect from each source")
+    parser.add_argument("--items-per-source", type=int, default=DEFAULT_SMOKE_ITEMS_PER_SOURCE, help="PyPI packages to collect")
     parser.add_argument("--workers", type=int, default=8, help="Parallel workers for download and scan")
     parser.add_argument("--force", action="store_true", help="Redownload collected artifacts")
     parser.add_argument("--force-inputs", action="store_true", help="Regenerate the PyPI smoke package list")
@@ -618,24 +577,23 @@ def add_smoke_test_parser(subparsers: argparse._SubParsersAction) -> None:
 def add_collect_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser(
         "collect",
-        help="Collect all configured real dataset sources from data/inputs.",
+        help="Collect configured PyPI packages from data/inputs.",
     )
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for collected data")
     parser.add_argument("--pypi-package-file", type=Path)
-    parser.add_argument("--suspicious-pypi-package-file", type=Path)
-    parser.add_argument("--github-repo-file", type=Path)
     parser.add_argument(
         "--include",
-        choices=(*PYPI_DISTRIBUTIONS, "other", "zip", "archive"),
+        choices=(*PYPI_DISTRIBUTIONS, "other"),
         action="append",
         default=None,
-        help="Artifact kind to collect where supported; defaults are source-specific",
+        help="Artifact kind to collect; defaults to wheel and sdist",
     )
     parser.add_argument("--max-files-per-kind", type=int, default=1)
     parser.add_argument("--timeout", type=int, default=30)
     parser.add_argument("--delay", type=float, default=0.2)
-    parser.add_argument("--max-age-years", type=int, default=5, help="Only collect source artifacts uploaded within this many years where supported; use 0 for no age filter")
-    parser.add_argument("--workers", type=int, default=8, help="Parallel package download workers where supported")
+    parser.add_argument("--max-age-years", type=int, default=5, help="Only collect artifacts uploaded within this many years; use 0 for no age filter")
+    parser.add_argument("--items-per-source", type=int, help="Collect first N PyPI packages")
+    parser.add_argument("--workers", type=int, default=8, help="Parallel package download workers")
     parser.add_argument("--force", action="store_true", help="Redownload or recopy files that already exist")
     parser.add_argument("--quiet", action="store_true", help="Only print final summaries")
     parser.set_defaults(func=collect_all, out_dir=None, csv_out=None, json_out=None)
@@ -647,26 +605,6 @@ def add_collect_pypi_parser(subparsers: argparse._SubParsersAction) -> None:
         help="Collect PyPI release metadata and distribution artifacts.",
     )
     add_collection_arguments(parser)
-
-
-def add_collect_suspicious_pypi_parser(subparsers: argparse._SubParsersAction) -> None:
-    parser = subparsers.add_parser(
-        "collect-suspicious-pypi",
-        help="Collect suspicious or malicious PyPI package artifacts.",
-    )
-    add_collection_arguments(parser)
-    parser.set_defaults(func=collect_suspicious_pypi)
-
-
-def add_collect_github_release_parser(subparsers: argparse._SubParsersAction) -> None:
-    parser = subparsers.add_parser(
-        "collect-github-release",
-        help="Collect downloadable assets from the latest GitHub release.",
-    )
-    parser.add_argument("--repo", action="append", help="GitHub repository as owner/name; may be repeated")
-    parser.add_argument("--repo-file", type=Path, help="Text file containing one owner/name repository per line")
-    add_common_collector_arguments(parser)
-    parser.set_defaults(func=collect_github_release)
 
 
 def add_scan_parser(subparsers: argparse._SubParsersAction) -> None:
@@ -693,6 +631,30 @@ def add_scan_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.set_defaults(func=scan)
 
 
+def add_analyze_tools_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser(
+        "analyze-tools",
+        help="RQ2: evaluate practical analyzability of discovered bytecode artifacts.",
+    )
+    parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for study data")
+    parser.add_argument("--scan-csv", type=Path, help="Bytecode scan CSV; defaults to data/scan/bytecode_scan.csv")
+    parser.add_argument("--csv-out", type=Path, help="Tool-analysis CSV; defaults to data/rq2/tool_analysis.csv")
+    parser.add_argument("--workers", type=int, default=8, help="Parallel artifact analysis workers")
+    parser.add_argument("--limit", type=int, help="Analyze only the first N bytecode-containing artifacts")
+    parser.add_argument("--timeout", type=int, default=20, help="Per-file timeout for optional external tools")
+    parser.set_defaults(func=analyze_tools)
+
+
+def add_prepare_analysis_env_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser(
+        "prepare-analysis-env",
+        help="Prepare CPython-version-specific RQ2 tool environments.",
+    )
+    parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for study data")
+    parser.add_argument("--timeout", type=int, default=300, help="Timeout for venv creation and tool installation")
+    parser.set_defaults(func=prepare_analysis_env)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
@@ -708,9 +670,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     add_prepare_inputs_parser(subparsers)
     add_collect_parser(subparsers)
     add_collect_pypi_parser(subparsers)
-    add_collect_suspicious_pypi_parser(subparsers)
-    add_collect_github_release_parser(subparsers)
     add_scan_parser(subparsers)
+    add_prepare_analysis_env_parser(subparsers)
+    add_analyze_tools_parser(subparsers)
     args = parser.parse_args(argv)
     return args.func(args)
 

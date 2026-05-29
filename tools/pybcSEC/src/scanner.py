@@ -49,6 +49,8 @@ class ScanResult:
     pycache_dirs: int = 0
     source_less_pyc: int = 0
     magic_numbers: dict[str, int] = field(default_factory=dict)
+    pyc_versions: dict[str, int] = field(default_factory=dict)
+    pyc_version_magic: dict[str, int] = field(default_factory=dict)
     dynamic_load_hits: list[DynamicHit] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
 
@@ -74,6 +76,9 @@ class ScanResult:
             "dynamic_load_hits": len(self.dynamic_load_hits),
             "magic_numbers": ";".join(
                 f"{magic}:{count}" for magic, count in sorted(self.magic_numbers.items())
+            ),
+            "pyc_versions": ";".join(
+                f"{version}:{count}" for version, count in sorted(self.pyc_versions.items())
             ),
             "errors": "|".join(self.errors),
         }
@@ -222,6 +227,14 @@ def pyc_magic(data: bytes | None) -> str | None:
     return str(magic)
 
 
+def pyc_python_tag(pyc_path: str) -> str:
+    name = Path(pyc_path).name
+    for part in name.split("."):
+        if part.startswith("cpython-") or part.startswith("pypy-"):
+            return part
+    return "unknown"
+
+
 def scan_dynamic_patterns(path: str, data: bytes | None) -> list[DynamicHit]:
     if data is None:
         return []
@@ -270,9 +283,13 @@ def scan_path(path: Path) -> ScanResult:
         elif entry_path.endswith(".pyc"):
             result.pyc_files += 1
             pyc_paths.add(entry_path)
+            tag = pyc_python_tag(entry_path)
+            result.pyc_versions[tag] = result.pyc_versions.get(tag, 0) + 1
             magic = pyc_magic(entry.data)
             if magic is not None:
                 result.magic_numbers[magic] = result.magic_numbers.get(magic, 0) + 1
+            version_magic = f"{tag}|{magic or ''}"
+            result.pyc_version_magic[version_magic] = result.pyc_version_magic.get(version_magic, 0) + 1
 
     explicit_pycache_dirs = {
         "/".join(parts[: idx + 1])
@@ -351,6 +368,39 @@ def write_csv(path: Path, results: Sequence[ScanResult]) -> None:
         writer.writerows(rows)
 
 
+def write_python_versions_csv(path: Path, results: Sequence[ScanResult]) -> None:
+    versions: dict[tuple[str, str], int] = {}
+    for result in results:
+        for key, count in result.pyc_version_magic.items():
+            tag, magic = key.split("|", 1)
+            versions[(tag, magic)] = versions.get((tag, magic), 0) + count
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["python_tag", "magic_number", "pyc_files", "interpreter"])
+        writer.writeheader()
+        for (tag, magic), count in sorted(versions.items()):
+            writer.writerow(
+                {
+                    "python_tag": tag,
+                    "magic_number": magic,
+                    "pyc_files": count,
+                    "interpreter": python_tag_to_executable(tag),
+                }
+            )
+
+
+def python_tag_to_executable(tag: str) -> str:
+    if not tag.startswith("cpython-"):
+        return ""
+    version = tag.removeprefix("cpython-")
+    if len(version) == 2:
+        return f"python{version[0]}.{version[1]}"
+    if len(version) == 3:
+        return f"python{version[0]}.{version[1:]}"
+    return ""
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Scan Python package artifacts for bytecode evidence."
@@ -386,6 +436,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     args.csv_out.parent.mkdir(parents=True, exist_ok=True)
     write_csv(args.csv_out, results)
+    versions_out = args.csv_out.parent / "cpython_versions.csv"
+    write_python_versions_csv(versions_out, results)
     aggregate_row = aggregate(results)
     print(
         "wrote {rows} scan rows to {path}; inputs_with_bytecode={with_bc}/{total}; pyc_files={pyc}".format(
@@ -396,6 +448,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             pyc=aggregate_row["pyc_files"],
         )
     )
+    print(f"wrote CPython bytecode version summary to {versions_out}")
 
     json_text = json.dumps(payload, indent=2 if args.pretty else None, sort_keys=True)
     if args.json_out:
