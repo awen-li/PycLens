@@ -12,10 +12,8 @@ whether Python package artifacts contain bytecode. The package lives under
 3. `collect`: collect all configured real dataset sources from `data/inputs/`.
 4. `collect-pypi`: ordinary PyPI release metadata and distribution artifacts.
 5. `collect-suspicious-pypi`: suspicious or malicious PyPI package lists.
-6. `collect-local`: local bundles, archives, directories, or runtime corpus
-   artifacts.
-7. `collect-github-release`: downloadable GitHub release assets.
-8. `scan`: bytecode evidence component. Scans local package artifacts and writes
+6. `collect-github-release`: downloadable GitHub release assets.
+7. `scan`: bytecode evidence component. Scans local package artifacts and writes
    a CSV report.
 
 ## Example Workflow
@@ -85,7 +83,6 @@ Collect other study sources:
 
 ```bash
 pybcSEC collect-suspicious-pypi --package-file data/suspicious_packages.txt
-pybcSEC collect-local /path/to/bundle.whl /path/to/extracted-app
 pybcSEC collect-github-release --repo owner/project
 ```
 

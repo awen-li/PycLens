@@ -6,7 +6,6 @@ import csv
 import hashlib
 import json
 import os
-import shutil
 import time
 import urllib.error
 import urllib.parse
@@ -280,77 +279,6 @@ class SuspiciousPyPICollector(PyPICollector):
     source_name = "suspicious_pypi"
 
 
-class LocalArtifactCollector(DataCollector):
-    source_name = "local"
-
-    def default_artifact_dir(self) -> Path:
-        return self.config.data_dir / "artifacts" / self.source_name
-
-    def default_manifest_path(self) -> Path:
-        return self.config.data_dir / "sources" / self.source_name / "manifest.csv"
-
-    def collect(self, paths: Sequence[str]) -> list[DownloadRecord]:
-        out_dir = self.artifact_dir()
-        records: list[DownloadRecord] = []
-        self.progress(f"collecting local artifacts: inputs={len(paths)}, output={out_dir}")
-
-        for index, raw_path in enumerate(paths, start=1):
-            src = Path(raw_path)
-            name = src.name or f"artifact-{index}"
-            dest = unique_destination(out_dir / name)
-            try:
-                if not src.exists():
-                    raise FileNotFoundError(src)
-                if dest.exists() and not self.config.force:
-                    status = "exists"
-                elif src.is_dir():
-                    if dest.exists():
-                        shutil.rmtree(dest)
-                    shutil.copytree(src, dest)
-                    status = "copied"
-                else:
-                    dest.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(src, dest)
-                    status = "copied"
-
-                digest = sha256_tree(dest) if dest.is_dir() else sha256_file(dest)
-                size = path_size(dest)
-                self.progress(f"[{index}/{len(paths)}] {status} {src} -> {dest}")
-                records.append(
-                    DownloadRecord(
-                        package=src.stem,
-                        version="",
-                        filename=name,
-                        packagetype="directory" if dest.is_dir() else "file",
-                        python_version="",
-                        url=str(src),
-                        size=size,
-                        sha256=digest,
-                        local_path=str(dest),
-                        status=status,
-                    )
-                )
-            except OSError as exc:
-                self.progress(f"[{index}/{len(paths)}] error {src}: {type(exc).__name__}: {exc}")
-                records.append(
-                    DownloadRecord(
-                        package=src.stem,
-                        version="",
-                        filename=name,
-                        packagetype="",
-                        python_version="",
-                        url=str(src),
-                        size=0,
-                        sha256="",
-                        local_path="",
-                        status="error",
-                        error=f"{type(exc).__name__}: {exc}",
-                    )
-                )
-
-        return records
-
-
 class GitHubReleaseCollector(DataCollector):
     source_name = "github_releases"
 
@@ -372,6 +300,7 @@ class GitHubReleaseCollector(DataCollector):
                 release = fetch_json(api_url, self.config.timeout)
                 tag = release.get("tag_name", "")
                 assets = select_github_assets(release, self.config.include, self.config.max_files_per_kind)
+                assets.extend(select_github_source_archives(release, self.config.include))
                 if not assets:
                     self.progress(f"[{repo_index}/{len(repos)}] no matching release assets for {repo} {tag}")
                     records.append(
@@ -565,6 +494,30 @@ def select_github_assets(release: dict, include: Sequence[str], max_files_per_ki
     return [asset for asset in selected if asset.get("browser_download_url")]
 
 
+def select_github_source_archives(release: dict, include: Sequence[str]) -> list[dict]:
+    if include and "archive" not in include:
+        return []
+    tag = release.get("tag_name", "latest")
+    archives = []
+    if release.get("zipball_url"):
+        archives.append(
+            {
+                "name": f"{tag}.zip",
+                "browser_download_url": release["zipball_url"],
+                "size": 0,
+            }
+        )
+    if release.get("tarball_url"):
+        archives.append(
+            {
+                "name": f"{tag}.tar.gz",
+                "browser_download_url": release["tarball_url"],
+                "size": 0,
+            }
+        )
+    return archives
+
+
 def artifact_kind(path: Path) -> str:
     suffixes = "".join(path.suffixes).lower()
     if suffixes.endswith(".whl"):
@@ -597,36 +550,6 @@ def file_is_complete(path: Path, expected_sha256: str, expected_size: int) -> bo
         return True
     except OSError:
         return False
-
-
-def sha256_tree(path: Path) -> str:
-    digest = hashlib.sha256()
-    for child in sorted(item for item in path.rglob("*") if item.is_file()):
-        digest.update(str(child.relative_to(path)).encode("utf-8"))
-        digest.update(b"\0")
-        with child.open("rb") as handle:
-            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-                digest.update(chunk)
-    return digest.hexdigest()
-
-
-def path_size(path: Path) -> int:
-    if path.is_file():
-        return path.stat().st_size
-    return sum(child.stat().st_size for child in path.rglob("*") if child.is_file())
-
-
-def unique_destination(path: Path) -> Path:
-    if not path.exists():
-        return path
-    parent = path.parent
-    stem = path.stem
-    suffix = "".join(path.suffixes)
-    for index in range(1, 10000):
-        candidate = parent / f"{stem}-{index}{suffix}"
-        if not candidate.exists():
-            return candidate
-    raise FileExistsError(f"too many duplicate artifact names for {path}")
 
 
 def download_file(url: str, dest: Path, timeout: int, expected_size: int = 0) -> None:

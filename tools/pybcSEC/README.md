@@ -4,16 +4,16 @@
 early-study components:
 
 1. `run`: run input preparation, collection, and scanning in sequence.
-2. `prepare-inputs`: generate reproducible real-dataset input lists under
+2. `smoke-test`: collect and scan a 1,000-item sample from each configured
+   source.
+3. `prepare-inputs`: generate reproducible real-dataset input lists under
    `data/inputs/`.
-3. `collect`: collect all configured real dataset sources from `data/inputs/`
+4. `collect`: collect all configured real dataset sources from `data/inputs/`
    and write source-specific CSV manifests.
-4. `collect-pypi`: collect ordinary PyPI release metadata and distribution
+5. `collect-pypi`: collect ordinary PyPI release metadata and distribution
    artifacts.
-5. `collect-suspicious-pypi`: collect suspicious or malicious PyPI package
+6. `collect-suspicious-pypi`: collect suspicious or malicious PyPI package
    lists into a separate source directory.
-6. `collect-local`: collect local bundles, archives, directories, or runtime
-   corpus artifacts.
 7. `collect-github-release`: collect downloadable assets from GitHub releases.
 8. `scan`: scan package directories or distribution archives for bytecode
    evidence and write a CSV summary.
@@ -33,17 +33,19 @@ pybcSEC
 This prepares the PyPI input list, collects artifacts, and scans the unified
 artifact directory. By default, the PyPI list contains all package names from
 the PyPI simple index, and collection downloads only artifacts uploaded within
-the latest 5 years. For a smaller smoke test:
+the latest 5 years.
 
 ```bash
-pybcSEC run --pypi-size 1000
+pybcSEC smoke-test
 ```
 
-To change the recency window:
+The smoke test writes to `data/smoke/` by default and uses 1,000 items from
+each source. It generates its own PyPI sample, and expects at least 1,000
+entries in:
 
-```bash
-pybcSEC run --max-age-years 3
-pybcSEC run --max-age-years 0   # disable the age filter
+```text
+data/inputs/suspicious_pypi_packages.txt
+data/inputs/github_repositories.txt
 ```
 
 You can also run phases manually:
@@ -78,12 +80,6 @@ Collect suspicious PyPI packages from a curated list:
 
 ```bash
 pybcSEC collect-suspicious-pypi --package-file data/suspicious_packages.txt
-```
-
-Collect local bundles or runtime corpus artifacts:
-
-```bash
-pybcSEC collect-local /path/to/bundle.whl /path/to/extracted-app
 ```
 
 Collect GitHub release assets:
