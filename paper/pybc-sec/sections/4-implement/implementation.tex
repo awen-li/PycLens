@@ -35,6 +35,29 @@ The practical analyzability levels are: not loadable, loadable only, disassembla
 
 This version-aware design is necessary because Python bytecode is version-sensitive: a tool failure is uninterpretable unless the analysis environment matches the bytecode version.  The version-aware setup therefore prevents false negatives caused by missing interpreters.  The selected-tool framing also prevents overclaiming: RQ2 reports what current selected tools can analyze, not what is theoretically analyzable.
 
+\paragraph{Tool selection.}
+We select bytecode-analysis tools using five criteria.  \textbf{C1: Availability} requires the tool to be publicly available and runnable locally, so experiments do not depend on closed services.  \textbf{C2: Python~3 support} requires support for at least one modern Python~3 bytecode format relevant to our dataset.  \textbf{C3: Practical adoption} requires evidence of use, such as packaging, documentation, references by reverse engineers, or use by Python developers.  \textbf{C4: Maintenance or stability} requires the tool to be actively maintained or stable enough to serve as a reproducible baseline.  \textbf{C5: Method diversity} requires the selected set to cover distinct analysis modes: parsing/loading, disassembly, and source-level decompilation.
+
+\begin{table}[t]
+  \centering
+  \caption{Selected bytecode-analysis tools and selection criteria.}
+  \label{tab:tool-selection}
+  \begin{tabular}{lll}
+    \toprule
+    Tool & Criteria & Role in RQ2 \\
+    \midrule
+    CPython \texttt{marshal} & C1, C2, C4, C5 & Reference code-object loading \\
+    CPython \texttt{dis} & C1, C2, C4, C5 & Standard bytecode disassembly \\
+    \texttt{uncompyle6} & C1--C5 & Established source decompilation baseline \\
+    \texttt{decompyle3} & C1--C5 & Python-3-focused decompilation baseline \\
+    \texttt{pycdc} & C1--C5 & Independent C++ decompiler/disassembler \\
+    PyLingual & C1--C5 & Recent Python~3 decompiler \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+We do not claim this set exhausts all Python bytecode tooling.  Instead, it covers the main practical analysis levels available to users: loading, disassembly, and source-level decompilation.  The set combines CPython reference functionality, established decompilers, an independent implementation, and a recent decompiler with broad Python~3 support.
+
 \subsection{Phase 3: CPython Bytecode Fuzzing}\label{sec:method:recovery}
 
 The third phase tests CPython robustness when processing malformed or adversarial bytecode artifacts.  {\tech} fuzzes CPython bytecode processing by version.  For a command such as \texttt{pybcSEC --fuzzing 3.10}, the tool resolves the requested CPython tag, prepares or reuses a matching interpreter, extracts source seeds from CPython's unittest suite, compiles those seeds into version-matched \texttt{.pyc} files, and runs honggfuzz against a small non-importing bytecode harness.  If raw unittest seeds or CPython source are missing, {\tech} downloads the matching CPython source release, extracts the unittest seeds, and compiles them locally.  Reruns reuse compiled seeds to keep the workflow reproducible and efficient.
