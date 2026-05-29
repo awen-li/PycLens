@@ -15,6 +15,8 @@ early-study components:
    evidence and write a CSV summary.
 7. `analyze-tools`: run the RQ2 practical analyzability analysis on discovered
    bytecode artifacts.
+8. `fuzz-cpython`: run the RQ3 CPython bytecode fuzzing campaign with
+   honggfuzz.
 
 Install the tool in editable mode:
 
@@ -131,4 +133,41 @@ RQ2 also writes reproducibility and paper-table outputs:
 ```text
 data/rq2/tool_versions.csv
 data/rq2/rq2_summary.csv
+```
+
+Run the RQ3 CPython fuzzing campaign:
+
+```bash
+pybcSEC --fuzzing 3.10 --workers 6 --duration 3600
+```
+
+The explicit command is equivalent:
+
+```bash
+pybcSEC fuzz-cpython 3.10 --workers 6 --duration 3600
+```
+
+Without a version argument, RQ3 fuzzes all CPython versions involved in the
+study. For each version, pybcSEC extracts source seeds from CPython's unittest
+suite, compiles those seeds into version-matched `.pyc` files, and then runs
+honggfuzz against a small non-importing CPython bytecode harness. Reruns reuse
+compiled seeds under `data/rq3/seeds/`. If seeds and source are missing,
+pybcSEC downloads the matching CPython source release into
+`data/rq3/cpython_sources/`, extracts unittest seeds into
+`data/rq3/unittest_seeds/`, and compiles them with the matching interpreter. If
+source preparation fails, the command falls back to a small generated seed
+corpus so that every involved interpreter is still tested.
+
+`fuzz-cpython` first looks for a bundled honggfuzz binary at
+`tools/pybcSEC/honggfuzz` or `tools/pybcSEC/tools/honggfuzz`, then checks
+`PATH`.
+
+RQ3 outputs are written under:
+
+```text
+data/rq3/unittest_seeds/
+data/rq3/bytecode_seeds.csv
+data/rq3/fuzz_runs.csv
+data/rq3/rq3_summary.csv
+data/rq3/fuzz/<cpython-tag>/
 ```

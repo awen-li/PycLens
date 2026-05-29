@@ -29,6 +29,7 @@ from collectors import (
     PyPICollector,
 )
 import scanner as bytecode_scan
+import cpython_fuzz
 import tool_analysis
 
 
@@ -481,6 +482,67 @@ def prepare_analysis_env(args: argparse.Namespace) -> int:
     return 0
 
 
+def fuzz_cpython(args: argparse.Namespace) -> int:
+    print("[RQ3] fuzzing CPython bytecode processing with honggfuzz")
+    versions_csv = args.data_dir / "scan" / "cpython_versions.csv"
+    interpreters = tool_analysis.load_interpreter_environment(versions_csv, data_dir=args.data_dir)
+    seed_dir = args.data_dir / "rq3" / "seeds"
+    raw_seed_root = args.data_dir / "rq3" / "unittest_seeds"
+    cpython_source_root = args.data_dir / "rq3" / "cpython_sources"
+    if args.versions:
+        tags = sorted({cpython_fuzz.version_to_tag(version) for version in args.versions})
+    else:
+        tags = sorted(
+            set(cpython_fuzz.read_version_tags(versions_csv))
+            | set(cpython_fuzz.discover_unittest_seed_tags(raw_seed_root, seed_dir, cpython_source_root))
+        )
+    if not tags:
+        raise SystemExit("no RQ3 CPython versions found. Run pybcSEC scan first or add CPython unittest seeds under data/rq3/unittest_seeds/.")
+    for tag in tags:
+        if tag not in interpreters:
+            interpreters[tag] = tool_analysis.find_interpreter(tag, bytecode_scan.python_tag_to_executable(tag), args.data_dir)
+    print("RQ3 CPython versions: " + ", ".join(tags))
+    seeds = cpython_fuzz.build_seed_corpus(
+        tags,
+        interpreters,
+        seed_dir,
+        args.timeout,
+        raw_seed_root=raw_seed_root,
+        cpython_source_root=cpython_source_root,
+    )
+    seed_csv = args.data_dir / "rq3" / "bytecode_seeds.csv"
+    cpython_fuzz.write_seed_csv(seed_csv, seeds)
+    print(f"RQ3 seed corpus: seeds={len(seeds)} tags={len({seed.python_tag for seed in seeds})} output={seed_dir}")
+    for tag in sorted({seed.python_tag for seed in seeds}):
+        print(f"  {tag}: {sum(1 for seed in seeds if seed.python_tag == tag)} seeds")
+
+    runs = cpython_fuzz.run_fuzz_campaigns(
+        seeds,
+        data_dir=args.data_dir,
+        versions_csv=versions_csv,
+        workers=args.workers,
+        duration=args.duration,
+        timeout=args.timeout,
+        honggfuzz_path=args.honggfuzz,
+        interpreters=interpreters,
+    )
+    run_csv = args.data_dir / "rq3" / "fuzz_runs.csv"
+    summary_csv = args.data_dir / "rq3" / "rq3_summary.csv"
+    cpython_fuzz.write_run_csv(run_csv, runs)
+    cpython_fuzz.write_summary_csv(summary_csv, seeds, runs)
+    print(
+        "RQ3 fuzz summary: runs={runs}, crashes={crashes}, timeouts={timeouts}".format(
+            runs=len(runs),
+            crashes=sum(run.crashes for run in runs),
+            timeouts=sum(run.timeouts for run in runs),
+        )
+    )
+    print(f"wrote RQ3 seed report to {seed_csv}")
+    print(f"wrote RQ3 fuzz report to {run_csv}")
+    print(f"wrote RQ3 summary to {summary_csv}")
+    return 0
+
+
 def add_collection_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--package", action="append", help="Package name; may be repeated")
     parser.add_argument("--package-file", type=Path, help="Text file containing one package per line")
@@ -655,11 +717,27 @@ def add_prepare_analysis_env_parser(subparsers: argparse._SubParsersAction) -> N
     parser.set_defaults(func=prepare_analysis_env)
 
 
+def add_fuzz_cpython_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser(
+        "fuzz-cpython",
+        help="RQ3: extract unittest seeds, compile .pyc seeds, and fuzz CPython bytecode processing.",
+    )
+    parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for study data")
+    parser.add_argument("--workers", type=int, default=4, help="Honggfuzz worker count per CPython version")
+    parser.add_argument("--duration", type=int, default=60, help="Honggfuzz runtime in seconds per CPython version")
+    parser.add_argument("--timeout", type=int, default=10, help="Per-input timeout in seconds")
+    parser.add_argument("--honggfuzz", type=Path, help="Path to honggfuzz binary; auto-detected by default")
+    parser.add_argument("versions", nargs="*", help="Optional CPython versions to fuzz, such as 3.10 or cpython-310")
+    parser.set_defaults(func=fuzz_cpython)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
     if not argv:
         argv = ["run"]
+    elif argv[0] == "--fuzzing":
+        argv = ["fuzz-cpython", *argv[1:]]
 
     parser = argparse.ArgumentParser(
         description="pybcSEC study tool for data collection and bytecode scanning."
@@ -673,6 +751,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     add_scan_parser(subparsers)
     add_prepare_analysis_env_parser(subparsers)
     add_analyze_tools_parser(subparsers)
+    add_fuzz_cpython_parser(subparsers)
     args = parser.parse_args(argv)
     return args.func(args)
 
