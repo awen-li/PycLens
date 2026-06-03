@@ -18,5 +18,15 @@ dependencies = []
 pybcSEC = "cli:main"
 
 [tool.setuptools]
-py-modules = ["cli", "collectors", "scanner", "tool_analysis", "cpython_fuzz", "seed_extract", "source_repro"]
+py-modules = [
+  "analysis",
+  "cli",
+  "collectors",
+  "scanner",
+  "tool_analysis",
+  "cpython_fuzz",
+  "seed_extract",
+  "source_repro",
+  "rq1_analysis",
+]
 package-dir = {"" = "src"}

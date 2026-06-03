@@ -30,6 +30,7 @@ from collectors import (
 )
 import scanner as bytecode_scan
 import cpython_fuzz
+from rq1_analysis import RQ1Analyzer
 import source_repro
 import tool_analysis
 
@@ -413,6 +414,16 @@ def print_scan_event(path: Path, result: bytecode_scan.ScanResult) -> None:
         print(f"[scan-error] {path} {'|'.join(result.errors)}")
 
 
+def summarize_rq1(args: argparse.Namespace) -> int:
+    analyzer = RQ1Analyzer(
+        data_dir=args.data_dir,
+        scan_csv=args.scan_csv,
+        versions_csv=args.versions_csv,
+    )
+    analyzer.analyze()
+    return 0
+
+
 def analyze_tools(args: argparse.Namespace) -> int:
     print("[RQ2] analyzing practical bytecode analyzability")
     scan_csv = args.scan_csv or args.data_dir / "scan" / "bytecode_scan.csv"
@@ -748,6 +759,17 @@ def add_analyze_tools_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.set_defaults(func=analyze_tools)
 
 
+def add_summarize_rq1_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser(
+        "summarize-rq1",
+        help="RQ1: summarize bytecode prevalence and transparency from scan outputs.",
+    )
+    parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for study data")
+    parser.add_argument("--scan-csv", type=Path, help="Bytecode scan CSV; defaults to data/scan/bytecode_scan.csv")
+    parser.add_argument("--versions-csv", type=Path, help="CPython version CSV; defaults to data/scan/cpython_versions.csv")
+    parser.set_defaults(func=summarize_rq1)
+
+
 def add_prepare_analysis_env_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser(
         "prepare-analysis-env",
@@ -803,6 +825,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     add_collect_parser(subparsers)
     add_collect_pypi_parser(subparsers)
     add_scan_parser(subparsers)
+    add_summarize_rq1_parser(subparsers)
     add_prepare_analysis_env_parser(subparsers)
     add_analyze_tools_parser(subparsers)
     add_fuzz_cpython_parser(subparsers)
