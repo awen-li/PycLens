@@ -3,7 +3,7 @@
 \subsection{Overview}\label{sec:method:overview}
 
 {\tech} studies Python bytecode as a distribution artifact, an analysis target, and an interpreter input.  As shown in Figure~\ref{fig:pipeline-overview}, the study proceeds from ecosystem measurement to tool analysis, runtime robustness testing, and source-reproduction checking.  RQ1 measures bytecode exposure and source transparency in PyPI distributions; RQ2 evaluates the practical analyzability of the observed modern CPython bytecode subset; RQ3 tests CPython robustness under mutated bytecode inputs; and RQ4 checks whether bytecode-level findings can be reproduced from ordinary source using selected tools.
-
+%
 The pipeline has four stages aligned with these questions.  First, the data collector downloads Python package artifacts from PyPI and the scanner inventories source files, \texttt{.pyc} files, pycache directories, bytecode versions, source-less bytecode candidates, and dynamic loading patterns.  Second, the tool-analysis stage evaluates whether selected bytecode tools can load, disassemble, and decompile the modern CPython bytecode subset for which version-matched interpreters are prepared.  Third, the CPython fuzzing stage extracts unittest-derived seeds, compiles them into version-matched \texttt{.pyc} files, and fuzzes CPython bytecode processing with honggfuzz.  Fourth, the source-reproduction stage checks whether bytecode-level findings can be reproduced from ordinary source using selected recovery tools.
 
 \begin{figure}[t]
@@ -21,11 +21,7 @@ The remainder of this section follows the structure in Figure~\ref{fig:pipeline-
 
 The data-collection component defines the study population for prevalence measurement and the package-derived inputs for tool analysis.  Its boundary is PyPI distribution artifacts; it does not collect installed environments, containers, application bundles, or source repositories.  This makes the population public and reproducible, but limits the claims to PyPI distributions rather than all Python deployment formats.
 
-{\tech} enumerates package names from the PyPI simple index, queries PyPI's JSON metadata, and selects artifacts from each package's latest release.  For each selected release, it keeps at most one wheel and one source distribution uploaded within the five-year study window.  Table~\ref{tab:data-collection-design} summarizes these choices and their purpose.  Source distributions may appear as \texttt{.tar.gz}, \texttt{.zip}, or related archive formats; the scanner records the concrete artifact type.
-
-The collection policy shapes the denominator.  Because the dataset is package-balanced rather than upload-balanced, projects with many platform-specific wheels do not dominate the measurement.  We therefore analyze wheels and source distributions as separate strata and report the combined total only as a descriptive summary.
-
-\begin{table}[t]
+\begin{table}[htp]
   \centering
   \caption{Data-collection choices and purpose.}
   \label{tab:data-collection-design}
@@ -42,13 +38,17 @@ The collection policy shapes the denominator.  Because the dataset is package-ba
   \end{tabular}
 \end{table}
 
+{\tech} enumerates package names from the PyPI simple index, queries PyPI's JSON metadata, and selects artifacts from each package's latest release.  For each selected release, it keeps at most one wheel and one source distribution uploaded within the five-year study window.  Table~\ref{tab:data-collection-design} summarizes these choices and their purpose.  Source distributions may appear as \texttt{.tar.gz}, \texttt{.zip}, or related archive formats; the scanner records the concrete artifact type.
+%
+The collection policy shapes the denominator.  Because the dataset is package-balanced rather than upload-balanced, projects with many platform-specific wheels do not dominate the measurement.  We therefore analyze wheels and source distributions as separate strata and report the combined total only as a descriptive summary.
+%
 For each downloaded artifact, {\tech} records the package name, version, distribution type, local path, hash, and collection status.  Downloads are parallelized, resumable, and stored under a deterministic layout keyed by source, package, version, and filename.  The scanner then records the source and bytecode inventory, bytecode magic number, inferred filename tag, source-less bytecode candidates, and static dynamic-loading indicators.  Collector and scanner outputs are CSV files so dataset construction can be audited and rerun.  Ambiguous cases remain in the raw scan results rather than being normalized away.
 
 \subsection{Phase 1: Bytecode Exposure and Transparency}\label{sec:method:extract}
 
 The first phase turns collected artifacts into bytecode-exposure and transparency measurements.  It is a static archive-inspection phase: the scanner opens wheels, source distributions, zip archives, tar archives, individual files, and extracted directories without installing or executing package code, then records the fields summarized in Table~\ref{tab:phase1-scan-fields}.
 
-\begin{table}[t]
+\begin{table}[htp]
   \centering
   \caption{Phase~1 scan fields and purpose.}
   \label{tab:phase1-scan-fields}
@@ -67,7 +67,7 @@ The first phase turns collected artifacts into bytecode-exposure and transparenc
 \end{table}
 
 These fields separate prevalence from transparency.  Prevalence is measured at both artifact level and file level because one artifact with many cached files differs from many artifacts each containing one bytecode file.  Transparency is measured by whether a \texttt{.pyc} file has a plausible corresponding source file under package layout and pycache naming conventions.  This is a conservative visibility check, not a semantic-equivalence claim.
-
+%
 The scanner preserves ambiguous observations in the raw results.  Unknown bytecode versions, noncanonical filename tags, source-less candidates, and dynamic-loading indicators remain visible in the scan inventory; later phases decide which observations are suitable for version-matched analysis.  This keeps the prevalence measurement descriptive while preventing later tool failures from being mixed with raw ecosystem inventory.
 
 \subsection{Phase 2: Practical Analyzability}\label{sec:method:source}
