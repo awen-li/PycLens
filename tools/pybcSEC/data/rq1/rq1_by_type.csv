@@ -1,0 +1,4 @@
+input_type,artifacts,artifacts_with_bytecode,bytecode_artifact_rate,artifacts_with_pyc,artifacts_with_pycache,artifacts_with_source_less_pyc,artifacts_with_dynamic_loading,py_files,pyc_files,pycache_dirs,source_less_pyc,dynamic_load_hits
+tar,517077,4702,0.00909342,4645,4580,1006,128407,15732551,151472,24649,19301,544242
+wheel,517076,2646,0.00511724,2645,2469,549,114043,12386246,76058,11162,8818,388611
+zip,690,40,0.05797101,40,38,3,136,20482,1048,122,74,309
