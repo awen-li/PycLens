@@ -6,6 +6,12 @@ Python source follows a compilation pipeline from source text to abstract syntax
 
 Although \texttt{.pyc} files are often described as caches, they are executable representations consumed by the interpreter.  Python can import bytecode-only modules, load code objects from custom loaders, execute unmarshalled code through \texttt{exec}, and ship compiled payloads inside application bundles.  Therefore, bytecode is not merely a performance optimization; it is part of the attack and analysis surface.  This matters even when a package also contains source, because the source file and the bytecode artifact may differ in version, path, timestamp, or content.
 
+\subsection{Python Distribution Artifacts}
+
+Python packages are commonly published as source distributions and wheel distributions.  A source distribution is a source-oriented archive, often a \texttt{.tar.gz} file, that contains the project files needed to build or install the package.  A wheel is a built distribution, stored as a \texttt{.whl} archive, that contains files prepared for installation together with package metadata.  Although wheels are built distributions, they often still contain ordinary Python source files; the distinction is about the distribution format and installation workflow, not whether \texttt{.py} files are present.
+
+This distinction matters for bytecode transparency.  We treat wheels and source distributions as separate artifact types because they are produced by different release steps and may contain different file inventories for the same package version.  Within either artifact type, a bytecode file is source-backed only when the corresponding \texttt{.py} file is present in the same artifact under the expected path.  Otherwise, we classify it as source-less within that artifact, even if source may exist elsewhere in the project repository or in another distribution artifact.
+
 \subsection{Security Relevance of Bytecode Artifacts}
 
 Bytecode artifacts arise in several security-relevant settings.  Package distributions may accidentally include cached bytecode.  Deployment systems may ship bytecode without source.  Bundlers and release systems may embed compiled modules.  Malware can hide payloads in marshalled code objects or source-less modules.  Security scanners may encounter all of these artifacts while analyzing wheels, source distributions, containers, virtual environments, or release archives.
