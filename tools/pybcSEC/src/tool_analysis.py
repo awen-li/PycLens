@@ -54,6 +54,7 @@ OPTIONAL_TOOLS = ("uncompyle6", "decompyle3", "pycdc", "pylingual")
 DECOMPILER_TOOLS = OPTIONAL_TOOLS
 PER_INTERPRETER_TOOLS = ("uncompyle6", "decompyle3")
 GLOBAL_TOOLS = ("pycdc", "pylingual")
+RQ2_MIN_CPYTHON_MINOR = 8
 
 
 @dataclass
@@ -108,6 +109,7 @@ def analyze_artifacts(
     tool_envs: dict[str, dict[str, str | None]],
 ) -> list[ToolAnalysisResult]:
     selected_tools = available_tools()
+    print_rq2_scope(interpreters)
     print(
         "tool analysis inputs: artifacts={artifacts}, workers={workers}, optional_tools={tools}".format(
             artifacts=len(artifacts),
@@ -265,6 +267,22 @@ def print_interpreter_environment(interpreters: dict[str, str | None]) -> None:
         "CPython interpreter environment: "
         + ", ".join(
             f"{tag}:{path if path else 'missing'}" for tag, path in sorted(interpreters.items())
+        )
+    )
+
+
+def print_rq2_scope(interpreters: dict[str, str | None]) -> None:
+    in_scope = [
+        tag
+        for tag in sorted(interpreters)
+        if rq2_in_scope_tag(tag, interpreters)
+    ]
+    print(
+        "RQ2 bytecode scope: "
+        + (
+            ", ".join(in_scope)
+            if in_scope
+            else f"no prepared CPython 3.{RQ2_MIN_CPYTHON_MINOR}+ interpreters"
         )
     )
 
@@ -588,6 +606,9 @@ def analyze_artifact(
         entry_path = scanner.normalize_path(entry.path)
         if entry.is_dir or not entry_path.endswith(".pyc"):
             continue
+        tag = python_tag(entry_path)
+        if not rq2_in_scope_tag(tag, interpreters):
+            continue
         result = analyze_pyc_entry(
             artifact,
             scanner.input_type(artifact),
@@ -811,6 +832,20 @@ def supported_cpython_analysis_tag(tag: str) -> bool:
     if major != "3" or not minor.isdigit():
         return False
     return int(minor) >= 6
+
+
+def rq2_in_scope_tag(tag: str, interpreters: dict[str, str | None]) -> bool:
+    if not tag.startswith("cpython-"):
+        return False
+    version = cpython_tag_version(tag)
+    if not version:
+        return False
+    major, _, minor = version.partition(".")
+    if major != "3" or not minor.isdigit():
+        return False
+    if int(minor) < RQ2_MIN_CPYTHON_MINOR:
+        return False
+    return bool(interpreters.get(tag))
 
 
 def run_optional_tool(tool: str, executable: str | None, pyc_path: Path, timeout: int) -> tuple[str, str]:
