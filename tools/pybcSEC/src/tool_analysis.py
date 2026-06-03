@@ -189,9 +189,11 @@ def load_interpreter_environment(
     with versions_csv.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
         for row in reader:
-            tag = row.get("python_tag", "")
-            interpreter = row.get("interpreter", "")
-            if not tag or tag == "unknown":
+            interpreter = row.get("interpreter", "").strip()
+            if not interpreter:
+                continue
+            tag = tag_from_interpreter(interpreter) or canonical_analysis_tag(row.get("python_tag", ""))
+            if not tag or tag == "unknown" or not supported_cpython_analysis_tag(tag):
                 continue
             interpreters[tag] = find_interpreter(tag, interpreter, data_dir)
     return interpreters
@@ -272,7 +274,7 @@ def prepare_analysis_environment(
     versions_csv: Path,
     timeout: int,
 ) -> Path:
-    interpreters = load_interpreter_environment(versions_csv)
+    interpreters = load_interpreter_environment(versions_csv, data_dir=data_dir)
     out_csv = data_dir / "rq2" / "analysis_environment.csv"
     out_csv.parent.mkdir(parents=True, exist_ok=True)
     rows = []
@@ -763,9 +765,52 @@ def python_tag(pyc_path: str) -> str:
     name = Path(pyc_path).name
     parts = name.split(".")
     for part in parts:
-        if part.startswith("cpython-") or part.startswith("pypy-"):
-            return part
+        tag = canonical_analysis_tag(part)
+        if tag:
+            return tag
     return ""
+
+
+def canonical_analysis_tag(value: str) -> str:
+    if value.startswith("cpython-"):
+        raw = value.removeprefix("cpython-")
+        digits = []
+        for char in raw:
+            if not char.isdigit():
+                break
+            digits.append(char)
+        if len(digits) in (2, 3):
+            return "cpython-" + "".join(digits)
+    if value.startswith("pypy-"):
+        raw = value.removeprefix("pypy-")
+        digits = []
+        for char in raw:
+            if not char.isdigit():
+                break
+            digits.append(char)
+        if len(digits) in (2, 3):
+            return "pypy-" + "".join(digits)
+    return ""
+
+
+def tag_from_interpreter(interpreter: str) -> str:
+    name = Path(interpreter).name
+    if not name.startswith("python3."):
+        return ""
+    minor = name.removeprefix("python3.")
+    if not minor.isdigit():
+        return ""
+    return f"cpython-3{minor}"
+
+
+def supported_cpython_analysis_tag(tag: str) -> bool:
+    version = cpython_tag_version(tag)
+    if not version:
+        return False
+    major, _, minor = version.partition(".")
+    if major != "3" or not minor.isdigit():
+        return False
+    return int(minor) >= 6
 
 
 def run_optional_tool(tool: str, executable: str | None, pyc_path: Path, timeout: int) -> tuple[str, str]:
