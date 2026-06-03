@@ -259,7 +259,7 @@ L 902.719454 114.925005
     <text style="font-weight: 700; font-size: 8.8px; font-family: 'DejaVu Sans'; text-anchor: middle" x="313.539473" y="44.137792" transform="rotate(-0 313.539473 44.137792)">Artifact Extraction</text>
    </g>
    <g id="text_7">
-    <text style="font-size: 7.5px; font-family: 'DejaVu Sans'" transform="translate(261.358223 65.002266)">.pyc, marshal, __pycache__,</text>
+    <text style="font-size: 7.5px; font-family: 'DejaVu Sans'" transform="translate(261.358223 65.002266)">.pyc, marshal, pycache,</text>
     <text style="font-size: 7.5px; font-family: 'DejaVu Sans'" transform="translate(299.721895 73.210301)">loaders</text>
    </g>
    <g id="text_8">

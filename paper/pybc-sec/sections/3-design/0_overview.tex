@@ -1,27 +1,9 @@
 
 \section{Study Goals and Research Questions}\label{sec:study}
 
-This study asks whether Python bytecode should be treated as a first-class security artifact rather than as an incidental cache file.  The motivation has two parts.  First, bytecode can appear in real package distributions and may be consumed by the interpreter even when source-level analysis ignores it.  Second, if bytecode is malformed, adversarial, or produced outside the ordinary compiler path, it may exercise CPython behaviors that source-level testing and source-recovery tools do not expose.  We do not argue that arbitrary bytecode should be trusted or safely executed.  Instead, we measure where bytecode appears, how transparent it is to analysis, and how to interpret robustness findings at the bytecode boundary.
+This study asks whether Python bytecode should be treated as a first-class security artifact rather than as an incidental cache file.  The question has a causal structure.  Bytecode first needs to be visible in real distributions; otherwise, later analysis would lack practical relevance.  If it is visible, the next concern is whether existing tools can inspect it under the correct runtime assumptions.  If tool support is limited, robustness testing must distinguish bytecode-level interpreter behavior from source-level behavior.  Finally, any bytecode-level finding must be interpreted with care: failure to recover a source reproducer is evidence about selected tools, not proof that no source-level reproducer exists.
 
-\subsection{Study Goals}\label{sec:study:goals}
-
-We define four goals that follow the paper's causal chain from ecosystem relevance to security interpretation.
-
-\noindent\textbf{G1: Measure real-world exposure.}
-We first determine whether bytecode artifacts appear in Python package distributions often enough to matter for package-security workflows.  This goal includes both prevalence and transparency: whether bytecode is accompanied by source that can plausibly explain the executable artifact.
-
-\noindent\textbf{G2: Measure practical analyzability.}
-We then evaluate whether selected bytecode tools can load, disassemble, or decompile observed bytecode artifacts when the correct CPython version is available.  This separates limitations of the artifact from limitations of the analysis environment.
-
-\noindent\textbf{G3: Measure interpreter robustness.}
-We study CPython behavior when processing bytecode-level inputs generated from unittest-derived seeds and mutated by fuzzing.  The goal is to identify whether bytecode processing fails cleanly or exposes abnormal outcomes such as crashes, aborts, or timeouts.
-
-\noindent\textbf{G4: Bound source-level interpretation.}
-Finally, we ask whether bytecode-level findings can be reproduced through ordinary source using selected recovery tools.  This goal prevents overclaiming: failure to produce a source reproducer is evidence about current tools, not proof that no source-level reproducer exists.
-
-\subsection{Research Questions}\label{sec:study:rqs}
-
-We organize the study around four research questions.
+We therefore organize the study around four goals.  G1 measures real-world exposure and source transparency in package distributions.  G2 measures practical analyzability with selected bytecode tools in version-aware environments.  G3 measures CPython robustness when processing malformed or adversarial bytecode.  G4 bounds the source-level interpretation of bytecode findings by testing whether selected recovery workflows can reproduce them from ordinary source.  These goals intentionally separate prevalence, tool support, runtime behavior, and source reproduction so that each claim has a clear input, metric, and limitation.
 
 \begin{description}[style=unboxed,leftmargin=0cm]
 \denseitems
@@ -31,6 +13,4 @@ We organize the study around four research questions.
 \item[\textbf{RQ4 (G4):}] \emph{Can bytecode-level failures be reproduced from ordinary source using selected tools?}
 \end{description}
 
-\subsection{Alignment with the Study Design}\label{sec:study:alignment}
-
-The research questions are ordered to make each design decision evaluable.  RQ1 establishes ecosystem relevance and source transparency using package artifacts.  RQ2 asks whether current tools can inspect those artifacts in a version-aware environment.  RQ3 moves from benign package bytecode to adversarial bytecode processing and measures CPython robustness.  RQ4 interprets the RQ3 findings by checking whether selected source-recovery tools can produce source-level reproducers.  This organization directly addresses input soundness, design justification, and evaluation sufficiency: each phase has explicit inputs, outcomes, and limits that are reported separately.
+The ordering is part of the study design.  RQ1 establishes whether bytecode artifacts occur at ecosystem scale and whether source-level inspection is sufficient.  RQ2 evaluates the practical analysis boundary for the observed modern CPython bytecode subset.  RQ3 then moves from observed benign artifacts to adversarial bytecode inputs to test interpreter robustness.  RQ4 prevents overinterpretation of RQ3 by asking whether selected source-recovery workflows can bridge bytecode findings back to ordinary source.  Section~\ref{sec:method} describes the concrete pipeline used to answer these questions.

@@ -2,7 +2,9 @@
 
 \subsection{Overview}\label{sec:method:overview}
 
-{\tech} is an empirical pipeline for studying Python bytecode visibility, analyzability, and robustness.  The pipeline has four stages aligned with the research questions.  First, the data collector downloads Python package artifacts from PyPI and the scanner inventories source files, \texttt{.pyc} files, \texttt{\_\_pycache\_\_} directories, bytecode versions, source-less bytecode candidates, and dynamic loading patterns.  Second, the tool-analysis stage evaluates whether selected bytecode tools can load, disassemble, and decompile observed bytecode artifacts in a version-aware environment.  Third, the CPython fuzzing stage extracts unittest-derived seeds, compiles them into version-matched \texttt{.pyc} files, and fuzzes CPython bytecode processing with honggfuzz.  Fourth, the source-reproduction stage checks whether bytecode-level findings can be reproduced from ordinary source using selected recovery tools.
+{\tech} studies Python bytecode as a distribution artifact, an analysis target, and an interpreter input.  As shown in Figure~\ref{fig:pipeline-overview}, the study proceeds from ecosystem measurement to tool analysis, runtime robustness testing, and source-reproduction checking.  RQ1 measures bytecode exposure and source transparency in PyPI distributions; RQ2 evaluates the practical analyzability of the observed modern CPython bytecode subset; RQ3 tests CPython robustness under mutated bytecode inputs; and RQ4 checks whether bytecode-level findings can be reproduced from ordinary source using selected tools.
+
+The pipeline has four stages aligned with these questions.  First, the data collector downloads Python package artifacts from PyPI and the scanner inventories source files, \texttt{.pyc} files, pycache directories, bytecode versions, source-less bytecode candidates, and dynamic loading patterns.  Second, the tool-analysis stage evaluates whether selected bytecode tools can load, disassemble, and decompile the modern CPython bytecode subset for which version-matched interpreters are prepared.  Third, the CPython fuzzing stage extracts unittest-derived seeds, compiles them into version-matched \texttt{.pyc} files, and fuzzes CPython bytecode processing with honggfuzz.  Fourth, the source-reproduction stage checks whether bytecode-level findings can be reproduced from ordinary source using selected recovery tools.
 
 \begin{figure}[t]
   \centering
@@ -13,25 +15,68 @@
   \label{fig:pipeline-overview}
 \end{figure}
 
+The remainder of this section follows the structure in Figure~\ref{fig:pipeline-overview}: data collection defines the study population, Phase~1 measures bytecode exposure, Phase~2 analyzes tool support, Phase~3 evaluates CPython bytecode processing, and Phase~4 bounds source-level interpretation of bytecode findings.
+
 \subsection{Data Collection}\label{sec:method:data}
 
-The package dataset is built from PyPI artifacts.  For each selected package, {\tech} collects available wheel and source-distribution files within the study time window.  It fetches package names from the PyPI simple index, applies the study's time-window policy, and downloads selected distribution artifacts when available.  Downloads are parallelized, resumable, and stored under a deterministic directory layout so interrupted runs can continue without re-fetching completed artifacts.
+The data-collection component defines the study population for prevalence measurement and the package-derived inputs for tool analysis.  Its boundary is PyPI distribution artifacts; it does not collect installed environments, containers, application bundles, or source repositories.  This makes the population public and reproducible, but limits the claims to PyPI distributions rather than all Python deployment formats.
 
-We use PyPI as the default source because it is the primary distribution channel for Python packages and provides a large, public, and reproducible population for studying whether bytecode appears in package distributions.  This choice gives RQ1 a clear denominator and repeatable collection protocol, instead of mixing several ad hoc artifact sources with different sampling frames.  The corresponding limitation is scope: results characterize PyPI package distributions, not all Python deployment formats.
+{\tech} enumerates package names from the PyPI simple index, queries PyPI's JSON metadata, and selects artifacts from each package's latest release.  For each selected release, it keeps at most one wheel and one source distribution uploaded within the five-year study window.  Table~\ref{tab:data-collection-design} summarizes these choices and their purpose.  Source distributions may appear as \texttt{.tar.gz}, \texttt{.zip}, or related archive formats; the scanner records the concrete artifact type.
 
-For each artifact, {\tech} records the package name, version, distribution type, local path, source and bytecode inventory, bytecode magic number, inferred CPython version tag, hashes, and static dynamic-loading indicators.  The collector writes CSV manifests rather than opaque binary databases so that dataset construction can be audited and rerun.  Ambiguous cases are reported separately, including unknown bytecode versions, unparsable archives, source-less bytecode candidates, and dynamic loaders whose target cannot be resolved statically.
+The collection policy shapes the denominator.  Because the dataset is package-balanced rather than upload-balanced, projects with many platform-specific wheels do not dominate the measurement.  We therefore analyze wheels and source distributions as separate strata and report the combined total only as a descriptive summary.
+
+\begin{table}[t]
+  \centering
+  \caption{Data-collection choices and purpose.}
+  \label{tab:data-collection-design}
+  \begin{tabular}{p{0.24\linewidth}p{0.58\linewidth}}
+    \toprule
+    Choice & Purpose \\
+    \midrule
+    PyPI artifacts & Public, reproducible package population with a clear denominator. \\
+    Latest release & Reflects the package version most likely encountered by users and package-security tools. \\
+    One wheel and one source distribution & Prevents projects with many platform-specific wheels from dominating prevalence counts. \\
+    Five-year upload window & Focuses on contemporary packaging practice and modern CPython/tool support. \\
+    CSV manifests & Keeps collection auditable, rerunnable, and easy to aggregate. \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+For each downloaded artifact, {\tech} records the package name, version, distribution type, local path, hash, and collection status.  Downloads are parallelized, resumable, and stored under a deterministic layout keyed by source, package, version, and filename.  The scanner then records the source and bytecode inventory, bytecode magic number, inferred filename tag, source-less bytecode candidates, and static dynamic-loading indicators.  Collector and scanner outputs are CSV files so dataset construction can be audited and rerun.  Ambiguous cases remain in the raw scan results rather than being normalized away.
 
 \subsection{Phase 1: Bytecode Exposure and Transparency}\label{sec:method:extract}
 
-The first phase measures whether package artifacts contain bytecode and whether that bytecode is transparent to source-level inspection.  The scanner opens wheels, source distributions, zip archives, tar archives, individual files, and extracted directories.  It records the number of Python source files, \texttt{.pyc} files, \texttt{\_\_pycache\_\_} directories, source-less bytecode candidates, bytecode magic numbers, and inferred CPython version tags.  It also scans source text for dynamic loading APIs including \texttt{marshal}, \texttt{importlib}, \texttt{SourcelessFileLoader}, \texttt{types.CodeType}, \texttt{exec}, and \texttt{eval}.
+The first phase turns collected artifacts into bytecode-exposure and transparency measurements.  It is a static archive-inspection phase: the scanner opens wheels, source distributions, zip archives, tar archives, individual files, and extracted directories without installing or executing package code, then records the fields summarized in Table~\ref{tab:phase1-scan-fields}.
 
-Prevalence is measured at both artifact level and file level because one package with many cached files has a different interpretation from many packages each containing one bytecode artifact.  Transparency is measured by whether bytecode appears with a plausible corresponding source file under package layout and \texttt{\_\_pycache\_\_} naming conventions.  This criterion is intentionally conservative: it identifies source visibility but does not claim semantic equivalence unless a later version-aware analysis supports that interpretation.
+\begin{table}[t]
+  \centering
+  \caption{Phase~1 scan fields and purpose.}
+  \label{tab:phase1-scan-fields}
+  \begin{tabular}{p{0.30\linewidth}p{0.52\linewidth}}
+    \toprule
+    Field & Purpose \\
+    \midrule
+    Artifact type & Separate wheels, source distributions, and other archives. \\
+    Source files & Measure whether bytecode is accompanied by visible Python source. \\
+    \texttt{.pyc} files / pycache directories & Measure bytecode exposure at artifact and file levels. \\
+    Source-less candidates & Approximate bytecode that lacks a plausible source counterpart in the same artifact. \\
+    Version evidence & Record magic numbers and filename tags for later version-aware analysis. \\
+    Dynamic-loading indicators & Flag source that may load or construct bytecode at runtime. \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+These fields separate prevalence from transparency.  Prevalence is measured at both artifact level and file level because one artifact with many cached files differs from many artifacts each containing one bytecode file.  Transparency is measured by whether a \texttt{.pyc} file has a plausible corresponding source file under package layout and pycache naming conventions.  This is a conservative visibility check, not a semantic-equivalence claim.
+
+The scanner preserves ambiguous observations in the raw results.  Unknown bytecode versions, noncanonical filename tags, source-less candidates, and dynamic-loading indicators remain visible in the scan inventory; later phases decide which observations are suitable for version-matched analysis.  This keeps the prevalence measurement descriptive while preventing later tool failures from being mixed with raw ecosystem inventory.
 
 \subsection{Phase 2: Practical Analyzability}\label{sec:method:source}
 
-The second phase measures whether observed bytecode is practically analyzable by selected tools.  We distinguish loading, disassembly, partial decompilation, and full decompilation because each level supports a different security workflow.  For each bytecode-containing artifact, {\tech} extracts every \texttt{.pyc} entry and analyzes it with the CPython interpreter version indicated by its filename tag and magic number when possible.  The environment-preparation step reads the version summary produced by the scanner, locates matching interpreters, and automatically prepares missing analysis environments when the host supports installation.  Per-version virtual environments install tools that are sensitive to CPython bytecode format, while tools that are version-independent are treated as global tools.
+The second phase measures whether observed bytecode is practically analyzable by selected tools.  We distinguish loading, disassembly, partial decompilation, and full decompilation because each level supports a different security workflow.  RQ2 operates at the \texttt{.pyc}-file level.  For each bytecode-containing artifact, {\tech} extracts every \texttt{.pyc} entry, resolves its CPython tag, and includes it in RQ2 only when the tag is a supported modern CPython version with a prepared matching interpreter.  In the current study scope, this means CPython~3.8 and later; CPython~3.7 and earlier, PyPy tags, unknown tags, and noncanonical tags without an interpreter mapping are retained in the raw scan inventory but excluded from RQ2.  This filter is applied during tool analysis rather than during scanning, so the raw prevalence measurement remains complete while RQ2 failure counts are not polluted by out-of-scope runtime requirements.
 
-The practical analyzability levels are: not loadable, loadable only, disassemblable, partially decompilable, and fully decompilable by the selected tools.  {\tech} records the status and failure reason for each analysis step, including missing interpreter, marshal failure, disassembly failure, unsupported bytecode version, external-tool timeout, nonzero tool exit, and decompiler output that is unavailable.  This phase answers RQ2 by separating artifact-level analyzability from environment artifacts such as running a Python~3.12 bytecode sample under a Python~3.10-only setup.
+The environment-preparation step reads the version summary produced by the scanner, uses the interpreter field to identify canonical CPython runtimes, locates matching interpreters, and automatically prepares missing analysis environments when the host supports installation.  Per-version virtual environments install tools that are sensitive to CPython bytecode format, while tools that are version-independent are treated as global tools.
+
+The practical analyzability levels are: not loadable, loadable only, disassemblable, partially decompilable, and fully decompilable by the selected tools.  {\tech} records the status and failure reason for each analysis step, including marshal failure, disassembly failure, unsupported bytecode version, external-tool timeout, nonzero tool exit, and decompiler output that is unavailable.  Missing interpreters are recorded during environment preparation; after the RQ2 scope filter, they are not counted as tool failures.  This phase answers RQ2 by separating artifact-level analyzability from environment artifacts such as running a Python~3.12 bytecode sample under a Python~3.10-only setup.
 
 This version-aware design is necessary because Python bytecode is version-sensitive: a tool failure is uninterpretable unless the analysis environment matches the bytecode version.  The version-aware setup therefore prevents false negatives caused by missing interpreters.  The selected-tool framing also prevents overclaiming: RQ2 reports what current selected tools can analyze, not what is theoretically analyzable.
 
@@ -76,9 +121,9 @@ This check is needed because bytecode fuzzing can produce inputs that ordinary P
 
 \subsection{Tool Support and Evaluation Mapping}\label{sec:method:tools}
 
-{\tech} is implemented as a modular Python package.  The collector, scanner, RQ2 tool analyzer, RQ3 fuzzing driver, and RQ4 source-reproduction driver are separate components with CSV outputs at each stage.  This design keeps the workflow simple for full-study runs while preserving intermediate artifacts for auditing and reruns.
+{\tech} is implemented as a modular Python package.  The collector, scanner, RQ2 tool analyzer, RQ3 fuzzing driver, and RQ4 source-reproduction driver are separate components with CSV outputs at each stage.  This design keeps the workflow simple for full-study runs while preserving intermediate artifacts for auditing and reruns.  It also keeps measurement responsibilities separate: the scanner records what exists in distributions, whereas RQ-specific analyzers decide which observations are in scope for a particular research question.
 
-The version-management logic is central to the design.  The scanner exports a CPython-version summary, and later phases use that list to prepare matching interpreters and per-version environments.  This avoids the misleading failure mode where a bytecode artifact is judged unanalyzable only because the host machine lacks the correct CPython version.
+The version-management logic is central to the design.  The scanner exports a CPython-version summary, and later phases use that list to prepare matching interpreters and per-version environments.  RQ2 uses the scanner's interpreter mapping to select modern CPython bytecode entries with prepared runtimes and excludes older or unsupported entries from tool-failure counts.  This avoids the misleading failure mode where a bytecode artifact is judged unanalyzable only because the host machine lacks the correct CPython version.
 
 The fuzzing component is also version-aware.  It extracts CPython unittest seeds, compiles them using the same interpreter version that will be fuzzed, and stores one seed corpus per CPython tag.  The source-reproduction component consumes RQ3 findings and reports decompiler, compilation, and reproduction outcomes separately so that evaluation claims remain tied to observable tool behavior.
 
@@ -94,7 +139,7 @@ Table~\ref{tab:design-eval-map} summarizes how each methodology decision is eval
     \midrule
     PyPI artifact collection & RQ1 & Bytecode prevalence \\
     Bytecode/source inventory & RQ1 & Transparency categories \\
-    Version-aware tool analysis & RQ2 & Analyzability level \\
+    Scoped version-aware tool analysis & RQ2 & Analyzability level \\
     Unittest-seeded fuzzing & RQ3 & Outcome classes \\
     Source-reproduction check & RQ4 & Tool-reproduced findings \\
     \bottomrule
