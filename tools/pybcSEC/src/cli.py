@@ -428,7 +428,7 @@ def analyze_tools(args: argparse.Namespace) -> int:
     print("[RQ2] analyzing practical bytecode analyzability")
     scan_csv = args.scan_csv or args.data_dir / "scan" / "bytecode_scan.csv"
     csv_out = args.csv_out or args.data_dir / "rq2" / "tool_analysis.csv"
-    versions_csv = args.data_dir / "scan" / "cpython_versions.csv"
+    versions_csv = args.data_dir / "rq1" / "rq1_versions.csv"
     interpreters = tool_analysis.load_interpreter_environment(
         versions_csv,
         data_dir=args.data_dir,
@@ -483,7 +483,7 @@ def analyze_tools(args: argparse.Namespace) -> int:
 
 def prepare_analysis_env(args: argparse.Namespace) -> int:
     print("[RQ2] preparing CPython-specific analysis environments")
-    versions_csv = args.data_dir / "scan" / "cpython_versions.csv"
+    versions_csv = args.data_dir / "rq1" / "rq1_versions.csv"
     out_csv = tool_analysis.prepare_analysis_environment(
         args.data_dir,
         versions_csv,
@@ -495,12 +495,13 @@ def prepare_analysis_env(args: argparse.Namespace) -> int:
 
 
 def fuzz_cpython(args: argparse.Namespace) -> int:
-    print("[RQ3] fuzzing CPython bytecode processing with honggfuzz")
+    print("[RQ3] fuzzing CPython bytecode processing with honggfuzz", flush=True)
     versions_csv = args.data_dir / "scan" / "cpython_versions.csv"
     interpreters = tool_analysis.load_interpreter_environment(versions_csv, data_dir=args.data_dir)
-    seed_dir = args.data_dir / "rq3" / "seeds"
-    raw_seed_root = args.data_dir / "rq3" / "unittest_seeds"
-    cpython_source_root = args.data_dir / "rq3" / "cpython_sources"
+    rq3_root = args.data_dir / "rq3"
+    seed_dir = rq3_root
+    raw_seed_root = rq3_root
+    cpython_source_root = rq3_root
     if args.versions:
         tags = sorted({cpython_fuzz.version_to_tag(version) for version in args.versions})
     else:
@@ -513,7 +514,14 @@ def fuzz_cpython(args: argparse.Namespace) -> int:
     for tag in tags:
         if tag not in interpreters:
             interpreters[tag] = tool_analysis.find_interpreter(tag, bytecode_scan.python_tag_to_executable(tag), args.data_dir)
-    print("RQ3 CPython versions: " + ", ".join(tags))
+    print("RQ3 CPython versions: " + ", ".join(tags), flush=True)
+    if args.instrument:
+        interpreters = cpython_fuzz.prepare_instrumented_interpreters(
+            tags,
+            interpreters,
+            args.data_dir,
+            args.timeout,
+        )
     seeds = cpython_fuzz.build_seed_corpus(
         tags,
         interpreters,
@@ -524,9 +532,11 @@ def fuzz_cpython(args: argparse.Namespace) -> int:
     )
     seed_csv = args.data_dir / "rq3" / "bytecode_seeds.csv"
     cpython_fuzz.write_seed_csv(seed_csv, seeds)
-    print(f"RQ3 seed corpus: seeds={len(seeds)} tags={len({seed.python_tag for seed in seeds})} output={seed_dir}")
+    print(f"RQ3 seed corpus: seeds={len(seeds)} tags={len({seed.python_tag for seed in seeds})} output={rq3_root}/cpython-<version>/seeds")
     for tag in sorted({seed.python_tag for seed in seeds}):
         print(f"  {tag}: {sum(1 for seed in seeds if seed.python_tag == tag)} seeds")
+    if not seeds:
+        raise SystemExit("RQ3 seed corpus is empty; stop before fuzzing")
 
     runs = cpython_fuzz.run_fuzz_campaigns(
         seeds,
@@ -542,6 +552,7 @@ def fuzz_cpython(args: argparse.Namespace) -> int:
     summary_csv = args.data_dir / "rq3" / "rq3_summary.csv"
     cpython_fuzz.write_run_csv(run_csv, runs)
     cpython_fuzz.write_summary_csv(summary_csv, seeds, runs)
+    version_reports = cpython_fuzz.write_version_reports(args.data_dir, seeds, runs)
     print(
         "RQ3 fuzz summary: runs={runs}, crashes={crashes}, timeouts={timeouts}".format(
             runs=len(runs),
@@ -549,10 +560,30 @@ def fuzz_cpython(args: argparse.Namespace) -> int:
             timeouts=sum(run.timeouts for run in runs),
         )
     )
-    print(f"wrote RQ3 seed report to {seed_csv}")
-    print(f"wrote RQ3 fuzz report to {run_csv}")
-    print(f"wrote RQ3 summary to {summary_csv}")
+    print("wrote per-version RQ3 reports:")
+    for path in version_reports:
+        print(f"  {path}")
+    print("wrote aggregate RQ3 reports:")
+    print(f"  {seed_csv}")
+    print(f"  {run_csv}")
+    print(f"  {summary_csv}")
     return 0
+
+
+def smoke_rq3(args: argparse.Namespace) -> int:
+    if not args.version:
+        raise SystemExit("smoke-rq3 requires one CPython version, such as 3.10 or cpython-310")
+    return fuzz_cpython(
+        argparse.Namespace(
+            data_dir=args.data_dir,
+            versions=[args.version],
+            workers=args.workers,
+            duration=args.duration,
+            timeout=args.timeout,
+            honggfuzz=args.honggfuzz,
+            instrument=False,
+        )
+    )
 
 
 def reproduce_source(args: argparse.Namespace) -> int:
@@ -564,11 +595,12 @@ def reproduce_source(args: argparse.Namespace) -> int:
         tags = sorted(
             set(cpython_fuzz.read_version_tags(versions_csv))
             | {
-                path.name
-                for path in (args.data_dir / "rq3" / "fuzz").glob("cpython-*")
+                cpython_fuzz.directory_name_to_tag(path.name)
+                for path in (args.data_dir / "rq3").glob("cpython-*")
                 if path.is_dir()
             }
         )
+        tags = sorted(tag for tag in tags if tag)
     if not tags:
         raise SystemExit("no RQ4 CPython versions found. Run pybcSEC fuzz-cpython first.")
     print("RQ4 CPython versions: " + ", ".join(tags))
@@ -786,12 +818,27 @@ def add_fuzz_cpython_parser(subparsers: argparse._SubParsersAction) -> None:
         help="RQ3: extract unittest seeds, compile .pyc seeds, and fuzz CPython bytecode processing.",
     )
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for study data")
-    parser.add_argument("--workers", type=int, default=4, help="Honggfuzz worker count per CPython version")
+    parser.add_argument("--workers", type=int, default=1, help="Honggfuzz worker count per CPython version")
     parser.add_argument("--duration", type=int, default=60, help="Honggfuzz runtime in seconds per CPython version")
     parser.add_argument("--timeout", type=int, default=10, help="Per-input timeout in seconds")
     parser.add_argument("--honggfuzz", type=Path, help="Path to honggfuzz binary; auto-detected by default")
+    parser.add_argument("--no-instrument", dest="instrument", action="store_false", help=argparse.SUPPRESS)
     parser.add_argument("versions", nargs="*", help="Optional CPython versions to fuzz, such as 3.10 or cpython-310")
-    parser.set_defaults(func=fuzz_cpython)
+    parser.set_defaults(func=fuzz_cpython, instrument=True)
+
+
+def add_smoke_rq3_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser(
+        "smoke-rq3",
+        help="Smoke test RQ3 for one CPython version using the real fuzz-cpython workflow.",
+    )
+    parser.add_argument("version", help="CPython version to test, such as 3.10 or cpython-310")
+    parser.add_argument("--data-dir", type=Path, default=DEFAULT_SMOKE_DATA_DIR, help="Root directory for smoke-test data")
+    parser.add_argument("--workers", type=int, default=1, help="Honggfuzz worker count")
+    parser.add_argument("--duration", type=int, default=5, help="Honggfuzz runtime in seconds")
+    parser.add_argument("--timeout", type=int, default=5, help="Per-input timeout in seconds")
+    parser.add_argument("--honggfuzz", type=Path, help="Path to honggfuzz binary; auto-detected by default")
+    parser.set_defaults(func=smoke_rq3)
 
 
 def add_reproduce_source_parser(subparsers: argparse._SubParsersAction) -> None:
@@ -829,6 +876,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     add_prepare_analysis_env_parser(subparsers)
     add_analyze_tools_parser(subparsers)
     add_fuzz_cpython_parser(subparsers)
+    add_smoke_rq3_parser(subparsers)
     add_reproduce_source_parser(subparsers)
     args = parser.parse_args(argv)
     return args.func(args)

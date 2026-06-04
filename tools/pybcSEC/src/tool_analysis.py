@@ -10,6 +10,7 @@ import marshal
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
@@ -194,7 +195,8 @@ def load_interpreter_environment(
             interpreter = row.get("interpreter", "").strip()
             if not interpreter:
                 continue
-            tag = tag_from_interpreter(interpreter) or canonical_analysis_tag(row.get("python_tag", ""))
+            raw_tag = row.get("python_tag", "") or row.get("name", "")
+            tag = tag_from_interpreter(interpreter) or canonical_analysis_tag(raw_tag)
             if not tag or tag == "unknown" or not supported_cpython_analysis_tag(tag):
                 continue
             interpreters[tag] = find_interpreter(tag, interpreter, data_dir)
@@ -218,6 +220,7 @@ def find_interpreter(tag: str, interpreter: str, data_dir: Path | None) -> str |
             manylinux_python_path(tag),
         ]
     )
+    candidates.extend(uv_python_candidates(version))
     for candidate in candidates:
         if candidate is None:
             continue
@@ -227,6 +230,35 @@ def find_interpreter(tag: str, interpreter: str, data_dir: Path | None) -> str |
         if isinstance(candidate, str):
             return candidate
     return None
+
+
+def uv_python_candidates(version: str) -> list[Path]:
+    if not version:
+        return []
+    candidates: list[Path] = []
+    executable = f"python{version}"
+    roots: list[Path] = []
+    if os.environ.get("UV_PYTHON_INSTALL_DIR"):
+        roots.append(Path(os.environ["UV_PYTHON_INSTALL_DIR"]))
+    if os.environ.get("XDG_DATA_HOME"):
+        roots.append(Path(os.environ["XDG_DATA_HOME"]) / "uv" / "python")
+    roots.extend(
+        [
+            Path.home() / ".local" / "share" / "uv" / "python",
+            Path.home() / ".local" / "bin",
+            Path("/root/.local/share/uv/python"),
+            Path("/root/.local/bin"),
+        ]
+    )
+    for root in roots:
+        if root.name == "bin":
+            candidates.append(root / executable)
+            continue
+        if not root.exists():
+            continue
+        candidates.extend(sorted(root.glob(f"cpython-{version}*/bin/{executable}")))
+        candidates.extend(sorted(root.glob(f"cpython-{version}*/bin/python")))
+    return candidates
 
 
 def cpython_tag_version(tag: str) -> str:
@@ -291,8 +323,17 @@ def prepare_analysis_environment(
     data_dir: Path,
     versions_csv: Path,
     timeout: int,
+    extra_tags: Sequence[str] = (),
 ) -> Path:
     interpreters = load_interpreter_environment(versions_csv, data_dir=data_dir)
+    for tag in extra_tags:
+        if not supported_cpython_analysis_tag(tag):
+            print(f"[prepare-env] {tag}: unsupported CPython tag; skipping")
+            continue
+        interpreters.setdefault(
+            tag,
+            find_interpreter(tag, scanner.python_tag_to_executable(tag), data_dir),
+        )
     out_csv = data_dir / "rq2" / "analysis_environment.csv"
     out_csv.parent.mkdir(parents=True, exist_ok=True)
     rows = []
@@ -441,14 +482,16 @@ def install_cpython(tag: str, timeout: int) -> tuple[str, str]:
     version = cpython_tag_version(tag)
     if not version:
         return "unsupported_tag", tag
+    uv_status, uv_reason = ensure_uv(timeout)
+    uv = find_uv()
+    if uv:
+        status, reason = run_installer([uv, "python", "install", version], timeout)
+        if status == "ok":
+            return status, reason
+        uv_status, uv_reason = status, reason
     apt = shutil.which("apt-get")
     if apt:
         status, reason = apt_install_cpython(apt, version, timeout)
-        if status == "ok":
-            return status, reason
-    uv = shutil.which("uv")
-    if uv:
-        status, reason = run_installer([uv, "python", "install", version], timeout)
         if status == "ok":
             return status, reason
     pyenv = shutil.which("pyenv")
@@ -457,7 +500,50 @@ def install_cpython(tag: str, timeout: int) -> tuple[str, str]:
         if install_version:
             return run_installer([pyenv, "install", "-s", install_version], timeout)
         return "installer_failed", f"pyenv has no installable version for {version}"
-    return "installer_unavailable", f"install {scanner.python_tag_to_executable(tag)} or install apt/uv/pyenv"
+    return "installer_unavailable", f"uv:{uv_status}:{uv_reason}; install {scanner.python_tag_to_executable(tag)} or install apt/pyenv"
+
+
+def ensure_uv(timeout: int) -> tuple[str, str]:
+    uv = find_uv()
+    if uv:
+        return "ok", uv
+    commands = [
+        [sys.executable, "-m", "pip", "install", "--user", "uv"],
+        [sys.executable, "-m", "pip", "install", "uv"],
+    ]
+    last_status = "installer_unavailable"
+    last_reason = "uv not found"
+    for command in commands:
+        status, reason = run_installer(command, timeout)
+        if status != "ok":
+            last_status, last_reason = status, reason
+            continue
+        uv = find_uv()
+        if uv:
+            return "ok", f"installed uv at {uv}"
+        last_status, last_reason = "installer_unavailable", "pip installed uv but executable was not found"
+    return last_status, last_reason
+
+
+def find_uv() -> str | None:
+    candidates = [
+        shutil.which("uv"),
+        Path(sys.executable).resolve().parent / "uv",
+        Path(sys.prefix) / "bin" / "uv",
+        Path("/usr/local/bin/uv"),
+        Path("/usr/bin/uv"),
+        Path.home() / ".local" / "bin" / "uv",
+        Path("/root/.local/bin/uv"),
+    ]
+    for candidate in candidates:
+        if not candidate:
+            continue
+        path = Path(candidate)
+        if path.exists():
+            return str(path)
+        if isinstance(candidate, str):
+            return candidate
+    return None
 
 
 def apt_install_cpython(apt: str, version: str, timeout: int) -> tuple[str, str]:
@@ -831,7 +917,7 @@ def supported_cpython_analysis_tag(tag: str) -> bool:
     major, _, minor = version.partition(".")
     if major != "3" or not minor.isdigit():
         return False
-    return int(minor) >= 6
+    return int(minor) >= RQ2_MIN_CPYTHON_MINOR
 
 
 def rq2_in_scope_tag(tag: str, interpreters: dict[str, str | None]) -> bool:

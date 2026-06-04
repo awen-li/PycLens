@@ -116,7 +116,11 @@ def analyze_reproducibility(
 
 
 def find_findings(data_dir: Path, tag: str) -> list[Path]:
-    findings_dir = data_dir / "rq3" / "fuzz" / tag / "findings"
+    findings_dir = cpython_fuzz.version_fuzz_dir(data_dir / "rq3", tag) / "crashes"
+    if not findings_dir.exists():
+        findings_dir = data_dir / "rq3" / "fuzz" / tag / "crashes"
+    if not findings_dir.exists():
+        findings_dir = data_dir / "rq3" / "fuzz" / tag / "findings"
     if not findings_dir.exists():
         return []
     return sorted(item for item in findings_dir.iterdir() if item.is_file())

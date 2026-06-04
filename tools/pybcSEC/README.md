@@ -115,7 +115,7 @@ stderr/stdout excerpt. The `python_tag` column records version tags from `.pyc`
 filenames, such as `cpython-38` or `cpython-39`, to help diagnose compatibility
 issues.
 
-`prepare-analysis-env` reads `data/scan/cpython_versions.csv`, checks for the
+`prepare-analysis-env` reads `data/rq1/rq1_versions.csv`, checks for the
 required `pythonX.Y` interpreters, creates per-version virtual environments
 under `data/rq2/envs/`, and installs `uncompyle6` and `decompyle3` in those
 environments. `pylingual` is intentionally treated as a global tool and is not
@@ -124,8 +124,9 @@ installed per interpreter.
 Interpreter handling is automatic. The tool checks existing prepared
 environments, `PATH`, common system locations, pyenv/asdf locations, and
 manylinux-style `/opt/python/cpXY-cpXY/bin/python` paths. If a required
-interpreter is missing, it tries to install it through `apt-get`, `uv`, or
-`pyenv` when one of those installers is available; otherwise the missing
+interpreter is missing, it first ensures `uv` is available, installs `uv` with
+pip when necessary, and then runs `uv python install X.Y`. If that path fails,
+it falls back to `apt-get` or `pyenv` when available; otherwise the missing
 interpreter is reported in `data/rq2/analysis_environment.csv`.
 
 RQ2 also writes reproducibility and paper-table outputs:
@@ -138,6 +139,10 @@ data/rq2/rq2_summary.csv
 Run the RQ3 CPython fuzzing campaign:
 
 ```bash
+pybcSEC prepare-analysis-env
+```
+
+```bash
 pybcSEC --fuzzing 3.10 --workers 6 --duration 3600
 ```
 
@@ -147,29 +152,55 @@ The explicit command is equivalent:
 pybcSEC fuzz-cpython 3.10 --workers 6 --duration 3600
 ```
 
-Without a version argument, RQ3 fuzzes all CPython versions involved in the
-study. For each version, pybcSEC extracts source seeds from CPython's unittest
-suite, compiles those seeds into version-matched `.pyc` files, and then runs
-honggfuzz against a small non-importing CPython bytecode harness. Reruns reuse
-compiled seeds under `data/rq3/seeds/`. If seeds and source are missing,
-pybcSEC downloads the matching CPython source release into
-`data/rq3/cpython_sources/`, extracts unittest seeds into
-`data/rq3/unittest_seeds/`, and compiles them with the matching interpreter. If
-source preparation fails, the command falls back to a small generated seed
-corpus so that every involved interpreter is still tested.
+Run a short smoke test for one CPython version:
 
-`fuzz-cpython` first looks for a bundled honggfuzz binary at
-`tools/pybcSEC/honggfuzz` or `tools/pybcSEC/tools/honggfuzz`, then checks
-`PATH`.
+```bash
+pybcSEC smoke-rq3 3.10
+```
+
+Without a version argument, RQ3 fuzzes all CPython versions involved in the
+study. RQ3 expects the required base interpreters to have been prepared by
+`prepare-analysis-env`; it does not install CPython environments itself. For
+each version, pybcSEC downloads or reuses the matching CPython
+source release, builds an instrumented interpreter with honggfuzz's compiler
+wrapper, extracts source seeds from CPython's unittest suite, compiles those
+seeds into version-matched `.pyc` files with the instrumented interpreter, and
+then runs honggfuzz against a CPython bytecode execution harness. Reruns reuse
+per-version directories such as `data/rq3/cpython-3.10/instrumented/` and
+`data/rq3/cpython-3.10/seeds/`. If source preparation or instrumentation fails,
+the full RQ3 command reports the failure rather than silently downgrading the
+campaign.
+
+Before running RQ3 from the repository, load the honggfuzz environment:
+
+```bash
+source tools/setenv.sh
+```
+
+`fuzz-cpython` uses the honggfuzz tree selected by `PYBCSEC_HONGGFUZZ_HOME`.
+Full RQ3 fuzzing also requires `hfuzz-clang` or `hfuzz-gcc` in that tree.
+`smoke-rq3` is intentionally uninstrumented and only checks the end-to-end
+workflow.
 
 RQ3 outputs are written under:
 
 ```text
-data/rq3/unittest_seeds/
 data/rq3/bytecode_seeds.csv
 data/rq3/fuzz_runs.csv
 data/rq3/rq3_summary.csv
-data/rq3/fuzz/<cpython-tag>/
+data/rq3/cpython-3.10/source/
+data/rq3/cpython-3.10/unittest_seeds/raw/
+data/rq3/cpython-3.10/seeds/
+data/rq3/cpython-3.10/bytecode_seeds.csv
+data/rq3/cpython-3.10/fuzz_runs.csv
+data/rq3/cpython-3.10/rq3_summary.csv
+data/rq3/cpython-3.10/instrumented/
+data/rq3/cpython-3.10/fuzz/
+data/rq3/cpython-3.10/fuzz/HONGGFUZZ.REPORT.TXT
+data/rq3/cpython-3.10/fuzz/honggfuzz.log
+data/rq3/cpython-3.10/fuzz/coverage_stats.csv
+data/rq3/cpython-3.10/fuzz/crashes/
+data/rq3/cpython-3.10/fuzz/timeouts/
 ```
 
 Run the RQ4 source-reproduction analysis after RQ3:
