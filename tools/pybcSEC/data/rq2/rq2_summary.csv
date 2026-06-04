@@ -1,0 +1,16 @@
+metric,value
+pyc_files,197105
+source_present,182921
+source_less,14184
+runtime_magic,49158
+marshal_ok,196725
+dis_ok,196721
+uncompyle6_ok,196261
+decompyle3_ok,195801
+pycdc_ok,0
+pylingual_ok,0
+level_0,0
+level_1,1
+level_2,405
+level_3,1336
+level_4,195363

@@ -1,0 +1,29 @@
+python_tag,tool,executable,version
+cpython-310,cpython,data/rq2/envs/cpython-310/bin/python,Python 3.10.12
+cpython-310,uncompyle6,data/rq2/envs/cpython-310/bin/uncompyle6,"uncompyle6, version 3.9.3"
+cpython-310,decompyle3,data/rq2/envs/cpython-310/bin/decompyle3,"decompyle3, version 3.9.3"
+cpython-311,cpython,data/rq2/envs/cpython-311/bin/python,Python 3.11.0rc1
+cpython-311,uncompyle6,data/rq2/envs/cpython-311/bin/uncompyle6,"uncompyle6, version 3.9.3"
+cpython-311,decompyle3,data/rq2/envs/cpython-311/bin/decompyle3,"decompyle3, version 3.9.3"
+cpython-312,cpython,data/rq2/envs/cpython-312/bin/python,Python 3.12.13
+cpython-312,uncompyle6,data/rq2/envs/cpython-312/bin/uncompyle6,"uncompyle6, version 3.9.3"
+cpython-312,decompyle3,data/rq2/envs/cpython-312/bin/decompyle3,"decompyle3, version 3.9.3"
+cpython-313,cpython,data/rq2/envs/cpython-313/bin/python,Python 3.13.13
+cpython-313,uncompyle6,data/rq2/envs/cpython-313/bin/uncompyle6,"uncompyle6, version 3.9.3"
+cpython-313,decompyle3,data/rq2/envs/cpython-313/bin/decompyle3,"decompyle3, version 3.9.3"
+cpython-314,cpython,data/rq2/envs/cpython-314/bin/python,Python 3.14.5
+cpython-314,uncompyle6,data/rq2/envs/cpython-314/bin/uncompyle6,"uncompyle6, version 3.9.3"
+cpython-314,decompyle3,data/rq2/envs/cpython-314/bin/decompyle3,"decompyle3, version 3.9.3"
+cpython-315,cpython,data/rq2/envs/cpython-315/bin/python,Python 3.15.0b1
+cpython-315,uncompyle6,data/rq2/envs/cpython-315/bin/uncompyle6,I don't know about Python version '3.15.0' yet. Python versions 3.9 and greater are not supported. I don't know about Python version '3.15.0' yet. Python versions 3.9 and greater are not supported. I don't know about Python version '3.15...
+cpython-315,decompyle3,data/rq2/envs/cpython-315/bin/decompyle3,I don't know about Python version '3.15.0' yet. Python versions 3.9 and greater are not supported. I don't know about Python version '3.15.0' yet. Python versions 3.9 and greater are not supported. I don't know about Python version '3.15...
+cpython-36,cpython,,missing
+cpython-37,cpython,,missing
+cpython-38,cpython,data/rq2/envs/cpython-38/bin/python,Python 3.8.20
+cpython-38,uncompyle6,data/rq2/envs/cpython-38/bin/uncompyle6,"uncompyle6, version 3.9.3"
+cpython-38,decompyle3,data/rq2/envs/cpython-38/bin/decompyle3,"decompyle3, version 3.9.3"
+cpython-39,cpython,data/rq2/envs/cpython-39/bin/python,Python 3.9.25
+cpython-39,uncompyle6,data/rq2/envs/cpython-39/bin/uncompyle6,"uncompyle6, version 3.9.3"
+cpython-39,decompyle3,data/rq2/envs/cpython-39/bin/decompyle3,"decompyle3, version 3.9.3"
+global,pycdc,,missing
+global,pylingual,,missing
