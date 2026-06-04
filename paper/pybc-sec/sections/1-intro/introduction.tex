@@ -10,7 +10,7 @@ This paper studies Python bytecode as a security-relevant artifact.  We do not c
 
 We make the following contributions:
 \begin{itemize}[leftmargin=1.25em]
-  \item We design a package-scale methodology for measuring bytecode prevalence and transparency in PyPI artifacts, including \texttt{.pyc} files, \texttt{\_\_pycache\_\_} directories, source-less bytecode candidates, bytecode versions, and dynamic loading patterns.
+  \item We design a package-scale methodology for measuring bytecode prevalence and transparency in PyPI artifacts, including \texttt{.pyc} files, pycache directories, source-less bytecode candidates, bytecode versions, and dynamic loading patterns.
   \item We evaluate practical bytecode analyzability with selected tools in version-aware CPython environments, separating artifact limitations from missing-interpreter and tool-compatibility failures.
   \item We study CPython robustness under bytecode fuzzing by extracting CPython unittest-derived seeds, compiling version-matched \texttt{.pyc} corpora, and classifying abnormal bytecode-processing outcomes.
   \item We introduce tool-bounded source-reproduction analysis for bytecode-level findings, distinguishing findings reproduced by selected source-recovery workflows from findings those tools do not reproduce.
