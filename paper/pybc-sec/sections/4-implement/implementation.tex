@@ -82,7 +82,7 @@ The environment-preparation step reads the scanner's version summary, uses the i
 
 Tool selection follows five criteria.  \textbf{C1: Availability} requires public, locally runnable tools so the study does not depend on closed services.  \textbf{C2: Python~3 support} keeps the baseline aligned with the modern CPython bytecode observed in the scan.  \textbf{C3: Practical use} favors tools that analysts or developers are likely to encounter through documentation, packaging, or community references.  \textbf{C4: Maintenance or stability} avoids failures caused mainly by obsolete or unreproducible tooling.  \textbf{C5: Method diversity} ensures that the selected set covers loading, disassembly, and decompilation rather than one tool family.  These criteria define a reproducible baseline for this study; they do not rank all Python bytecode tools globally.
 
-\begin{table}[t]
+\begin{table}[htp]
   \centering
   \caption{Selected bytecode-analysis tools and selection criteria.}
   \label{tab:tool-selection}
@@ -108,7 +108,7 @@ The third phase measures how CPython behaves when bytecode inputs are malformed 
 %
 Figure~\ref{fig:rq3-fuzzing-workflow} summarizes the version-aware workflow.  The input is the set of modern CPython versions observed in Phase~1 for which a matching interpreter can be prepared; unsupported legacy or non-CPython versions are recorded as out of scope for this phase.  For each version, the phase prepares or reuses the matching interpreter, extracts source seeds from CPython's unittest suite, compiles those seeds into a version-matched \texttt{.pyc} corpus, and feeds the corpus to the \texttt{honggfuzz} backend~\cite{honggfuzz}.  The backend records the execution outcome for each version-specific run.  If the unittest sources are not available locally, the matching CPython source release is obtained and used only for seed extraction.  Compiled seed corpora are stored per CPython version so repeated runs use the same starting population.
 
-\begin{figure}[t]
+\begin{figure}[htp]
   \centering
   \scriptsize
   \begin{tikzpicture}[
