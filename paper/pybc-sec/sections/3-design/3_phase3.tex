@@ -4,7 +4,7 @@ The third phase measures how CPython behaves when bytecode inputs are malformed 
 %
 Figure~\ref{fig:rq3-fuzzing-workflow} summarizes the version-aware workflow.  The input is the set of modern CPython versions observed in Phase~1 for which a matching interpreter can be prepared; unsupported legacy or non-CPython versions are recorded as out of scope for this phase.  For each version, the phase prepares or reuses the matching interpreter, extracts source seeds from CPython's unittest suite, compiles those seeds into a version-matched \texttt{.pyc} corpus, and feeds the corpus to the \texttt{honggfuzz} backend~\cite{honggfuzz}.  The backend records the execution outcome for each version-specific run.  If the unittest sources are not available locally, the matching CPython source release is obtained and used only for seed extraction.  Compiled seed corpora are stored per CPython version so repeated runs use the same starting population.
 
-\begin{figure}[t]
+\begin{figure}[htp]
   \centering
   \scriptsize
   \includegraphics[width=0.98\textwidth]{sections/graphs/interpreter-robustnes.pdf}

@@ -68,3 +68,7 @@ The collection policy shapes the denominator.  Because the dataset is package-ba
 %
 For each downloaded artifact, the collector records the package name, version, distribution type, local path, hash, and collection status.  Downloads are parallelized, resumable, and stored under a deterministic layout keyed by source, package, version, and filename.  The scanner then records the source and bytecode inventory, bytecode magic number, inferred filename tag, source-less bytecode candidates, and static dynamic-loading indicators.  Collector and scanner outputs are CSV files so dataset construction can be audited and rerun.  Ambiguous cases remain in the raw scan results rather than being normalized away.
 
+
+\input{paper/pybc-sec/sections/3-design/1_phase1}
+\input{paper/pybc-sec/sections/3-design/2_phase2}
+\input{paper/pybc-sec/sections/3-design/3_phase3}
