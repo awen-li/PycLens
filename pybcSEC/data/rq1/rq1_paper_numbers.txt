@@ -1,0 +1,83 @@
+RQ1 paper-ready numbers
+
+Artifacts scanned: 1034843
+Artifacts with bytecode: 7388 (0.71%)
+Python source files: 28139279
+Bytecode files: 228578
+Source-less bytecode files: 28193 (12.33% of .pyc files)
+Artifacts with dynamic-loading indicators: 242586 (23.44%)
+
+By artifact type:
+  tar: 4702/517077 artifacts with bytecode (0.91%), 151472 .pyc files, 19301 source-less .pyc
+  wheel: 2646/517076 artifacts with bytecode (0.51%), 76058 .pyc files, 8818 source-less .pyc
+  zip: 40/690 artifacts with bytecode (5.80%), 1048 .pyc files, 74 source-less .pyc
+
+Observed bytecode version tags:
+  cpython-26-PYTEST: 46 .pyc files
+  cpython-27-PYTEST: 148 .pyc files
+  cpython-31-PYTEST: 3 .pyc files
+  cpython-310: 47628 .pyc files
+  cpython-310 2: 4 .pyc files
+  cpython-310-pytest-6: 498 .pyc files
+  cpython-310-pytest-7: 521 .pyc files
+  cpython-310-pytest-8: 306 .pyc files
+  cpython-310-pytest-9: 245 .pyc files
+  cpython-311: 34773 .pyc files
+  cpython-311-Matthew’s MacBook Pro: 2 .pyc files
+  cpython-311-pytest-6: 49 .pyc files
+  cpython-311-pytest-7: 443 .pyc files
+  cpython-311-pytest-8: 317 .pyc files
+  cpython-311-pytest-9: 91 .pyc files
+  cpython-312: 34924 .pyc files
+  cpython-312(1): 1 .pyc files
+  cpython-312-pytest-7: 121 .pyc files
+  cpython-312-pytest-8: 584 .pyc files
+  cpython-312-pytest-9: 236 .pyc files
+  cpython-313: 11837 .pyc files
+  cpython-313-pytest-7: 41 .pyc files
+  cpython-313-pytest-8: 381 .pyc files
+  cpython-313-pytest-9: 211 .pyc files
+  cpython-314: 2823 .pyc files
+  cpython-314-pytest-8: 33 .pyc files
+  cpython-314-pytest-9: 191 .pyc files
+  cpython-315: 1 .pyc files
+  cpython-32: 2 .pyc files
+  cpython-33: 13 .pyc files
+  cpython-34: 127 .pyc files
+  cpython-34-PYTEST: 34 .pyc files
+  cpython-35: 962 .pyc files
+  cpython-35-PYTEST: 11 .pyc files
+  cpython-35-pytest-5: 4 .pyc files
+  cpython-35-pytest-6: 5 .pyc files
+  cpython-36: 5572 .pyc files
+  cpython-36 (conflicted copy 2019-11-22 162128): 2 .pyc files
+  cpython-36 (conflicted copy 2020-04-08 104020): 1 .pyc files
+  cpython-36 (conflicted copy 2020-05-20 055126): 1 .pyc files
+  cpython-36-DESKTOP-A96PE4D: 2 .pyc files
+  cpython-36-PYTEST: 51 .pyc files
+  cpython-36-pytest-5: 22 .pyc files
+  cpython-36-pytest-6: 52 .pyc files
+  cpython-36-pytest-7: 86 .pyc files
+  cpython-37: 9474 .pyc files
+  cpython-37 (Maximilians-iMac-Pro: 12 .pyc files
+  cpython-37 2: 4 .pyc files
+  cpython-37-PYTEST: 15 .pyc files
+  cpython-37-pytest-5: 77 .pyc files
+  cpython-37-pytest-6: 221 .pyc files
+  cpython-37-pytest-7: 151 .pyc files
+  cpython-38: 29404 .pyc files
+  cpython-38-PYTEST: 19 .pyc files
+  cpython-38-pytest-5: 137 .pyc files
+  cpython-38-pytest-6: 271 .pyc files
+  cpython-38-pytest-7: 824 .pyc files
+  cpython-38-pytest-8: 104 .pyc files
+  cpython-39: 29265 .pyc files
+  cpython-39 2: 2 .pyc files
+  cpython-39-PYTEST: 12 .pyc files
+  cpython-39-pytest-5: 4 .pyc files
+  cpython-39-pytest-6: 395 .pyc files
+  cpython-39-pytest-7: 183 .pyc files
+  cpython-39-pytest-8: 224 .pyc files
+  cpython-xxx: 2 .pyc files
+  pypy-27-PYTEST: 25 .pyc files
+  unknown: 14348 .pyc files

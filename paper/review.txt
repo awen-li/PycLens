@@ -1,6 +1,0 @@
-1. whether the motivation is aligned with the problem and technical design
-2. soundness on inputs
-3. soundness on technical design, whether each design has convincing justification
-4. whether each design decision have corresponding evaluation
-5. whether the evaluation is sufficient to support its motivation and problem
-6. are there any address limitions that are not explicitly discussed
