@@ -1,1 +1,0 @@
-sec-paper-template
