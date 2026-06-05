@@ -14,4 +14,4 @@ Fuzzing and runtime testing have exposed many classes of implementation bugs~\ci
 
 \subsection{Program Analysis Beyond Source}
 
-Security analysis often needs representations beyond source, including intermediate representations, binary code, dynamic traces, and cross-language behavior.  The same lesson applies to Python bytecode: a source representation is useful but not always complete.  {\tech} focuses on the gap between source-visible Python and executable Python code objects in real packages and deployment artifacts.
+Security analysis often needs representations beyond source, including intermediate representations, binary code, dynamic traces, and cross-language behavior.  The same lesson applies to Python bytecode: a source representation is useful but not always complete.  A package may expose only a source-level loader while the behavior of interest resides in a marshalled code object, a source-less module, or a bytecode artifact that targets a different CPython version.  {\tech} focuses on this gap between source-visible Python and executable Python code objects in real package distributions and interpreter inputs.
