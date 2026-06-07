@@ -1,4 +1,4 @@
-"""RQ1 bytecode prevalence and transparency analysis."""
+"""RQ1 bytecode exposure and packaging analysis."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from analysis import RQAnalyze
 
 
 class RQ1Analyzer(RQAnalyze):
-    """Summarize bytecode prevalence and transparency from scan outputs."""
+    """Summarize bytecode exposure and packaging structure from scan outputs."""
 
     def __init__(
         self,
@@ -24,7 +24,7 @@ class RQ1Analyzer(RQAnalyze):
         self.out_dir = data_dir / "rq1"
 
     def analyze(self) -> None:
-        print("[RQ1] summarizing bytecode prevalence and transparency")
+        print("[RQ1] summarizing bytecode exposure and packaging")
         if not self.scan_csv.exists():
             raise SystemExit(f"scan CSV not found: {self.scan_csv}")
 
@@ -34,12 +34,16 @@ class RQ1Analyzer(RQAnalyze):
         summary_csv = self.out_dir / "rq1_summary.csv"
         by_type_csv = self.out_dir / "rq1_by_type.csv"
         versions_out = self.out_dir / "rq1_versions.csv"
+        visibility_csv = self.out_dir / "rq1_source_visibility.csv"
+        packaging_csv = self.out_dir / "rq1_packaging_structure.csv"
         paper_table_csv = self.out_dir / "rq1_paper_table.csv"
         paper_text = self.out_dir / "rq1_paper_numbers.txt"
 
         self._write_metric_csv(summary_csv, totals)
         self._write_by_type_csv(by_type_csv, by_type)
         self._write_versions_csv(versions_out, version_counts, magic_counts)
+        self._write_source_visibility_csv(visibility_csv, totals, by_type)
+        self._write_packaging_structure_csv(packaging_csv, totals, by_type)
         self._write_paper_table(paper_table_csv, totals, by_type)
         self._write_paper_numbers(paper_text, totals, by_type, version_counts)
 
@@ -60,6 +64,8 @@ class RQ1Analyzer(RQAnalyze):
         print(f"wrote RQ1 summary to {summary_csv}")
         print(f"wrote RQ1 by-type summary to {by_type_csv}")
         print(f"wrote RQ1 version summary to {versions_out}")
+        print(f"wrote RQ1 source-visibility summary to {visibility_csv}")
+        print(f"wrote RQ1 packaging-structure summary to {packaging_csv}")
         print(f"wrote RQ1 paper table to {paper_table_csv}")
         print(f"wrote RQ1 paper numbers to {paper_text}")
 
@@ -175,6 +181,88 @@ class RQ1Analyzer(RQAnalyze):
                 row["bytecode_artifact_rate"] = f"{counts['artifacts_with_bytecode'] / artifacts:.8f}" if artifacts else "0"
                 writer.writerow(row)
 
+    @staticmethod
+    def _write_source_visibility_csv(path: Path, totals: Counter[str], by_type: dict[str, Counter[str]]) -> None:
+        fieldnames = [
+            "group",
+            "pyc_files",
+            "source_backed_pyc",
+            "source_backed_pyc_pct",
+            "source_less_pyc",
+            "source_less_pyc_pct",
+            "artifacts_with_source_less_pyc",
+        ]
+        rows = [RQ1Analyzer._source_visibility_row("All", totals)]
+        for input_type, counts in sorted(by_type.items()):
+            rows.append(RQ1Analyzer._source_visibility_row(input_type, counts))
+        with path.open("w", newline="", encoding="utf-8") as handle:
+            writer = csv.DictWriter(handle, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+
+    @staticmethod
+    def _source_visibility_row(group: str, counts: Counter[str]) -> dict[str, str | int]:
+        pyc_files = counts["pyc_files"]
+        source_less = counts["source_less_pyc"]
+        source_backed = max(pyc_files - source_less, 0)
+        return {
+            "group": group,
+            "pyc_files": pyc_files,
+            "source_backed_pyc": source_backed,
+            "source_backed_pyc_pct": percent(source_backed, pyc_files),
+            "source_less_pyc": source_less,
+            "source_less_pyc_pct": percent(source_less, pyc_files),
+            "artifacts_with_source_less_pyc": counts["artifacts_with_source_less_pyc"],
+        }
+
+    @staticmethod
+    def _write_packaging_structure_csv(path: Path, totals: Counter[str], by_type: dict[str, Counter[str]]) -> None:
+        fieldnames = [
+            "group",
+            "artifacts",
+            "artifacts_with_bytecode",
+            "bytecode_artifact_pct",
+            "artifacts_with_pyc",
+            "artifacts_with_pycache",
+            "pycache_among_bytecode_artifacts_pct",
+            "pyc_files",
+            "pyc_per_bytecode_artifact",
+            "pycache_dirs",
+            "source_less_pyc",
+            "source_less_pyc_pct",
+            "artifacts_with_dynamic_loading",
+            "dynamic_loading_artifact_pct",
+        ]
+        rows = [RQ1Analyzer._packaging_structure_row("All", totals)]
+        for input_type, counts in sorted(by_type.items()):
+            rows.append(RQ1Analyzer._packaging_structure_row(input_type, counts))
+        with path.open("w", newline="", encoding="utf-8") as handle:
+            writer = csv.DictWriter(handle, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+
+    @staticmethod
+    def _packaging_structure_row(group: str, counts: Counter[str]) -> dict[str, str | int]:
+        artifacts = counts["artifacts"]
+        with_bytecode = counts["artifacts_with_bytecode"]
+        pyc_files = counts["pyc_files"]
+        return {
+            "group": group,
+            "artifacts": artifacts,
+            "artifacts_with_bytecode": with_bytecode,
+            "bytecode_artifact_pct": percent(with_bytecode, artifacts),
+            "artifacts_with_pyc": counts["artifacts_with_pyc"],
+            "artifacts_with_pycache": counts["artifacts_with_pycache"],
+            "pycache_among_bytecode_artifacts_pct": percent(counts["artifacts_with_pycache"], with_bytecode),
+            "pyc_files": pyc_files,
+            "pyc_per_bytecode_artifact": f"{pyc_files / with_bytecode:.2f}" if with_bytecode else "0.00",
+            "pycache_dirs": counts["pycache_dirs"],
+            "source_less_pyc": counts["source_less_pyc"],
+            "source_less_pyc_pct": percent(counts["source_less_pyc"], pyc_files),
+            "artifacts_with_dynamic_loading": counts["artifacts_with_dynamic_loading"],
+            "dynamic_loading_artifact_pct": percent(counts["artifacts_with_dynamic_loading"], artifacts),
+        }
+
     def _write_versions_csv(self, path: Path, version_counts: Counter[str], magic_counts: Counter[str]) -> None:
         fieldnames = ["kind", "name", "count", "interpreter"]
         rows = []
@@ -255,6 +343,8 @@ class RQ1Analyzer(RQAnalyze):
             f"Python source files: {totals['py_files']}",
             f"Bytecode files: {totals['pyc_files']}",
             f"Source-less bytecode files: {totals['source_less_pyc']} ({percent(totals['source_less_pyc'], totals['pyc_files'])} of .pyc files)",
+            f"Source-backed bytecode files: {max(totals['pyc_files'] - totals['source_less_pyc'], 0)} ({percent(max(totals['pyc_files'] - totals['source_less_pyc'], 0), totals['pyc_files'])} of .pyc files)",
+            f"Artifacts with pycache directories: {totals['artifacts_with_pycache']} ({percent(totals['artifacts_with_pycache'], with_bytecode)} of bytecode-containing artifacts)",
             f"Artifacts with dynamic-loading indicators: {totals['artifacts_with_dynamic_loading']} ({percent(totals['artifacts_with_dynamic_loading'], artifacts)})",
             "",
             "By artifact type:",
@@ -268,6 +358,22 @@ class RQ1Analyzer(RQAnalyze):
                     rate=percent(counts["artifacts_with_bytecode"], counts["artifacts"]),
                     pyc=counts["pyc_files"],
                     src_less=counts["source_less_pyc"],
+                )
+            )
+        lines.extend(["", "Packaging structure by artifact type:"])
+        for input_type, counts in sorted(by_type.items()):
+            with_bc = counts["artifacts_with_bytecode"]
+            pyc_files = counts["pyc_files"]
+            lines.append(
+                "  {kind}: pycache in {pycache}/{with_bc} bytecode artifacts ({pycache_rate}); "
+                "{source_less} source-less .pyc ({source_less_rate}); {pyc_per} .pyc files per bytecode artifact".format(
+                    kind=input_type,
+                    pycache=counts["artifacts_with_pycache"],
+                    with_bc=with_bc,
+                    pycache_rate=percent(counts["artifacts_with_pycache"], with_bc),
+                    source_less=counts["source_less_pyc"],
+                    source_less_rate=percent(counts["source_less_pyc"], pyc_files),
+                    pyc_per=f"{pyc_files / with_bc:.2f}" if with_bc else "0.00",
                 )
             )
         lines.extend(["", "Observed bytecode version tags:"])

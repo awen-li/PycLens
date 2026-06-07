@@ -85,6 +85,30 @@ The scanner is package-oriented: pass an extracted package directory, a wheel,
 or a source distribution archive. With no input path, it scans the unified
 collector output under `data/artifacts/`.
 
+Summarize RQ1 after scanning:
+
+```bash
+pybcSEC summarize-rq1
+```
+
+This writes the bytecode exposure, source-visibility, packaging-structure, and
+version summaries to:
+
+```text
+data/rq1/rq1_summary.csv
+data/rq1/rq1_by_type.csv
+data/rq1/rq1_source_visibility.csv
+data/rq1/rq1_packaging_structure.csv
+data/rq1/rq1_versions.csv
+data/rq1/rq1_paper_table.csv
+data/rq1/rq1_paper_numbers.txt
+```
+
+The source-visibility summary separates source-backed and source-less `.pyc`
+files under the conservative artifact-local check. The packaging-structure
+summary reports artifact type, pycache presence, `.pyc` density, source-less
+bytecode, dynamic-loading indicators, and bytecode version evidence.
+
 Run the RQ2 tool analyzability analysis after scanning:
 
 ```bash

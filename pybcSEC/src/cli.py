@@ -794,7 +794,7 @@ def add_analyze_tools_parser(subparsers: argparse._SubParsersAction) -> None:
 def add_summarize_rq1_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser(
         "summarize-rq1",
-        help="RQ1: summarize bytecode prevalence and transparency from scan outputs.",
+        help="RQ1: summarize bytecode exposure and packaging from scan outputs.",
     )
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for study data")
     parser.add_argument("--scan-csv", type=Path, help="Bytecode scan CSV; defaults to data/scan/bytecode_scan.csv")
