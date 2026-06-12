@@ -464,6 +464,61 @@ def bug_id(tag: str, status: str, signature: str) -> str:
     return f"{tag}-{digest}"
 
 
+def write_unique_report(path: Path, findings: Sequence[CrashFinding], unique_bugs: Sequence[UniqueBug]) -> None:
+    findings_by_bug: dict[str, list[CrashFinding]] = {}
+    for finding in findings:
+        findings_by_bug.setdefault(finding.unique_bug_id, []).append(finding)
+
+    by_version: dict[str, list[UniqueBug]] = {}
+    for bug in unique_bugs:
+        by_version.setdefault(bug.python_tag, []).append(bug)
+
+    lines = [
+        "# RQ3 Unique Bug Report",
+        "",
+        "## Summary",
+        "",
+        f"- Crash findings: {len(findings)}",
+        f"- Unique bugs: {len(unique_bugs)}",
+        f"- Representative pyc artifacts: {sum(1 for bug in unique_bugs if bug.artifact_path)}",
+        "",
+        "## By CPython Version",
+        "",
+    ]
+    for tag in sorted(by_version):
+        version_findings = sum(bug.findings for bug in by_version[tag])
+        lines.append(f"- {tag}: unique_bugs={len(by_version[tag])}, findings={version_findings}")
+    lines.extend(["", "## Unique Bugs", ""])
+
+    for tag in sorted(by_version):
+        lines.extend([f"### {tag}", ""])
+        bugs = sorted(by_version[tag], key=lambda bug: (-bug.findings, bug.unique_bug_id))
+        for index, bug in enumerate(bugs, start=1):
+            examples = findings_by_bug.get(bug.unique_bug_id, [])[:5]
+            lines.extend(
+                [
+                    f"#### {index}. {bug.unique_bug_id}",
+                    "",
+                    f"- Status: {bug.status}",
+                    f"- Signal: {bug.signal or 'unknown'}",
+                    f"- Stack source: {bug.stack_source}",
+                    f"- Signature: `{bug.signature}`",
+                    f"- Findings: {bug.findings}",
+                    f"- Representative pyc: `{bug.artifact_path or 'missing'}`",
+                    f"- Representative original: `{bug.example}`",
+                ]
+            )
+            if examples:
+                lines.append("- Example finding inputs:")
+                for finding in examples:
+                    lines.append(f"  - `{finding.path}`")
+                if bug.findings > len(examples):
+                    lines.append(f"  - ... {bug.findings - len(examples)} more")
+            lines.append("")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
 def write_finding_csv(path: Path, rows: Sequence[CrashFinding]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:

@@ -639,9 +639,11 @@ def analyze_crashes(args: argparse.Namespace) -> int:
     finding_csv = args.data_dir / "rq3" / "crash_findings.csv"
     unique_csv = args.data_dir / "rq3" / "unique_bugs.csv"
     summary_csv = args.data_dir / "rq3" / "crash_summary.csv"
+    report_md = args.data_dir / "rq3" / "unique_bug_report.md"
     crash_analysis.write_finding_csv(finding_csv, findings)
     crash_analysis.write_unique_csv(unique_csv, unique_bugs)
     crash_analysis.write_summary_csv(summary_csv, findings, unique_bugs)
+    crash_analysis.write_unique_report(report_md, findings, unique_bugs)
     print(
         "RQ3 crash analysis summary: findings={findings}, unique_bugs={unique}".format(
             findings=len(findings),
@@ -651,6 +653,7 @@ def analyze_crashes(args: argparse.Namespace) -> int:
     print(f"wrote RQ3 crash findings to {finding_csv}")
     print(f"wrote RQ3 unique bugs to {unique_csv}")
     print(f"wrote RQ3 crash summary to {summary_csv}")
+    print(f"wrote RQ3 unique bug report to {report_md}")
     print(f"wrote representative unique-bug pyc files under {args.data_dir / 'rq3'}/<cpython-version>/unique_bug_pyc")
     return 0
 
