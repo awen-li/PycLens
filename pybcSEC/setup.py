@@ -14,6 +14,7 @@ setup(
         "cpython_fuzz",
         "seed_extract",
         "source_repro",
+        "crash_analysis",
         "rq1_analysis",
     ],
     package_dir={"": "src"},

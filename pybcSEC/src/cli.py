@@ -30,6 +30,7 @@ from collectors import (
 )
 import scanner as bytecode_scan
 import cpython_fuzz
+import crash_analysis
 from rq1_analysis import RQ1Analyzer
 import source_repro
 import tool_analysis
@@ -627,6 +628,32 @@ def reproduce_source(args: argparse.Namespace) -> int:
     return 0
 
 
+def analyze_crashes(args: argparse.Namespace) -> int:
+    print("[RQ3] analyzing and deduplicating fuzzing crash findings")
+    findings, unique_bugs = crash_analysis.analyze_crashes(
+        data_dir=args.data_dir,
+        tags=args.versions,
+        timeout=args.timeout,
+        include_timeouts=args.include_timeouts,
+    )
+    finding_csv = args.data_dir / "rq3" / "crash_findings.csv"
+    unique_csv = args.data_dir / "rq3" / "unique_bugs.csv"
+    summary_csv = args.data_dir / "rq3" / "crash_summary.csv"
+    crash_analysis.write_finding_csv(finding_csv, findings)
+    crash_analysis.write_unique_csv(unique_csv, unique_bugs)
+    crash_analysis.write_summary_csv(summary_csv, findings, unique_bugs)
+    print(
+        "RQ3 crash analysis summary: findings={findings}, unique_bugs={unique}".format(
+            findings=len(findings),
+            unique=len(unique_bugs),
+        )
+    )
+    print(f"wrote RQ3 crash findings to {finding_csv}")
+    print(f"wrote RQ3 unique bugs to {unique_csv}")
+    print(f"wrote RQ3 crash summary to {summary_csv}")
+    return 0
+
+
 def add_collection_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--package", action="append", help="Package name; may be repeated")
     parser.add_argument("--package-file", type=Path, help="Text file containing one package per line")
@@ -852,6 +879,18 @@ def add_reproduce_source_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.set_defaults(func=reproduce_source)
 
 
+def add_analyze_crashes_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser(
+        "analyze-crashes",
+        help="RQ3: reproduce and deduplicate CPython fuzzing crash findings.",
+    )
+    parser.add_argument("versions", nargs="*", help="Optional CPython versions to analyze, such as 3.10 or cpython-310")
+    parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for study data")
+    parser.add_argument("--timeout", type=int, default=10, help="Per-finding rerun timeout in seconds")
+    parser.add_argument("--include-timeouts", action="store_true", help="Also deduplicate timeout findings, if timeout files were collected")
+    parser.set_defaults(func=analyze_crashes)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
@@ -877,6 +916,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     add_analyze_tools_parser(subparsers)
     add_fuzz_cpython_parser(subparsers)
     add_smoke_rq3_parser(subparsers)
+    add_analyze_crashes_parser(subparsers)
     add_reproduce_source_parser(subparsers)
     args = parser.parse_args(argv)
     return args.func(args)

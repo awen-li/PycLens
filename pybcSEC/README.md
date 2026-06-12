@@ -182,6 +182,24 @@ Run a short smoke test for one CPython version:
 pybcSEC smoke-rq3 3.10
 ```
 
+After fuzzing, reproduce and deduplicate crash findings for RQ3:
+
+```bash
+pybcSEC analyze-crashes
+```
+
+This reruns saved crash inputs under the matching version-specific CPython
+harness and writes:
+
+```text
+data/rq3/crash_findings.csv
+data/rq3/unique_bugs.csv
+data/rq3/crash_summary.csv
+```
+
+Use `--include-timeouts` if timeout files should be grouped together with crash
+findings.
+
 Without a version argument, RQ3 fuzzes all CPython versions involved in the
 study. RQ3 expects the required base interpreters to have been prepared by
 `prepare-analysis-env`; it does not install CPython environments itself. For
