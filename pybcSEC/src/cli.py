@@ -651,6 +651,7 @@ def analyze_crashes(args: argparse.Namespace) -> int:
     print(f"wrote RQ3 crash findings to {finding_csv}")
     print(f"wrote RQ3 unique bugs to {unique_csv}")
     print(f"wrote RQ3 crash summary to {summary_csv}")
+    print(f"wrote representative unique-bug pyc files under {args.data_dir / 'rq3'}/<cpython-version>/unique_bug_pyc")
     return 0
 
 

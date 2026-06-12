@@ -40,6 +40,7 @@ UNIQUE_FIELDNAMES = [
     "signature",
     "findings",
     "example",
+    "artifact_path",
 ]
 
 SUMMARY_FIELDNAMES = ["metric", "value"]
@@ -73,6 +74,7 @@ class UniqueBug:
     signature: str
     findings: int
     example: str
+    artifact_path: str
 
 
 def analyze_crashes(
@@ -124,7 +126,8 @@ def analyze_crashes(
                 stack_sig = metadata.get("stack_hash", "")
                 stack_source = "honggfuzz-filename" if stack_sig else "none"
             signature = make_signature(status, reason, stack_sig, metadata)
-            unique_bug_id = bug_id(tag, status, signature)
+            identity_status = "stack" if stack_sig else status
+            unique_bug_id = bug_id(tag, identity_status, signature)
             row = CrashFinding(
                 finding_id=f"{tag}-{kind}-{index:06d}",
                 python_tag=tag,
@@ -142,27 +145,53 @@ def analyze_crashes(
                 unique_bug_id=unique_bug_id,
             )
             findings.append(row)
-            unique_groups.setdefault((tag, status, signature), []).append(row)
+            unique_groups.setdefault((tag, identity_status, signature), []).append(row)
             if index == 1 or index % 100 == 0 or index == len(paths):
                 print(
                     f"[rq3-crash {tag} {index}/{len(paths)}] "
                     f"status={status} stack_source={stack_source} unique={len(unique_groups)}"
                 )
 
-    unique_bugs = [
-        UniqueBug(
-            unique_bug_id=bug_id(tag, status, signature),
-            python_tag=tag,
-            status=status,
-            signal=rows[0].signal,
-            stack_source=rows[0].stack_source,
-            signature=signature,
-            findings=len(rows),
-            example=rows[0].path,
+    unique_bugs: list[UniqueBug] = []
+    for (tag, status, signature), rows in sorted(unique_groups.items()):
+        unique_bug_id = bug_id(tag, status, signature)
+        example = rows[0].path
+        artifact_path = collect_unique_bug_pyc(
+            rq3_dir,
+            cpython_fuzz.version_dir_name(tag),
+            unique_bug_id,
+            Path(example),
         )
-        for (tag, status, signature), rows in sorted(unique_groups.items())
-    ]
+        unique_bugs.append(
+            UniqueBug(
+                unique_bug_id=unique_bug_id,
+                python_tag=tag,
+                status=rows[0].status,
+                signal=rows[0].signal,
+                stack_source=rows[0].stack_source,
+                signature=signature,
+                findings=len(rows),
+                example=example,
+                artifact_path=artifact_path,
+            )
+        )
     return findings, unique_bugs
+
+
+def collect_unique_bug_pyc(
+    rq3_dir: Path,
+    version_dir: str,
+    unique_bug_id: str,
+    example: Path,
+) -> str:
+    if not example.exists():
+        return ""
+    out_dir = rq3_dir / version_dir / "unique_bug_pyc"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    suffix = example.suffix if example.suffix else ".pyc"
+    out_path = out_dir / f"{unique_bug_id}{suffix}"
+    shutil.copy2(example, out_path)
+    return str(out_path)
 
 
 def discover_rq3_tags(rq3_dir: Path) -> list[str]:
@@ -245,7 +274,7 @@ def default_instrumented_interpreter(rq3_dir: Path, tag: str) -> str:
 def parse_honggfuzz_filename(path: Path) -> dict[str, str]:
     match = re.match(
         r"(?P<signal>SIG[^.]+)\.PC\.(?P<pc>[^.]+)\.STACK\.(?P<stack>[^.]+)"
-        r"\.CODE\.(?P<code>[^.]+)\.ADDR\.(?P<addr>[^.]+)\.INSTR\.(?P<instr>.*)\.fuzz$",
+        r"\.CODE\.(?P<code>[^.]+)\.ADDR\.(?P<addr>[^.]+)\.INSTR\.(?P<instr>.*?)(?:\.[^.]+)?$",
         path.name,
     )
     if not match:
@@ -465,6 +494,7 @@ def write_summary_csv(path: Path, findings: Sequence[CrashFinding], unique_bugs:
     rows = [
         {"metric": "findings", "value": str(len(findings))},
         {"metric": "unique_bugs", "value": str(len(unique_bugs))},
+        {"metric": "unique_bug_pyc", "value": str(sum(1 for bug in unique_bugs if bug.artifact_path))},
     ]
     rows.extend({"metric": f"findings_{tag}", "value": str(count)} for tag, count in sorted(by_tag.items()))
     rows.extend({"metric": f"unique_bugs_{tag}", "value": str(count)} for tag, count in sorted(unique_by_tag.items()))

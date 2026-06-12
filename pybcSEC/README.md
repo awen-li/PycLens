@@ -195,9 +195,12 @@ harness and writes:
 data/rq3/crash_findings.csv
 data/rq3/unique_bugs.csv
 data/rq3/crash_summary.csv
+data/rq3/<cpython-version>/unique_bug_pyc/
 ```
 
-Use `--include-timeouts` if timeout files should be grouped together with crash
+`unique_bug_pyc/` contains one representative `.pyc` input for each unique
+stack-signature bug and is the compact artifact corpus for RQ3. Use
+`--include-timeouts` if timeout files should be grouped together with crash
 findings.
 
 Without a version argument, RQ3 fuzzes all CPython versions involved in the
