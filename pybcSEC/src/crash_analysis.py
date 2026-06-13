@@ -93,6 +93,8 @@ def analyze_crashes(
     else:
         selected_tags = discover_rq3_tags(rq3_dir)
 
+    clean_unique_bug_artifacts(rq3_dir, selected_tags)
+
     findings: list[CrashFinding] = []
     unique_bugs: list[UniqueBug] = []
 
@@ -200,6 +202,13 @@ def initial_bug_key(kind: str, path: Path, metadata: dict[str, str], digest: str
     if stack_hash:
         return f"{signal_name}:{stack_hash}"
     return f"{kind}:sha256:{digest[:16]}"
+
+
+def clean_unique_bug_artifacts(rq3_dir: Path, tags: Sequence[str]) -> None:
+    for tag in sorted(set(tags)):
+        out_dir = rq3_dir / cpython_fuzz.version_dir_name(tag) / "unique_bug_pyc"
+        if out_dir.exists():
+            shutil.rmtree(out_dir)
 
 
 def collect_unique_bug_pyc(
