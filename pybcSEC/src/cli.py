@@ -446,6 +446,7 @@ def analyze_tools(args: argparse.Namespace) -> int:
         external_timeout=args.timeout,
         interpreters=interpreters,
         tool_envs=tool_envs,
+        data_dir=args.data_dir,
     )
     tool_analysis.write_csv(csv_out, results)
     summary_csv = args.data_dir / "rq2" / "rq2_summary.csv"

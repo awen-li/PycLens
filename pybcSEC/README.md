@@ -144,9 +144,12 @@ CPython scope to versions 3.8--3.14, checks for the required `pythonX.Y`
 interpreters, creates per-version virtual environments under `data/rq2/envs/`,
 and installs `uncompyle6` and `decompyle3` in those environments. It also
 checks globally scoped tools (`pycdc` and PyLingual) and
-attempts to install them when they are missing. These tools are not installed
-per interpreter because they are used as global executables by the analysis
-runner.
+attempts to install them when they are missing. PyLingual is prepared in a
+Python 3.12 environment under `data/rq2/envs/global-pylingual/`. If PyLingual
+is installed from a Git URL, wheel, or local checkout rather than PyPI, set
+`PYBCSEC_PYLINGUAL_PACKAGE` to that install spec before running
+`prepare-analysis-env`. These tools are not installed per interpreter because
+they are used as global executables by the analysis runner.
 
 Interpreter handling is automatic. The tool checks existing prepared
 environments, `PATH`, common system locations, pyenv/asdf locations, and

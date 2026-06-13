@@ -59,6 +59,12 @@ GLOBAL_TOOL_PACKAGES = {
     "pycdc": "pycdc",
     "pylingual": "pylingual",
 }
+GLOBAL_TOOL_PACKAGE_ENVS = {
+    "pylingual": "PYBCSEC_PYLINGUAL_PACKAGE",
+}
+GLOBAL_TOOL_PYTHON_TAGS = {
+    "pylingual": "cpython-312",
+}
 RQ2_MIN_CPYTHON_MINOR = 8
 RQ2_MAX_CPYTHON_MINOR = 14
 
@@ -113,8 +119,9 @@ def analyze_artifacts(
     external_timeout: int,
     interpreters: dict[str, str | None],
     tool_envs: dict[str, dict[str, str | None]],
+    data_dir: Path | None = None,
 ) -> list[ToolAnalysisResult]:
-    selected_tools = available_tools()
+    selected_tools = available_tools(data_dir)
     print_rq2_scope(interpreters)
     print(
         "tool analysis inputs: artifacts={artifacts}, workers={workers}, optional_tools={tools}".format(
@@ -171,8 +178,8 @@ def print_progress(
     )
 
 
-def available_tools() -> dict[str, str | None]:
-    return {tool: find_global_tool(tool) for tool in OPTIONAL_TOOLS}
+def available_tools(data_dir: Path | None = None) -> dict[str, str | None]:
+    return {tool: find_global_tool(tool, data_dir) for tool in OPTIONAL_TOOLS}
 
 
 def tools_for_tag(
@@ -402,7 +409,7 @@ def prepare_analysis_environment(
             print(f"[prepare-env] {tag}: {tool} {status}")
 
     for tool in GLOBAL_TOOLS:
-        status, reason, executable = install_global_tool(tool, timeout)
+        status, reason, executable = install_global_tool(tool, timeout, data_dir)
         rows.append(
             {
                 "python_tag": "global",
@@ -451,7 +458,7 @@ def write_tool_versions(data_dir: Path, interpreters: dict[str, str | None]) -> 
                 }
             )
     for tool in GLOBAL_TOOLS:
-        executable = find_global_tool(tool)
+        executable = find_global_tool(tool, data_dir)
         rows.append(
             {
                 "python_tag": "global",
@@ -481,16 +488,21 @@ def tool_version(tool: str, executable: str | None) -> str:
     return command_version([executable, "--version"])
 
 
-def find_global_tool(tool: str) -> str | None:
-    candidates: list[Path | str | None] = [
-        shutil.which(tool),
-        Path(sys.executable).resolve().parent / tool,
-        Path(sys.prefix) / "bin" / tool,
-        Path.home() / ".local" / "bin" / tool,
-        Path("/root/.local/bin") / tool,
-        Path("/usr/local/bin") / tool,
-        Path("/usr/bin") / tool,
-    ]
+def find_global_tool(tool: str, data_dir: Path | None = None) -> str | None:
+    candidates: list[Path | str | None] = []
+    if data_dir:
+        candidates.append(global_tool_env_dir(data_dir, tool) / "bin" / tool)
+    candidates.extend(
+        [
+            shutil.which(tool),
+            Path(sys.executable).resolve().parent / tool,
+            Path(sys.prefix) / "bin" / tool,
+            Path.home() / ".local" / "bin" / tool,
+            Path("/root/.local/bin") / tool,
+            Path("/usr/local/bin") / tool,
+            Path("/usr/bin") / tool,
+        ]
+    )
     for candidate in candidates:
         if not candidate:
             continue
@@ -502,11 +514,13 @@ def find_global_tool(tool: str) -> str | None:
     return None
 
 
-def install_global_tool(tool: str, timeout: int) -> tuple[str, str, str | None]:
-    executable = find_global_tool(tool)
+def install_global_tool(tool: str, timeout: int, data_dir: Path | None = None) -> tuple[str, str, str | None]:
+    executable = find_global_tool(tool, data_dir)
     if executable:
         return "ok", "exists", executable
-    package = GLOBAL_TOOL_PACKAGES.get(tool, tool)
+    if tool in GLOBAL_TOOL_PYTHON_TAGS and data_dir is not None:
+        return install_global_tool_env(tool, data_dir, timeout)
+    package = global_tool_package(tool)
     commands = [
         [sys.executable, "-m", "pip", "install", "--user", package],
         [sys.executable, "-m", "pip", "install", package],
@@ -518,12 +532,45 @@ def install_global_tool(tool: str, timeout: int) -> tuple[str, str, str | None]:
         if status != "ok":
             last_status, last_reason = status, reason
             continue
-        executable = find_global_tool(tool)
+        executable = find_global_tool(tool, data_dir)
         if executable:
             return "ok", reason, executable
         last_status = "installer_unavailable"
         last_reason = f"installed {package}, but {tool} executable was not found"
     return last_status, last_reason, None
+
+
+def global_tool_package(tool: str) -> str:
+    env_name = GLOBAL_TOOL_PACKAGE_ENVS.get(tool)
+    if env_name and os.environ.get(env_name):
+        return os.environ[env_name]
+    return GLOBAL_TOOL_PACKAGES.get(tool, tool)
+
+
+def global_tool_env_dir(data_dir: Path, tool: str) -> Path:
+    return data_dir / "rq2" / "envs" / f"global-{tool}"
+
+
+def install_global_tool_env(tool: str, data_dir: Path, timeout: int) -> tuple[str, str, str | None]:
+    tag = GLOBAL_TOOL_PYTHON_TAGS[tool]
+    interpreter = find_interpreter(tag, scanner.python_tag_to_executable(tag), data_dir)
+    if interpreter is None:
+        install_status, install_reason = install_cpython(tag, timeout)
+        interpreter = find_interpreter(tag, scanner.python_tag_to_executable(tag), data_dir)
+        if interpreter is None:
+            return install_status, install_reason, None
+    env_dir = global_tool_env_dir(data_dir, tool)
+    create_status, create_reason = create_venv(interpreter, env_dir, timeout)
+    if create_status != "ok":
+        return create_status, create_reason, None
+    package = global_tool_package(tool)
+    status, reason = install_env_package(env_dir, tool, package, timeout)
+    executable = find_global_tool(tool, data_dir)
+    if status == "ok" and executable:
+        return "ok", reason, executable
+    if status == "ok":
+        return "installer_unavailable", f"installed {package}, but {tool} executable was not found", None
+    return status, reason, executable
 
 
 def command_version(command: Sequence[str]) -> str:
@@ -699,13 +746,17 @@ def create_venv(interpreter: str, env_dir: Path, timeout: int) -> tuple[str, str
 
 
 def install_env_tool(env_dir: Path, tool: str, timeout: int) -> tuple[str, str]:
+    return install_env_package(env_dir, tool, tool, timeout)
+
+
+def install_env_package(env_dir: Path, tool: str, package: str, timeout: int) -> tuple[str, str]:
     executable = env_dir / "bin" / tool
     if executable.exists():
         return "ok", "exists"
     pip = env_dir / "bin" / "pip"
     try:
         completed = subprocess.run(
-            [str(pip), "install", tool],
+            [str(pip), "install", package],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             timeout=timeout,
