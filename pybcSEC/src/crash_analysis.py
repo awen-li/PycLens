@@ -356,7 +356,7 @@ def interpreter_version_tuple(interpreter: Path) -> tuple[int, int] | None:
         return None
     try:
         completed = subprocess.run(
-            [str(interpreter), "-c", "import sys; print(f'{sys.version_info[0]}.{sys.version_info[1]}')"],
+            [str(interpreter), "-S", "-c", "import sys; print(f'{sys.version_info[0]}.{sys.version_info[1]}')"],
             cwd=str(interpreter.parent),
             env=cpython_runtime_env(interpreter),
             stdout=subprocess.PIPE,
@@ -445,6 +445,7 @@ def run_under_gdb(interpreter: str, harness: Path, pyc_path: Path, timeout: int)
         "bt",
         "--args",
         str(interpreter_path),
+        "-S",
         str(harness_path),
         str(pyc_path),
     ]
@@ -473,6 +474,7 @@ def run_under_gdb(interpreter: str, harness: Path, pyc_path: Path, timeout: int)
 
 def cpython_runtime_env(interpreter: Path) -> dict[str, str]:
     env = os.environ.copy()
+    env["PYTHONNOUSERSITE"] = "1"
     version_root = interpreter.resolve().parent.parent
     source_dir = cpython_source_dir_for_version(version_root)
     paths: list[str] = []
@@ -552,7 +554,7 @@ def run_harness(interpreter: str, harness: Path, pyc_path: Path, timeout: int) -
     interpreter_path = Path(interpreter).resolve()
     try:
         completed = subprocess.run(
-            [str(interpreter_path), str(harness.resolve()), str(pyc_path.resolve())],
+            [str(interpreter_path), "-S", str(harness.resolve()), str(pyc_path.resolve())],
             cwd=str(interpreter_path.parent),
             env=cpython_runtime_env(interpreter_path),
             stdout=subprocess.PIPE,
@@ -767,7 +769,7 @@ def manual_gdb_command(finding: CrashFinding | None) -> str:
     version_dir = cpython_fuzz.version_dir_name(finding.python_tag)
     interpreter = f"data/rq3/{version_dir}/instrumented/python"
     source = f"data/rq3/{version_dir}/source/cpython-*"
-    return f"PYTHONHOME={source} PYTHONPATH={source}/Lib gdb -q --args {interpreter} data/rq3/harness.py {finding.path}"
+    return f"PYTHONHOME={source} PYTHONPATH={source}/Lib gdb -q --args {interpreter} -S data/rq3/harness.py {finding.path}"
 
 
 def write_finding_csv(path: Path, rows: Sequence[CrashFinding]) -> None:
