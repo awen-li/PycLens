@@ -142,8 +142,10 @@ issues.
 `prepare-analysis-env` reads `data/rq1/rq1_versions.csv`, checks for the
 required `pythonX.Y` interpreters, creates per-version virtual environments
 under `data/rq2/envs/`, and installs `uncompyle6` and `decompyle3` in those
-environments. `pylingual` is intentionally treated as a global tool and is not
-installed per interpreter.
+environments. It also checks globally scoped tools (`pycdc` and PyLingual) and
+attempts to install them when they are missing. These tools are not installed
+per interpreter because they are used as global executables by the analysis
+runner.
 
 Interpreter handling is automatic. The tool checks existing prepared
 environments, `PATH`, common system locations, pyenv/asdf locations, and

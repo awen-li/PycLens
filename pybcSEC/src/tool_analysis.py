@@ -55,7 +55,11 @@ OPTIONAL_TOOLS = ("uncompyle6", "decompyle3", "pycdc", "pylingual")
 DECOMPILER_TOOLS = OPTIONAL_TOOLS
 PER_INTERPRETER_TOOLS = ("uncompyle6", "decompyle3")
 GLOBAL_TOOLS = ("pycdc", "pylingual")
-RQ2_MIN_CPYTHON_MINOR = 8
+GLOBAL_TOOL_PACKAGES = {
+    "pycdc": "pycdc",
+    "pylingual": "pylingual",
+}
+RQ2_EXCLUDED_PYTHON_TAGS = {"cpython-315"}
 
 
 @dataclass
@@ -167,7 +171,7 @@ def print_progress(
 
 
 def available_tools() -> dict[str, str | None]:
-    return {tool: shutil.which(tool) for tool in OPTIONAL_TOOLS}
+    return {tool: find_global_tool(tool) for tool in OPTIONAL_TOOLS}
 
 
 def tools_for_tag(
@@ -197,7 +201,7 @@ def load_interpreter_environment(
                 continue
             raw_tag = row.get("python_tag", "") or row.get("name", "")
             tag = tag_from_interpreter(interpreter) or canonical_analysis_tag(raw_tag)
-            if not tag or tag == "unknown" or not supported_cpython_analysis_tag(tag):
+            if not tag or tag == "unknown" or tag in RQ2_EXCLUDED_PYTHON_TAGS or not supported_cpython_analysis_tag(tag):
                 continue
             interpreters[tag] = find_interpreter(tag, interpreter, data_dir)
     return interpreters
@@ -314,7 +318,7 @@ def print_rq2_scope(interpreters: dict[str, str | None]) -> None:
         + (
             ", ".join(in_scope)
             if in_scope
-            else f"no prepared CPython 3.{RQ2_MIN_CPYTHON_MINOR}+ interpreters"
+            else "no prepared CPython interpreters"
         )
     )
 
@@ -327,6 +331,9 @@ def prepare_analysis_environment(
 ) -> Path:
     interpreters = load_interpreter_environment(versions_csv, data_dir=data_dir)
     for tag in extra_tags:
+        if tag in RQ2_EXCLUDED_PYTHON_TAGS:
+            print(f"[prepare-env] {tag}: excluded from RQ2 scope; skipping")
+            continue
         if not supported_cpython_analysis_tag(tag):
             print(f"[prepare-env] {tag}: unsupported CPython tag; skipping")
             continue
@@ -396,6 +403,21 @@ def prepare_analysis_environment(
             )
             print(f"[prepare-env] {tag}: {tool} {status}")
 
+    for tool in GLOBAL_TOOLS:
+        status, reason, executable = install_global_tool(tool, timeout)
+        rows.append(
+            {
+                "python_tag": "global",
+                "interpreter": "",
+                "env_dir": "",
+                "tool": tool,
+                "status": status,
+                "reason": reason,
+            }
+        )
+        location = f" {executable}" if executable else ""
+        print(f"[prepare-env] global: {tool} {status}{location}")
+
     with out_csv.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=["python_tag", "interpreter", "env_dir", "tool", "status", "reason"])
         writer.writeheader()
@@ -431,7 +453,7 @@ def write_tool_versions(data_dir: Path, interpreters: dict[str, str | None]) -> 
                 }
             )
     for tool in GLOBAL_TOOLS:
-        executable = shutil.which(tool)
+        executable = find_global_tool(tool)
         rows.append(
             {
                 "python_tag": "global",
@@ -459,6 +481,51 @@ def tool_version(tool: str, executable: str | None) -> str:
             return "installed (version unavailable)"
         return help_text
     return command_version([executable, "--version"])
+
+
+def find_global_tool(tool: str) -> str | None:
+    candidates: list[Path | str | None] = [
+        shutil.which(tool),
+        Path(sys.executable).resolve().parent / tool,
+        Path(sys.prefix) / "bin" / tool,
+        Path.home() / ".local" / "bin" / tool,
+        Path("/root/.local/bin") / tool,
+        Path("/usr/local/bin") / tool,
+        Path("/usr/bin") / tool,
+    ]
+    for candidate in candidates:
+        if not candidate:
+            continue
+        path = Path(candidate)
+        if path.exists():
+            return str(path)
+        if isinstance(candidate, str):
+            return candidate
+    return None
+
+
+def install_global_tool(tool: str, timeout: int) -> tuple[str, str, str | None]:
+    executable = find_global_tool(tool)
+    if executable:
+        return "ok", "exists", executable
+    package = GLOBAL_TOOL_PACKAGES.get(tool, tool)
+    commands = [
+        [sys.executable, "-m", "pip", "install", "--user", package],
+        [sys.executable, "-m", "pip", "install", package],
+    ]
+    last_status = "installer_unavailable"
+    last_reason = f"{tool} not found"
+    for command in commands:
+        status, reason = run_installer(command, timeout)
+        if status != "ok":
+            last_status, last_reason = status, reason
+            continue
+        executable = find_global_tool(tool)
+        if executable:
+            return "ok", reason, executable
+        last_status = "installer_unavailable"
+        last_reason = f"installed {package}, but {tool} executable was not found"
+    return last_status, last_reason, None
 
 
 def command_version(command: Sequence[str]) -> str:
@@ -917,10 +984,12 @@ def supported_cpython_analysis_tag(tag: str) -> bool:
     major, _, minor = version.partition(".")
     if major != "3" or not minor.isdigit():
         return False
-    return int(minor) >= RQ2_MIN_CPYTHON_MINOR
+    return True
 
 
 def rq2_in_scope_tag(tag: str, interpreters: dict[str, str | None]) -> bool:
+    if tag in RQ2_EXCLUDED_PYTHON_TAGS:
+        return False
     if not tag.startswith("cpython-"):
         return False
     version = cpython_tag_version(tag)
@@ -928,8 +997,6 @@ def rq2_in_scope_tag(tag: str, interpreters: dict[str, str | None]) -> bool:
         return False
     major, _, minor = version.partition(".")
     if major != "3" or not minor.isdigit():
-        return False
-    if int(minor) < RQ2_MIN_CPYTHON_MINOR:
         return False
     return bool(interpreters.get(tag))
 
