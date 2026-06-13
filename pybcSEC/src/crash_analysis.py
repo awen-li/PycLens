@@ -193,7 +193,37 @@ def analyze_crashes(
                     f"source={stack_source} findings={len(group_findings)} unique={len(unique_bugs)}"
                 )
 
-    return findings, unique_bugs
+    return findings, merge_unique_bug_rows(unique_bugs)
+
+
+def merge_unique_bug_rows(rows: Sequence[UniqueBug]) -> list[UniqueBug]:
+    merged: dict[str, UniqueBug] = {}
+    counts: dict[str, int] = {}
+    for row in rows:
+        if row.unique_bug_id not in merged:
+            merged[row.unique_bug_id] = row
+            counts[row.unique_bug_id] = row.findings
+        else:
+            counts[row.unique_bug_id] += row.findings
+            current = merged[row.unique_bug_id]
+            if current.stack_source != "gdb-rerun" and row.stack_source == "gdb-rerun":
+                merged[row.unique_bug_id] = row
+    result: list[UniqueBug] = []
+    for bug_id_value, row in sorted(merged.items()):
+        result.append(
+            UniqueBug(
+                unique_bug_id=row.unique_bug_id,
+                python_tag=row.python_tag,
+                status=row.status,
+                signal=row.signal,
+                stack_source=row.stack_source,
+                signature=row.signature,
+                findings=counts[bug_id_value],
+                example=row.example,
+                artifact_path=row.artifact_path,
+            )
+        )
+    return result
 
 
 def initial_bug_key(kind: str, path: Path, metadata: dict[str, str], digest: str) -> str:
