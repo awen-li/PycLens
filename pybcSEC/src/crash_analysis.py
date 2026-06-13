@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import os
 import re
 import shutil
 import subprocess
@@ -97,7 +98,7 @@ def analyze_crashes(
 
     for tag in selected_tags:
         version_name = cpython_fuzz.version_dir_name(tag)
-        interpreter = interpreters.get(tag) or default_instrumented_interpreter(rq3_dir, tag)
+        interpreter = valid_interpreter_for_tag(interpreters.get(tag) or default_instrumented_interpreter(rq3_dir, tag), tag)
         paths = finding_paths(rq3_dir, tag, include_timeouts=include_timeouts)
         if not paths:
             print(f"[rq3-crash] {tag}: no crash findings")
@@ -283,6 +284,59 @@ def load_rq3_interpreters(data_dir: Path) -> dict[str, str]:
     return interpreters
 
 
+def valid_interpreter_for_tag(interpreter: str, tag: str) -> str:
+    if not interpreter:
+        return ""
+    expected = expected_version_tuple(tag)
+    actual = interpreter_version_tuple(Path(interpreter))
+    if expected and actual is None:
+        print(f"[rq3-crash] {tag}: unable to verify interpreter version {interpreter}")
+        return ""
+    if expected and actual != expected:
+        print(f"[rq3-crash] {tag}: interpreter version mismatch {interpreter} actual={actual[0]}.{actual[1]}")
+        return ""
+    return interpreter
+
+
+def expected_version_tuple(tag: str) -> tuple[int, int] | None:
+    version = cpython_fuzz.tool_analysis.cpython_tag_version(tag)
+    if not version:
+        return None
+    parts = version.split(".")
+    if len(parts) < 2:
+        return None
+    try:
+        return int(parts[0]), int(parts[1])
+    except ValueError:
+        return None
+
+
+def interpreter_version_tuple(interpreter: Path) -> tuple[int, int] | None:
+    interpreter = interpreter.resolve()
+    if not interpreter.exists():
+        return None
+    try:
+        completed = subprocess.run(
+            [str(interpreter), "-c", "import sys; print(f'{sys.version_info[0]}.{sys.version_info[1]}')"],
+            cwd=str(interpreter.parent),
+            env=cpython_runtime_env(interpreter),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=10,
+            check=False,
+            text=True,
+            errors="replace",
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if completed.returncode != 0:
+        return None
+    match = re.match(r"^(\d+)\.(\d+)$", completed.stdout.strip())
+    if not match:
+        return None
+    return int(match.group(1)), int(match.group(2))
+
+
 def default_instrumented_interpreter(rq3_dir: Path, tag: str) -> str:
     candidates = [
         cpython_fuzz.version_build_dir(rq3_dir, tag) / "python",
@@ -333,6 +387,11 @@ def reproduce_finding(
 def run_under_gdb(interpreter: str, harness: Path, pyc_path: Path, timeout: int) -> tuple[str, str, str, str]:
     if not shutil.which("gdb"):
         return "gdb_unavailable", "gdb not found", "", ""
+    interpreter_path = Path(interpreter).resolve()
+    harness_path = harness.resolve()
+    pyc_path = pyc_path.resolve()
+    env = cpython_runtime_env(interpreter_path)
+    cwd = str(interpreter_path.parent)
     command = [
         "gdb",
         "-q",
@@ -346,13 +405,15 @@ def run_under_gdb(interpreter: str, harness: Path, pyc_path: Path, timeout: int)
         "-ex",
         "bt",
         "--args",
-        interpreter,
-        str(harness),
+        str(interpreter_path),
+        str(harness_path),
         str(pyc_path),
     ]
     try:
         completed = subprocess.run(
             command,
+            cwd=cwd,
+            env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             timeout=timeout,
@@ -369,6 +430,33 @@ def run_under_gdb(interpreter: str, harness: Path, pyc_path: Path, timeout: int)
     if frames:
         return "crash", output, signal_name, stack_signature(frames)
     return "not_reproduced", output, signal_name, ""
+
+
+def cpython_runtime_env(interpreter: Path) -> dict[str, str]:
+    env = os.environ.copy()
+    version_root = interpreter.resolve().parent.parent
+    source_dir = cpython_source_dir_for_version(version_root)
+    paths: list[str] = []
+    if source_dir:
+        env["PYTHONHOME"] = str(source_dir)
+        paths.append(str(source_dir / "Lib"))
+    build_dir = version_root / "instrumented" / "build"
+    if build_dir.exists():
+        paths.extend(str(path) for path in sorted(build_dir.glob("lib.*")) if path.is_dir())
+    old_path = env.get("PYTHONPATH", "")
+    if old_path:
+        paths.append(old_path)
+    if paths:
+        env["PYTHONPATH"] = os.pathsep.join(paths)
+    return env
+
+
+def cpython_source_dir_for_version(version_root: Path) -> Path | None:
+    source_root = version_root / "source"
+    if not source_root.exists():
+        return None
+    candidates = [path for path in sorted(source_root.glob("cpython-*")) if (path / "Lib" / "encodings").is_dir()]
+    return candidates[0] if candidates else None
 
 
 def parse_gdb_stack(output: str) -> tuple[str, list[str]]:
@@ -422,9 +510,12 @@ def frame_function(frame: str) -> str:
 
 
 def run_harness(interpreter: str, harness: Path, pyc_path: Path, timeout: int) -> tuple[str, str]:
+    interpreter_path = Path(interpreter).resolve()
     try:
         completed = subprocess.run(
-            [interpreter, str(harness), str(pyc_path)],
+            [str(interpreter_path), str(harness.resolve()), str(pyc_path.resolve())],
+            cwd=str(interpreter_path.parent),
+            env=cpython_runtime_env(interpreter_path),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             timeout=timeout,
@@ -636,7 +727,8 @@ def manual_gdb_command(finding: CrashFinding | None) -> str:
         return ""
     version_dir = cpython_fuzz.version_dir_name(finding.python_tag)
     interpreter = f"data/rq3/{version_dir}/instrumented/python"
-    return f"gdb -q --args {interpreter} data/rq3/harness.py {finding.path}"
+    source = f"data/rq3/{version_dir}/source/cpython-*"
+    return f"PYTHONHOME={source} PYTHONPATH={source}/Lib gdb -q --args {interpreter} data/rq3/harness.py {finding.path}"
 
 
 def write_finding_csv(path: Path, rows: Sequence[CrashFinding]) -> None:
