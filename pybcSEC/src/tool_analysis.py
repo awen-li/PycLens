@@ -8,6 +8,7 @@ import importlib.util
 import json
 import marshal
 import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -55,12 +56,18 @@ OPTIONAL_TOOLS = ("uncompyle6", "decompyle3", "pycdc", "pylingual")
 DECOMPILER_TOOLS = OPTIONAL_TOOLS
 PER_INTERPRETER_TOOLS = ("uncompyle6", "decompyle3")
 GLOBAL_TOOLS = ("pycdc", "pylingual")
+PYLINGUAL_GIT_URL = "https://github.com/syssec-utd/pylingual.git"
+PYLINGUAL_COMMIT = "99c74eeff5262c0200a3d378298af1f736e20b01"
+
 GLOBAL_TOOL_PACKAGES = {
     "pycdc": "pycdc",
-    "pylingual": "pylingual",
+    "pylingual": f"git+{PYLINGUAL_GIT_URL}@{PYLINGUAL_COMMIT}",
 }
 GLOBAL_TOOL_PACKAGE_ENVS = {
     "pylingual": "PYBCSEC_PYLINGUAL_PACKAGE",
+}
+GLOBAL_TOOL_INSTALL_CMD_ENVS = {
+    "pylingual": "PYBCSEC_PYLINGUAL_INSTALL_CMD",
 }
 GLOBAL_TOOL_PYTHON_TAGS = {
     "pylingual": "cpython-312",
@@ -515,11 +522,14 @@ def find_global_tool(tool: str, data_dir: Path | None = None) -> str | None:
 
 
 def install_global_tool(tool: str, timeout: int, data_dir: Path | None = None) -> tuple[str, str, str | None]:
+    if tool in GLOBAL_TOOL_PYTHON_TAGS and data_dir is not None:
+        managed_executable = global_tool_env_dir(data_dir, tool) / "bin" / tool
+        if managed_executable.exists():
+            return "ok", "exists", str(managed_executable)
+        return install_global_tool_env(tool, data_dir, timeout)
     executable = find_global_tool(tool, data_dir)
     if executable:
         return "ok", "exists", executable
-    if tool in GLOBAL_TOOL_PYTHON_TAGS and data_dir is not None:
-        return install_global_tool_env(tool, data_dir, timeout)
     package = global_tool_package(tool)
     commands = [
         [sys.executable, "-m", "pip", "install", "--user", package],
@@ -564,13 +574,64 @@ def install_global_tool_env(tool: str, data_dir: Path, timeout: int) -> tuple[st
     if create_status != "ok":
         return create_status, create_reason, None
     package = global_tool_package(tool)
-    status, reason = install_env_package(env_dir, tool, package, timeout)
+    status, reason = install_global_tool_package(env_dir, tool, package, timeout)
     executable = find_global_tool(tool, data_dir)
     if status == "ok" and executable:
         return "ok", reason, executable
     if status == "ok":
         return "installer_unavailable", f"installed {package}, but {tool} executable was not found", None
     return status, reason, executable
+
+
+def install_global_tool_package(env_dir: Path, tool: str, package: str, timeout: int) -> tuple[str, str]:
+    command = global_tool_install_command(env_dir, tool, package)
+    if command:
+        return run_shell_installer(command, env_dir, timeout)
+    return install_env_package(env_dir, tool, package, timeout)
+
+
+def has_global_tool_install_command(tool: str) -> bool:
+    env_name = GLOBAL_TOOL_INSTALL_CMD_ENVS.get(tool)
+    return bool(env_name and os.environ.get(env_name))
+
+
+def global_tool_install_command(env_dir: Path, tool: str, package: str) -> str:
+    env_name = GLOBAL_TOOL_INSTALL_CMD_ENVS.get(tool)
+    template = os.environ.get(env_name, "") if env_name else ""
+    if not template:
+        return ""
+    python = env_dir / "bin" / "python"
+    pip = env_dir / "bin" / "pip"
+    return template.format(
+        python=shlex.quote(str(python)),
+        pip=shlex.quote(str(pip)),
+        env_dir=shlex.quote(str(env_dir)),
+        package=shlex.quote(package),
+    )
+
+
+def run_shell_installer(command: str, env_dir: Path, timeout: int) -> tuple[str, str]:
+    env = os.environ.copy()
+    env["PATH"] = str(env_dir / "bin") + os.pathsep + env.get("PATH", "")
+    try:
+        completed = subprocess.run(
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=timeout,
+            check=False,
+            text=True,
+            errors="replace",
+            env=env,
+        )
+    except subprocess.TimeoutExpired:
+        return "timeout", f"timeout_after_{timeout}s"
+    except OSError as exc:
+        return "error", f"{type(exc).__name__}:{exc}"
+    if completed.returncode == 0:
+        return "ok", compact_reason(completed.stdout)
+    return f"exit_{completed.returncode}", compact_reason(completed.stderr) or compact_reason(completed.stdout)
 
 
 def command_version(command: Sequence[str]) -> str:

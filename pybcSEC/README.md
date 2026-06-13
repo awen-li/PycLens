@@ -145,11 +145,15 @@ interpreters, creates per-version virtual environments under `data/rq2/envs/`,
 and installs `uncompyle6` and `decompyle3` in those environments. It also
 checks globally scoped tools (`pycdc` and PyLingual) and
 attempts to install them when they are missing. PyLingual is prepared in a
-Python 3.12 environment under `data/rq2/envs/global-pylingual/`. If PyLingual
-is installed from a Git URL, wheel, or local checkout rather than PyPI, set
-`PYBCSEC_PYLINGUAL_PACKAGE` to that install spec before running
-`prepare-analysis-env`. These tools are not installed per interpreter because
-they are used as global executables by the analysis runner.
+Python 3.12 environment under `data/rq2/envs/global-pylingual/`. By default,
+the tool installs PyLingual from the public `syssec-utd/pylingual` GitHub
+repository at a pinned commit. To override the source, set
+`PYBCSEC_PYLINGUAL_PACKAGE` to a Git URL, wheel, or local checkout before
+running `prepare-analysis-env`. For custom installation workflows, set
+`PYBCSEC_PYLINGUAL_INSTALL_CMD`; the command is executed inside the Python 3.12
+environment and may use `{python}`, `{pip}`, `{env_dir}`, and `{package}`
+placeholders. These tools are not installed per interpreter because they are
+used as global executables by the analysis runner.
 
 Interpreter handling is automatic. The tool checks existing prepared
 environments, `PATH`, common system locations, pyenv/asdf locations, and
