@@ -30,7 +30,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007730d53e4180 (most recent call first):`
+  - `Current thread 0x00007a0525b9f180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGABRT.PC.7010a38439fc.STACK.19f4e08fda.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
@@ -62,7 +62,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007e546a266180 (most recent call first):`
+  - `Current thread 0x000078e13d4c4180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.1e70.STACK.1830ed1c67.CODE.1.ADDR.1e70.INSTR.[NOT_MMAPED].pyc`
@@ -94,7 +94,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000079735103a180 (most recent call first):`
+  - `Current thread 0x00007bab8ad2c180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.55ad07257d8c.STACK.cb2d75777.CODE.1.ADDR.38.INSTR.mov____0x8(%r14,%rbx,8),%r14.pyc`
@@ -126,7 +126,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000074712e3f9180 (most recent call first):`
+  - `Current thread 0x000076c9640a0180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.55b3a3556fca.STACK.183c056d12.CODE.1.ADDR.55b300000000.INSTR.mov____(%rbx),%r13d.pyc`
@@ -158,7 +158,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000768b432bc180 (most recent call first):`
+  - `Current thread 0x0000778e46a42180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.562607519d8c.STACK.fca120653.CODE.1.ADDR.800.INSTR.mov____0x8(%r14,%rbx,8),%r14.pyc`
@@ -190,7 +190,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007af0bb337180 (most recent call first):`
+  - `Current thread 0x00007ce189444180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.56527340f750.STACK.d675198e3.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%r12.pyc`
@@ -222,7 +222,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000075843b1c6180 (most recent call first):`
+  - `Current thread 0x0000793c761e2180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5597ce1b92e9.STACK.18a94a7b8f.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%rdi.pyc`
@@ -254,7 +254,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000073bdf85ec180 (most recent call first):`
+  - `Current thread 0x00007a0e94004180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5881fb20271c.STACK.19ea13f994.CODE.1.ADDR.88.INSTR.mov____0x8(%r13),%rax.pyc`
@@ -286,7 +286,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000071124a439180 (most recent call first):`
+  - `Current thread 0x000072db593c7180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.556f74949540.STACK.da0955783.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r12.pyc`
@@ -318,7 +318,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007722a4d58180 (most recent call first):`
+  - `Current thread 0x0000712193210180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.56a28271e6bd.STACK.cbc1a57ef.CODE.1.ADDR.0.INSTR.mov____(%r15),%ebx.pyc`
@@ -350,7 +350,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000774d6f209180 (most recent call first):`
+  - `Current thread 0x00007377e2965180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.55d3f3cd645f.STACK.19e360113b.CODE.1.ADDR.a.INSTR.mov____(%r12),%ebx.pyc`
@@ -382,7 +382,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000776df213c180 (most recent call first):`
+  - `Current thread 0x000070c637413180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.556c17475a6a.STACK.de2e60a79.CODE.1.ADDR.c9.INSTR.mov____0x8(%r12),%rax.pyc`
@@ -414,7 +414,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000709aa0479180 (most recent call first):`
+  - `Current thread 0x00007797020e4180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.56153eb812e9.STACK.c762a59c0.CODE.1.ADDR.561500000008.INSTR.mov____0x8(%r14),%rdi.pyc`
@@ -446,7 +446,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007e7b81655180 (most recent call first):`
+  - `Current thread 0x00007d0aef1cf180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.1.STACK.d67c036e6.CODE.1.ADDR.1.INSTR.[NOT_MMAPED].pyc`
@@ -478,7 +478,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007ebb32cd8180 (most recent call first):`
+  - `Current thread 0x000077bb3779a180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.55a3c4dbdbaf.STACK.c761b814b.CODE.1.ADDR.55a400000008.INSTR.mov____0x8(%r13),%rax.pyc`
@@ -510,7 +510,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007ff2bb3e3180 (most recent call first):`
+  - `Current thread 0x000071a766e45180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.55798a115a83.STACK.1b7e88bde9.CODE.1.ADDR.557900000008.INSTR.mov____0x8(%r13),%rsi.pyc`
@@ -542,7 +542,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000071032740e180 (most recent call first):`
+  - `Current thread 0x00007f07f827e180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.1.STACK.c76eee4db.CODE.1.ADDR.1.INSTR.[NOT_MMAPED].pyc`
@@ -574,7 +574,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007ddb97b9b180 (most recent call first):`
+  - `Current thread 0x000079c1c7397180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.57f82eeaa6f4.STACK.18c96151a0.CODE.1.ADDR.57f800000000.INSTR.mov____(%r14),%ebx.pyc`
@@ -606,7 +606,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000073e096ab9180 (most recent call first):`
+  - `Current thread 0x00007cf06053d180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.558705c695bd.STACK.19a250c8e3.CODE.1.ADDR.558700000000.INSTR.mov____0x0(%r13),%ebx.pyc`
@@ -638,7 +638,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007610ccaa4180 (most recent call first):`
+  - `Current thread 0x00007912b8e92180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.564981ca878a.STACK.182bc7a9bc.CODE.128.ADDR.0.INSTR.mov____0x0(%r13),%r15d.pyc`
@@ -670,7 +670,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007946a14a8180 (most recent call first):`
+  - `Current thread 0x000071ddbc5c7180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5694f8504587.STACK.de2ba6543.CODE.1.ADDR.8.INSTR.mov____0x8(%r12),%rdi.pyc`
@@ -702,7 +702,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000076d75f67a180 (most recent call first):`
+  - `Current thread 0x00007d28a26df180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.55a25b7b27b8.STACK.fe10b3679.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
@@ -734,7 +734,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000075a2129dc180 (most recent call first):`
+  - `Current thread 0x000076a932e23180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGABRT.PC.70cf2d9a49fc.STACK.19f4bce37f.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
@@ -766,7 +766,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000706db2755180 (most recent call first):`
+  - `Current thread 0x00007cbc6ce94180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.55b070b1da33.STACK.19adef5eec.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%r14.pyc`
@@ -798,7 +798,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000075c56361b180 (most recent call first):`
+  - `Current thread 0x00007b61b4d09180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5620a000896e.STACK.187120222c.CODE.128.ADDR.0.INSTR.mov____0x78(%r15),%rbx.pyc`
@@ -830,7 +830,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007bdcf0555180 (most recent call first):`
+  - `Current thread 0x000072969cadf180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.555c45cf5d8c.STACK.1837cfd628.CODE.1.ADDR.800.INSTR.mov____0x8(%r14,%rbx,8),%r14.pyc`
@@ -862,7 +862,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007a818f93e180 (most recent call first):`
+  - `Current thread 0x000074afdca63180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.560911d40938.STACK.d26ccf048.CODE.128.ADDR.0.INSTR.mov____0x20(%rbx),%r12.pyc`
@@ -894,7 +894,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007f57de2b3180 (most recent call first):`
+  - `Current thread 0x00007a07ed90e180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.59ad872c236f.STACK.197385c037.CODE.1.ADDR.1ff0.INSTR.mov____(%r14),%ebx.pyc`
@@ -926,7 +926,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000767d8e747180 (most recent call first):`
+  - `Current thread 0x00007b5dcbadd180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5a1a502dcd85.STACK.18a98ec694.CODE.1.ADDR.5a1a00000008.INSTR.cmpq___$0x0,0x8(%rax).pyc`
@@ -958,7 +958,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000076471c9dc180 (most recent call first):`
+  - `Current thread 0x00007a282a2c9180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5ac8cc42a77d.STACK.c2262c35b.CODE.1.ADDR.a7.INSTR.mov____0xa8(%rax),%rsi.pyc`
@@ -990,7 +990,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007ab50b37c180 (most recent call first):`
+  - `Current thread 0x0000787c21f13180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5594dda62587.STACK.193dda470c.CODE.128.ADDR.0.INSTR.mov____0x8(%r12),%rdi.pyc`
@@ -1022,7 +1022,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007e4333866180 (most recent call first):`
+  - `Current thread 0x00007792bd7a6180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.566d0ac134df.STACK.f451c7987.CODE.1.ADDR.99.INSTR.cmpq___$0x0,0x58(%rbx).pyc`
@@ -1054,7 +1054,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000072c81052d180 (most recent call first):`
+  - `Current thread 0x00007518fb1ee180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.566e0a4323f9.STACK.19b6132c6d.CODE.1.ADDR.0.INSTR.mov____0x0(%r13),%ebx.pyc`
@@ -1086,7 +1086,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000071c6bfa42180 (most recent call first):`
+  - `Current thread 0x000071215f66b180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5974e01eec4b.STACK.ce334132d.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%r14.pyc`
@@ -1118,7 +1118,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007ec5e87b9180 (most recent call first):`
+  - `Current thread 0x0000721630fff180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.572cd361f230.STACK.d2c586105.CODE.128.ADDR.0.INSTR.mov____(%r12),%r15d.pyc`
@@ -1150,7 +1150,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000789b5cbfb180 (most recent call first):`
+  - `Current thread 0x000075229f7d8180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.6056a1bf4750.STACK.db31e0e1b.CODE.1.ADDR.605600000008.INSTR.mov____0x8(%r15),%r12.pyc`
@@ -1182,7 +1182,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007824e924e180 (most recent call first):`
+  - `Current thread 0x0000757efaf50180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.57cff579681c.STACK.18a95a1b30.CODE.1.ADDR.0.INSTR.mov____(%r12),%ebx.pyc`
@@ -1214,7 +1214,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007bbabfeb6180 (most recent call first):`
+  - `Current thread 0x00007b307e9d5180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.57f90afceca0.STACK.f1dc4645e.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rax.pyc`
@@ -1246,7 +1246,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000762e6a43c180 (most recent call first):`
+  - `Current thread 0x00007bda54fea180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5690bdd04c4b.STACK.183f7c3bf1.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%r14.pyc`
@@ -1277,7 +1277,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000077f339300180 (most recent call first):`
+  - `Current thread 0x00007648f93b2180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.56d35796ffc2.STACK.de38df57c.CODE.128.ADDR.0.INSTR.cmp____%rax,0x20(%r15).pyc`
@@ -1308,7 +1308,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007b962f6ec180 (most recent call first):`
+  - `Current thread 0x000070184d567180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.560c3f5a0572.STACK.1bc2a7e4fb.CODE.1.ADDR.560c00000008.INSTR.mov____0x8(%r15),%rbx.pyc`
@@ -1339,7 +1339,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000774d5bb5d180 (most recent call first):`
+  - `Current thread 0x0000701b88849180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5d7072267c4b.STACK.ce01c19be.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%r14.pyc`
@@ -1370,7 +1370,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000077f670e26180 (most recent call first):`
+  - `Current thread 0x000078b402aa1180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.593a20a6b4ed.STACK.dbd1d07b1.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rax.pyc`
@@ -1401,7 +1401,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007318c7252180 (most recent call first):`
+  - `Current thread 0x000071b27273f180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.55ed8c4ef1bc.STACK.182edd29c2.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rax.pyc`
@@ -1432,7 +1432,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000074a63fb09180 (most recent call first):`
+  - `Current thread 0x00007bd69b846180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.56377ab346bd.STACK.c062ff69a.CODE.128.ADDR.0.INSTR.mov____(%r15),%ebx.pyc`
@@ -1463,7 +1463,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007c3f0bc1e180 (most recent call first):`
+  - `Current thread 0x000073acb848c180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.55c51c77de1b.STACK.19f99de572.CODE.1.ADDR.55c500000008.INSTR.mov____0x8(%r14),%r15.pyc`
@@ -1494,7 +1494,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000735ed5351180 (most recent call first):`
+  - `Current thread 0x00007e02fa3c1180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5c09a3358d35.STACK.cf34bca28.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rax.pyc`
@@ -1524,7 +1524,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000742d27405180 (most recent call first):`
+  - `Current thread 0x000076fb25a6d180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.557075eb08b4.STACK.19f9acd207.CODE.1.ADDR.557000000008.INSTR.mov____0x8(%r13),%rax.pyc`
@@ -1554,7 +1554,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000077304a06e180 (most recent call first):`
+  - `Current thread 0x00007b2cef0e6180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.573dee55dbaf.STACK.18a97ba304.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%rax.pyc`
@@ -1584,7 +1584,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000078902b47f180 (most recent call first):`
+  - `Current thread 0x000071014d79e180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.558b0cb0b040.STACK.ca101bcc6.CODE.1.ADDR.18.INSTR.mov____0x18(%rbx),%r14.pyc`
@@ -1614,7 +1614,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000071875932b180 (most recent call first):`
+  - `Current thread 0x000075ec601dd180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.56ff7ebf8514.STACK.18bc13dc4a.CODE.128.ADDR.0.INSTR.mov____0x8(%rax),%rax.pyc`
@@ -1644,7 +1644,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000079dd1b996180 (most recent call first):`
+  - `Current thread 0x0000711dc540e180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.564db09851bc.STACK.d906e575f.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rax.pyc`
@@ -1674,7 +1674,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000703e37e07180 (most recent call first):`
+  - `Current thread 0x000070b222efe180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.56861a895572.STACK.f1dc7c6b4.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rbx.pyc`
@@ -1704,7 +1704,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000070c8a5d88180 (most recent call first):`
+  - `Current thread 0x00007ebe563dd180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.56b2cf0178b0.STACK.193eda05a5.CODE.2.ADDR.56b2cf0178b0.INSTR.add____(%rax),%al.pyc`
@@ -1734,7 +1734,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000731f4fbcf180 (most recent call first):`
+  - `Current thread 0x000074f3af2b9180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGABRT.PC.711e5abd99fc.STACK.cf8abaffd.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
@@ -1764,7 +1764,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000074310ed08180 (most recent call first):`
+  - `Current thread 0x00007e667db8b180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.57f5089dac4f.STACK.183c543162.CODE.128.ADDR.0.INSTR.mov____0xa8(%r14),%rbx.pyc`
@@ -1794,7 +1794,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007382131e0180 (most recent call first):`
+  - `Current thread 0x0000738ec12f2180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5fb29e3f4152.STACK.1830fcfecd.CODE.1.ADDR.0.INSTR.mov____(%r15),%ebx.pyc`
@@ -1824,7 +1824,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007510a4c5e180 (most recent call first):`
+  - `Current thread 0x00007b44f46b6180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.567ac283f6f4.STACK.18637a75a0.CODE.1.ADDR.567a00000000.INSTR.mov____(%r14),%ebx.pyc`
@@ -1854,7 +1854,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000703fea36c180 (most recent call first):`
+  - `Current thread 0x00007d06457bc180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.57ed0126d98e.STACK.db66a3df8.CODE.128.ADDR.0.INSTR.call___*%rbx.pyc`
@@ -1884,7 +1884,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000072ac60c01180 (most recent call first):`
+  - `Current thread 0x000072558fdc5180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.56cb8c6ef1c0.STACK.187bae1494.CODE.128.ADDR.0.INSTR.mov____0xa8(%rax),%rbx.pyc`
@@ -1914,7 +1914,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007524b66d3180 (most recent call first):`
+  - `Current thread 0x00007ddcc247a180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.588de76c3f5c.STACK.1a39b1cf4f.CODE.128.ADDR.0.INSTR.mov____0x10(%r13),%r12.pyc`
@@ -1943,7 +1943,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000716353a99180 (most recent call first):`
+  - `Current thread 0x00007ac2880a9180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5b3a92bcd540.STACK.197ff575cc.CODE.1.ADDR.5b3a00000008.INSTR.mov____0x8(%rbx),%r12.pyc`
@@ -1972,7 +1972,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000071292b9c7180 (most recent call first):`
+  - `Current thread 0x00007e7215975180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.57cff1bee319.STACK.18a9ffbf99.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
@@ -2001,7 +2001,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007990ee77b180 (most recent call first):`
+  - `Current thread 0x000077d48b8ed180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.575f625be4da.STACK.f8bd4476a.CODE.128.ADDR.0.INSTR.mov____0x8(%r12),%rbx.pyc`
@@ -2030,7 +2030,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000070bf166a9180 (most recent call first):`
+  - `Current thread 0x000072ad2627e180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5aad9cd0478f.STACK.1bb96a8871.CODE.1.ADDR.5f5f746369.INSTR.mov____(%r14),%ebx.pyc`
@@ -2059,7 +2059,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007053f1cf7180 (most recent call first):`
+  - `Current thread 0x00007add3becd180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.57574484978a.STACK.cf4a78bf3.CODE.128.ADDR.0.INSTR.mov____0x0(%r13),%r15d.pyc`
@@ -2088,7 +2088,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000078c5f7e63180 (most recent call first):`
+  - `Current thread 0x0000799c61f31180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.568b8f895ca0.STACK.1bc2a44611.CODE.1.ADDR.568b00000008.INSTR.mov____0x8(%rbx),%rax.pyc`
@@ -2117,7 +2117,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007d3181010180 (most recent call first):`
+  - `Current thread 0x000078866a8bc180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5bf70e5941a7.STACK.d269cc9e9.CODE.1.ADDR.0.INSTR.mov____(%r14),%r12d.pyc`
@@ -2146,7 +2146,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000074bce42c5180 (most recent call first):`
+  - `Current thread 0x000073a2e7dd0180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5817244bfda2.STACK.194220b127.CODE.128.ADDR.0.INSTR.mov____0x0(%r13),%r14d.pyc`
@@ -2175,7 +2175,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000077f2f5ed3180 (most recent call first):`
+  - `Current thread 0x00007dfac4567180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.55e21d649fc7.STACK.db2dd9610.CODE.128.ADDR.0.INSTR.mov____0x9(%r14),%cl.pyc`
@@ -2204,7 +2204,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007d5d47d89180 (most recent call first):`
+  - `Current thread 0x000071b6cc05d180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.55c98afb37b8.STACK.1b3e6b1436.CODE.1.ADDR.55c900000008.INSTR.mov____0x8(%rbx),%r15.pyc`
@@ -2233,7 +2233,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000072b1cf2ba180 (most recent call first):`
+  - `Current thread 0x00007b8abfec7180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.582f589b996e.STACK.182fff3968.CODE.1.ADDR.78.INSTR.mov____0x78(%r15),%rbx.pyc`
@@ -2262,7 +2262,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007d9af94de180 (most recent call first):`
+  - `Current thread 0x000074cd2a110180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5b0fa51ec514.STACK.c6373fe05.CODE.1.ADDR.58.INSTR.mov____0x8(%rax),%rax.pyc`
@@ -2291,7 +2291,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000074c97cc93180 (most recent call first):`
+  - `Current thread 0x0000735a778d3180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5a0755f79cd2.STACK.193e8f0df6.CODE.1.ADDR.180070.INSTR.mov____0x70(%r15),%rax.pyc`
@@ -2320,7 +2320,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000074a8f75ea180 (most recent call first):`
+  - `Current thread 0x000073a47e022180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5ebe30c36256.STACK.c769f9dd6.CODE.1.ADDR.5ebe00000008.INSTR.mov____0x8(%r13),%r14.pyc`
@@ -2349,7 +2349,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007942c2030180 (most recent call first):`
+  - `Current thread 0x0000784b13d75180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5db7a720f26b.STACK.d725c4540.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%rbx.pyc`
@@ -2378,7 +2378,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000078cf4c884180 (most recent call first):`
+  - `Current thread 0x00007b0bcd872180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5903b219d1bc.STACK.dc51d6a09.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rax.pyc`
@@ -2407,7 +2407,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000079d63e889180 (most recent call first):`
+  - `Current thread 0x00007f4774c86180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.59e7a3b97e1b.STACK.d26fdc73d.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r15.pyc`
@@ -2436,7 +2436,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000722202fa3180 (most recent call first):`
+  - `Current thread 0x000074536c180180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5d770b70b040.STACK.1bd11ee1f9.CODE.1.ADDR.18.INSTR.mov____0x18(%rbx),%r14.pyc`
@@ -2464,7 +2464,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007c9d99342180 (most recent call first):`
+  - `Current thread 0x0000721c3b2d5180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5671e95b8351.STACK.d7c498582.CODE.1.ADDR.8.INSTR.mov____0x8(%r12),%rax.pyc`
@@ -2492,7 +2492,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007b81edb00180 (most recent call first):`
+  - `Current thread 0x00007df259190180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGABRT.PC.703c94bc39fc.STACK.19f4ddd5cb.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
@@ -2520,7 +2520,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007e18a47a2180 (most recent call first):`
+  - `Current thread 0x00007b166c421180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.590dfa356040.STACK.e095be506.CODE.1.ADDR.18.INSTR.mov____0x18(%rbx),%r14.pyc`
@@ -2548,7 +2548,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000074a625784180 (most recent call first):`
+  - `Current thread 0x00007994057be180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5d72c205148a.STACK.de11a6550.CODE.1.ADDR.2d.INSTR.mov____0x8(%r15),%rax.pyc`
@@ -2576,7 +2576,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007e6bca00f180 (most recent call first):`
+  - `Current thread 0x000075a722c4b180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.56e2dd1dacce.STACK.de1ef2fb9.CODE.1.ADDR.56e300000008.INSTR.mov____0x8(%r14),%r15.pyc`
@@ -2604,7 +2604,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007b533a252180 (most recent call first):`
+  - `Current thread 0x000071aac3161180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.6115d69ef73c.STACK.1a71de6e2a.CODE.1.ADDR.0.INSTR.movzbl_(%rax,%rbx,1),%r13d.pyc`
@@ -2632,7 +2632,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007efbeaf6b180 (most recent call first):`
+  - `Current thread 0x000073c468aea180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.62626c0bd8b4.STACK.18637b5dc6.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
@@ -2660,7 +2660,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000764e04ea2180 (most recent call first):`
+  - `Current thread 0x00007b13c24e2180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.56b4a769b441.STACK.cf18cb179.CODE.1.ADDR.56b400000008.INSTR.mov____0x8(%rax),%rax.pyc`
@@ -2688,7 +2688,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000788d164a7180 (most recent call first):`
+  - `Current thread 0x00007078aabaf180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.59fa86b0e4c0.STACK.de2b1348e.CODE.1.ADDR.59fa87419e.INSTR.mov____0xa8(%rax),%r14.pyc`
@@ -2716,7 +2716,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000775346717180 (most recent call first):`
+  - `Current thread 0x00007bd2b04c2180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGABRT.PC.7644964de9fc.STACK.18bf63e665.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
@@ -2744,7 +2744,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000722b033d1180 (most recent call first):`
+  - `Current thread 0x0000718af478b180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.61cd9bed019f.STACK.cef9cdc82.CODE.1.ADDR.61cd00000000.INSTR.mov____(%r14),%ebx.pyc`
@@ -2772,7 +2772,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007a6a1954c180 (most recent call first):`
+  - `Current thread 0x000076cb88242180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.573d7a1416df.STACK.1b9a223086.CODE.1.ADDR.a7.INSTR.mov____0xa8(%r15),%r12.pyc`
@@ -2800,7 +2800,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007fa986e31180 (most recent call first):`
+  - `Current thread 0x000079bdefff2180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.562fb1e5f442.STACK.1a4b11b095.CODE.1.ADDR.1.INSTR.mov____(%r15),%ebx.pyc`
@@ -2828,7 +2828,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000712276c16180 (most recent call first):`
+  - `Current thread 0x00007384d9ca4180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5d2bf96e6397.STACK.d64f2b78d.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%rbx.pyc`
@@ -2856,7 +2856,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000071c3b59ac180 (most recent call first):`
+  - `Current thread 0x000077649681d180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.58627c2c1435.STACK.d2c03e653.CODE.1.ADDR.10.INSTR.mov____0x10(%rax),%r15.pyc`
@@ -2884,7 +2884,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000798d97f9f180 (most recent call first):`
+  - `Current thread 0x000079c74dd0b180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.607a1d9a17c3.STACK.c763a397f.CODE.1.ADDR.607a00000000.INSTR.mov____0x0(%r13),%r14d.pyc`
@@ -2912,7 +2912,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000715f13b9d180 (most recent call first):`
+  - `Current thread 0x0000791c7d55e180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.598656d9d1cd.STACK.d7a4b265b.CODE.128.ADDR.0.INSTR.mov____0xa8(%r14),%rbx.pyc`
@@ -2940,7 +2940,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000071f7a4720180 (most recent call first):`
+  - `Current thread 0x00007cd0ab405180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGABRT.PC.789d3a9839fc.STACK.cb8234a76.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
@@ -2968,7 +2968,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007498e91f8180 (most recent call first):`
+  - `Current thread 0x00007b2487154180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5a18ce383fca.STACK.fdf0ec89d.CODE.1.ADDR.5a1800000008.INSTR.mov____0x8(%r13),%r15.pyc`
@@ -2996,7 +2996,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000074a931fe4180 (most recent call first):`
+  - `Current thread 0x000074f686370180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.56f2ab133750.STACK.de66d334d.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%r12.pyc`
@@ -3024,7 +3024,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007b88c3c49180 (most recent call first):`
+  - `Current thread 0x00007dd2ebd07180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.56e9eb7167b0.STACK.193d39e786.CODE.2.ADDR.56e9eb7167b0.INSTR.add____(%rax),%eax.pyc`
@@ -3052,7 +3052,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000071f725892180 (most recent call first):`
+  - `Current thread 0x000078b605894180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGBUS.PC.5b9334297962.STACK.19f6b967ca.CODE.2.ADDR.745133e57000.INSTR.mov____0x50(%rax,%r13,8),%r13.pyc`
@@ -3080,7 +3080,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000078838f950180 (most recent call first):`
+  - `Current thread 0x000073d36a469180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.565741fb41cd.STACK.18a0197786.CODE.1.ADDR.a9.INSTR.mov____0xa8(%r14),%rbx.pyc`
@@ -3108,7 +3108,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007bfabe7ba180 (most recent call first):`
+  - `Current thread 0x00007327c3acc180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5e0f65d4d8b4.STACK.cbc1b7f89.CODE.1.ADDR.1003c.INSTR.mov____0x8(%r13),%rax.pyc`
@@ -3136,7 +3136,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000791929c23180 (most recent call first):`
+  - `Current thread 0x00007739f8735180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.56416619ffc2.STACK.db6fec82a.CODE.1.ADDR.20.INSTR.cmp____%rax,0x20(%r15).pyc`
@@ -3164,7 +3164,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007029a4a1a180 (most recent call first):`
+  - `Current thread 0x00007c8d3b2cc180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5eabba559f36.STACK.193e3aa15c.CODE.128.ADDR.0.INSTR.mov____0x14(%rax,%r15,4),%ebx.pyc`
@@ -3192,7 +3192,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007b94c5f33180 (most recent call first):`
+  - `Current thread 0x00007e9e28765180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.59f14aa71351.STACK.dec3baf1a.CODE.1.ADDR.59f100000008.INSTR.mov____0x8(%r12),%rax.pyc`
@@ -3220,7 +3220,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007a5309989180 (most recent call first):`
+  - `Current thread 0x00007ac708fe5180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5d4b8b79e040.STACK.e9d3c76ca.CODE.1.ADDR.18.INSTR.mov____0x18(%rbx),%r14.pyc`
@@ -3247,7 +3247,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007a2a1c134180 (most recent call first):`
+  - `Current thread 0x00007e8a56f8a180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.56a0bc24dd9a.STACK.d732b17b3.CODE.1.ADDR.71.INSTR.mov____0x70(%r14),%rax.pyc`
@@ -3274,7 +3274,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007a469466c180 (most recent call first):`
+  - `Current thread 0x00007a05d1ca2180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5cd331a2de61.STACK.d732a42c7.CODE.1.ADDR.5cd300000008.INSTR.mov____0x8(%r15),%r14.pyc`
@@ -3301,7 +3301,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007f98b5966180 (most recent call first):`
+  - `Current thread 0x0000719d289aa180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5c020fe99a33.STACK.d728f7ca3.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%r14.pyc`
@@ -3328,7 +3328,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000714ea2aec180 (most recent call first):`
+  - `Current thread 0x000072782fc59180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.55ea04794040.STACK.f0116c8df.CODE.1.ADDR.18.INSTR.mov____0x18(%rbx),%r14.pyc`
@@ -3355,7 +3355,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007d9f08860180 (most recent call first):`
+  - `Current thread 0x00007ed610ce5180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.629d05074491.STACK.fe51e6697.CODE.128.ADDR.0.INSTR.mov____0x140(%r13),%r14.pyc`
@@ -3382,7 +3382,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007ef18fde8180 (most recent call first):`
+  - `Current thread 0x00007f8fbfa37180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.587b9cabce1b.STACK.18b1abf643.CODE.1.ADDR.587b00000008.INSTR.mov____0x8(%r14),%r15.pyc`
@@ -3409,7 +3409,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000076d3450de180 (most recent call first):`
+  - `Current thread 0x000077725a355180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5bbfc232b51e.STACK.d2683f029.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%r13.pyc`
@@ -3436,7 +3436,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007a69a5327180 (most recent call first):`
+  - `Current thread 0x00007086551e4180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5c54bd91d871.STACK.cb58df2ae.CODE.128.ADDR.0.INSTR.call___*%rbx.pyc`
@@ -3463,7 +3463,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007796a3c11180 (most recent call first):`
+  - `Current thread 0x00007e2f5435d180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.58ab15940085.STACK.1af2abaf11.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%r12.pyc`
@@ -3490,7 +3490,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007f3f4e3be180 (most recent call first):`
+  - `Current thread 0x0000730907ea1180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.570a7c77051e.STACK.19f9e3d266.CODE.1.ADDR.570a00000008.INSTR.mov____0x8(%r15),%r13.pyc`
@@ -3517,7 +3517,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007636bd1f8180 (most recent call first):`
+  - `Current thread 0x000074c50b147180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5f948d923f24.STACK.fa21702d8.CODE.1.ADDR.81.INSTR.mov____0x8(%r13),%rax.pyc`
@@ -3544,7 +3544,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000732d4f781180 (most recent call first):`
+  - `Current thread 0x0000758c52f23180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5f0e263f4043.STACK.18a9844ca8.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
@@ -3571,7 +3571,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007168913b5180 (most recent call first):`
+  - `Current thread 0x0000764aa15e5180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5deea33c736f.STACK.1926f6fd61.CODE.1.ADDR.81.INSTR.mov____(%r14),%ebx.pyc`
@@ -3598,7 +3598,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000072d482e4a180 (most recent call first):`
+  - `Current thread 0x00007acb1022c180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5bc81d38e70e.STACK.18c8b0b3a6.CODE.1.ADDR.5bc800000008.INSTR.mov____0x8(%rbx),%r13.pyc`
@@ -3625,7 +3625,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007d36d722b180 (most recent call first):`
+  - `Current thread 0x000077222f2a5180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5aeddfc3b048.STACK.ee0656d5f.CODE.1.ADDR.a9.INSTR.mov____0xa8(%rax),%rbx.pyc`
@@ -3652,7 +3652,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007678e78bc180 (most recent call first):`
+  - `Current thread 0x00007fb876e50180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5f0de9db2902.STACK.cfca3df47.CODE.128.ADDR.0.INSTR.mov____(%r15),%ebx.pyc`
@@ -3679,7 +3679,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000073c5c24bf180 (most recent call first):`
+  - `Current thread 0x000077e2db67a180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5c583d1bf26c.STACK.197f91d28c.CODE.1.ADDR.0.INSTR.mov____(%r14),%ebx.pyc`
@@ -3706,7 +3706,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007e8ef5f40180 (most recent call first):`
+  - `Current thread 0x0000791f9e25a180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5df224f936f1.STACK.18278aac71.CODE.128.ADDR.0.INSTR.call___*%r12.pyc`
@@ -3733,7 +3733,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007e22868d8180 (most recent call first):`
+  - `Current thread 0x00007fe4b5755180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.6134586a6572.STACK.1a81335b65.CODE.1.ADDR.10008.INSTR.mov____0x8(%r15),%rbx.pyc`
@@ -3760,7 +3760,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000774541bb7180 (most recent call first):`
+  - `Current thread 0x00007aceb338e180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.60c638b0f146.STACK.1963f396f6.CODE.128.ADDR.0.INSTR.mov____0x10(%r14),%r15.pyc`
@@ -3787,7 +3787,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000070269e99a180 (most recent call first):`
+  - `Current thread 0x000078e33578e180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.61efb1167787.STACK.18fd0190d9.CODE.128.ADDR.0.INSTR.mov____(%r14),%r13d.pyc`
@@ -3814,7 +3814,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000078b9cdc51180 (most recent call first):`
+  - `Current thread 0x0000786e4b8e9180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.60362d529cd2.STACK.df1c1aacc.CODE.128.ADDR.0.INSTR.mov____0x70(%r15),%rax.pyc`
@@ -3841,7 +3841,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000075865c1df180 (most recent call first):`
+  - `Current thread 0x000078dc7b46f180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5fae985c7e57.STACK.e043e6fa4.CODE.1.ADDR.7.INSTR.mov____0x8(%r15),%rax.pyc`
@@ -3868,7 +3868,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000762917a0c180 (most recent call first):`
+  - `Current thread 0x000073f505d8f180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5e377c38978f.STACK.1acee58681.CODE.1.ADDR.100000013.INSTR.mov____(%r14),%ebx.pyc`
@@ -3895,7 +3895,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000075801da7d180 (most recent call first):`
+  - `Current thread 0x0000767e5c665180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.60a46b92c2b1.STACK.c63b7a722.CODE.1.ADDR.10.INSTR.mov____0x10(%rbx),%r13.pyc`
@@ -3922,7 +3922,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000765cd093e180 (most recent call first):`
+  - `Current thread 0x00007bc6497f5180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5915b8ca6c10.STACK.d67405a90.CODE.128.ADDR.0.INSTR.mov____(%r12),%ebx.pyc`
@@ -3949,7 +3949,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000071f2f4cdd180 (most recent call first):`
+  - `Current thread 0x000076fa3674b180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.596cd49b5a8f.STACK.db7d6ed62.CODE.128.ADDR.0.INSTR.cmpq___$0x0,0x108(%rax).pyc`
@@ -3976,7 +3976,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000716738179180 (most recent call first):`
+  - `Current thread 0x00007e8875b49180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.57d82c4d9435.STACK.c1cb166bb.CODE.1.ADDR.10.INSTR.mov____0x10(%rax),%r15.pyc`
@@ -4003,7 +4003,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000708ea63f7180 (most recent call first):`
+  - `Current thread 0x000078f5a0be1180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5df79cc22351.STACK.18a7ecac47.CODE.1.ADDR.5df700000008.INSTR.mov____0x8(%r12),%rax.pyc`
@@ -4030,7 +4030,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000723001e32180 (most recent call first):`
+  - `Current thread 0x00007417bc37a180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.59cf7bc5fd35.STACK.fbcf3e3fd.CODE.128.ADDR.0.INSTR.movaps_%xmm0,-0x40(%rbp).pyc`
@@ -4057,7 +4057,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000077f54cffe180 (most recent call first):`
+  - `Current thread 0x00007e896c1c7180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5867c104a36f.STACK.19651e4f34.CODE.1.ADDR.51.INSTR.mov____(%r14),%ebx.pyc`
@@ -4084,7 +4084,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007e319b56b180 (most recent call first):`
+  - `Current thread 0x00007e7d68b42180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGABRT.PC.7a31a2ff79fc.STACK.c31f1419b.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
@@ -4111,7 +4111,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000742d80285180 (most recent call first):`
+  - `Current thread 0x00007752ee174180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5774feccf548.STACK.1b756bf6dc.CODE.128.ADDR.0.INSTR.mov____0xa8(%rax),%r15.pyc`
@@ -4138,7 +4138,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000073e7a6f10180 (most recent call first):`
+  - `Current thread 0x00007dba99731180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5d2395804962.STACK.19f6b967ca.CODE.1.ADDR.5d23c95d1000.INSTR.mov____0x50(%rax,%r13,8),%r13.pyc`
@@ -4165,7 +4165,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007e47278d7180 (most recent call first):`
+  - `Current thread 0x00007873fcf4e180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5cfe138d1cd9.STACK.caffa1428.CODE.1.ADDR.60.INSTR.mov____0x60(%rax),%r12.pyc`
@@ -4192,7 +4192,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000070d7f9bd6180 (most recent call first):`
+  - `Current thread 0x000077ed3ad4e180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5c1f28acbe61.STACK.19ac4a6088.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%r14.pyc`
@@ -4219,7 +4219,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007061c1366180 (most recent call first):`
+  - `Current thread 0x00007528c69fc180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.6232e931660b.STACK.18a97ba713.CODE.1.ADDR.8.INSTR.mov____0x8(%r12),%rdi.pyc`
@@ -4246,7 +4246,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000718a9d527180 (most recent call first):`
+  - `Current thread 0x00007fccc5a66180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5a0e8d3e9ec8.STACK.19eaa664ea.CODE.1.ADDR.30.INSTR.mov____0x30(%rbx),%rax.pyc`
@@ -4273,7 +4273,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000075852ae13180 (most recent call first):`
+  - `Current thread 0x000071fafa014180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.63e088381fca.STACK.187e02ce9a.CODE.1.ADDR.63e000000008.INSTR.mov____0x8(%r13),%r15.pyc`
@@ -4300,7 +4300,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007a7002c16180 (most recent call first):`
+  - `Current thread 0x00007399199d6180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5dac374ea36f.STACK.183c05b1bf.CODE.128.ADDR.0.INSTR.mov____(%r14),%ebx.pyc`
@@ -4327,7 +4327,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000745f668c0180 (most recent call first):`
+  - `Current thread 0x000078c55a9e9180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.6111239596df.STACK.19c3bd0d62.CODE.1.ADDR.ae.INSTR.mov____0xa8(%r15),%r12.pyc`
@@ -4354,7 +4354,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007b128c8e9180 (most recent call first):`
+  - `Current thread 0x000075d8350f6180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5a4729b7c36f.STACK.ce36593f0.CODE.1.ADDR.11.INSTR.mov____(%r14),%ebx.pyc`
@@ -4381,7 +4381,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007c9b33446180 (most recent call first):`
+  - `Current thread 0x00007d6721292180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.56eeca3976df.STACK.1bc7cdc998.CODE.1.ADDR.a7.INSTR.mov____0xa8(%r15),%r12.pyc`
@@ -4408,7 +4408,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007d4f7cdf9180 (most recent call first):`
+  - `Current thread 0x00007db14fa4a180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5c738209ff57.STACK.1824900665.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rax.pyc`
@@ -4435,7 +4435,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000077b089722180 (most recent call first):`
+  - `Current thread 0x0000704cd3b58180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.651d300e3540.STACK.1abbfc97f6.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r12.pyc`
@@ -4462,7 +4462,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000747330978180 (most recent call first):`
+  - `Current thread 0x0000763fcb2ab180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGABRT.PC.785ef201e9fc.STACK.19b3a76c03.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
@@ -4489,7 +4489,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007b694f256180 (most recent call first):`
+  - `Current thread 0x00007e2db70f5180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5942be5e778f.STACK.1b53e06e08.CODE.1.ADDR.c.INSTR.mov____(%r14),%ebx.pyc`
@@ -4516,7 +4516,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000777fe3555180 (most recent call first):`
+  - `Current thread 0x000077abe1f15180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5bfcb7221d35.STACK.fd97845a4.CODE.128.ADDR.0.INSTR.movaps_%xmm0,-0x40(%rbp).pyc`
@@ -4543,7 +4543,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007ef0799cc180 (most recent call first):`
+  - `Current thread 0x000073a87a803180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.61f74b1516df.STACK.18bff2250a.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
@@ -4570,7 +4570,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007553a371a180 (most recent call first):`
+  - `Current thread 0x0000723c84c0d180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5932a2dfeec8.STACK.deaba9cb7.CODE.1.ADDR.30.INSTR.mov____0x30(%rbx),%rax.pyc`
@@ -4597,7 +4597,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000700996d9a180 (most recent call first):`
+  - `Current thread 0x00007e39a92b6180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.57e70c7e3a59.STACK.de1fe7f16.CODE.1.ADDR.49.INSTR.mov____0x8(%r14),%rax.pyc`
@@ -4624,7 +4624,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007a3439cb0180 (most recent call first):`
+  - `Current thread 0x0000764bb7c46180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGABRT.PC.7045fc9499fc.STACK.18bc176076.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
@@ -4651,7 +4651,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000078dc93d2c180 (most recent call first):`
+  - `Current thread 0x00007fbc73011180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.581da4975fb0.STACK.d600719f2.CODE.128.ADDR.0.INSTR.mov____0x100(%rbx),%rbx.pyc`
@@ -4678,7 +4678,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007373da70c180 (most recent call first):`
+  - `Current thread 0x0000726c6b455180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.58b06bb27843.STACK.de1ee7e05.CODE.1.ADDR.652.INSTR.mov____(%r14),%r15d.pyc`
@@ -4705,7 +4705,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007f4349f8b180 (most recent call first):`
+  - `Current thread 0x00007af045c3a180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGABRT.PC.73d8fd6199fc.STACK.e448dac14.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
@@ -4732,7 +4732,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000703e8d426180 (most recent call first):`
+  - `Current thread 0x00007d798fb90180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.58d1f9a30f3d.STACK.1b4440b5e1.CODE.128.ADDR.0.INSTR.mov____%rbx,(%rax).pyc`
@@ -4759,7 +4759,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007a597fa82180 (most recent call first):`
+  - `Current thread 0x0000727d9ea45180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5d9905cc5c49.STACK.19b82078df.CODE.1.ADDR.5d9900000000.INSTR.mov____(%r14),%ebx.pyc`
@@ -4786,7 +4786,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007f2f00b7b180 (most recent call first):`
+  - `Current thread 0x00007961630bb180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.621d0173cca2.STACK.18b9a043e1.CODE.128.ADDR.0.INSTR.call___*%r14.pyc`
@@ -4813,7 +4813,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000073273e660180 (most recent call first):`
+  - `Current thread 0x00007a9ecd7ef180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.7bcf6480e795.STACK.1a11f9ac25.CODE.1.ADDR.fffffffffffffff7.INSTR.mov____-0x8(%rbp),%rax.pyc`
@@ -4840,7 +4840,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007fd5c517a180 (most recent call first):`
+  - `Current thread 0x00007e2d1ee90180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5fb9506d32b8.STACK.ca56aa2a7.CODE.1.ADDR.a.INSTR.movzbl_0xa(%r15),%r12d.pyc`
@@ -4867,7 +4867,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000781ddd560180 (most recent call first):`
+  - `Current thread 0x00007b15743cd180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.626c29222040.STACK.f5465f589.CODE.1.ADDR.18.INSTR.mov____0x18(%rbx),%r14.pyc`
@@ -4894,7 +4894,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000077ebb9f34180 (most recent call first):`
+  - `Current thread 0x000073fc09237180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGABRT.PC.7c8eb33e49fc.STACK.c313ca348.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
@@ -4921,7 +4921,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x000073c59a0e6180 (most recent call first):`
+  - `Current thread 0x000073abfd0a3180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.7b869681847c.STACK.d2863d22f.CODE.128.ADDR.0.INSTR.call___*(%rax).pyc`
@@ -4948,7 +4948,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000700fcecc5180 (most recent call first):`
+  - `Current thread 0x00007a2e12c49180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5bc17368b040.STACK.1b846ddcaf.CODE.1.ADDR.18.INSTR.mov____0x18(%rbx),%r14.pyc`
@@ -4975,7 +4975,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000778aeeb38180 (most recent call first):`
+  - `Current thread 0x000071af63cf4180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5fc762175727.STACK.eee366619.CODE.128.ADDR.0.INSTR.call___*%rbx.pyc`
@@ -5002,7 +5002,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007e972dbfc180 (most recent call first):`
+  - `Current thread 0x000075399ec8f180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5ea8c73b5da3.STACK.197f26da72.CODE.128.ADDR.0.INSTR.mov____0x10(%rax),%r12.pyc`
@@ -5029,7 +5029,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007183b5618180 (most recent call first):`
+  - `Current thread 0x000078385296f180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.76bc692fc900.STACK.c23796ede.CODE.128.ADDR.0.INSTR.mov____-0x8(%rsi,%rdx,1),%rcx.pyc`
@@ -5056,7 +5056,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007a2c239ee180 (most recent call first):`
+  - `Current thread 0x00007d4a20a4d180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5bf7fce79120.STACK.1a5667f536.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rbx.pyc`
@@ -5083,7 +5083,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007e958e8c2180 (most recent call first):`
+  - `Current thread 0x000074c3c9833180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.645ef9fab356.STACK.1935db5aa8.CODE.1.ADDR.a8.INSTR.mov____0xa8(%rax),%rsi.pyc`
@@ -5110,7 +5110,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007aac9e18c180 (most recent call first):`
+  - `Current thread 0x00007bc835355180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5c010a9cde56.STACK.de15a8313.CODE.1.ADDR.f2.INSTR.mov____0x8(%r12),%rax.pyc`
@@ -5137,7 +5137,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x0000796bc039f180 (most recent call first):`
+  - `Current thread 0x00007f6410be0180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5efe5fe03040.STACK.f0886933f.CODE.1.ADDR.18.INSTR.mov____0x18(%rbx),%r14.pyc`
@@ -5164,7 +5164,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007217a3072180 (most recent call first):`
+  - `Current thread 0x00007f62904ea180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGABRT.PC.7ef4ec5959fc.STACK.19f4b372cd.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
@@ -5191,7 +5191,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007591a10e8180 (most recent call first):`
+  - `Current thread 0x000073439dc3d180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.5a61ac6f071c.STACK.d702e63f8.CODE.1.ADDR.88.INSTR.mov____0x8(%r13),%rax.pyc`
@@ -5218,7 +5218,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007787483e6180 (most recent call first):`
+  - `Current thread 0x0000788b2d6c9180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGSEGV.PC.775635428900.STACK.196b4d8fa0.CODE.128.ADDR.0.INSTR.mov____-0x8(%rsi,%rdx,1),%rcx.pyc`
@@ -5245,7 +5245,7 @@
   - `except FileNotFoundError, PermissionError:`
   - `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`
   - `SyntaxError: multiple exception types must be parenthesized`
-  - `Current thread 0x00007bdce6190180 (most recent call first):`
+  - `Current thread 0x0000763cd1cee180 (most recent call first):`
   - `<no Python frame>`
 - Example finding inputs:
   - `data/rq3/cpython-3.14/fuzz/crashes/SIGABRT.PC.79b5720ac9fc.STACK.c720497b9.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
