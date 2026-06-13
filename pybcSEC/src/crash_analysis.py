@@ -480,6 +480,17 @@ def run_under_gdb(interpreter: str, harness: Path, pyc_path: Path, timeout: int)
     return "not_reproduced", output, signal_name, ""
 
 
+def rerun_debug_header(command: Sequence[str], cwd: str, env: dict[str, str]) -> str:
+    lines = [
+        "[pybcsec-rerun] command=" + " ".join(command),
+        "[pybcsec-rerun] cwd=" + cwd,
+        "[pybcsec-rerun] PYTHONHOME=" + env.get("PYTHONHOME", ""),
+        "[pybcsec-rerun] PYTHONPATH=" + env.get("PYTHONPATH", ""),
+        "[pybcsec-rerun] PYTHONNOUSERSITE=" + env.get("PYTHONNOUSERSITE", ""),
+    ]
+    return "\n".join(lines) + "\n"
+
+
 def clean_gdb_env() -> dict[str, str]:
     env = os.environ.copy()
     env.pop("PYTHONHOME", None)
