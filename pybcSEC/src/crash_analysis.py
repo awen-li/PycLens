@@ -449,6 +449,7 @@ def run_under_gdb(interpreter: str, harness: Path, pyc_path: Path, timeout: int)
         str(harness_path),
         str(pyc_path),
     ]
+    debug_header = rerun_debug_header(command, cwd, env)
     try:
         completed = subprocess.run(
             command,
@@ -462,14 +463,25 @@ def run_under_gdb(interpreter: str, harness: Path, pyc_path: Path, timeout: int)
             errors="replace",
         )
     except subprocess.TimeoutExpired:
-        return "timeout", f"gdb_timeout_after_{timeout}s", "", ""
+        return "timeout", debug_header + f"\ngdb_timeout_after_{timeout}s", "", ""
     except OSError as exc:
-        return "error", f"gdb_{type(exc).__name__}:{exc}", "", ""
-    output = compact(completed.stdout, limit=24000)
+        return "error", debug_header + f"\ngdb_{type(exc).__name__}:{exc}", "", ""
+    output = compact(debug_header + completed.stdout, limit=30000)
     signal_name, frames = parse_gdb_stack(output)
     if frames:
         return "crash", output, signal_name, stack_signature(frames)
     return "not_reproduced", output, signal_name, ""
+
+
+def rerun_debug_header(command: Sequence[str], cwd: str, env: dict[str, str]) -> str:
+    keys = ["PYTHONHOME", "PYTHONPATH", "PYTHONNOUSERSITE"]
+    lines = [
+        "[pybcsec-rerun] command=" + " ".join(command),
+        "[pybcsec-rerun] cwd=" + cwd,
+    ]
+    for key in keys:
+        lines.append(f"[pybcsec-rerun] {key}={env.get(key, '')}")
+    return "\n".join(lines) + "\n"
 
 
 def cpython_runtime_env(interpreter: Path) -> dict[str, str]:
@@ -767,9 +779,13 @@ def manual_gdb_command(finding: CrashFinding | None) -> str:
     if finding is None:
         return ""
     version_dir = cpython_fuzz.version_dir_name(finding.python_tag)
-    interpreter = f"data/rq3/{version_dir}/instrumented/python"
-    source = f"data/rq3/{version_dir}/source/cpython-*"
-    return f"PYTHONHOME={source} PYTHONPATH={source}/Lib gdb -q --args {interpreter} -S data/rq3/harness.py {finding.path}"
+    interpreter = Path("data") / "rq3" / version_dir / "instrumented" / "python"
+    source_root = Path("data") / "rq3" / version_dir / "source"
+    source_dirs = [path for path in sorted(source_root.glob("cpython-*")) if (path / "Lib" / "encodings").is_dir()]
+    if source_dirs:
+        source = source_dirs[0]
+        return f"PYTHONHOME={source} PYTHONPATH={source / 'Lib'} PYTHONNOUSERSITE=1 gdb -q --args {interpreter} -S data/rq3/harness.py {finding.path}"
+    return f"PYTHONNOUSERSITE=1 gdb -q --args {interpreter} -S data/rq3/harness.py {finding.path}"
 
 
 def write_finding_csv(path: Path, rows: Sequence[CrashFinding]) -> None:
