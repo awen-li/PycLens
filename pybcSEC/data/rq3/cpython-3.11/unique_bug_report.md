@@ -1,0 +1,9735 @@
+# RQ3 Unique Bug Report: cpython-3.11
+
+## Summary
+
+- Crash findings: 2461
+- Unique bugs: 188
+- Representative pyc artifacts: 188
+
+## Unique Bugs
+
+### 1. cpython-311-8c3236a47c21
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error_exit|fatal_error|_Py_FatalErrorFunc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python`
+- Honggfuzz stack hash: `19f3493c07`
+- PC: `0x70028b8059fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 809
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-8c3236a47c21.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.70028b8059fc.STACK.19f3493c07.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error_exit`
+  - `fatal_error`
+  - `_Py_FatalErrorFunc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  0x00007b751c4879fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007b751c433476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007b751c4197f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x0000608670bda413 in fatal_error_exit (status=-1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2624`
+  - `#4  0x0000608670bda229 in fatal_error (fd=<optimized out>, header=<optimized out>, prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2805`
+  - `#5  0x0000608670bd4384 in _Py_FatalErrorFunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x0000608670b016af in _PyEval_EvalFrameDefault (tstate=0x608671030910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:853`
+  - `#7  0x0000608670b00f4c in _PyEval_EvalFrame (tstate=0x608671030910 <_PyRuntime+166328>, frame=0x60868833cc30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#8  _PyEval_Vector (tstate=0x608671030910 <_PyRuntime+166328>, func=0x60868835d3a0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#9  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x0000608670be4b5a in run_eval_code_obj (tstate=0x608671030910 <_PyRuntime+166328>, co=0x60868841af00, globals=0x6, locals=0x6) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#11 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x6, locals=0x6, flags=0x7ffee8395df0, arena=0x608688398030) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#12 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x6, locals=0x6, closeit=1, flags=0x7ffee8395df0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#13 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#14 0x0000608670be3bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x60868840be20, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#15 0x0000608670c3a2d4 in pymain_run_file_obj (program_name=0x60868840f950, filename=0x60868840be20, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.70028b8059fc.STACK.19f3493c07.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7006cb5919fc.STACK.19f3493c07.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.700a1ad709fc.STACK.19f3493c07.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.700d977769fc.STACK.19f3493c07.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.700deb56a9fc.STACK.19f3493c07.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - ... 804 more
+
+### 2. cpython-311-8cd24f311667
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:??|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `19225e25c8`
+- PC: `0x0`
+- Fault address: `0x0`
+- Instruction: `[NOT_MMAPED]`
+- Findings: 444
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-8cd24f311667.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.0.STACK.19225e25c8.CODE.1.ADDR.0.INSTR.[NOT_MMAPED].pyc`
+- Normalized function stack:
+  - `??`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  0x0000000000000000 in ?? ()`
+  - `#1  0x00005c5519f3c2cf in _PyEval_EvalFrameDefault (tstate=0x5c551a466910 <_PyRuntime+166328>, frame=0x5c553344db30, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5549`
+  - `#2  0x00005c5519f36f4c in _PyEval_EvalFrame (tstate=0x5c551a466910 <_PyRuntime+166328>, frame=0x5c553344dab0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5c551a466910 <_PyRuntime+166328>, func=0x5c553346e060, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005c551a01ab5a in run_eval_code_obj (tstate=0x5c551a466910 <_PyRuntime+166328>, co=0x5c553352c0d0, globals=0x5c551adeb680 <bbMapFb>, locals=0x5c551adeb680 <bbMapFb>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x5c551adeb680 <bbMapFb>, locals=0x5c551adeb680 <bbMapFb>, flags=0x7ffe721e8ae0, arena=0x5c55334d9910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x5c551adeb680 <bbMapFb>, locals=0x5c551adeb680 <bbMapFb>, closeit=1, flags=0x7ffe721e8ae0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x00005c551a019bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5c553351cf60, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x00005c551a0702d4 in pymain_run_file_obj (program_name=0x5c553351f240, filename=0x5c553351cf60, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x5c551a44c958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x00005c551a070c29 in pymain_main (args=0x7ffe721e8d50) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.0.STACK.19225e25c8.CODE.1.ADDR.0.INSTR.[NOT_MMAPED].pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.3b9ac9ff.STACK.19225e25c8.CODE.1.ADDR.3b9ac9ff.INSTR.[NOT_MMAPED].pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.555b0732d5e5.STACK.19225e25c8.CODE.1.ADDR.0.INSTR.mov____(%r12),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.556533f775e5.STACK.19225e25c8.CODE.1.ADDR.0.INSTR.mov____(%r12),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5567cbd52fdb.STACK.19225e25c8.CODE.1.ADDR.8.INSTR.mov____0x8(%rax),%r14.pyc`
+  - ... 439 more
+
+### 3. cpython-311-bb8ef554f4f2
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error_exit|fatal_error|_Py_FatalErrorFunc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector`
+- Honggfuzz stack hash: `d47433a2f`
+- PC: `0x3b9ac9ff`
+- Fault address: `0x3b9ac9ff`
+- Instruction: `[NOT_MMAPED]`
+- Findings: 183
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-bb8ef554f4f2.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.3b9ac9ff.STACK.d47433a2f.CODE.1.ADDR.3b9ac9ff.INSTR.[NOT_MMAPED].pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error_exit`
+  - `fatal_error`
+  - `_Py_FatalErrorFunc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+- Reproduced stack frames:
+  - `#0  0x00007ac75fb999fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007ac75fb45476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007ac75fb2b7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00005dbc833a9413 in fatal_error_exit (status=-1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2624`
+  - `#4  0x00005dbc833a9229 in fatal_error (fd=<optimized out>, header=<optimized out>, prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2805`
+  - `#5  0x00005dbc833a3384 in _Py_FatalErrorFunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005dbc832d06af in _PyEval_EvalFrameDefault (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:853`
+  - `#7  0x00005dbc832cff4c in _PyEval_EvalFrame (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=0x5dbcbf7e7dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#8  _PyEval_Vector (tstate=0x5dbc837ff910 <_PyRuntime+166328>, func=0x5dbcbf87ccb0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#9  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x00005dbc832c8452 in builtin_exec_impl (source=0x5dbcbf9669e0, globals=0x38455, locals=0x5dbcbf94e150, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#11 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x00005dbc8312ffdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x00005dbc8306b8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5dbcbf7e3450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#14 0x00005dbc8306b813 in PyObject_Vectorcall (callable=0x5dbcbf7e3450, args=0x5dbcbf7e7da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#15 0x00005dbc832d8dae in _PyEval_EvalFrameDefault (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=0x5dbcbf7e7d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5bb047cf9838.STACK.180b5d66cf.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57fea7df115d.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a5482194105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5cbb2a423105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dc27a8d9105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - ... 178 more
+
+### 4. cpython-311-9f970f80d058
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyFunction_NewWithQualName|PyFunction_New|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `188ea6926c`
+- PC: `0x558258fdb053`
+- Fault address: `0x55825907de70`
+- Instruction: `addq___$0x1,(%rax)`
+- Findings: 74
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-9f970f80d058.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.558258fdb053.STACK.188ea6926c.CODE.2.ADDR.55825907de70.INSTR.addq___$0x1,(%rax).pyc`
+- Normalized function stack:
+  - `PyFunction_NewWithQualName`
+  - `PyFunction_New`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  PyFunction_NewWithQualName (code=0x63c2d0a232e0, globals=0x63c2d0992cf0, qualname=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:60`
+  - `#1  PyFunction_New (code=0x63c2d0a232e0, globals=0x63c2d0992cf0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:148`
+  - `#2  0x000063c2adf87094 in _PyEval_EvalFrameDefault (tstate=0x63c2ae4b2910 <_PyRuntime+166328>, frame=0x63c2ade0fe70 <tuplehash>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5395`
+  - `#3  0x000063c2adf82f4c in _PyEval_EvalFrame (tstate=0x63c2ae4b2910 <_PyRuntime+166328>, frame=0x63c2d08b0dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x63c2ae4b2910 <_PyRuntime+166328>, func=0x63c2d0986cd0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x000063c2adf7b452 in builtin_exec_impl (source=0x63c2d0a2ef70, globals=0x63c2d0992cf0, locals=0x63c2d0992cf0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000063c2adde2fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x000063c2add1e8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x63c2d08ac450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x000063c2add1e813 in PyObject_Vectorcall (callable=0x63c2d08ac450, args=0x63c2d08b0da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x000063c2adf8bdae in _PyEval_EvalFrameDefault (tstate=0x63c2ae4b2910 <_PyRuntime+166328>, frame=0x63c2d08b0d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x000063c2adf82f4c in _PyEval_EvalFrame (tstate=0x63c2ae4b2910 <_PyRuntime+166328>, frame=0x63c2d08b0d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x63c2ae4b2910 <_PyRuntime+166328>, func=0x63c2d08d14f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x000063c2ae066b5a in run_eval_code_obj (tstate=0x63c2ae4b2910 <_PyRuntime+166328>, co=0x63c2d093ac40, globals=0x63c2d08b0e18, locals=0x63c2d08b0e18) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.558258fdb053.STACK.188ea6926c.CODE.2.ADDR.55825907de70.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.558513953053.STACK.188ea6926c.CODE.2.ADDR.5585139f5e70.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.558559bb9053.STACK.188ea6926c.CODE.1.ADDR.5f5f.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.558e7e932053.STACK.188ea6926c.CODE.1.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55aa595b2047.STACK.188ea6926c.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+  - ... 69 more
+
+### 5. cpython-311-e6716043d9b1
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyDict_LoadGlobal|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `19bec9d5cf`
+- PC: `0x557fb1e15ff4`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r15),%rax`
+- Findings: 73
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-e6716043d9b1.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.557fb1e15ff4.STACK.19bec9d5cf.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+- Normalized function stack:
+  - `_PyDict_LoadGlobal`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  _PyDict_LoadGlobal (globals=<optimized out>, builtins=<optimized out>, key=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1847`
+  - `#1  0x00005e0891c40fb4 in _PyEval_EvalFrameDefault (tstate=0x5e0892167910 <_PyRuntime+166328>, frame=0x5e08b18bdd10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3008`
+  - `#2  0x00005e0891c37f4c in _PyEval_EvalFrame (tstate=0x5e0892167910 <_PyRuntime+166328>, frame=0x5e08b18bdc90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5e0892167910 <_PyRuntime+166328>, func=0x5e08b18de3b0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005e0891d1bb5a in run_eval_code_obj (tstate=0x5e0892167910 <_PyRuntime+166328>, co=0x5e08b199c060, globals=0x0, locals=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x0, locals=0x0, flags=0x7ffc126dbce0, arena=0x5e08b19498f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x0, locals=0x0, closeit=1, flags=0x7ffc126dbce0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x00005e0891d1abab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5e08b1990520, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x00005e0891d712d4 in pymain_run_file_obj (program_name=0x5e08b1991170, filename=0x5e08b1990520, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x5e089214d958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x00005e0891d71c29 in pymain_main (args=0x7ffc126dbf50) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.557fb1e15ff4.STACK.19bec9d5cf.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55bf5f610ff4.STACK.19bec9d5cf.CODE.1.ADDR.55bf9781e.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56bff6681ff4.STACK.19bec9d5cf.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5710063b8ff4.STACK.19bec9d5cf.CODE.1.ADDR.9.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.577371aa8ff4.STACK.19bec9d5cf.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - ... 68 more
+
+### 6. cpython-311-8cd822f69443
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:do_richcompare|PyObject_RichCompare|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `dd90b2364`
+- PC: `0x559dbaa9f53b`
+- Fault address: `0xa6006500ca`
+- Instruction: `mov____0xc8(%rax),%rbx`
+- Findings: 58
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-8cd822f69443.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.559dbaa9f53b.STACK.dd90b2364.CODE.1.ADDR.a6006500ca.INSTR.mov____0xc8(%rax),%rbx.pyc`
+- Normalized function stack:
+  - `do_richcompare`
+  - `PyObject_RichCompare`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  do_richcompare (tstate=0x55f87d1ed910 <_PyRuntime+166328>, v=0x55f8aae138b4, w=0x55f87d1cbdb0 <_PyRuntime+28248>, op=2) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:678`
+  - `#1  PyObject_RichCompare (v=0x55f8aae138b4, w=<optimized out>, op=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:729`
+  - `#2  0x000055f87ccc3d8c in _PyEval_EvalFrameDefault (tstate=0x55f87d1ed910 <_PyRuntime+166328>, frame=0x55f8aacf8dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3705`
+  - `#3  0x000055f87ccbdf4c in _PyEval_EvalFrame (tstate=0x55f87d1ed910 <_PyRuntime+166328>, frame=0x55f8aacf8dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x55f87d1ed910 <_PyRuntime+166328>, func=0x55f8aae76240, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x000055f87ccb6452 in builtin_exec_impl (source=0x55f8aae137f0, globals=0x0, locals=0x55f8aae7e360, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000055f87cb1dfdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x000055f87ca598eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x55f8aacf4450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x000055f87ca59813 in PyObject_Vectorcall (callable=0x55f8aacf4450, args=0x55f8aacf8da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x000055f87ccc6dae in _PyEval_EvalFrameDefault (tstate=0x55f87d1ed910 <_PyRuntime+166328>, frame=0x55f8aacf8d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x000055f87ccbdf4c in _PyEval_EvalFrame (tstate=0x55f87d1ed910 <_PyRuntime+166328>, frame=0x55f8aacf8d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x55f87d1ed910 <_PyRuntime+166328>, func=0x55f8aad194f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x000055f87cda1b5a in run_eval_code_obj (tstate=0x55f87d1ed910 <_PyRuntime+166328>, co=0x55f8aad82c40, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.559dbaa9f53b.STACK.dd90b2364.CODE.1.ADDR.a6006500ca.INSTR.mov____0xc8(%rax),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55c2640b5400.STACK.dd90b2364.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r13),%rsi.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55f062e89400.STACK.dd90b2364.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r13),%rsi.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56b4e560553b.STACK.dd90b2364.CODE.1.ADDR.a6006500ca.INSTR.mov____0xc8(%rax),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56c4f1f3e400.STACK.dd90b2364.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r13),%rsi.pyc`
+  - ... 53 more
+
+### 7. cpython-311-2de9f8a450f8
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_SetAttr|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `18bf5c6743`
+- PC: `0x56445fffd59c`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%rax`
+- Findings: 34
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-2de9f8a450f8.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56445fffd59c.STACK.18bf5c6743.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rax.pyc`
+- Normalized function stack:
+  - `PyObject_SetAttr`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  PyObject_SetAttr (v=0x0, name=0x7261207473696c20, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1015`
+  - `#1  0x00005ecffea9fb69 in _PyEval_EvalFrameDefault (tstate=0x5ecffefc9910 <_PyRuntime+166328>, frame=0x5ed00d6e7d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2889`
+  - `#2  0x00005ecffea99f4c in _PyEval_EvalFrame (tstate=0x5ecffefc9910 <_PyRuntime+166328>, frame=0x5ed00d6e7c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5ecffefc9910 <_PyRuntime+166328>, func=0x5ed00d7083b0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005ecffeb7db5a in run_eval_code_obj (tstate=0x5ecffefc9910 <_PyRuntime+166328>, co=0x5ed00d7c6060, globals=0x0, locals=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x0, locals=0x0, flags=0x7fff8b30c880, arena=0x5ed00d7738f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x0, locals=0x0, closeit=1, flags=0x7fff8b30c880) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x00005ecffeb7cbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5ed00d7ba520, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x00005ecffebd32d4 in pymain_run_file_obj (program_name=0x5ed00d7bb170, filename=0x5ed00d7ba520, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x5ecffefaf958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x00005ecffebd3c29 in pymain_main (args=0x7fff8b30caf0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56445fffd59c.STACK.18bf5c6743.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5747068b35a4.STACK.18bf5c6743.CODE.1.ADDR.58.INSTR.mov____0x8(%r15),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5874e60d659c.STACK.18bf5c6743.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58caa0b8859c.STACK.18bf5c6743.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5953157675a8.STACK.18bf5c6743.CODE.128.ADDR.0.INSTR.mov____0xa8(%r13),%r14.pyc`
+  - ... 29 more
+
+### 8. cpython-311-492ff1fe49e3
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:visit_decref|func_traverse|subtract_refs|deduce_unreachable|gc_collect_main|gc_collect_with_callback|PyGC_Collect|Py_FinalizeEx|Py_RunMain|pymain_main|Py_BytesMain|main`
+- Honggfuzz stack hash: `e1a76e1fc`
+- PC: `0x55861dc2931b`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 31
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-492ff1fe49e3.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55861dc2931b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `visit_decref`
+  - `func_traverse`
+  - `subtract_refs`
+  - `deduce_unreachable`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `PyGC_Collect`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  visit_decref (op=0x1ffffffff, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:452`
+  - `#1  0x000055a1c05b9521 in func_traverse (f=0x55a1ed062d20, visit=<optimized out>, arg=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:730`
+  - `#2  0x000055a1c0909086 in subtract_refs (containers=0x55a1c0ce3860 <_PyRuntime+59656>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:478`
+  - `#3  deduce_unreachable (base=0x55a1c0ce3860 <_PyRuntime+59656>, unreachable=0x7fff4d9155a8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1100`
+  - `#4  gc_collect_main (tstate=0x55a1c0cfd910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1226`
+  - `#5  0x000055a1c09088a6 in gc_collect_with_callback (tstate=0x55a1c0cfd910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#6  0x000055a1c09085cc in PyGC_Collect () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2086`
+  - `#7  0x000055a1c08a47fd in Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1828`
+  - `#8  0x000055a1c0905e0a in Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:682`
+  - `#9  0x000055a1c0907c29 in pymain_main (args=0x7fff4d915a30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#10 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x000055a1c0468673 in main (argc=3, argv=0x7fff4d915bb8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Programs/python.c:15`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55861dc2931b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.562a600e131b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56ce1dc0431b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56efeeba531b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.579189b3231b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - ... 26 more
+
+### 9. cpython-311-9adac033984b
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyDict_FromItems|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `e0eb0717e`
+- PC: `0x561fd7bd216c`
+- Fault address: `0x8`
+- Instruction: `cmp____%r14,0x8(%rax)`
+- Findings: 26
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-9adac033984b.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.561fd7bd216c.STACK.e0eb0717e.CODE.1.ADDR.8.INSTR.cmp____%r14,0x8(%rax).pyc`
+- Normalized function stack:
+  - `_PyDict_FromItems`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  _PyDict_FromItems (keys=<optimized out>, keys_offset=<optimized out>, values=<optimized out>, values_offset=<optimized out>, length=109) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1609`
+  - `#1  0x00005c8095d79849 in _PyEval_EvalFrameDefault (tstate=0x5c80962a6910 <_PyRuntime+166328>, frame=0x5c80d6ef5d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3323`
+  - `#2  0x00005c8095d76f4c in _PyEval_EvalFrame (tstate=0x5c80962a6910 <_PyRuntime+166328>, frame=0x5c80d6ef5c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5c80962a6910 <_PyRuntime+166328>, func=0x5c80d6f163f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005c8095e5ab5a in run_eval_code_obj (tstate=0x5c80962a6910 <_PyRuntime+166328>, co=0x5c80d6fd41c0, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, flags=0x7ffde6bdada0, arena=0x5c80d6f81910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, closeit=1, flags=0x7ffde6bdada0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x00005c8095e59bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5c80d6fc5110, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x00005c8095eb02d4 in pymain_run_file_obj (program_name=0x5c80d6fc9290, filename=0x5c80d6fc5110, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x5c809628c958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x00005c8095eb0c29 in pymain_main (args=0x7ffde6bdb010) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.561fd7bd216c.STACK.e0eb0717e.CODE.1.ADDR.8.INSTR.cmp____%r14,0x8(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.579f484b616c.STACK.e0eb0717e.CODE.1.ADDR.8.INSTR.cmp____%r14,0x8(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57cfdb9f8264.STACK.e0eb0717e.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r12).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.583d7688b16c.STACK.e0eb0717e.CODE.1.ADDR.8.INSTR.cmp____%r14,0x8(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.583de7d1516c.STACK.e0eb0717e.CODE.1.ADDR.8.INSTR.cmp____%r14,0x8(%rax).pyc`
+  - ... 21 more
+
+### 10. cpython-311-a277dbe2949d
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyIter_Send|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `c85de59fa`
+- PC: `0x55a5af2f0bdb`
+- Fault address: `0x26b016401b5`
+- Instruction: `mov____0x50(%r12),%rax`
+- Findings: 24
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-a277dbe2949d.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55a5af2f0bdb.STACK.c85de59fa.CODE.1.ADDR.26b016401b5.INSTR.mov____0x50(%r12),%rax.pyc`
+- Normalized function stack:
+  - `PyIter_Send`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PyIter_Send (iter=0x59657a5b8bf8, arg=<optimized out>, result=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:2881`
+  - `#1  0x000059654884aa9e in _PyEval_EvalFrameDefault (tstate=0x596548d73910 <_PyRuntime+166328>, frame=0x59657a439e30, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2592`
+  - `#2  0x0000596548843f4c in _PyEval_EvalFrame (tstate=0x596548d73910 <_PyRuntime+166328>, frame=0x59657a439e30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x596548d73910 <_PyRuntime+166328>, func=0x59657a50fc30, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000059654883c452 in builtin_exec_impl (source=0x59657a5b8b40, globals=0x5965496f8680 <bbMapFb>, locals=0x59657a53c9d0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005965486a3fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005965485df8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x59657a4354b0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x00005965485df813 in PyObject_Vectorcall (callable=0x59657a4354b0, args=0x59657a439e08, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x000059654884cdae in _PyEval_EvalFrameDefault (tstate=0x596548d73910 <_PyRuntime+166328>, frame=0x59657a439db0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x0000596548843f4c in _PyEval_EvalFrame (tstate=0x596548d73910 <_PyRuntime+166328>, frame=0x59657a439db0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x596548d73910 <_PyRuntime+166328>, func=0x59657a45a520, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x0000596548927b5a in run_eval_code_obj (tstate=0x596548d73910 <_PyRuntime+166328>, co=0x59657a5184b0, globals=0x46fb, locals=0x46fb) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x46fb, locals=0x46fb, flags=0x7fff24f96520, arena=0x59657a4c59f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55a5af2f0bdb.STACK.c85de59fa.CODE.1.ADDR.26b016401b5.INSTR.mov____0x50(%r12),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56b929dc7bdb.STACK.c85de59fa.CODE.1.ADDR.26b01b4.INSTR.mov____0x50(%r12),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57adbad4cbdb.STACK.c85de59fa.CODE.1.ADDR.26b016401b5.INSTR.mov____0x50(%r12),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58319c78cbd7.STACK.c85de59fa.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r13),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5878404d7bd7.STACK.c85de59fa.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r13),%r12.pyc`
+  - ... 19 more
+
+### 11. cpython-311-391d5ea40c55
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_Repr|unicode_fromformat_arg|PyUnicode_FromFormatV|_PyErr_FormatV|_PyErr_Format|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file`
+- Honggfuzz stack hash: `e16824515`
+- PC: `0x556b66f9aefb`
+- Fault address: `0x28`
+- Instruction: `mov____0x8(%r15),%rbx`
+- Findings: 23
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-391d5ea40c55.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.556b66f9aefb.STACK.e16824515.CODE.1.ADDR.28.INSTR.mov____0x8(%r15),%rbx.pyc`
+- Normalized function stack:
+  - `PyObject_Repr`
+  - `unicode_fromformat_arg`
+  - `PyUnicode_FromFormatV`
+  - `_PyErr_FormatV`
+  - `_PyErr_Format`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  PyObject_Repr (v=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:415`
+  - `#1  0x00005f8daddf876b in unicode_fromformat_arg (writer=0x7fff72cbe9a0, f=<optimized out>, vargs=0x7fff72cbea00) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/unicodeobject.c:3036`
+  - `#2  PyUnicode_FromFormatV (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#3  0x00005f8dadfa0b8b in _PyErr_FormatV (tstate=0x5f8dae452910 <_PyRuntime+166328>, exception=0x5f8dae2a65f0 <_PyExc_SystemError>, format=0x5f8daedd7680 <bbMapFb> "", vargs=0x7fff72cbeb10) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:1078`
+  - `#4  _PyErr_Format (tstate=0x5f8dae452910 <_PyRuntime+166328>, exception=<optimized out>, format=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:1104`
+  - `#5  0x00005f8dadf3887f in _PyEval_EvalFrameDefault (tstate=0x5f8dae452910 <_PyRuntime+166328>, frame=0x5f8de2be4d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4405`
+  - `#6  0x00005f8dadf22f4c in _PyEval_EvalFrame (tstate=0x5f8dae452910 <_PyRuntime+166328>, frame=0x5f8de2be4c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#7  _PyEval_Vector (tstate=0x5f8dae452910 <_PyRuntime+166328>, func=0x5f8de2c053f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#8  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00005f8dae006b5a in run_eval_code_obj (tstate=0x5f8dae452910 <_PyRuntime+166328>, co=0x5f8de2cc35e0, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#10 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, flags=0x7fff72cbef20, arena=0x5f8de2c70910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#11 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, closeit=1, flags=0x7fff72cbef20) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#12 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#13 0x00005f8dae005bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5f8de2cb4120, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#14 0x00005f8dae05c2d4 in pymain_run_file_obj (program_name=0x5f8de2cb82a0, filename=0x5f8de2cb4120, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#15 pymain_run_file (config=0x5f8dae438958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.556b66f9aefb.STACK.e16824515.CODE.1.ADDR.28.INSTR.mov____0x8(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56167848eefb.STACK.e16824515.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5898edd37efb.STACK.e16824515.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5990b1961efb.STACK.e16824515.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a5810f7befb.STACK.e16824515.CODE.1.ADDR.28.INSTR.mov____0x8(%r15),%rbx.pyc`
+  - ... 18 more
+
+### 12. cpython-311-ae7674847f4e
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyDict_SetItem|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `d86066e6c`
+- PC: `0x55f9e4c0e564`
+- Fault address: `0x1ffffffff`
+- Instruction: `addq___$0x1,(%r14)`
+- Findings: 22
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-ae7674847f4e.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55f9e4c0e564.STACK.d86066e6c.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+- Normalized function stack:
+  - `PyDict_SetItem`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PyDict_SetItem (op=0x64ce041c0ac0, key=<optimized out>, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1905`
+  - `#1  0x000064cdc566003c in _PyEval_EvalFrameDefault (tstate=0x64cdc5b8c910 <_PyRuntime+166328>, frame=0x64ce040efd70, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2914`
+  - `#2  0x000064cdc565cf4c in _PyEval_EvalFrame (tstate=0x64cdc5b8c910 <_PyRuntime+166328>, frame=0x64ce040efd70, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x64cdc5b8c910 <_PyRuntime+166328>, func=0x64ce041c5770, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000064cdc5655452 in builtin_exec_impl (source=0x64ce04274310, globals=0x64cdc64cfe40 <my_thread_no>, locals=0x64ce041c0ac0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x000064cdc54bcfdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000064cdc53f88eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x64ce040eb3f0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x000064cdc53f8813 in PyObject_Vectorcall (callable=0x64ce040eb3f0, args=0x64ce040efd48, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x000064cdc5665dae in _PyEval_EvalFrameDefault (tstate=0x64cdc5b8c910 <_PyRuntime+166328>, frame=0x64ce040efcf0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x000064cdc565cf4c in _PyEval_EvalFrame (tstate=0x64cdc5b8c910 <_PyRuntime+166328>, frame=0x64ce040efcf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x64cdc5b8c910 <_PyRuntime+166328>, func=0x64ce0410ff10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x000064cdc5740b5a in run_eval_code_obj (tstate=0x64cdc5b8c910 <_PyRuntime+166328>, co=0x64ce041ce430, globals=0x3f, locals=0x3f) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x3f, locals=0x3f, flags=0x7ffc98d76a40, arena=0x64ce0416e8f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5753f9dc9564.STACK.188e079992.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dc59e081564.STACK.188e079992.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.602d0b4e6564.STACK.188e079992.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6044e1492564.STACK.188e079992.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55f9e4c0e564.STACK.d86066e6c.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+  - ... 17 more
+
+### 13. cpython-311-63207017d9b7
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyDict_FromItems|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `1af5f44e63`
+- PC: `0x56322e54416c`
+- Fault address: `0x8`
+- Instruction: `cmp____%r14,0x8(%rax)`
+- Findings: 21
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-63207017d9b7.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56322e54416c.STACK.1af5f44e63.CODE.1.ADDR.8.INSTR.cmp____%r14,0x8(%rax).pyc`
+- Normalized function stack:
+  - `_PyDict_FromItems`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  _PyDict_FromItems (keys=<optimized out>, keys_offset=<optimized out>, values=<optimized out>, values_offset=<optimized out>, length=115) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1609`
+  - `#1  0x000062b80cd22849 in _PyEval_EvalFrameDefault (tstate=0x62b80d24f910 <_PyRuntime+166328>, frame=0x62b82cf73d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3323`
+  - `#2  0x000062b80cd1ff4c in _PyEval_EvalFrame (tstate=0x62b80d24f910 <_PyRuntime+166328>, frame=0x62b82cf73d10, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x62b80d24f910 <_PyRuntime+166328>, func=0x62b82d0f1770, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000062b80cd18452 in builtin_exec_impl (source=0x62b82d0f2c10, globals=0x4, locals=0x62b82d0f0af0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x000062b80cb7ffdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000062b80cabb8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x62b82cf6f390, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x000062b80cabb813 in PyObject_Vectorcall (callable=0x62b82cf6f390, args=0x62b82cf73ce8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x000062b80cd28dae in _PyEval_EvalFrameDefault (tstate=0x62b80d24f910 <_PyRuntime+166328>, frame=0x62b82cf73c90, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x000062b80cd1ff4c in _PyEval_EvalFrame (tstate=0x62b80d24f910 <_PyRuntime+166328>, frame=0x62b82cf73c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x62b80d24f910 <_PyRuntime+166328>, func=0x62b82cf943f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x000062b80ce03b5a in run_eval_code_obj (tstate=0x62b80d24f910 <_PyRuntime+166328>, co=0x62b82d04ee30, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, flags=0x7ffc4b7e13f0, arena=0x62b82cfff910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56322e54416c.STACK.1af5f44e63.CODE.1.ADDR.8.INSTR.cmp____%r14,0x8(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.563f212a816c.STACK.1af5f44e63.CODE.1.ADDR.8.INSTR.cmp____%r14,0x8(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57d290994264.STACK.1af5f44e63.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r12).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58a0d125c16c.STACK.1af5f44e63.CODE.1.ADDR.8.INSTR.cmp____%r14,0x8(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58db18854264.STACK.1af5f44e63.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r12).pyc`
+  - ... 16 more
+
+### 14. cpython-311-a95758ba00a8
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_GetMethod|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `18f32fce25`
+- PC: `0x5600dff6d77b`
+- Fault address: `0x0`
+- Instruction: `cmpq___$0x0,0x108(%r14)`
+- Findings: 19
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-a95758ba00a8.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5600dff6d77b.STACK.18f32fce25.CODE.128.ADDR.0.INSTR.cmpq___$0x0,0x108(%r14).pyc`
+- Normalized function stack:
+  - `_PyObject_GetMethod`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  _PyObject_GetMethod (obj=0x633b393e2e90, name=<optimized out>, method=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1156`
+  - `#1  0x0000633b27cebcbc in _PyEval_EvalFrameDefault (tstate=0x633b28215910 <_PyRuntime+166328>, frame=0x633b39269d70, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4491`
+  - `#2  0x0000633b27ce5f4c in _PyEval_EvalFrame (tstate=0x633b28215910 <_PyRuntime+166328>, frame=0x633b39269cf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x633b28215910 <_PyRuntime+166328>, func=0x633b39289f10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x0000633b27dc9b5a in run_eval_code_obj (tstate=0x633b28215910 <_PyRuntime+166328>, co=0x633b39348020, globals=0x7ffc8521fc08, locals=0x7ffc8521fc08) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x7ffc8521fc08, locals=0x7ffc8521fc08, flags=0x7ffc8521ff60, arena=0x633b392f56a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x7ffc8521fc08, locals=0x7ffc8521fc08, closeit=1, flags=0x7ffc8521ff60) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x0000633b27dc8bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x633b39339880, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x0000633b27e1f2d4 in pymain_run_file_obj (program_name=0x633b3933d8f0, filename=0x633b39339880, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x633b281fb958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x0000633b27e1fc29 in pymain_main (args=0x7ffc852201d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5600dff6d77b.STACK.18f32fce25.CODE.128.ADDR.0.INSTR.cmpq___$0x0,0x108(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5749eca1a7eb.STACK.18f32fce25.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57da7d5ed80f.STACK.18f32fce25.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.593182d307eb.STACK.18f32fce25.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5994ddbd57eb.STACK.18f32fce25.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - ... 14 more
+
+### 15. cpython-311-27abee334929
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:binary_op1|binary_op|PyNumber_Subtract|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode`
+- Honggfuzz stack hash: `180b7094a3`
+- PC: `0x55fa44ffd79c`
+- Fault address: `0x26b06da0bc6`
+- Instruction: `cmpq___$0x0,0x60(%r15)`
+- Findings: 17
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-27abee334929.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55fa44ffd79c.STACK.180b7094a3.CODE.1.ADDR.26b06da0bc6.INSTR.cmpq___$0x0,0x60(%r15).pyc`
+- Normalized function stack:
+  - `binary_op1`
+  - `binary_op`
+  - `PyNumber_Subtract`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+- Reproduced stack frames:
+  - `#0  binary_op1 (v=0x601cb326cac8, w=0x1ffffffff, op_slot=8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:866`
+  - `#1  binary_op (v=0x601cb326cac8, w=0x1ffffffff, op_slot=8, op_name=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:932`
+  - `#2  PyNumber_Subtract (v=0x601cb326cac8, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:1067`
+  - `#3  0x0000601c75fae2cf in _PyEval_EvalFrameDefault (tstate=0x601c764d8910 <_PyRuntime+166328>, frame=0x601cb30ede30, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5549`
+  - `#4  0x0000601c75fa8f4c in _PyEval_EvalFrame (tstate=0x601c764d8910 <_PyRuntime+166328>, frame=0x601cb30ede30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#5  _PyEval_Vector (tstate=0x601c764d8910 <_PyRuntime+166328>, func=0x601cb3182ac0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#6  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x0000601c75fa1452 in builtin_exec_impl (source=0x601cb326ca10, globals=0x1ffffffff, locals=0x601cb3273010, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#8  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x0000601c75e08fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x0000601c75d448eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x601cb30e94b0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#11 0x0000601c75d44813 in PyObject_Vectorcall (callable=0x601cb30e94b0, args=0x601cb30ede08, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#12 0x0000601c75fb1dae in _PyEval_EvalFrameDefault (tstate=0x601c764d8910 <_PyRuntime+166328>, frame=0x601cb30eddb0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#13 0x0000601c75fa8f4c in _PyEval_EvalFrame (tstate=0x601c764d8910 <_PyRuntime+166328>, frame=0x601cb30eddb0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#14 _PyEval_Vector (tstate=0x601c764d8910 <_PyRuntime+166328>, func=0x601cb310e520, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#15 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55fa44ffd79c.STACK.180b7094a3.CODE.1.ADDR.26b06da0bc6.INSTR.cmpq___$0x0,0x60(%r15).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56251021afb2.STACK.180b7094a3.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.596390f43fe5.STACK.180b7094a3.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rax),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b1d22e57fb6.STACK.180b7094a3.CODE.1.ADDR.26b01c4.INSTR.cmpq___$0x0,0x60(%rbx).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c00a1c7079c.STACK.180b7094a3.CODE.128.ADDR.0.INSTR.cmpq___$0x0,0x60(%r15).pyc`
+  - ... 12 more
+
+### 16. cpython-311-d84049333b64
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_IsTrue|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `dc7e9cb38`
+- PC: `0x5587da7b7838`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 17
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-d84049333b64.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5587da7b7838.STACK.dc7e9cb38.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_IsTrue`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PyObject_IsTrue (v=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1505`
+  - `#1  0x00005e0d2b548057 in _PyEval_EvalFrameDefault (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, frame=0x5e0d5897add0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4159`
+  - `#2  0x00005e0d2b545f4c in _PyEval_EvalFrame (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, frame=0x5e0d5897add0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, func=0x5e0d58afdb70, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005e0d2b53e452 in builtin_exec_impl (source=0x5e0d58af8fb0, globals=0x5e0d2b9cc580 <globalCovFeedback>, locals=0x5e0d58a819d0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005e0d2b3a5fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005e0d2b2e18eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5e0d58976450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x00005e0d2b2e1813 in PyObject_Vectorcall (callable=0x5e0d58976450, args=0x5e0d5897ada8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x00005e0d2b54edae in _PyEval_EvalFrameDefault (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, frame=0x5e0d5897ad50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x00005e0d2b545f4c in _PyEval_EvalFrame (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, frame=0x5e0d5897ad50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, func=0x5e0d5899b4f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00005e0d2b629b5a in run_eval_code_obj (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, co=0x5e0d58a04c90, globals=0x1946738, locals=0x1946738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1946738, locals=0x1946738, flags=0x7ffd7e7113e0, arena=0x5e0d589f9e80) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.590ad5c2d838.STACK.188e674c7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5eca87508838.STACK.188e674c7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.609c6f5fc838.STACK.188e674c7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59381a16b7c7.STACK.18cf2b5115.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56be59898838.STACK.c44392baf.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - ... 12 more
+
+### 17. cpython-311-bb8ef554f4f2
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error_exit|fatal_error|_Py_FatalErrorFunc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector`
+- Honggfuzz stack hash: `c4418585e`
+- PC: `0x58320407159c`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%rax`
+- Findings: 16
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-bb8ef554f4f2.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58320407159c.STACK.c4418585e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%rax.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error_exit`
+  - `fatal_error`
+  - `_Py_FatalErrorFunc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+- Reproduced stack frames:
+  - `#0  0x00007ac75fb999fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007ac75fb45476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007ac75fb2b7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00005dbc833a9413 in fatal_error_exit (status=-1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2624`
+  - `#4  0x00005dbc833a9229 in fatal_error (fd=<optimized out>, header=<optimized out>, prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2805`
+  - `#5  0x00005dbc833a3384 in _Py_FatalErrorFunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005dbc832d06af in _PyEval_EvalFrameDefault (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:853`
+  - `#7  0x00005dbc832cff4c in _PyEval_EvalFrame (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=0x5dbcbf7e7dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#8  _PyEval_Vector (tstate=0x5dbc837ff910 <_PyRuntime+166328>, func=0x5dbcbf87ccb0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#9  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x00005dbc832c8452 in builtin_exec_impl (source=0x5dbcbf9669e0, globals=0x38455, locals=0x5dbcbf94e150, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#11 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x00005dbc8312ffdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x00005dbc8306b8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5dbcbf7e3450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#14 0x00005dbc8306b813 in PyObject_Vectorcall (callable=0x5dbcbf7e3450, args=0x5dbcbf7e7da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#15 0x00005dbc832d8dae in _PyEval_EvalFrameDefault (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=0x5dbcbf7e7d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5bb047cf9838.STACK.180b5d66cf.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57fea7df115d.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a5482194105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5cbb2a423105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dc27a8d9105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - ... 11 more
+
+### 18. cpython-311-05297905678a
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyFunction_NewWithQualName|PyFunction_New|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `c75e2ad71`
+- PC: `0x557c218e8053`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%rax)`
+- Findings: 15
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-05297905678a.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.557c218e8053.STACK.c75e2ad71.CODE.1.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+- Normalized function stack:
+  - `PyFunction_NewWithQualName`
+  - `PyFunction_New`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  PyFunction_NewWithQualName (code=0x612145feba60 <_Py_NoneStruct>, globals=0x6121573594b0, qualname=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:60`
+  - `#1  PyFunction_New (code=0x612145feba60 <_Py_NoneStruct>, globals=0x6121573594b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:148`
+  - `#2  0x0000612145c60094 in _PyEval_EvalFrameDefault (tstate=0x61214618b910 <_PyRuntime+166328>, frame=0x0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5395`
+  - `#3  0x0000612145c5bf4c in _PyEval_EvalFrame (tstate=0x61214618b910 <_PyRuntime+166328>, frame=0x6121571d6c30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x61214618b910 <_PyRuntime+166328>, func=0x6121571f73a0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x0000612145d3fb5a in run_eval_code_obj (tstate=0x61214618b910 <_PyRuntime+166328>, co=0x6121572b4ee0, globals=0x6121571d6d30, locals=0x6121571d6d30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#7  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x6121571d6d30, locals=0x6121571d6d30, flags=0x7ffd483b43d0, arena=0x6121572626a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#8  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x6121571d6d30, locals=0x6121571d6d30, closeit=1, flags=0x7ffd483b43d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#9  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#10 0x0000612145d3ebab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x6121572a5f20, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#11 0x0000612145d952d4 in pymain_run_file_obj (program_name=0x6121572a9d70, filename=0x6121572a5f20, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#12 pymain_run_file (config=0x612146171958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#13 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#14 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#15 0x0000612145d95c29 in pymain_main (args=0x7ffd483b4640) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.557c218e8053.STACK.c75e2ad71.CODE.1.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56a857d5c053.STACK.c75e2ad71.CODE.2.ADDR.56a857d88fd0.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56cbf4887062.STACK.c75e2ad71.CODE.1.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.574855497062.STACK.c75e2ad71.CODE.1.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57b0b7992047.STACK.c75e2ad71.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - ... 10 more
+
+### 19. cpython-311-3addb7f7df89
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyType_IsSubtype|do_richcompare|PyObject_RichCompare|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode`
+- Honggfuzz stack hash: `199495cc83`
+- PC: `0x55dd9f528610`
+- Fault address: `0xa60065015a`
+- Instruction: `mov____0x158(%rbx),%r13`
+- Findings: 15
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-3addb7f7df89.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55dd9f528610.STACK.199495cc83.CODE.1.ADDR.a60065015a.INSTR.mov____0x158(%rbx),%r13.pyc`
+- Normalized function stack:
+  - `PyType_IsSubtype`
+  - `do_richcompare`
+  - `PyObject_RichCompare`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+- Reproduced stack frames:
+  - `#0  PyType_IsSubtype (a=0xa600650002, b=0x63151d610970 <PyUnicode_Type>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1544`
+  - `#1  0x000063151d0e6412 in do_richcompare (tstate=0x63151d7aa910 <_PyRuntime+166328>, v=0x631544b5ed40, w=0x631544c0b2d4, op=2) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:670`
+  - `#2  PyObject_RichCompare (v=0x631544b5ed40, w=<optimized out>, op=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:729`
+  - `#3  0x000063151d280d8c in _PyEval_EvalFrameDefault (tstate=0x63151d7aa910 <_PyRuntime+166328>, frame=0x631544a8be30, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3705`
+  - `#4  0x000063151d27af4c in _PyEval_EvalFrame (tstate=0x63151d7aa910 <_PyRuntime+166328>, frame=0x631544a8be30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#5  _PyEval_Vector (tstate=0x63151d7aa910 <_PyRuntime+166328>, func=0x631544b61a10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#6  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x000063151d273452 in builtin_exec_impl (source=0x631544c0b210, globals=0x63151d610970 <PyUnicode_Type>, locals=0x631544c0ebc0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#8  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x000063151d0dafdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x000063151d0168eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x631544a874b0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#11 0x000063151d016813 in PyObject_Vectorcall (callable=0x631544a874b0, args=0x631544a8be08, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#12 0x000063151d283dae in _PyEval_EvalFrameDefault (tstate=0x63151d7aa910 <_PyRuntime+166328>, frame=0x631544a8bdb0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#13 0x000063151d27af4c in _PyEval_EvalFrame (tstate=0x63151d7aa910 <_PyRuntime+166328>, frame=0x631544a8bdb0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#14 _PyEval_Vector (tstate=0x63151d7aa910 <_PyRuntime+166328>, func=0x631544aac520, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#15 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55dd9f528610.STACK.199495cc83.CODE.1.ADDR.a60065015a.INSTR.mov____0x158(%rbx),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.577facdf9610.STACK.199495cc83.CODE.1.ADDR.a60065015a.INSTR.mov____0x158(%rbx),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57fdd3232610.STACK.199495cc83.CODE.1.ADDR.a60065015a.INSTR.mov____0x158(%rbx),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.596e25ebc610.STACK.199495cc83.CODE.1.ADDR.a60065015a.INSTR.mov____0x158(%rbx),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a5b9fdd4610.STACK.199495cc83.CODE.1.ADDR.a60065015a.INSTR.mov____0x158(%rbx),%r13.pyc`
+  - ... 10 more
+
+### 20. cpython-311-492ff1fe49e3
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:visit_decref|func_traverse|subtract_refs|deduce_unreachable|gc_collect_main|gc_collect_with_callback|PyGC_Collect|Py_FinalizeEx|Py_RunMain|pymain_main|Py_BytesMain|main`
+- Honggfuzz stack hash: `ed8b76d35`
+- PC: `0x568f0566d31b`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 14
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-492ff1fe49e3.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.568f0566d31b.STACK.ed8b76d35.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `visit_decref`
+  - `func_traverse`
+  - `subtract_refs`
+  - `deduce_unreachable`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `PyGC_Collect`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  visit_decref (op=0x1ffffffff, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:452`
+  - `#1  0x000055a1c05b9521 in func_traverse (f=0x55a1ed062d20, visit=<optimized out>, arg=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:730`
+  - `#2  0x000055a1c0909086 in subtract_refs (containers=0x55a1c0ce3860 <_PyRuntime+59656>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:478`
+  - `#3  deduce_unreachable (base=0x55a1c0ce3860 <_PyRuntime+59656>, unreachable=0x7fff4d9155a8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1100`
+  - `#4  gc_collect_main (tstate=0x55a1c0cfd910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1226`
+  - `#5  0x000055a1c09088a6 in gc_collect_with_callback (tstate=0x55a1c0cfd910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#6  0x000055a1c09085cc in PyGC_Collect () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2086`
+  - `#7  0x000055a1c08a47fd in Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1828`
+  - `#8  0x000055a1c0905e0a in Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:682`
+  - `#9  0x000055a1c0907c29 in pymain_main (args=0x7fff4d915a30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#10 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x000055a1c0468673 in main (argc=3, argv=0x7fff4d915bb8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Programs/python.c:15`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55861dc2931b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.562a600e131b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56ce1dc0431b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56efeeba531b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.579189b3231b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - ... 9 more
+
+### 21. cpython-311-edf710a1cafb
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_LookupAttr|import_from|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `cb7e71394`
+- PC: `0x56c390b1ba88`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%r13`
+- Findings: 14
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-edf710a1cafb.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56c390b1ba88.STACK.cb7e71394.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r13.pyc`
+- Normalized function stack:
+  - `_PyObject_LookupAttr`
+  - `import_from`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  _PyObject_LookupAttr (v=0x5de63f7e2c38 <PyBaseObject_Type>, name=0x0, result=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:942`
+  - `#1  0x00005de63f4513dc in import_from (tstate=0x5de63f97f910 <_PyRuntime+166328>, v=0x5de63f7e2c38 <PyBaseObject_Type>, name=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7449`
+  - `#2  _PyEval_EvalFrameDefault (tstate=0x5de63f97f910 <_PyRuntime+166328>, frame=0x5de6577b6dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3986`
+  - `#3  0x00005de63f44ff4c in _PyEval_EvalFrame (tstate=0x5de63f97f910 <_PyRuntime+166328>, frame=0x5de6577b6d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x5de63f97f910 <_PyRuntime+166328>, func=0x5de6577d74d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005de63f533b5a in run_eval_code_obj (tstate=0x5de63f97f910 <_PyRuntime+166328>, co=0x5de657840be0, globals=0x7ffc17611390, locals=0x7ffc17611390) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#7  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x7ffc17611390, locals=0x7ffc17611390, flags=0x7ffc176116a0, arena=0x5de657842c30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#8  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x7ffc17611390, locals=0x7ffc17611390, closeit=1, flags=0x7ffc176116a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#9  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#10 0x00005de63f532bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5de657889eb0, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#11 0x00005de63f5892d4 in pymain_run_file_obj (program_name=0x5de65788afa0, filename=0x5de657889eb0, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#12 pymain_run_file (config=0x5de63f965958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#13 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#14 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#15 0x00005de63f589c29 in pymain_main (args=0x7ffc17611910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.624c21b6ca88.STACK.19b05b8cde.CODE.128.ADDR.0.INSTR.movzbl_(%r12,%r14,1),%ebx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56c390b1ba88.STACK.cb7e71394.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5833ba168a90.STACK.cb7e71394.CODE.1.ADDR.9.INSTR.mov____0x8(%r12),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58aa676f1a90.STACK.cb7e71394.CODE.128.ADDR.0.INSTR.mov____0x8(%r12),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.597c3159aa88.STACK.cb7e71394.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r13.pyc`
+  - ... 9 more
+
+### 22. cpython-311-98a39ece8b90
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyDict_SetItem|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `c7543a68f`
+- PC: `0x57ef6144655f`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%r12)`
+- Findings: 13
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-98a39ece8b90.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57ef6144655f.STACK.c7543a68f.CODE.128.ADDR.0.INSTR.addq___$0x1,(%r12).pyc`
+- Normalized function stack:
+  - `PyDict_SetItem`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  PyDict_SetItem (op=0x5eb9cdf43fa0, key=<optimized out>, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1905`
+  - `#1  0x00005eb99f8eaef2 in _PyEval_EvalFrameDefault (tstate=0x5eb99fe12910 <_PyRuntime+166328>, frame=0x5eb9cdea3c30, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2769`
+  - `#2  0x00005eb99f8e2f4c in _PyEval_EvalFrame (tstate=0x5eb99fe12910 <_PyRuntime+166328>, frame=0x5eb9cdea3c30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5eb99fe12910 <_PyRuntime+166328>, func=0x5eb9cdf77c90, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005eb99f9c6b5a in run_eval_code_obj (tstate=0x5eb99fe12910 <_PyRuntime+166328>, co=0x5eb9cdf81bb0, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, flags=0x7ffee6080820, arena=0x5eb9cdf2f6a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, closeit=1, flags=0x7ffee6080820) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x00005eb99f9c5bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5eb9cdf72e40, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x00005eb99fa1c2d4 in pymain_run_file_obj (program_name=0x5eb9cdf76a60, filename=0x5eb9cdf72e40, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x5eb99fdf8958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x00005eb99fa1cc29 in pymain_main (args=0x7ffee6080a90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e178034b564.STACK.197d425171.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57ef6144655f.STACK.c7543a68f.CODE.128.ADDR.0.INSTR.addq___$0x1,(%r12).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5809f900355f.STACK.c7543a68f.CODE.1.ADDR.ab000000a6.INSTR.addq___$0x1,(%r12).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.585c700bd564.STACK.c7543a68f.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.589e1337f55f.STACK.c7543a68f.CODE.1.ADDR.41.INSTR.addq___$0x1,(%r12).pyc`
+  - ... 8 more
+
+### 23. cpython-311-42ca23aebbae
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PySlice_New|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `19098a2836`
+- PC: `0x55a0de07ee18`
+- Fault address: `0x1ffffffff`
+- Instruction: `addq___$0x1,(%r15)`
+- Findings: 12
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-42ca23aebbae.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55a0de07ee18.STACK.19098a2836.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r15).pyc`
+- Normalized function stack:
+  - `PySlice_New`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PySlice_New (start=0x1ffffffff, stop=0x6390032c6cb0, step=0x638feb7d5a60 <_Py_NoneStruct>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/sliceobject.c:142`
+  - `#1  0x0000638feb44b6df in _PyEval_EvalFrameDefault (tstate=0x638feb975910 <_PyRuntime+166328>, frame=0x6390032a6d70, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5464`
+  - `#2  0x0000638feb445f4c in _PyEval_EvalFrame (tstate=0x638feb975910 <_PyRuntime+166328>, frame=0x6390032a6d70, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x638feb975910 <_PyRuntime+166328>, func=0x639003425340, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x0000638feb43e452 in builtin_exec_impl (source=0x639003425750, globals=0x0, locals=0x63900342b620, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x0000638feb2a5fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x0000638feb1e18eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x6390032a23f0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x0000638feb1e1813 in PyObject_Vectorcall (callable=0x6390032a23f0, args=0x6390032a6d48, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x0000638feb44edae in _PyEval_EvalFrameDefault (tstate=0x638feb975910 <_PyRuntime+166328>, frame=0x6390032a6cf0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x0000638feb445f4c in _PyEval_EvalFrame (tstate=0x638feb975910 <_PyRuntime+166328>, frame=0x6390032a6cf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x638feb975910 <_PyRuntime+166328>, func=0x6390032c6f10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x0000638feb529b5a in run_eval_code_obj (tstate=0x638feb975910 <_PyRuntime+166328>, co=0x639003330740, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, flags=0x7fff46c38ce0, arena=0x639003325930) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55a0de07ee18.STACK.19098a2836.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r15).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5875c4921e18.STACK.19098a2836.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r15).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5912905f3e20.STACK.19098a2836.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59667734be18.STACK.19098a2836.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r15).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a9403c26e18.STACK.19098a2836.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r15).pyc`
+  - ... 7 more
+
+### 24. cpython-311-79370e913c93
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|??|??|??|??|realloc|_PyMem_RawRealloc|PyObject_Realloc|resize_compact|_PyUnicodeWriter_PrepareInternal|_PyUnicodeWriter_WriteStr|unicode_fromformat_write_str|unicode_fromformat_arg|PyUnicode_FromFormatV|PyUnicode_FromFormat|code_repr`
+- Honggfuzz stack hash: `e4b0bb1be`
+- PC: `0x7038320909fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 12
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-79370e913c93.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7038320909fc.STACK.e4b0bb1be.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `??`
+  - `realloc`
+  - `_PyMem_RawRealloc`
+  - `PyObject_Realloc`
+  - `resize_compact`
+  - `_PyUnicodeWriter_PrepareInternal`
+  - `_PyUnicodeWriter_WriteStr`
+  - `unicode_fromformat_write_str`
+  - `unicode_fromformat_arg`
+  - `PyUnicode_FromFormatV`
+  - `PyUnicode_FromFormat`
+  - `code_repr`
+  - `PyObject_Repr`
+- Reproduced stack frames:
+  - `#0  0x000074f03570d9fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x000074f0356b9476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x000074f03569f7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x000074f035700677 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#4  0x000074f035717cfc in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#5  0x000074f0357187e2 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#6  0x000074f03571bc2c in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#7  0x000074f03571c909 in realloc () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#8  0x000062fe592fe8f8 in _PyMem_RawRealloc (ctx=<optimized out>, ptr=0x62fe6a955da0, size=230115) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:123`
+  - `#9  0x000062fe59300b2b in PyObject_Realloc (ptr=<optimized out>, new_size=232) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:734`
+  - `#10 0x000062fe5937f577 in resize_compact (unicode=0x62fe6a955da0, length=183) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/unicodeobject.c:1060`
+  - `#11 _PyUnicodeWriter_PrepareInternal (writer=0x7ffc4cd13390, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x000062fe593c62e3 in _PyUnicodeWriter_WriteStr (writer=<optimized out>, str=0x62fe6a885750) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/unicodeobject.c:13915`
+  - `#13 0x000062fe593d3283 in unicode_fromformat_write_str (writer=<optimized out>, str=0x62fe6a885750, width=<optimized out>, precision=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/unicodeobject.c:2732`
+  - `#14 0x000062fe593628b4 in unicode_fromformat_arg (writer=0x7ffc4cd13390, f=<optimized out>, vargs=0x7ffc4cd133f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/unicodeobject.c:2993`
+  - `#15 PyUnicode_FromFormatV (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7038320909fc.STACK.e4b0bb1be.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7038c43809fc.STACK.e4b0bb1be.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.72426b39d9fc.STACK.e4b0bb1be.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7269118869fc.STACK.e4b0bb1be.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.733483a909fc.STACK.e4b0bb1be.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - ... 7 more
+
+### 25. cpython-311-c06968e4288c
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyList_AsTuple|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `c442932d2`
+- PC: `0x55cbfac0c4bf`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r14),%rax`
+- Findings: 12
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-c06968e4288c.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55cbfac0c4bf.STACK.c442932d2.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%rax.pyc`
+- Normalized function stack:
+  - `PyList_AsTuple`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PyList_AsTuple (v=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/listobject.c:2578`
+  - `#1  0x00005ec89c45bb72 in _PyEval_EvalFrameDefault (tstate=0x5ec89c988910 <_PyRuntime+166328>, frame=0x5ec8ad496dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3260`
+  - `#2  0x00005ec89c458f4c in _PyEval_EvalFrame (tstate=0x5ec89c988910 <_PyRuntime+166328>, frame=0x5ec8ad496dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5ec89c988910 <_PyRuntime+166328>, func=0x5ec8ad52bd00, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005ec89c451452 in builtin_exec_impl (source=0x5ec8ad615950, globals=0x5ec89c8df580 <globalCovFeedback>, locals=0x5ec8ad60beb0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005ec89c2b8fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005ec89c1f48eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5ec8ad492450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x00005ec89c1f4813 in PyObject_Vectorcall (callable=0x5ec8ad492450, args=0x5ec8ad496da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x00005ec89c461dae in _PyEval_EvalFrameDefault (tstate=0x5ec89c988910 <_PyRuntime+166328>, frame=0x5ec8ad496d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x00005ec89c458f4c in _PyEval_EvalFrame (tstate=0x5ec89c988910 <_PyRuntime+166328>, frame=0x5ec8ad496d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x5ec89c988910 <_PyRuntime+166328>, func=0x5ec8ad4b74d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00005ec89c53cb5a in run_eval_code_obj (tstate=0x5ec89c988910 <_PyRuntime+166328>, co=0x5ec8ad520be0, globals=0x1859738, locals=0x1859738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1859738, locals=0x1859738, flags=0x7ffe79be5ef0, arena=0x5ec8ad522c30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55cbfac0c4bf.STACK.c442932d2.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.573a046fc4bf.STACK.c442932d2.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.577e405054bf.STACK.c442932d2.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58e5b64c74bf.STACK.c442932d2.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5aa3fc4b14bf.STACK.c442932d2.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%rax.pyc`
+  - ... 7 more
+
+### 26. cpython-311-d84049333b64
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_IsTrue|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `c44392baf`
+- PC: `0x56be59898838`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 12
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-d84049333b64.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56be59898838.STACK.c44392baf.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_IsTrue`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PyObject_IsTrue (v=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1505`
+  - `#1  0x00005e0d2b548057 in _PyEval_EvalFrameDefault (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, frame=0x5e0d5897add0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4159`
+  - `#2  0x00005e0d2b545f4c in _PyEval_EvalFrame (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, frame=0x5e0d5897add0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, func=0x5e0d58afdb70, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005e0d2b53e452 in builtin_exec_impl (source=0x5e0d58af8fb0, globals=0x5e0d2b9cc580 <globalCovFeedback>, locals=0x5e0d58a819d0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005e0d2b3a5fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005e0d2b2e18eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5e0d58976450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x00005e0d2b2e1813 in PyObject_Vectorcall (callable=0x5e0d58976450, args=0x5e0d5897ada8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x00005e0d2b54edae in _PyEval_EvalFrameDefault (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, frame=0x5e0d5897ad50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x00005e0d2b545f4c in _PyEval_EvalFrame (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, frame=0x5e0d5897ad50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, func=0x5e0d5899b4f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00005e0d2b629b5a in run_eval_code_obj (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, co=0x5e0d58a04c90, globals=0x1946738, locals=0x1946738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1946738, locals=0x1946738, flags=0x7ffd7e7113e0, arena=0x5e0d589f9e80) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.590ad5c2d838.STACK.188e674c7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5eca87508838.STACK.188e674c7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.609c6f5fc838.STACK.188e674c7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59381a16b7c7.STACK.18cf2b5115.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56be59898838.STACK.c44392baf.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - ... 7 more
+
+### 27. cpython-311-1b3452bdbcde
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_Repr|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `1a4bd25a63`
+- PC: `0x56a26b5ccefb`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r15),%rbx`
+- Findings: 11
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-1b3452bdbcde.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56a26b5ccefb.STACK.1a4bd25a63.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r15),%rbx.pyc`
+- Normalized function stack:
+  - `PyObject_Repr`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PyObject_Repr (v=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:415`
+  - `#1  0x000064a0b15a19f9 in _PyEval_EvalFrameDefault (tstate=0x64a0b1acb910 <_PyRuntime+166328>, frame=0x64a0c9009dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5503`
+  - `#2  0x000064a0b159bf4c in _PyEval_EvalFrame (tstate=0x64a0b1acb910 <_PyRuntime+166328>, frame=0x64a0c9009dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x64a0b1acb910 <_PyRuntime+166328>, func=0x64a0c909eca0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000064a0b1594452 in builtin_exec_impl (source=0x64a0c9124520, globals=0x0, locals=0x64a0c9190540, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x000064a0b13fbfdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000064a0b13378eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x64a0c9005450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x000064a0b1337813 in PyObject_Vectorcall (callable=0x64a0c9005450, args=0x64a0c9009da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x000064a0b15a4dae in _PyEval_EvalFrameDefault (tstate=0x64a0b1acb910 <_PyRuntime+166328>, frame=0x64a0c9009d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x000064a0b159bf4c in _PyEval_EvalFrame (tstate=0x64a0b1acb910 <_PyRuntime+166328>, frame=0x64a0c9009d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x64a0b1acb910 <_PyRuntime+166328>, func=0x64a0c902a4f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x000064a0b167fb5a in run_eval_code_obj (tstate=0x64a0b1acb910 <_PyRuntime+166328>, co=0x64a0c9093c40, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, flags=0x7ffcf3fb6200, arena=0x64a0c90655e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56a26b5ccefb.STACK.1a4bd25a63.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57b670d99efb.STACK.1a4bd25a63.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59dfbe278a5c.STACK.1a4bd25a63.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b081303fa5c.STACK.1a4bd25a63.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b200b5b2a5c.STACK.1a4bd25a63.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r15),%rax.pyc`
+  - ... 6 more
+
+### 28. cpython-311-492ff1fe49e3
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:visit_decref|func_traverse|subtract_refs|deduce_unreachable|gc_collect_main|gc_collect_with_callback|PyGC_Collect|Py_FinalizeEx|Py_RunMain|pymain_main|Py_BytesMain|main`
+- Honggfuzz stack hash: `e1ad9e650`
+- PC: `0x5567a28f631b`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 11
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-492ff1fe49e3.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5567a28f631b.STACK.e1ad9e650.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `visit_decref`
+  - `func_traverse`
+  - `subtract_refs`
+  - `deduce_unreachable`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `PyGC_Collect`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  visit_decref (op=0x1ffffffff, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:452`
+  - `#1  0x000055a1c05b9521 in func_traverse (f=0x55a1ed062d20, visit=<optimized out>, arg=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:730`
+  - `#2  0x000055a1c0909086 in subtract_refs (containers=0x55a1c0ce3860 <_PyRuntime+59656>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:478`
+  - `#3  deduce_unreachable (base=0x55a1c0ce3860 <_PyRuntime+59656>, unreachable=0x7fff4d9155a8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1100`
+  - `#4  gc_collect_main (tstate=0x55a1c0cfd910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1226`
+  - `#5  0x000055a1c09088a6 in gc_collect_with_callback (tstate=0x55a1c0cfd910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#6  0x000055a1c09085cc in PyGC_Collect () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2086`
+  - `#7  0x000055a1c08a47fd in Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1828`
+  - `#8  0x000055a1c0905e0a in Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:682`
+  - `#9  0x000055a1c0907c29 in pymain_main (args=0x7fff4d915a30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#10 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x000055a1c0468673 in main (argc=3, argv=0x7fff4d915bb8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Programs/python.c:15`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55861dc2931b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.562a600e131b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56ce1dc0431b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56efeeba531b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.579189b3231b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - ... 6 more
+
+### 29. cpython-311-697fc254bc06
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyTuple_FromArray|_PyObject_MakeTpCall|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python`
+- Honggfuzz stack hash: `cf6651a51`
+- PC: `0x565503e3a000`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%r14)`
+- Findings: 11
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-697fc254bc06.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.565503e3a000.STACK.cf6651a51.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+- Normalized function stack:
+  - `_PyTuple_FromArray`
+  - `_PyObject_MakeTpCall`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+- Reproduced stack frames:
+  - `#0  _PyTuple_FromArray (src=<optimized out>, n=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:388`
+  - `#1  0x00005f405c708966 in _PyObject_MakeTpCall (tstate=0x5f405ce9c910 <_PyRuntime+166328>, callable=0x5f405cd02970 <PyUnicode_Type>, args=0x3, nargs=256, keywords=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:188`
+  - `#2  _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5f405cd02970 <PyUnicode_Type>, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:90`
+  - `#3  0x00005f405c708813 in PyObject_Vectorcall (callable=0x5f405cd02970 <PyUnicode_Type>, args=0x5f408be5e530, nargsf=9223372036854776064, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#4  0x00005f405c975dae in _PyEval_EvalFrameDefault (tstate=0x5f405ce9c910 <_PyRuntime+166328>, frame=0x5f408be5ecb0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#5  0x00005f405c96cf4c in _PyEval_EvalFrame (tstate=0x5f405ce9c910 <_PyRuntime+166328>, frame=0x5f408be5ec30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#6  _PyEval_Vector (tstate=0x5f405ce9c910 <_PyRuntime+166328>, func=0x5f408be7f3a0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#7  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005f405ca50b5a in run_eval_code_obj (tstate=0x5f405ce9c910 <_PyRuntime+166328>, co=0x5f408bee8650, globals=0x1bf8ff8, locals=0x1bf8ff8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#9  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1bf8ff8, locals=0x1bf8ff8, flags=0x7ffd3b1373f0, arena=0x5f408beea6a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#10 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1bf8ff8, locals=0x1bf8ff8, closeit=1, flags=0x7ffd3b1373f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#11 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#12 0x00005f405ca4fbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5f408bf30560, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#13 0x00005f405caa62d4 in pymain_run_file_obj (program_name=0x5f408bf31ae0, filename=0x5f408bf30560, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#14 pymain_run_file (config=0x5f405ce82958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#15 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.565503e3a000.STACK.cf6651a51.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c72ddfd5000.STACK.cf6651a51.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ceb8f81d000.STACK.cf6651a51.CODE.1.ADDR.ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5d1f94fd9000.STACK.cf6651a51.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ffd8d43e000.STACK.cf6651a51.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - ... 6 more
+
+### 30. cpython-311-492ff1fe49e3
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:visit_decref|func_traverse|subtract_refs|deduce_unreachable|gc_collect_main|gc_collect_with_callback|PyGC_Collect|Py_FinalizeEx|Py_RunMain|pymain_main|Py_BytesMain|main`
+- Honggfuzz stack hash: `e84f0f5e4`
+- PC: `0x5623b262b31b`
+- Fault address: `0x223f2e39a84`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 10
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-492ff1fe49e3.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5623b262b31b.STACK.e84f0f5e4.CODE.1.ADDR.223f2e39a84.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `visit_decref`
+  - `func_traverse`
+  - `subtract_refs`
+  - `deduce_unreachable`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `PyGC_Collect`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  visit_decref (op=0x1ffffffff, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:452`
+  - `#1  0x000055a1c05b9521 in func_traverse (f=0x55a1ed062d20, visit=<optimized out>, arg=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:730`
+  - `#2  0x000055a1c0909086 in subtract_refs (containers=0x55a1c0ce3860 <_PyRuntime+59656>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:478`
+  - `#3  deduce_unreachable (base=0x55a1c0ce3860 <_PyRuntime+59656>, unreachable=0x7fff4d9155a8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1100`
+  - `#4  gc_collect_main (tstate=0x55a1c0cfd910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1226`
+  - `#5  0x000055a1c09088a6 in gc_collect_with_callback (tstate=0x55a1c0cfd910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#6  0x000055a1c09085cc in PyGC_Collect () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2086`
+  - `#7  0x000055a1c08a47fd in Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1828`
+  - `#8  0x000055a1c0905e0a in Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:682`
+  - `#9  0x000055a1c0907c29 in pymain_main (args=0x7fff4d915a30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#10 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x000055a1c0468673 in main (argc=3, argv=0x7fff4d915bb8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Programs/python.c:15`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55861dc2931b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.562a600e131b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56ce1dc0431b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56efeeba531b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.579189b3231b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - ... 5 more
+
+### 31. cpython-311-73ce8e00b684
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_LookupAttr|import_from|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `184ca32c89`
+- PC: `0x560f33c9ba88`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%r13`
+- Findings: 10
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-73ce8e00b684.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.560f33c9ba88.STACK.184ca32c89.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r13.pyc`
+- Normalized function stack:
+  - `_PyObject_LookupAttr`
+  - `import_from`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  _PyObject_LookupAttr (v=0x1ffffffff, name=<optimized out>, result=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:940`
+  - `#1  0x0000586b946143dc in import_from (tstate=0x586b94b42910 <_PyRuntime+166328>, v=0x1ffffffff, name=0x586bd37413b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7449`
+  - `#2  _PyEval_EvalFrameDefault (tstate=0x586b94b42910 <_PyRuntime+166328>, frame=0x586bd365cdd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3986`
+  - `#3  0x0000586b94612f4c in _PyEval_EvalFrame (tstate=0x586b94b42910 <_PyRuntime+166328>, frame=0x586bd365cdd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x586b94b42910 <_PyRuntime+166328>, func=0x586bd37ce3a0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x0000586b9460b452 in builtin_exec_impl (source=0x586bd37dc2f0, globals=0x586bd37413b0, locals=0x586bd37e24d0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x0000586b94472fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x0000586b943ae8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x586bd3658450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x0000586b943ae813 in PyObject_Vectorcall (callable=0x586bd3658450, args=0x586bd365cda8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x0000586b9461bdae in _PyEval_EvalFrameDefault (tstate=0x586b94b42910 <_PyRuntime+166328>, frame=0x586bd365cd50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x0000586b94612f4c in _PyEval_EvalFrame (tstate=0x586b94b42910 <_PyRuntime+166328>, frame=0x586bd365cd50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x586b94b42910 <_PyRuntime+166328>, func=0x586bd367d4f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x0000586b946f6b5a in run_eval_code_obj (tstate=0x586b94b42910 <_PyRuntime+166328>, co=0x586bd36e6c40, globals=0x7ffe43377610, locals=0x7ffe43377610) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.560f33c9ba88.STACK.184ca32c89.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.574b2fde5a88.STACK.184ca32c89.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58e548213a88.STACK.184ca32c89.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.590325b6aa88.STACK.184ca32c89.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b13059d2a88.STACK.184ca32c89.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r13.pyc`
+  - ... 5 more
+
+### 32. cpython-311-27eb285f1285
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_IsTrue|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `18bf7d14b2`
+- PC: `0x5653eb65d838`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 9
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-27eb285f1285.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5653eb65d838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_IsTrue`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  PyObject_IsTrue (v=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1505`
+  - `#1  0x000063883fd88b86 in _PyEval_EvalFrameDefault (tstate=0x6388402b6910 <_PyRuntime+166328>, frame=0x638875787d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4088`
+  - `#2  0x000063883fd86f4c in _PyEval_EvalFrame (tstate=0x6388402b6910 <_PyRuntime+166328>, frame=0x638875787c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x6388402b6910 <_PyRuntime+166328>, func=0x6388757a83f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000063883fe6ab5a in run_eval_code_obj (tstate=0x6388402b6910 <_PyRuntime+166328>, co=0x6388758661c0, globals=0x2187738, locals=0x2187738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x2187738, locals=0x2187738, flags=0x7fff26a80e40, arena=0x638875806d90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x2187738, locals=0x2187738, closeit=1, flags=0x7fff26a80e40) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x000063883fe69bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x638875856f50, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x000063883fec02d4 in pymain_run_file_obj (program_name=0x63887585b3f0, filename=0x638875856f50, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x63884029c958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x000063883fec0c29 in pymain_main (args=0x7fff26a810b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5653eb65d838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.569b296a5838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56dff591b838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b317d486838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dbf3528f838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - ... 4 more
+
+### 33. cpython-311-888432a4eb45
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyDict_DelItem|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `dae8a50ef`
+- PC: `0x556295f5a654`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r14),%rax`
+- Findings: 9
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-888432a4eb45.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.556295f5a654.STACK.dae8a50ef.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rax.pyc`
+- Normalized function stack:
+  - `PyDict_DelItem`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  PyDict_DelItem (op=<optimized out>, key=0x25f000000000000) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1997`
+  - `#1  0x00005dd7d35b773b in _PyEval_EvalFrameDefault (tstate=0x5dd7d3ae3910 <_PyRuntime+166328>, frame=0x5dd80df7dd10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2924`
+  - `#2  0x00005dd7d35b3f4c in _PyEval_EvalFrame (tstate=0x5dd7d3ae3910 <_PyRuntime+166328>, frame=0x5dd80df7dc90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5dd7d3ae3910 <_PyRuntime+166328>, func=0x5dd80e0520c0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005dd7d3697b5a in run_eval_code_obj (tstate=0x5dd7d3ae3910 <_PyRuntime+166328>, co=0x5dd80e05c280, globals=0x19b7723, locals=0x19b7723) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x19b7723, locals=0x19b7723, flags=0x7fffe3c728d0, arena=0x5dd80e009910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x19b7723, locals=0x19b7723, closeit=1, flags=0x7fffe3c728d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x00005dd7d3696bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5dd80e04d120, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x00005dd7d36ed2d4 in pymain_run_file_obj (program_name=0x5dd80e050f80, filename=0x5dd80e04d120, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x5dd7d3ac9958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x00005dd7d36edc29 in pymain_main (args=0x7fffe3c72b40) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.556295f5a654.STACK.dae8a50ef.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56055657b654.STACK.dae8a50ef.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58e462fe1654.STACK.dae8a50ef.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.596789fbe654.STACK.dae8a50ef.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a615ecfa654.STACK.dae8a50ef.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rax.pyc`
+  - ... 4 more
+
+### 34. cpython-311-92d449ea9158
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file`
+- Honggfuzz stack hash: `1987567f44`
+- PC: `0x56b7e3d03237`
+- Fault address: `0x1ffffffff`
+- Instruction: `mov____(%r14),%rbx`
+- Findings: 9
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-92d449ea9158.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56b7e3d03237.STACK.1987567f44.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r14),%rbx.pyc`
+- Normalized function stack:
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  builtin_exec_impl (source=0x58404a710750, globals=0x58404a714120, locals=<optimized out>, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1108`
+  - `#1  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#2  0x000058400e118fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#3  0x000058400e0548eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x58404a58d3f0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#4  0x000058400e054813 in PyObject_Vectorcall (callable=0x58404a58d3f0, args=0x58404a591d48, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#5  0x000058400e2c1dae in _PyEval_EvalFrameDefault (tstate=0x58400e7e8910 <_PyRuntime+166328>, frame=0x58404a591cf0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#6  0x000058400e2b8f4c in _PyEval_EvalFrame (tstate=0x58400e7e8910 <_PyRuntime+166328>, frame=0x58404a591cf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#7  _PyEval_Vector (tstate=0x58400e7e8910 <_PyRuntime+166328>, func=0x58404a5b1f10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#8  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x000058400e39cb5a in run_eval_code_obj (tstate=0x58400e7e8910 <_PyRuntime+166328>, co=0x58404a61b740, globals=0x58404a626, locals=0x58404a626) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#10 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x58404a626, locals=0x58404a626, flags=0x7ffcad94a6c0, arena=0x58404a610930) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#11 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x58404a626, locals=0x58404a626, closeit=1, flags=0x7ffcad94a6c0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#12 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#13 0x000058400e39bbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x58404a6638f0, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#14 0x000058400e3f22d4 in pymain_run_file_obj (program_name=0x58404a6659d0, filename=0x58404a6638f0, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#15 pymain_run_file (config=0x58400e7ce958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56b7e3d03237.STACK.1987567f44.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r14),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.575aac7bb237.STACK.1987567f44.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r14),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57931bc3b237.STACK.1987567f44.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r14),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.592f43936237.STACK.1987567f44.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r14),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5932df116237.STACK.1987567f44.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r14),%rbx.pyc`
+  - ... 4 more
+
+### 35. cpython-311-6cca9dce7108
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|builtin___build_class__|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject`
+- Honggfuzz stack hash: `c9dc635d5`
+- PC: `0x5753453bed3d`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%rax)`
+- Findings: 8
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-6cca9dce7108.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5753453bed3d.STACK.c9dc635d5.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+- Normalized function stack:
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `builtin___build_class__`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+- Reproduced stack frames:
+  - `#0  _PyEval_EvalFrameDefault (tstate=0x5e658ff54910 <_PyRuntime+166328>, frame=0x5e65c763cdb0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:1822`
+  - `#1  0x00005e658fa251b0 in _PyEval_EvalFrame (tstate=0x5e658ff54910 <_PyRuntime+166328>, frame=0x5e65c763cdb0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#2  _PyEval_Vector (tstate=<optimized out>, func=0x5e65c7712650, locals=<optimized out>, args=<optimized out>, argcount=0, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#3  0x00005e658fa1ad9d in builtin___build_class__ (self=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#4  0x00005e658f884fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005e658f7c08eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5e65c7637ac0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#6  0x00005e658f7c0813 in PyObject_Vectorcall (callable=0x5e65c7637ac0, args=0x5e65c763cd98, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#7  0x00005e658fa2ddae in _PyEval_EvalFrameDefault (tstate=0x5e658ff54910 <_PyRuntime+166328>, frame=0x5e65c763cd10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#8  0x00005e658fa24f4c in _PyEval_EvalFrame (tstate=0x5e658ff54910 <_PyRuntime+166328>, frame=0x5e65c763cc90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#9  _PyEval_Vector (tstate=0x5e658ff54910 <_PyRuntime+166328>, func=0x5e65c765d3f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#10 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x00005e658fb08b5a in run_eval_code_obj (tstate=0x5e658ff54910 <_PyRuntime+166328>, co=0x5e65c771b140, globals=0x1e26d31, locals=0x1e26d31) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#12 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1e26d31, locals=0x1e26d31, flags=0x7fff017cb5d0, arena=0x5e65c76984a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#13 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1e26d31, locals=0x1e26d31, closeit=1, flags=0x7fff017cb5d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#14 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#15 0x00005e658fb07bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5e65c770c030, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5753453bed3d.STACK.c9dc635d5.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57b01622ed3d.STACK.c9dc635d5.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a171f2ae881.STACK.c9dc635d5.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a8cdaec72f7.STACK.c9dc635d5.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r12),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e9f51373d3d.STACK.c9dc635d5.CODE.1.ADDR.4.INSTR.addq___$0x1,(%rax).pyc`
+  - ... 3 more
+
+### 36. cpython-311-6cedcfc58d9d
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_GetMethod|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `d86f4beff`
+- PC: `0x57b751e20838`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 8
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-6cedcfc58d9d.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57b751e20838.STACK.d86f4beff.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `_PyObject_GetMethod`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  _PyObject_GetMethod (obj=0x1ffffffff, name=<optimized out>, method=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1155`
+  - `#1  0x00006148107d9cbc in _PyEval_EvalFrameDefault (tstate=0x614810d03910 <_PyRuntime+166328>, frame=0x614839fb9dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4491`
+  - `#2  0x00006148107d3f4c in _PyEval_EvalFrame (tstate=0x614810d03910 <_PyRuntime+166328>, frame=0x614839fb9dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x614810d03910 <_PyRuntime+166328>, func=0x61483a08fc90, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00006148107cc452 in builtin_exec_impl (source=0x61483a138950, globals=0x614839fd47f0, locals=0x61483a13e860, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x0000614810633fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000061481056f8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x614839fb5450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x000061481056f813 in PyObject_Vectorcall (callable=0x614839fb5450, args=0x614839fb9da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x00006148107dcdae in _PyEval_EvalFrameDefault (tstate=0x614810d03910 <_PyRuntime+166328>, frame=0x614839fb9d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x00006148107d3f4c in _PyEval_EvalFrame (tstate=0x614810d03910 <_PyRuntime+166328>, frame=0x614839fb9d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x614810d03910 <_PyRuntime+166328>, func=0x614839fda4d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00006148108b7b5a in run_eval_code_obj (tstate=0x614810d03910 <_PyRuntime+166328>, co=0x61483a043be0, globals=0x7ffe797b6e68, locals=0x7ffe797b6e68) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x7ffe797b6e68, locals=0x7ffe797b6e68, flags=0x7ffe797b7560, arena=0x61483a045c30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57b751e20838.STACK.d86f4beff.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.595086f40838.STACK.d86f4beff.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5993c3c9083c.STACK.d86f4beff.CODE.128.ADDR.0.INSTR.mov____0x60(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c399d95c838.STACK.d86f4beff.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5d706faf0838.STACK.d86f4beff.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - ... 3 more
+
+### 37. cpython-311-7030ba6b9636
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:visit_decref|tupletraverse|subtract_refs|deduce_unreachable|gc_collect_main|gc_collect_with_callback|PyGC_Collect|Py_FinalizeEx|Py_RunMain|pymain_main|Py_BytesMain|main`
+- Honggfuzz stack hash: `f5f3b7675`
+- PC: `0x558b49fc031b`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 8
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-7030ba6b9636.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.558b49fc031b.STACK.f5f3b7675.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `visit_decref`
+  - `tupletraverse`
+  - `subtract_refs`
+  - `deduce_unreachable`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `PyGC_Collect`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  visit_decref (op=0x1ffffffff, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:452`
+  - `#1  0x00005b21e3468039 in tupletraverse (o=0x5b22213e9fc0, visit=<optimized out>, arg=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:623`
+  - `#2  0x00005b21e3716086 in subtract_refs (containers=0x5b21e3af0860 <_PyRuntime+59656>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:478`
+  - `#3  deduce_unreachable (base=0x5b21e3af0860 <_PyRuntime+59656>, unreachable=0x7ffc5be60aa8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1100`
+  - `#4  gc_collect_main (tstate=0x5b21e3b0a910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1226`
+  - `#5  0x00005b21e37158a6 in gc_collect_with_callback (tstate=0x5b21e3b0a910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#6  0x00005b21e37155cc in PyGC_Collect () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2086`
+  - `#7  0x00005b21e36b17fd in Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1828`
+  - `#8  0x00005b21e3712e0a in Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:682`
+  - `#9  0x00005b21e3714c29 in pymain_main (args=0x7ffc5be60f30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#10 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x00005b21e3275673 in main (argc=3, argv=0x7ffc5be610b8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Programs/python.c:15`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.558b49fc031b.STACK.f5f3b7675.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57021f62131b.STACK.f5f3b7675.CODE.1.ADDR.100000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b27238cc31b.STACK.f5f3b7675.CODE.1.ADDR.100000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b900375e31b.STACK.f5f3b7675.CODE.1.ADDR.100000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c7c130ce31b.STACK.f5f3b7675.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - ... 3 more
+
+### 38. cpython-311-c8f0225022e8
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_XDECREF|tupledealloc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `19099a11c5`
+- PC: `0x57402d16d933`
+- Fault address: `0x1ffffffff`
+- Instruction: `mov____0x0(%r13),%r14`
+- Findings: 8
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-c8f0225022e8.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57402d16d933.STACK.19099a11c5.CODE.1.ADDR.1ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+- Normalized function stack:
+  - `Py_XDECREF`
+  - `tupledealloc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  Py_XDECREF (op=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:602`
+  - `#1  tupledealloc (op=0x5ddbcaa2a1f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:208`
+  - `#2  0x00005ddb9a2d86ed in _PyEval_EvalFrameDefault (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, frame=0x5ddbca8aadd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4041`
+  - `#3  0x00005ddb9a2cef4c in _PyEval_EvalFrame (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, frame=0x5ddbca8aadd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, func=0x5ddbcaa284a0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005ddb9a2c7452 in builtin_exec_impl (source=0x5ddbca9c5ab0, globals=0x5ddb9a755580 <globalCovFeedback>, locals=0x5ddbcaa28540, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005ddb9a12efdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00005ddb9a06a8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5ddbca8a6450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x00005ddb9a06a813 in PyObject_Vectorcall (callable=0x5ddbca8a6450, args=0x5ddbca8aada8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x00005ddb9a2d7dae in _PyEval_EvalFrameDefault (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, frame=0x5ddbca8aad50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x00005ddb9a2cef4c in _PyEval_EvalFrame (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, frame=0x5ddbca8aad50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, func=0x5ddbca8cb4f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x00005ddb9a3b2b5a in run_eval_code_obj (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, co=0x5ddbca934c40, globals=0x155b929, locals=0x155b929) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57402d16d933.STACK.19099a11c5.CODE.1.ADDR.1ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58b869129933.STACK.19099a11c5.CODE.1.ADDR.1ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58e90d558933.STACK.19099a11c5.CODE.1.ADDR.1ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c50de023625.STACK.19099a11c5.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r12),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dd707f7dffd.STACK.19099a11c5.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - ... 3 more
+
+### 39. cpython-311-f77a5d0f388f
+
+- Status: crash
+- Signal: SIGSEGV
+- Stack source: honggfuzz-filename
+- Stack signature: `SIGSEGV:18e629a3a7`
+- Honggfuzz stack hash: `18e629a3a7`
+- PC: `0x5789133f831f`
+- Fault address: `0x0`
+- Instruction: `mov____0xa8(%r15),%r12`
+- Findings: 8
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-f77a5d0f388f.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5789133f831f.STACK.18e629a3a7.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+- Reproduced stack frames: `not available; rerun did not produce a native backtrace`
+- Manual gdb command: `PYTHONHOME=data/rq3/cpython-3.11/source/cpython-* PYTHONPATH=data/rq3/cpython-3.11/source/cpython-*/Lib gdb -q --args data/rq3/cpython-3.11/instrumented/python data/rq3/harness.py data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5789133f831f.STACK.18e629a3a7.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+- Rerun diagnostic excerpt:
+  - `info "(gdb)Auto-loading safe path"`
+  - `warning: Error disabling address space randomization: Operation not permitted`
+  - `[Thread debugging using libthread_db enabled]`
+  - `Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".`
+  - `Traceback (most recent call last):`
+  - `File "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", line 29, in <module>`
+  - `result = target()`
+  - `^^^^^^^^`
+  - `File "data/rq3/cpython-3.11/unittest_seeds/raw/cpython_case_test_poplib_TestPOP3Class_test_too_long_lines.py", line 7, in __pybcsec_seed__`
+  - `UnboundLocalError: cannot access local variable 'self' where it is not associated with a value`
+  - `[Inferior 1 (process 231595) exited with code 01]`
+  - `No stack.`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5789133f831f.STACK.18e629a3a7.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.583529eee31f.STACK.18e629a3a7.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5922f77ea31f.STACK.18e629a3a7.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5d721024731f.STACK.18e629a3a7.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5f5183a8731f.STACK.18e629a3a7.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+  - ... 3 more
+
+### 40. cpython-311-0ac6e10ec012
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PySet_Add|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `1af430bdf9`
+- PC: `0x55ed52a85a43`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r15),%rax`
+- Findings: 7
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-0ac6e10ec012.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55ed52a85a43.STACK.1af430bdf9.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+- Normalized function stack:
+  - `PySet_Add`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PySet_Add (anyset=0x570dece48610, key=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/setobject.c:2337`
+  - `#1  0x0000570dc02fa888 in _PyEval_EvalFrameDefault (tstate=0x570dc0825910 <_PyRuntime+166328>, frame=0x570decda7d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3310`
+  - `#2  0x0000570dc02f5f4c in _PyEval_EvalFrame (tstate=0x570dc0825910 <_PyRuntime+166328>, frame=0x570decda7d10, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x570dc0825910 <_PyRuntime+166328>, func=0x570decf1aea0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x0000570dc02ee452 in builtin_exec_impl (source=0x570decf24ff0, globals=0x0, locals=0x570decf2d610, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x0000570dc0155fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x0000570dc00918eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x570decda3390, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x0000570dc0091813 in PyObject_Vectorcall (callable=0x570decda3390, args=0x570decda7ce8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x0000570dc02fedae in _PyEval_EvalFrameDefault (tstate=0x570dc0825910 <_PyRuntime+166328>, frame=0x570decda7c90, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x0000570dc02f5f4c in _PyEval_EvalFrame (tstate=0x570dc0825910 <_PyRuntime+166328>, frame=0x570decda7c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x570dc0825910 <_PyRuntime+166328>, func=0x570decdc83f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x0000570dc03d9b5a in run_eval_code_obj (tstate=0x570dc0825910 <_PyRuntime+166328>, co=0x570dece86300, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, flags=0x7fffb7443000, arena=0x570dece33910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55ed52a85a43.STACK.1af430bdf9.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57684ca1ea43.STACK.1af430bdf9.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5daba81dca43.STACK.1af430bdf9.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.60a5f394ea43.STACK.1af430bdf9.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.621da873ca43.STACK.1af430bdf9.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+  - ... 2 more
+
+### 41. cpython-311-19426cff68b5
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyVectorcall_FunctionInline|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode`
+- Honggfuzz stack hash: `1af5a42139`
+- PC: `0x567cc0bb9865`
+- Fault address: `0x0`
+- Instruction: `mov____0xa8(%r13),%r12`
+- Findings: 7
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-19426cff68b5.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.567cc0bb9865.STACK.1af5a42139.CODE.128.ADDR.0.INSTR.mov____0xa8(%r13),%r12.pyc`
+- Normalized function stack:
+  - `_PyVectorcall_FunctionInline`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  _PyVectorcall_FunctionInline (callable=0x638bfb702b98) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:44`
+  - `#1  _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x638bfb702b98, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:87`
+  - `#2  0x0000638be27f7813 in PyObject_Vectorcall (callable=0x638bfb702b98, args=0x7ffc4fef0ad8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#3  0x0000638be2a647eb in _PyEval_EvalFrameDefault (tstate=0x638be2f8b910 <_PyRuntime+166328>, frame=0x638bfb583dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4455`
+  - `#4  0x0000638be2a5bf4c in _PyEval_EvalFrame (tstate=0x638be2f8b910 <_PyRuntime+166328>, frame=0x638bfb583dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#5  _PyEval_Vector (tstate=0x638be2f8b910 <_PyRuntime+166328>, func=0x638bfb659cb0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#6  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x0000638be2a54452 in builtin_exec_impl (source=0x638bfb7029e0, globals=0x638bfb702b98, locals=0x638bfb709630, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#8  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x0000638be28bbfdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x0000638be27f78eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x638bfb57f450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#11 0x0000638be27f7813 in PyObject_Vectorcall (callable=0x638bfb57f450, args=0x638bfb583da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#12 0x0000638be2a64dae in _PyEval_EvalFrameDefault (tstate=0x638be2f8b910 <_PyRuntime+166328>, frame=0x638bfb583d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#13 0x0000638be2a5bf4c in _PyEval_EvalFrame (tstate=0x638be2f8b910 <_PyRuntime+166328>, frame=0x638bfb583d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#14 _PyEval_Vector (tstate=0x638be2f8b910 <_PyRuntime+166328>, func=0x638bfb5a44f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#15 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58b0d1a1e738.STACK.1808ad81b0.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.567cc0bb9865.STACK.1af5a42139.CODE.128.ADDR.0.INSTR.mov____0xa8(%r13),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5987c0af6865.STACK.1af5a42139.CODE.1.ADDR.26b0164020d.INSTR.mov____0xa8(%r13),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5bd8d6564865.STACK.1af5a42139.CODE.1.ADDR.26b0164020d.INSTR.mov____0xa8(%r13),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c0a64730865.STACK.1af5a42139.CODE.1.ADDR.26b016c620d.INSTR.mov____0xa8(%r13),%r12.pyc`
+  - ... 2 more
+
+### 42. cpython-311-b2f80d08bf72
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_SetItem|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `19cbc46676`
+- PC: `0x585064a68fb6`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%r14`
+- Findings: 7
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-b2f80d08bf72.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.585064a68fb6.STACK.19cbc46676.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r14.pyc`
+- Normalized function stack:
+  - `PyObject_SetItem`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PyObject_SetItem (o=0x1ffffffff, key=<optimized out>, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:210`
+  - `#1  0x0000584455371595 in _PyEval_EvalFrameDefault (tstate=0x58445589b910 <_PyRuntime+166328>, frame=0x58447b82ddd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2308`
+  - `#2  0x000058445536bf4c in _PyEval_EvalFrame (tstate=0x58445589b910 <_PyRuntime+166328>, frame=0x58447b82ddd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x58445589b910 <_PyRuntime+166328>, func=0x58447b8c2ca0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x0000584455364452 in builtin_exec_impl (source=0x58447b9ad2f0, globals=0x58447b903bf0, locals=0x58447b934850, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005844551cbfdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005844551078eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x58447b829450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x0000584455107813 in PyObject_Vectorcall (callable=0x58447b829450, args=0x58447b82dda8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x0000584455374dae in _PyEval_EvalFrameDefault (tstate=0x58445589b910 <_PyRuntime+166328>, frame=0x58447b82dd50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x000058445536bf4c in _PyEval_EvalFrame (tstate=0x58445589b910 <_PyRuntime+166328>, frame=0x58447b82dd50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x58445589b910 <_PyRuntime+166328>, func=0x58447b84e4f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x000058445544fb5a in run_eval_code_obj (tstate=0x58445589b910 <_PyRuntime+166328>, co=0x58447b8b7c40, globals=0x58447b9ad3ae, locals=0x58447b9ad3ae) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x58447b9ad3ae, locals=0x58447b9ad3ae, flags=0x7ffd9eb08710, arena=0x58447b8895e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.585064a68fb6.STACK.19cbc46676.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a0dfe676fba.STACK.19cbc46676.CODE.128.ADDR.0.INSTR.mov____0x70(%r14),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a32e569efba.STACK.19cbc46676.CODE.1.ADDR.70.INSTR.mov____0x70(%r14),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5aa7d0380fba.STACK.19cbc46676.CODE.1.ADDR.100005b18.INSTR.mov____0x70(%r14),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61ae9d8aefb6.STACK.19cbc46676.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r14.pyc`
+  - ... 2 more
+
+### 43. cpython-311-d998ecef0da5
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_GetAttr|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `cb7e6d543`
+- PC: `0x55628e19dd49`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r15),%r12`
+- Findings: 7
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-d998ecef0da5.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55628e19dd49.STACK.cb7e6d543.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%r12.pyc`
+- Normalized function stack:
+  - `PyObject_GetAttr`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  PyObject_GetAttr (v=0x5fad52dfcc38 <PyBaseObject_Type>, name=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:907`
+  - `#1  0x00005fad52a6f3d3 in _PyEval_EvalFrameDefault (tstate=0x5fad52f99910 <_PyRuntime+166328>, frame=0x5fad832abd10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3466`
+  - `#2  0x00005fad52a69f4c in _PyEval_EvalFrame (tstate=0x5fad52f99910 <_PyRuntime+166328>, frame=0x5fad832abc90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5fad52f99910 <_PyRuntime+166328>, func=0x5fad83386e50, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005fad52b4db5a in run_eval_code_obj (tstate=0x5fad52f99910 <_PyRuntime+166328>, co=0x5fad8338a3f0, globals=0x1e6f3b3, locals=0x1e6f3b3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1e6f3b3, locals=0x1e6f3b3, flags=0x7ffd14ebfb20, arena=0x5fad83337910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1e6f3b3, locals=0x1e6f3b3, closeit=1, flags=0x7ffd14ebfb20) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x00005fad52b4cbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5fad8337b120, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x00005fad52ba32d4 in pymain_run_file_obj (program_name=0x5fad8337ef80, filename=0x5fad8337b120, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x5fad52f7f958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x00005fad52ba3c29 in pymain_main (args=0x7ffd14ebfd90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55628e19dd49.STACK.cb7e6d543.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.591111aebd49.STACK.cb7e6d543.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c42da00dd49.STACK.cb7e6d543.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ded278d3d49.STACK.cb7e6d543.CODE.1.ADDR.9.INSTR.mov____0x8(%r15),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5f6c7b2f7d45.STACK.cb7e6d543.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r13.pyc`
+  - ... 2 more
+
+### 44. cpython-311-2e423e9e1359
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyIter_Send|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `187e9a66e7`
+- PC: `0x57cbcfc0cbd7`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r13),%r12`
+- Findings: 6
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-2e423e9e1359.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57cbcfc0cbd7.STACK.187e9a66e7.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%r12.pyc`
+- Normalized function stack:
+  - `PyIter_Send`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  PyIter_Send (iter=0x0, arg=<optimized out>, result=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:2881`
+  - `#1  0x000060c9073e0a9e in _PyEval_EvalFrameDefault (tstate=0x60c907909910 <_PyRuntime+166328>, frame=0x60c9509aad10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2592`
+  - `#2  0x000060c9073d9f4c in _PyEval_EvalFrame (tstate=0x60c907909910 <_PyRuntime+166328>, frame=0x60c9509aac90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x60c907909910 <_PyRuntime+166328>, func=0x60c9509cb3f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000060c9074bdb5a in run_eval_code_obj (tstate=0x60c907909910 <_PyRuntime+166328>, co=0x60c950a891c0, globals=0x46fb, locals=0x46fb) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x46fb, locals=0x46fb, flags=0x7ffdb7ce27d0, arena=0x60c950a29d90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x46fb, locals=0x46fb, closeit=1, flags=0x7ffdb7ce27d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x000060c9074bcbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x60c950a79f50, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x000060c9075132d4 in pymain_run_file_obj (program_name=0x60c950a7e3f0, filename=0x60c950a79f50, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x60c9078ef958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x000060c907513c29 in pymain_main (args=0x7ffdb7ce2a40) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57cbcfc0cbd7.STACK.187e9a66e7.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5802009e5bd7.STACK.187e9a66e7.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c4dcc8ebbd7.STACK.187e9a66e7.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5d8cb23eebd7.STACK.187e9a66e7.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.62609220cbd7.STACK.187e9a66e7.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%r12.pyc`
+  - ... 1 more
+
+### 45. cpython-311-50ceb940552a
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:gc_list_remove|PyObject_GC_Del|maybe_freelist_clear|_PyTuple_ClearFreeList|clear_freelists|gc_collect_main|gc_collect_with_callback|PyGC_Collect|Py_FinalizeEx|Py_RunMain|pymain_main|Py_BytesMain|main`
+- Honggfuzz stack hash: `f1ed9f651`
+- PC: `0x56b07e929671`
+- Fault address: `0x0`
+- Instruction: `mov____%rax,(%rcx)`
+- Findings: 6
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-50ceb940552a.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56b07e929671.STACK.f1ed9f651.CODE.128.ADDR.0.INSTR.mov____%rax,(%rcx).pyc`
+- Normalized function stack:
+  - `gc_list_remove`
+  - `PyObject_GC_Del`
+  - `maybe_freelist_clear`
+  - `_PyTuple_ClearFreeList`
+  - `clear_freelists`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `PyGC_Collect`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  gc_list_remove (node=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:268`
+  - `#1  PyObject_GC_Del (op=0x622a009de350) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2357`
+  - `#2  0x00006229bedca59c in maybe_freelist_clear (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#3  _PyTuple_ClearFreeList (interp=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:1011`
+  - `#4  0x00006229bf07847f in clear_freelists (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  gc_collect_main (tstate=0x6229bf46b910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1313`
+  - `#6  0x00006229bf0768a6 in gc_collect_with_callback (tstate=0x6229bf46b910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#7  0x00006229bf0765cc in PyGC_Collect () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2086`
+  - `#8  0x00006229bf0127fd in Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1828`
+  - `#9  0x00006229bf073e0a in Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:682`
+  - `#10 0x00006229bf075c29 in pymain_main (args=0x7ffe40beb250) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#11 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x00006229bebd6673 in main (argc=3, argv=0x7ffe40beb3d8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Programs/python.c:15`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56b07e929671.STACK.f1ed9f651.CODE.128.ADDR.0.INSTR.mov____%rax,(%rcx).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b337ee3e671.STACK.f1ed9f651.CODE.128.ADDR.0.INSTR.mov____%rax,(%rcx).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b98a08b9643.STACK.f1ed9f651.CODE.128.ADDR.0.INSTR.mov____0xa8(%rax),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5badda1a2643.STACK.f1ed9f651.CODE.128.ADDR.0.INSTR.mov____0xa8(%rax),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.605305e0a643.STACK.f1ed9f651.CODE.128.ADDR.0.INSTR.mov____0xa8(%rax),%r15.pyc`
+  - ... 1 more
+
+### 46. cpython-311-6255f9798a2b
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyCode_Type|PyObject_Hash|_PyDict_LoadGlobal|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain`
+- Honggfuzz stack hash: `183a0de0bd`
+- PC: `0x29`
+- Fault address: `0x29`
+- Instruction: `[NOT_MMAPED]`
+- Findings: 6
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-6255f9798a2b.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.29.STACK.183a0de0bd.CODE.1.ADDR.29.INSTR.[NOT_MMAPED].pyc`
+- Normalized function stack:
+  - `PyCode_Type`
+  - `PyObject_Hash`
+  - `_PyDict_LoadGlobal`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+- Reproduced stack frames:
+  - `#0  0x00005f2629d49790 in PyCode_Type ()`
+  - `#1  0x00005f2629839a10 in PyObject_Hash (v=0x5f26516f5940) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:775`
+  - `#2  0x00005f26297fa015 in _PyDict_LoadGlobal (globals=<optimized out>, builtins=<optimized out>, key=0x5f26516f5940) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1848`
+  - `#3  0x00005f26299d6fb4 in _PyEval_EvalFrameDefault (tstate=0x5f2629efd910 <_PyRuntime+166328>, frame=0x5f26515d6b90, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3008`
+  - `#4  0x00005f26299cdf4c in _PyEval_EvalFrame (tstate=0x5f2629efd910 <_PyRuntime+166328>, frame=0x5f26515d6b10, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#5  _PyEval_Vector (tstate=0x5f2629efd910 <_PyRuntime+166328>, func=0x5f26515f70d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#6  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005f2629ab1b5a in run_eval_code_obj (tstate=0x5f2629efd910 <_PyRuntime+166328>, co=0x5f26516b4f80, globals=0x5f262a882680 <bbMapFb>, locals=0x5f262a882680 <bbMapFb>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#8  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x5f262a882680 <bbMapFb>, locals=0x5f262a882680 <bbMapFb>, flags=0x7ffd16c1d8d0, arena=0x5f2651655be0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#9  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x5f262a882680 <bbMapFb>, locals=0x5f262a882680 <bbMapFb>, closeit=1, flags=0x7ffd16c1d8d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#10 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#11 0x00005f2629ab0bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5f26516a7ea0, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#12 0x00005f2629b072d4 in pymain_run_file_obj (program_name=0x5f26516a8be0, filename=0x5f26516a7ea0, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#13 pymain_run_file (config=0x5f2629ee3958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#14 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#15 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.29.STACK.183a0de0bd.CODE.1.ADDR.29.INSTR.[NOT_MMAPED].pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.51.STACK.183a0de0bd.CODE.1.ADDR.51.INSTR.[NOT_MMAPED].pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.586e956ff9ee.STACK.183a0de0bd.CODE.1.ADDR.78.INSTR.mov____0x78(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ccf361199ee.STACK.183a0de0bd.CODE.128.ADDR.0.INSTR.mov____0x78(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5cf19864c4e0.STACK.183a0de0bd.CODE.2.ADDR.5cf19864c4e0.INSTR.jo_____0x0000000000000022.pyc`
+  - ... 1 more
+
+### 47. cpython-311-7eff7866b6bd
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:func_clear|func_dealloc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `184ca3556f`
+- PC: `0x556cbf45f105`
+- Fault address: `0x1ffffffff`
+- Instruction: `mov____(%r15),%rbx`
+- Findings: 6
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-7eff7866b6bd.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.556cbf45f105.STACK.184ca3556f.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+- Normalized function stack:
+  - `func_clear`
+  - `func_dealloc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  func_clear (op=0x62544f3b2030) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:689`
+  - `#1  func_dealloc (op=0x62544f3b2030) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:708`
+  - `#2  0x00006254127853da in _PyEval_EvalFrameDefault (tstate=0x625412ca9910 <_PyRuntime+166328>, frame=0x62544f234d70, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4162`
+  - `#3  0x0000625412779f4c in _PyEval_EvalFrame (tstate=0x625412ca9910 <_PyRuntime+166328>, frame=0x62544f234d70, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x625412ca9910 <_PyRuntime+166328>, func=0x62544f3b9370, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x0000625412772452 in builtin_exec_impl (source=0x62544f34feb0, globals=0x6254135ece40 <my_thread_no>, locals=0x62544f3b15e0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00006254125d9fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00006254125158eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x62544f2303f0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x0000625412515813 in PyObject_Vectorcall (callable=0x62544f2303f0, args=0x62544f234d48, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x0000625412782dae in _PyEval_EvalFrameDefault (tstate=0x625412ca9910 <_PyRuntime+166328>, frame=0x62544f234cf0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x0000625412779f4c in _PyEval_EvalFrame (tstate=0x625412ca9910 <_PyRuntime+166328>, frame=0x62544f234cf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x625412ca9910 <_PyRuntime+166328>, func=0x62544f254f10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x000062541285db5a in run_eval_code_obj (tstate=0x625412ca9910 <_PyRuntime+166328>, co=0x62544f313430, globals=0x37, locals=0x37) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.556cbf45f105.STACK.184ca3556f.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55a778ed5105.STACK.184ca3556f.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.561d30c51105.STACK.184ca3556f.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.594d432dd105.STACK.184ca3556f.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e5b170eb105.STACK.184ca3556f.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - ... 1 more
+
+### 48. cpython-311-bb8ef554f4f2
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error_exit|fatal_error|_Py_FatalErrorFunc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector`
+- Honggfuzz stack hash: `190ae24ef0`
+- PC: `0x57fea7df115d`
+- Fault address: `0x1ffffffff`
+- Instruction: `mov____(%r15),%rbx`
+- Findings: 6
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-bb8ef554f4f2.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57fea7df115d.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error_exit`
+  - `fatal_error`
+  - `_Py_FatalErrorFunc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+- Reproduced stack frames:
+  - `#0  0x00007ac75fb999fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007ac75fb45476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007ac75fb2b7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00005dbc833a9413 in fatal_error_exit (status=-1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2624`
+  - `#4  0x00005dbc833a9229 in fatal_error (fd=<optimized out>, header=<optimized out>, prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2805`
+  - `#5  0x00005dbc833a3384 in _Py_FatalErrorFunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005dbc832d06af in _PyEval_EvalFrameDefault (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:853`
+  - `#7  0x00005dbc832cff4c in _PyEval_EvalFrame (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=0x5dbcbf7e7dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#8  _PyEval_Vector (tstate=0x5dbc837ff910 <_PyRuntime+166328>, func=0x5dbcbf87ccb0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#9  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x00005dbc832c8452 in builtin_exec_impl (source=0x5dbcbf9669e0, globals=0x38455, locals=0x5dbcbf94e150, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#11 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x00005dbc8312ffdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x00005dbc8306b8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5dbcbf7e3450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#14 0x00005dbc8306b813 in PyObject_Vectorcall (callable=0x5dbcbf7e3450, args=0x5dbcbf7e7da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#15 0x00005dbc832d8dae in _PyEval_EvalFrameDefault (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=0x5dbcbf7e7d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5bb047cf9838.STACK.180b5d66cf.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57fea7df115d.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a5482194105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5cbb2a423105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dc27a8d9105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - ... 1 more
+
+### 49. cpython-311-27eb285f1285
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_IsTrue|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `197db081e2`
+- PC: `0x582d395ff838`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 5
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-27eb285f1285.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.582d395ff838.STACK.197db081e2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_IsTrue`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  PyObject_IsTrue (v=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1505`
+  - `#1  0x000063883fd88b86 in _PyEval_EvalFrameDefault (tstate=0x6388402b6910 <_PyRuntime+166328>, frame=0x638875787d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4088`
+  - `#2  0x000063883fd86f4c in _PyEval_EvalFrame (tstate=0x6388402b6910 <_PyRuntime+166328>, frame=0x638875787c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x6388402b6910 <_PyRuntime+166328>, func=0x6388757a83f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000063883fe6ab5a in run_eval_code_obj (tstate=0x6388402b6910 <_PyRuntime+166328>, co=0x6388758661c0, globals=0x2187738, locals=0x2187738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x2187738, locals=0x2187738, flags=0x7fff26a80e40, arena=0x638875806d90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x2187738, locals=0x2187738, closeit=1, flags=0x7fff26a80e40) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x000063883fe69bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x638875856f50, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x000063883fec02d4 in pymain_run_file_obj (program_name=0x63887585b3f0, filename=0x638875856f50, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x63884029c958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x000063883fec0c29 in pymain_main (args=0x7fff26a810b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5653eb65d838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.569b296a5838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56dff591b838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b317d486838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dbf3528f838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 50. cpython-311-39a562d100eb
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_IS_GC|visit_decref|dict_traverse|subtract_refs|deduce_unreachable|gc_collect_main|gc_collect_with_callback|PyGC_Collect|Py_FinalizeEx|Py_RunMain|pymain_main|Py_BytesMain|main`
+- Honggfuzz stack hash: `e1b61ae42`
+- PC: `0x5b59554a631f`
+- Fault address: `0xa7`
+- Instruction: `mov____0xa8(%r15),%r12`
+- Findings: 5
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-39a562d100eb.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b59554a631f.STACK.e1b61ae42.CODE.1.ADDR.a7.INSTR.mov____0xa8(%r15),%r12.pyc`
+- Reproduced stack frames: `not available; rerun did not produce a native backtrace`
+- Manual gdb command: `PYTHONHOME=data/rq3/cpython-3.11/source/cpython-* PYTHONPATH=data/rq3/cpython-3.11/source/cpython-*/Lib gdb -q --args data/rq3/cpython-3.11/instrumented/python data/rq3/harness.py data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b0fc168631f.STACK.e1b61ae42.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+- Rerun diagnostic excerpt:
+  - `grouped with representative rerun`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b0fc168631f.STACK.e1b61ae42.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b47c3e5b31f.STACK.e1b61ae42.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b59554a631f.STACK.e1b61ae42.CODE.1.ADDR.a7.INSTR.mov____0xa8(%r15),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.64f1ef1c831f.STACK.e1b61ae42.CODE.1.ADDR.a7.INSTR.mov____0xa8(%r15),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.ffffffffffffffff.STACK.e1b61ae42.CODE.1.ADDR.ffffffffffffffff.INSTR.[NOT_MMAPED].pyc`
+
+### 51. cpython-311-5e17ee64a60a
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_GetIter|unpack_iterable|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `d996d0011`
+- PC: `0x56eb87729ddb`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 5
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-5e17ee64a60a.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56eb87729ddb.STACK.d996d0011.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_GetIter`
+  - `unpack_iterable`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  PyObject_GetIter (o=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:2793`
+  - `#1  0x000057e06a1db8f0 in unpack_iterable (tstate=0x57e06a705910 <_PyRuntime+166328>, v=0x1ffffffff, argcnt=173, argcntafter=-1, sp=0x57e08f716378) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6691`
+  - `#2  _PyEval_EvalFrameDefault (tstate=0x57e06a705910 <_PyRuntime+166328>, frame=0x57e08f715dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2801`
+  - `#3  0x000057e06a1d5f4c in _PyEval_EvalFrame (tstate=0x57e06a705910 <_PyRuntime+166328>, frame=0x57e08f715dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x57e06a705910 <_PyRuntime+166328>, func=0x57e08f7aacb0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x000057e06a1ce452 in builtin_exec_impl (source=0x57e08f894780, globals=0x57e06a65c580 <globalCovFeedback>, locals=0x57e08f7eb550, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000057e06a035fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x000057e069f718eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x57e08f711450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x000057e069f71813 in PyObject_Vectorcall (callable=0x57e08f711450, args=0x57e08f715da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x000057e06a1dedae in _PyEval_EvalFrameDefault (tstate=0x57e06a705910 <_PyRuntime+166328>, frame=0x57e08f715d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x000057e06a1d5f4c in _PyEval_EvalFrame (tstate=0x57e06a705910 <_PyRuntime+166328>, frame=0x57e08f715d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x57e06a705910 <_PyRuntime+166328>, func=0x57e08f7364f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x000057e06a2b9b5a in run_eval_code_obj (tstate=0x57e06a705910 <_PyRuntime+166328>, co=0x57e08f79fb90, globals=0x15db8dc, locals=0x15db8dc) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.612569ed6ddb.STACK.1a08ec1160.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56eb87729ddb.STACK.d996d0011.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58169dfe2ddb.STACK.d996d0011.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59905619dddb.STACK.d996d0011.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.599829e44ddb.STACK.d996d0011.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 52. cpython-311-725d6a30bb1b
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file`
+- Honggfuzz stack hash: `1b8c72a50b`
+- PC: `0x5a2fa9e8d020`
+- Fault address: `0x0`
+- Instruction: `mov____0x10(%rbx),%rcx`
+- Findings: 5
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-725d6a30bb1b.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a2fa9e8d020.STACK.1b8c72a50b.CODE.128.ADDR.0.INSTR.mov____0x10(%rbx),%rcx.pyc`
+- Normalized function stack:
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  _PyEval_EvalFrameDefault (tstate=0x57783f8e0910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5537`
+  - `#1  0x000057783f3b0f4c in _PyEval_EvalFrame (tstate=0x57783f8e0910 <_PyRuntime+166328>, frame=0x57784bf76d70, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#2  _PyEval_Vector (tstate=0x57783f8e0910 <_PyRuntime+166328>, func=0x57784c00b770, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#3  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#4  0x000057783f3a9452 in builtin_exec_impl (source=0x57784c0f5910, globals=0x57783f837580 <globalCovFeedback>, locals=0x57784c0f8c70, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#5  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x000057783f210fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x000057783f14c8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x57784bf723f0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#8  0x000057783f14c813 in PyObject_Vectorcall (callable=0x57784bf723f0, args=0x57784bf76d48, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#9  0x000057783f3b9dae in _PyEval_EvalFrameDefault (tstate=0x57783f8e0910 <_PyRuntime+166328>, frame=0x57784bf76cf0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#10 0x000057783f3b0f4c in _PyEval_EvalFrame (tstate=0x57783f8e0910 <_PyRuntime+166328>, frame=0x57784bf76cf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#11 _PyEval_Vector (tstate=0x57783f8e0910 <_PyRuntime+166328>, func=0x57784bf96f10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#12 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x000057783f494b5a in run_eval_code_obj (tstate=0x57783f8e0910 <_PyRuntime+166328>, co=0x57784c054f40, globals=0x17b5304, locals=0x17b5304) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#14 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x17b5304, locals=0x17b5304, flags=0x7ffe982f9120, arena=0x57784bff58f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#15 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x17b5304, locals=0x17b5304, closeit=1, flags=0x7ffe982f9120) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a2fa9e8d020.STACK.1b8c72a50b.CODE.128.ADDR.0.INSTR.mov____0x10(%rbx),%rcx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b2e7c08e020.STACK.1b8c72a50b.CODE.1.ADDR.3b9aca7f.INSTR.mov____0x10(%rbx),%rcx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dd1fff57020.STACK.1b8c72a50b.CODE.128.ADDR.0.INSTR.mov____0x10(%rbx),%rcx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5f39d3ca2020.STACK.1b8c72a50b.CODE.128.ADDR.0.INSTR.mov____0x10(%rbx),%rcx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.605d8b02b020.STACK.1b8c72a50b.CODE.1.ADDR.10.INSTR.mov____0x10(%rbx),%rcx.pyc`
+
+### 53. cpython-311-7eff7866b6bd
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:func_clear|func_dealloc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `dc73a2dcd`
+- PC: `0x5686a84c4ffd`
+- Fault address: `0x1ffffffff`
+- Instruction: `mov____(%r15),%rbx`
+- Findings: 5
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-7eff7866b6bd.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5686a84c4ffd.STACK.dc73a2dcd.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+- Normalized function stack:
+  - `func_clear`
+  - `func_dealloc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  func_clear (op=0x62544f3b2030) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:689`
+  - `#1  func_dealloc (op=0x62544f3b2030) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:708`
+  - `#2  0x00006254127853da in _PyEval_EvalFrameDefault (tstate=0x625412ca9910 <_PyRuntime+166328>, frame=0x62544f234d70, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4162`
+  - `#3  0x0000625412779f4c in _PyEval_EvalFrame (tstate=0x625412ca9910 <_PyRuntime+166328>, frame=0x62544f234d70, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x625412ca9910 <_PyRuntime+166328>, func=0x62544f3b9370, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x0000625412772452 in builtin_exec_impl (source=0x62544f34feb0, globals=0x6254135ece40 <my_thread_no>, locals=0x62544f3b15e0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00006254125d9fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00006254125158eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x62544f2303f0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x0000625412515813 in PyObject_Vectorcall (callable=0x62544f2303f0, args=0x62544f234d48, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x0000625412782dae in _PyEval_EvalFrameDefault (tstate=0x625412ca9910 <_PyRuntime+166328>, frame=0x62544f234cf0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x0000625412779f4c in _PyEval_EvalFrame (tstate=0x625412ca9910 <_PyRuntime+166328>, frame=0x62544f234cf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x625412ca9910 <_PyRuntime+166328>, func=0x62544f254f10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x000062541285db5a in run_eval_code_obj (tstate=0x625412ca9910 <_PyRuntime+166328>, co=0x62544f313430, globals=0x37, locals=0x37) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.556cbf45f105.STACK.184ca3556f.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55a778ed5105.STACK.184ca3556f.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.561d30c51105.STACK.184ca3556f.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.594d432dd105.STACK.184ca3556f.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e5b170eb105.STACK.184ca3556f.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+
+### 54. cpython-311-950fc8a906cd
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_LookupAttr|import_all_from|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `d47527a7e`
+- PC: `0x556d2caefa88`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%r13`
+- Findings: 5
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-950fc8a906cd.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.556d2caefa88.STACK.d47527a7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r13.pyc`
+- Normalized function stack:
+  - `_PyObject_LookupAttr`
+  - `import_all_from`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  _PyObject_LookupAttr (v=0x1ffffffff, name=<optimized out>, result=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:940`
+  - `#1  0x00005bcae79bff52 in import_all_from (tstate=0x5bcae7eee910 <_PyRuntime+166328>, locals=0x5bcb1a19ffe0, v=0x5bcae7e6fc34) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7523`
+  - `#2  _PyEval_EvalFrameDefault (tstate=0x5bcae7eee910 <_PyRuntime+166328>, frame=0x5bcb1a01cdd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3974`
+  - `#3  0x00005bcae79bef4c in _PyEval_EvalFrame (tstate=0x5bcae7eee910 <_PyRuntime+166328>, frame=0x5bcb1a01cdd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x5bcae7eee910 <_PyRuntime+166328>, func=0x5bcb1a182ba0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005bcae79b7452 in builtin_exec_impl (source=0x5bcb1a19b950, globals=0x5bcae7ecbb30 <_PyRuntime+23512>, locals=0x5bcb1a19ffe0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005bcae781efdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00005bcae775a8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5bcb1a018450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x00005bcae775a813 in PyObject_Vectorcall (callable=0x5bcb1a018450, args=0x5bcb1a01cda8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x00005bcae79c7dae in _PyEval_EvalFrameDefault (tstate=0x5bcae7eee910 <_PyRuntime+166328>, frame=0x5bcb1a01cd50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x00005bcae79bef4c in _PyEval_EvalFrame (tstate=0x5bcae7eee910 <_PyRuntime+166328>, frame=0x5bcb1a01cd50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x5bcae7eee910 <_PyRuntime+166328>, func=0x5bcb1a03d4d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x00005bcae7aa2b5a in run_eval_code_obj (tstate=0x5bcae7eee910 <_PyRuntime+166328>, co=0x5bcb1a0a6be0, globals=0x7ffe1c915340, locals=0x7ffe1c915340) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.556d2caefa88.STACK.d47527a7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55a4c3eecaf7.STACK.d47527a7e.CODE.128.ADDR.0.INSTR.mov____0x90(%r13),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57403b1a9a88.STACK.d47527a7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6212330c2a88.STACK.d47527a7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6412503e4a88.STACK.d47527a7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r13.pyc`
+
+### 55. cpython-311-e5db341b3864
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_Hash|_PyDict_SetItem_Take2|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `cc3c6db62`
+- PC: `0x5b5b8ec0d9ee`
+- Fault address: `0x26b016401dd`
+- Instruction: `mov____0x78(%r15),%rbx`
+- Findings: 5
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-e5db341b3864.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b5b8ec0d9ee.STACK.cc3c6db62.CODE.1.ADDR.26b016401dd.INSTR.mov____0x78(%r15),%rbx.pyc`
+- Normalized function stack:
+  - `PyObject_Hash`
+  - `_PyDict_SetItem_Take2`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  PyObject_Hash (v=0x639e03c89c28) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:774`
+  - `#1  0x0000639de4095183 in _PyDict_SetItem_Take2 (mp=<optimized out>, key=0x639e03c89c28, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1875`
+  - `#2  0x0000639de426b560 in _PyEval_EvalFrameDefault (tstate=0x639de4798910 <_PyRuntime+166328>, frame=0x639e03b0ae30, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3455`
+  - `#3  0x0000639de4268f4c in _PyEval_EvalFrame (tstate=0x639de4798910 <_PyRuntime+166328>, frame=0x639e03b0ae30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x639de4798910 <_PyRuntime+166328>, func=0x639e03be0a30, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x0000639de4261452 in builtin_exec_impl (source=0x639e03c89b70, globals=0x639e03c89c28, locals=0x639e03bc5950, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x0000639de40c8fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x0000639de40048eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x639e03b064b0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x0000639de4004813 in PyObject_Vectorcall (callable=0x639e03b064b0, args=0x639e03b0ae08, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x0000639de4271dae in _PyEval_EvalFrameDefault (tstate=0x639de4798910 <_PyRuntime+166328>, frame=0x639e03b0adb0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x0000639de4268f4c in _PyEval_EvalFrame (tstate=0x639de4798910 <_PyRuntime+166328>, frame=0x639e03b0adb0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x639de4798910 <_PyRuntime+166328>, func=0x639e03b2b520, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x0000639de434cb5a in run_eval_code_obj (tstate=0x639de4798910 <_PyRuntime+166328>, co=0x639e03be9170, globals=0x1ffffffff, locals=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b5b8ec0d9ee.STACK.cc3c6db62.CODE.1.ADDR.26b016401dd.INSTR.mov____0x78(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e6a80af09ee.STACK.cc3c6db62.CODE.128.ADDR.0.INSTR.mov____0x78(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5f1da43819ee.STACK.cc3c6db62.CODE.1.ADDR.26b016401dd.INSTR.mov____0x78(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.614a61cb19ee.STACK.cc3c6db62.CODE.1.ADDR.26b016401dd.INSTR.mov____0x78(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.645d760759ee.STACK.cc3c6db62.CODE.1.ADDR.26b016401dd.INSTR.mov____0x78(%r15),%rbx.pyc`
+
+### 56. cpython-311-00793480a4f7
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyDict_SetItem|_PyObjectDict_SetItem|_PyObject_GenericSetAttrWithDict|PyObject_GenericSetAttr|PyObject_SetAttr|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame`
+- Honggfuzz stack hash: `18977c2c63`
+- PC: `0x57f5c8a6a1bd`
+- Fault address: `0x1ffffffff`
+- Instruction: `addq___$0x1,0x0(%r13)`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-00793480a4f7.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57f5c8a6a1bd.STACK.18977c2c63.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,0x0(%r13).pyc`
+- Normalized function stack:
+  - `PyDict_SetItem`
+  - `_PyObjectDict_SetItem`
+  - `_PyObject_GenericSetAttrWithDict`
+  - `PyObject_GenericSetAttr`
+  - `PyObject_SetAttr`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+- Reproduced stack frames:
+  - `#0  PyDict_SetItem (op=0x5e1d0786a140, key=0x5e1d0783c620, value=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1905`
+  - `#1  _PyObjectDict_SetItem (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#2  0x00005e1ce5acc843 in _PyObject_GenericSetAttrWithDict (obj=0x5e1d077ecca0, name=0x5e1d0783c620, value=0x3f, dict=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1422`
+  - `#3  PyObject_GenericSetAttr (obj=0x5e1d077ecca0, name=0x5e1d0783c620, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1456`
+  - `#4  0x00005e1ce5ac9635 in PyObject_SetAttr (v=0x5e1d077ecca0, name=0x5e1d0783c620, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1028`
+  - `#5  0x00005e1ce5c62b69 in _PyEval_EvalFrameDefault (tstate=0x5e1ce618c910 <_PyRuntime+166328>, frame=0x5e1d07757dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2889`
+  - `#6  0x00005e1ce5c5cf4c in _PyEval_EvalFrame (tstate=0x5e1ce618c910 <_PyRuntime+166328>, frame=0x5e1d07757dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#7  _PyEval_Vector (tstate=0x5e1ce618c910 <_PyRuntime+166328>, func=0x5e1d078d5240, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#8  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00005e1ce5c55452 in builtin_exec_impl (source=0x5e1d078d67f0, globals=0x1, locals=0x5e1d078d4470, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#10 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x00005e1ce5abcfdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x00005e1ce59f88eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5e1d07753450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#13 0x00005e1ce59f8813 in PyObject_Vectorcall (callable=0x5e1d07753450, args=0x5e1d07757da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#14 0x00005e1ce5c65dae in _PyEval_EvalFrameDefault (tstate=0x5e1ce618c910 <_PyRuntime+166328>, frame=0x5e1d07757d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#15 0x00005e1ce5c5cf4c in _PyEval_EvalFrame (tstate=0x5e1ce618c910 <_PyRuntime+166328>, frame=0x5e1d07757d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57f5c8a6a1bd.STACK.18977c2c63.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,0x0(%r13).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b4a74e7b1bd.STACK.18977c2c63.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,0x0(%r13).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.635a327461bd.STACK.18977c2c63.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,0x0(%r13).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.63851105b1bd.STACK.18977c2c63.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,0x0(%r13).pyc`
+
+### 57. cpython-311-1c620987a67d
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyExc_PrepReraiseStar|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `d996ec6c0`
+- PC: `0x5a7df710e7b4`
+- Fault address: `0x20000000f`
+- Instruction: `mov____0x10(%r13),%r12`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-1c620987a67d.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a7df710e7b4.STACK.d996ec6c0.CODE.1.ADDR.20000000f.INSTR.mov____0x10(%r13),%r12.pyc`
+- Normalized function stack:
+  - `_PyExc_PrepReraiseStar`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  _PyExc_PrepReraiseStar (orig=<optimized out>, excs=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/exceptions.c:1332`
+  - `#1  0x0000642f8005be53 in _PyEval_EvalFrameDefault (tstate=0x642f80589910 <_PyRuntime+166328>, frame=0x642fb12a5dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2695`
+  - `#2  0x0000642f80059f4c in _PyEval_EvalFrame (tstate=0x642f80589910 <_PyRuntime+166328>, frame=0x642fb12a5dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x642f80589910 <_PyRuntime+166328>, func=0x642fb1423380, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x0000642f80052452 in builtin_exec_impl (source=0x642fb13c0ab0, globals=0x642f80f0e680 <bbMapFb>, locals=0x642fb142cd30, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x0000642f7feb9fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x0000642f7fdf58eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x642fb12a1450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x0000642f7fdf5813 in PyObject_Vectorcall (callable=0x642fb12a1450, args=0x642fb12a5da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x0000642f80062dae in _PyEval_EvalFrameDefault (tstate=0x642f80589910 <_PyRuntime+166328>, frame=0x642fb12a5d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x0000642f80059f4c in _PyEval_EvalFrame (tstate=0x642f80589910 <_PyRuntime+166328>, frame=0x642fb12a5d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x642f80589910 <_PyRuntime+166328>, func=0x642fb12c64f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x0000642f8013db5a in run_eval_code_obj (tstate=0x642f80589910 <_PyRuntime+166328>, co=0x642fb132fc40, globals=0x6b44, locals=0x6b44) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x6b44, locals=0x6b44, flags=0x7ffdc79249d0, arena=0x642fb13015e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a7df710e7b4.STACK.d996ec6c0.CODE.1.ADDR.20000000f.INSTR.mov____0x10(%r13),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.608689bca7d2.STACK.d996ec6c0.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.62a8fd73e7d2.STACK.d996ec6c0.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.62c5532887d2.STACK.d996ec6c0.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%rbx.pyc`
+
+### 58. cpython-311-5a5088aea356
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_INCREF|Py_XINCREF|PyException_GetContext|_PyErr_SetObject|_PyErr_FormatV|PyErr_Format|_PyObject_GenericGetAttrWithDict|PyObject_GenericGetAttr|PyObject_GetAttr|_PyModuleSpec_IsInitializing|import_ensure_initialized|PyImport_ImportModuleLevelObject|PyImport_ImportModuleLevel|PyImport_Import|PyImport_ImportModule|display_source_line_with_margin`
+- Honggfuzz stack hash: `e9e0127e3`
+- PC: `0x57198312459a`
+- Fault address: `0x1`
+- Instruction: `addq___$0x1,(%rbx)`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-5a5088aea356.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57198312459a.STACK.e9e0127e3.CODE.1.ADDR.1.INSTR.addq___$0x1,(%rbx).pyc`
+- Normalized function stack:
+  - `Py_INCREF`
+  - `Py_XINCREF`
+  - `PyException_GetContext`
+  - `_PyErr_SetObject`
+  - `_PyErr_FormatV`
+  - `PyErr_Format`
+  - `_PyObject_GenericGetAttrWithDict`
+  - `PyObject_GenericGetAttr`
+  - `PyObject_GetAttr`
+  - `_PyModuleSpec_IsInitializing`
+  - `import_ensure_initialized`
+  - `PyImport_ImportModuleLevelObject`
+  - `PyImport_ImportModuleLevel`
+  - `PyImport_Import`
+  - `PyImport_ImportModule`
+  - `display_source_line_with_margin`
+- Reproduced stack frames:
+  - `#0  Py_INCREF (op=0x1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:502`
+  - `#1  Py_XINCREF (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#2  PyException_GetContext (self=self@entry=0x5e8f55459900 <_PyRuntime+2472>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/exceptions.c:409`
+  - `#3  0x00005e8f54fcf5ef in _PyErr_SetObject (tstate=<optimized out>, exception=0x5e8f552d3a50 <_PyExc_AttributeError>, value=0x5e8f8d4048f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:155`
+  - `#4  0x00005e8f54fd3a9e in _PyErr_FormatV (tstate=0x5e8f55481910 <_PyRuntime+166328>, exception=0x5e8f552d3a50 <_PyExc_AttributeError>, format=0x5e8f551c1e68 "'%.50s' object has no attribute '%U'", vargs=0x7ffeb6840d50) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:1080`
+  - `#5  PyErr_Format (exception=<optimized out>, format=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:1120`
+  - `#6  0x00005e8f54dbfe58 in _PyObject_GenericGetAttrWithDict (obj=0x5e8f8d296ac0, name=0x5e8f554610e8 <_PyRuntime+33168>, dict=<optimized out>, suppress=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1352`
+  - `#7  0x00005e8f54dbf899 in PyObject_GenericGetAttr (obj=0x5e8f8d296ac0, name=0x5e8f554610e8 <_PyRuntime+33168>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1367`
+  - `#8  0x00005e8f54dbddcb in PyObject_GetAttr (v=0x5e8f8d296ac0, name=0x5e8f554610e8 <_PyRuntime+33168>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:916`
+  - `#9  0x00005e8f54db6d13 in _PyModuleSpec_IsInitializing (spec=0x5e8f8d296ac0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/moduleobject.c:721`
+  - `#10 0x00005e8f54ff52ab in import_ensure_initialized (interp=0x5e8f55467590 <_PyRuntime+58936>, name=0x5e8f8d3535a0, mod=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/import.c:349`
+  - `#11 PyImport_ImportModuleLevelObject (name=0x5e8f8d3535a0, globals=<optimized out>, locals=<optimized out>, fromlist=<optimized out>, level=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/import.c:1828`
+  - `#12 0x00005e8f54ff4534 in PyImport_ImportModuleLevel (name=<optimized out>, globals=0x0, fromlist=0x0, level=0, locals=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/import.c:1933`
+  - `#13 PyImport_Import (module_name=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/import.c:1998`
+  - `#14 0x00005e8f54ff0332 in PyImport_ImportModule (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x00005e8f5506463c in display_source_line_with_margin (f=<optimized out>, filename=0x5e8f8d4049c0, lineno=<optimized out>, indent=<optimized out>, margin_indent=<optimized out>, margin=<optimized out>, truncation=<optimized out>, line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/traceback.c:450`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57198312459a.STACK.e9e0127e3.CODE.1.ADDR.1.INSTR.addq___$0x1,(%rbx).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.591ccf2fb59a.STACK.e9e0127e3.CODE.1.ADDR.1.INSTR.addq___$0x1,(%rbx).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b18a88bd59a.STACK.e9e0127e3.CODE.1.ADDR.1.INSTR.addq___$0x1,(%rbx).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6020090c459a.STACK.e9e0127e3.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rbx).pyc`
+
+### 59. cpython-311-6ffbf440bc0e
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error_exit|fatal_error|_Py_FatalErrorFunc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|gen_send_ex2|gen_send_ex|gen_send|method_vectorcall_O|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode`
+- Honggfuzz stack hash: `1976ffaedb`
+- PC: `0x76c1342bf9fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-6ffbf440bc0e.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.76c1342bf9fc.STACK.1976ffaedb.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error_exit`
+  - `fatal_error`
+  - `_Py_FatalErrorFunc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `gen_send_ex2`
+  - `gen_send_ex`
+  - `gen_send`
+  - `method_vectorcall_O`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+- Reproduced stack frames:
+  - `#0  0x0000755508cac9fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x0000755508c58476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x0000755508c3e7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00005720e90b9413 in fatal_error_exit (status=-1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2624`
+  - `#4  0x00005720e90b9229 in fatal_error (fd=<optimized out>, header=<optimized out>, prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2805`
+  - `#5  0x00005720e90b3384 in _Py_FatalErrorFunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005720e8fe06af in _PyEval_EvalFrameDefault (tstate=0x5720e950f910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:853`
+  - `#7  0x00005720e8db3d0f in _PyEval_EvalFrame (tstate=0x5720e950f910 <_PyRuntime+166328>, frame=0x5720fbd2a820, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#8  gen_send_ex2 (gen=0x5720fbd2a7d0, arg=0x5720e936fa60 <_Py_NoneStruct>, exc=0, closing=<optimized out>, presult=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:219`
+  - `#9  gen_send_ex (gen=0x5720fbd2a7d0, arg=0x5720e936fa60 <_Py_NoneStruct>, exc=<optimized out>, closing=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:287`
+  - `#10 0x00005720e8db4539 in gen_send (gen=0x5720fbd2a7d0, arg=0x5720e936fa60 <_Py_NoneStruct>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:310`
+  - `#11 0x00005720e8d9581b in method_vectorcall_O (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x00005720e8d7b8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5720fbb6b830, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#13 0x00005720e8d7b813 in PyObject_Vectorcall (callable=0x5720fbb6b830, args=0x5720fbbb4d38, nargsf=9223372036854775810, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#14 0x00005720e8fe8dae in _PyEval_EvalFrameDefault (tstate=0x5720e950f910 <_PyRuntime+166328>, frame=0x5720fbbb4cb0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#15 0x00005720e8fdff4c in _PyEval_EvalFrame (tstate=0x5720e950f910 <_PyRuntime+166328>, frame=0x5720fbbb4c30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.76c1342bf9fc.STACK.1976ffaedb.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.77f0ab5e69fc.STACK.1976ffaedb.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7de75acdc9fc.STACK.1976ffaedb.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7fc1fbaff9fc.STACK.1976ffaedb.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 60. cpython-311-945645c697c9
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyTuple_FromArray|_PyObject_MakeTpCall|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector`
+- Honggfuzz stack hash: `1a372d8fd4`
+- PC: `0x56203caed000`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%r14)`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-945645c697c9.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56203caed000.STACK.1a372d8fd4.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+- Normalized function stack:
+  - `_PyTuple_FromArray`
+  - `_PyObject_MakeTpCall`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  _PyTuple_FromArray (src=<optimized out>, n=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:388`
+  - `#1  0x000059e3428cd966 in _PyObject_MakeTpCall (tstate=0x59e343061910 <_PyRuntime+166328>, callable=0x59e342eb6b10 <_PyExc_BytesWarning>, args=0x2, nargs=183, keywords=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:188`
+  - `#2  _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x59e342eb6b10 <_PyExc_BytesWarning>, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:90`
+  - `#3  0x000059e3428cd813 in PyObject_Vectorcall (callable=0x59e342eb6b10 <_PyExc_BytesWarning>, args=0x59e35c34f750, nargsf=9223372036854775991, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#4  0x000059e342b3adae in _PyEval_EvalFrameDefault (tstate=0x59e343061910 <_PyRuntime+166328>, frame=0x59e35c34fcb0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#5  0x000059e342b31f4c in _PyEval_EvalFrame (tstate=0x59e343061910 <_PyRuntime+166328>, frame=0x59e35c34fcb0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#6  _PyEval_Vector (tstate=0x59e343061910 <_PyRuntime+166328>, func=0x59e35c4ccf90, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#7  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000059e342b2a452 in builtin_exec_impl (source=0x59e35c4cd3d0, globals=0x59e342fb8580 <globalCovFeedback>, locals=0x59e35c421d70, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#9  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x000059e342991fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x000059e3428cd8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x59e35c34b330, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#12 0x000059e3428cd813 in PyObject_Vectorcall (callable=0x59e35c34b330, args=0x59e35c34fc88, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#13 0x000059e342b3adae in _PyEval_EvalFrameDefault (tstate=0x59e343061910 <_PyRuntime+166328>, frame=0x59e35c34fc30, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#14 0x000059e342b31f4c in _PyEval_EvalFrame (tstate=0x59e343061910 <_PyRuntime+166328>, frame=0x59e35c34fc30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#15 _PyEval_Vector (tstate=0x59e343061910 <_PyRuntime+166328>, func=0x59e35c370360, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56203caed000.STACK.1a372d8fd4.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ea218060000.STACK.1a372d8fd4.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ee56a2ff000.STACK.1a372d8fd4.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.64149f9ef000.STACK.1a372d8fd4.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5941b2afd000.STACK.eb8237694.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+
+### 61. cpython-311-95f998313396
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|??|??|??|??|??|malloc|_PyMem_RawMalloc|PyObject_Malloc|clone_combined_dict_keys|PyDict_Copy|finalize_restore_builtins|finalize_modules|Py_FinalizeEx|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `e448dac14`
+- PC: `0x70ccc901d9fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-95f998313396.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.70ccc901d9fc.STACK.e448dac14.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `??`
+  - `malloc`
+  - `_PyMem_RawMalloc`
+  - `PyObject_Malloc`
+  - `clone_combined_dict_keys`
+  - `PyDict_Copy`
+  - `finalize_restore_builtins`
+  - `finalize_modules`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  0x000072d1199789fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x000072d119924476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x000072d11990a7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x000072d11996b677 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#4  0x000072d119982cfc in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#5  0x000072d1199837e2 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#6  0x000072d119983969 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#7  0x000072d119985bdb in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#8  0x000072d119987262 in malloc () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#9  0x00005cc4588da821 in _PyMem_RawMalloc (ctx=<optimized out>, size=230078) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:101`
+  - `#10 0x00005cc4588dc9e4 in PyObject_Malloc (size=3264) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:712`
+  - `#11 0x00005cc45889f50b in clone_combined_dict_keys (orig=0x5cc471f3c990) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:790`
+  - `#12 0x00005cc45889ec7d in PyDict_Copy (o=0x5cc471f3c990) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:3077`
+  - `#13 0x00005cc458b40875 in finalize_restore_builtins (tstate=0x5cc458f98910 <_PyRuntime+166328>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1464`
+  - `#14 finalize_modules (tstate=0x5cc458f98910 <_PyRuntime+166328>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1555`
+  - `#15 0x00005cc458b3f805 in Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1831`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.70ccc901d9fc.STACK.e448dac14.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.74c81b0729fc.STACK.e448dac14.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.774a212129fc.STACK.e448dac14.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.77e3033299fc.STACK.e448dac14.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 62. cpython-311-97e15c9a417f
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:binary_op1|binary_op|PyNumber_Subtract|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain`
+- Honggfuzz stack hash: `cf034abbe`
+- PC: `0x56759ee307cc`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r14),%r14`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-97e15c9a417f.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56759ee307cc.STACK.cf034abbe.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r14.pyc`
+- Normalized function stack:
+  - `binary_op1`
+  - `binary_op`
+  - `PyNumber_Subtract`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+- Reproduced stack frames:
+  - `#0  binary_op1 (v=0x5891d9ad6780, w=0x0, op_slot=8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:874`
+  - `#1  binary_op (v=0x5891d9ad6780, w=0x0, op_slot=8, op_name=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:932`
+  - `#2  PyNumber_Subtract (v=0x5891d9ad6780, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:1067`
+  - `#3  0x00005891a0a0f2cf in _PyEval_EvalFrameDefault (tstate=0x5891a0f39910 <_PyRuntime+166328>, frame=0x5891d9a05d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5549`
+  - `#4  0x00005891a0a09f4c in _PyEval_EvalFrame (tstate=0x5891a0f39910 <_PyRuntime+166328>, frame=0x5891d9a05c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#5  _PyEval_Vector (tstate=0x5891a0f39910 <_PyRuntime+166328>, func=0x5891d9ada400, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#6  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005891a0aedb5a in run_eval_code_obj (tstate=0x5891a0f39910 <_PyRuntime+166328>, co=0x5891d9ae42e0, globals=0x402e, locals=0x402e) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#8  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x402e, locals=0x402e, flags=0x7fff0a13d340, arena=0x5891d9a91910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#9  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x402e, locals=0x402e, closeit=1, flags=0x7fff0a13d340) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#10 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#11 0x00005891a0aecbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5891d9ad5140, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#12 0x00005891a0b432d4 in pymain_run_file_obj (program_name=0x5891d9ad92c0, filename=0x5891d9ad5140, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#13 pymain_run_file (config=0x5891a0f1f958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#14 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#15 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56759ee307cc.STACK.cf034abbe.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.583af153efe5.STACK.cf034abbe.CODE.1.ADDR.8.INSTR.mov____0x8(%rax),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.610b50f27fb2.STACK.cf034abbe.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6452bed5dd5e.STACK.cf034abbe.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r14.pyc`
+
+### 63. cpython-311-98ad41f53fdc
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyCoro_GetAwaitableIter|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `d04b523bb`
+- PC: `0x56dfb8e9be4e`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r14),%r13`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-98ad41f53fdc.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56dfb8e9be4e.STACK.d04b523bb.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r13.pyc`
+- Normalized function stack:
+  - `_PyCoro_GetAwaitableIter`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  _PyCoro_GetAwaitableIter (o=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:1047`
+  - `#1  0x00005cc5be4124a6 in _PyEval_EvalFrameDefault (tstate=0x5cc5be93f910 <_PyRuntime+166328>, frame=0xffffffffffffef80, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2552`
+  - `#2  0x00005cc5be40ff4c in _PyEval_EvalFrame (tstate=0x5cc5be93f910 <_PyRuntime+166328>, frame=0x5cc5d6531c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5cc5be93f910 <_PyRuntime+166328>, func=0x5cc5d65523f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005cc5be4f3b5a in run_eval_code_obj (tstate=0x5cc5be93f910 <_PyRuntime+166328>, co=0x5cc5d6610510, globals=0x74b3, locals=0x74b3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x74b3, locals=0x74b3, flags=0x7ffc686ed6f0, arena=0x5cc5d65bd910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x74b3, locals=0x74b3, closeit=1, flags=0x7ffc686ed6f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x00005cc5be4f2bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5cc5d6601120, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x00005cc5be5492d4 in pymain_run_file_obj (program_name=0x5cc5d66052a0, filename=0x5cc5d6601120, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x5cc5be925958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x00005cc5be549c29 in pymain_main (args=0x7ffc686ed960) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56dfb8e9be4e.STACK.d04b523bb.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c7a21df0e4e.STACK.d04b523bb.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e220def6e4e.STACK.d04b523bb.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.630d340a9e4e.STACK.d04b523bb.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r13.pyc`
+
+### 64. cpython-311-ae7674847f4e
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyDict_SetItem|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `188e079992`
+- PC: `0x5753f9dc9564`
+- Fault address: `0x1ffffffff`
+- Instruction: `addq___$0x1,(%r14)`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-ae7674847f4e.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5753f9dc9564.STACK.188e079992.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+- Normalized function stack:
+  - `PyDict_SetItem`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PyDict_SetItem (op=0x64ce041c0ac0, key=<optimized out>, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1905`
+  - `#1  0x000064cdc566003c in _PyEval_EvalFrameDefault (tstate=0x64cdc5b8c910 <_PyRuntime+166328>, frame=0x64ce040efd70, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2914`
+  - `#2  0x000064cdc565cf4c in _PyEval_EvalFrame (tstate=0x64cdc5b8c910 <_PyRuntime+166328>, frame=0x64ce040efd70, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x64cdc5b8c910 <_PyRuntime+166328>, func=0x64ce041c5770, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000064cdc5655452 in builtin_exec_impl (source=0x64ce04274310, globals=0x64cdc64cfe40 <my_thread_no>, locals=0x64ce041c0ac0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x000064cdc54bcfdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000064cdc53f88eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x64ce040eb3f0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x000064cdc53f8813 in PyObject_Vectorcall (callable=0x64ce040eb3f0, args=0x64ce040efd48, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x000064cdc5665dae in _PyEval_EvalFrameDefault (tstate=0x64cdc5b8c910 <_PyRuntime+166328>, frame=0x64ce040efcf0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x000064cdc565cf4c in _PyEval_EvalFrame (tstate=0x64cdc5b8c910 <_PyRuntime+166328>, frame=0x64ce040efcf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x64cdc5b8c910 <_PyRuntime+166328>, func=0x64ce0410ff10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x000064cdc5740b5a in run_eval_code_obj (tstate=0x64cdc5b8c910 <_PyRuntime+166328>, co=0x64ce041ce430, globals=0x3f, locals=0x3f) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x3f, locals=0x3f, flags=0x7ffc98d76a40, arena=0x64ce0416e8f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5753f9dc9564.STACK.188e079992.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dc59e081564.STACK.188e079992.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.602d0b4e6564.STACK.188e079992.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6044e1492564.STACK.188e079992.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55f9e4c0e564.STACK.d86066e6c.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+
+### 65. cpython-311-c71a3fce3726
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyCode_InitAddressRange|PyCode_Addr2Line|_PyInterpreterFrame_GetLine|dump_frame|dump_traceback|_Py_DumpTracebackThreads|fatal_error|_Py_FatalErrorFunc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject`
+- Honggfuzz stack hash: `1839476423`
+- PC: `0x58fad4f52536`
+- Fault address: `0x10`
+- Instruction: `mov____0x10(%r15),%r14`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-c71a3fce3726.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58fad4f52536.STACK.1839476423.CODE.1.ADDR.10.INSTR.mov____0x10(%r15),%r14.pyc`
+- Normalized function stack:
+  - `_PyCode_InitAddressRange`
+  - `PyCode_Addr2Line`
+  - `_PyInterpreterFrame_GetLine`
+  - `dump_frame`
+  - `dump_traceback`
+  - `_Py_DumpTracebackThreads`
+  - `fatal_error`
+  - `_Py_FatalErrorFunc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+- Reproduced stack frames:
+  - `#0  _PyCode_InitAddressRange (co=0x644911d15cb0, bounds=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/codeobject.c:780`
+  - `#1  PyCode_Addr2Line (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#2  0x00006448de1833cd in _PyInterpreterFrame_GetLine (frame=0x644911cf5d70) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/frame.c:159`
+  - `#3  0x00006448de2106e3 in dump_frame (fd=2, frame=0x644911cf5d70) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/traceback.c:1194`
+  - `#4  dump_traceback (fd=<optimized out>, tstate=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00006448de210bb0 in _Py_DumpTracebackThreads (fd=<optimized out>, interp=<optimized out>, current_tstate=0x6448de62a910 <_PyRuntime+166328>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/traceback.c:1339`
+  - `#6  0x00006448de1d3eec in fatal_error (fd=<optimized out>, header=<optimized out>, prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2778`
+  - `#7  0x00006448de1ce384 in _Py_FatalErrorFunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00006448de0fb6af in _PyEval_EvalFrameDefault (tstate=0x6448de62a910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:853`
+  - `#9  0x00006448de0faf4c in _PyEval_EvalFrame (tstate=0x6448de62a910 <_PyRuntime+166328>, frame=0x644911cf5cf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#10 _PyEval_Vector (tstate=0x6448de62a910 <_PyRuntime+166328>, func=0x644911d15f10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#11 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x00006448de1deb5a in run_eval_code_obj (tstate=0x6448de62a910 <_PyRuntime+166328>, co=0x644911dd4430, globals=0x1c, locals=0x1c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#13 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1c, locals=0x1c, flags=0x7ffeec044a30, arena=0x644911d748f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#14 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1c, locals=0x1c, closeit=1, flags=0x7ffeec044a30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#15 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58fad4f52536.STACK.1839476423.CODE.1.ADDR.10.INSTR.mov____0x10(%r15),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5901e18bf536.STACK.1839476423.CODE.1.ADDR.10.INSTR.mov____0x10(%r15),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e8c5eaa9536.STACK.1839476423.CODE.1.ADDR.10.INSTR.mov____0x10(%r15),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5f5b9381b536.STACK.1839476423.CODE.1.ADDR.10.INSTR.mov____0x10(%r15),%r14.pyc`
+
+### 66. cpython-311-d3e8f4abd503
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PySequence_Contains|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `daeba6b1e`
+- PC: `0x5578ed883062`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r15),%r14`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-d3e8f4abd503.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5578ed883062.STACK.daeba6b1e.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%r14.pyc`
+- Normalized function stack:
+  - `PySequence_Contains`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  PySequence_Contains (seq=0x0, ob=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:2276`
+  - `#1  0x000055dc6f62a72d in _PyEval_EvalFrameDefault (tstate=0x55dc6fb58910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3877`
+  - `#2  0x000055dc6f628f4c in _PyEval_EvalFrame (tstate=0x55dc6fb58910 <_PyRuntime+166328>, frame=0x55dca6288c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x55dc6fb58910 <_PyRuntime+166328>, func=0x55dca62a93f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000055dc6f70cb5a in run_eval_code_obj (tstate=0x55dc6fb58910 <_PyRuntime+166328>, co=0x55dca6367140, globals=0x1a29738, locals=0x1a29738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1a29738, locals=0x1a29738, flags=0x7ffcb44b1900, arena=0x55dca62e44a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1a29738, locals=0x1a29738, closeit=1, flags=0x7ffcb44b1900) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x000055dc6f70bbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x55dca6358030, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x000055dc6f7622d4 in pymain_run_file_obj (program_name=0x55dca635c1b0, filename=0x55dca6358030, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x55dc6fb3e958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x000055dc6f762c29 in pymain_main (args=0x7ffcb44b1b70) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5578ed883062.STACK.daeba6b1e.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5bde190de062.STACK.daeba6b1e.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5da33d8cf062.STACK.daeba6b1e.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e7c78d0b062.STACK.daeba6b1e.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%r14.pyc`
+
+### 67. cpython-311-e8befefd0ddb
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyDict_SetItem|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|builtin___build_class__|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject`
+- Honggfuzz stack hash: `c5c836196`
+- PC: `0x56435110a55f`
+- Fault address: `0xa`
+- Instruction: `addq___$0x1,(%r12)`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-e8befefd0ddb.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56435110a55f.STACK.c5c836196.CODE.1.ADDR.a.INSTR.addq___$0x1,(%r12).pyc`
+- Normalized function stack:
+  - `PyDict_SetItem`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `builtin___build_class__`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  PyDict_SetItem (op=0x621cb70ec770, key=<optimized out>, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1904`
+  - `#1  0x0000621c91a26ef2 in _PyEval_EvalFrameDefault (tstate=0x621c91f4e910 <_PyRuntime+166328>, frame=0x621cb6fd1d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2769`
+  - `#2  0x0000621c91a1f1b0 in _PyEval_EvalFrame (tstate=0x621c91f4e910 <_PyRuntime+166328>, frame=0x621cb6fd1d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=<optimized out>, func=0x621cb70a77a0, locals=<optimized out>, args=<optimized out>, argcount=0, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  0x0000621c91a14d9d in builtin___build_class__ (self=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x0000621c9187efdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x0000621c917ba8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x621cb6fcca60, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#7  0x0000621c917ba813 in PyObject_Vectorcall (callable=0x621cb6fcca60, args=0x621cb6fd1d40, nargsf=9223372036854775810, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#8  0x0000621c91a27dae in _PyEval_EvalFrameDefault (tstate=0x621c91f4e910 <_PyRuntime+166328>, frame=0x621cb6fd1cb0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#9  0x0000621c91a1ef4c in _PyEval_EvalFrame (tstate=0x621c91f4e910 <_PyRuntime+166328>, frame=0x621cb6fd1c30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#10 _PyEval_Vector (tstate=0x621c91f4e910 <_PyRuntime+166328>, func=0x621cb6ff23a0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#11 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x0000621c91b02b5a in run_eval_code_obj (tstate=0x621c91f4e910 <_PyRuntime+166328>, co=0x621cb70afee0, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#13 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, flags=0x7ffc3cf87fb0, arena=0x621cb705d6a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#14 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, closeit=1, flags=0x7ffc3cf87fb0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#15 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56435110a55f.STACK.c5c836196.CODE.1.ADDR.a.INSTR.addq___$0x1,(%r12).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a502349255f.STACK.c5c836196.CODE.1.ADDR.381.INSTR.addq___$0x1,(%r12).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5d7c8b46f55f.STACK.c5c836196.CODE.128.ADDR.0.INSTR.addq___$0x1,(%r12).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.608f340e7564.STACK.c5c836196.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+
+### 68. cpython-311-f2a6601a913d
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|??|??|??|free|_PyMem_RawFree|PyObject_Free|object_dealloc|_Py_Dealloc|Py_DECREF|Py_XDECREF|code_dealloc|_Py_Dealloc|Py_DECREF|func_dealloc|_Py_Dealloc`
+- Honggfuzz stack hash: `f5756095e`
+- PC: `0x76c772a299fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-f2a6601a913d.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.76c772a299fc.STACK.f5756095e.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `??`
+  - `free`
+  - `_PyMem_RawFree`
+  - `PyObject_Free`
+  - `object_dealloc`
+  - `_Py_Dealloc`
+  - `Py_DECREF`
+  - `Py_XDECREF`
+  - `code_dealloc`
+  - `func_dealloc`
+  - `free_keys_object`
+  - `dictkeys_decref`
+  - `PyDict_Clear`
+- Reproduced stack frames:
+  - `#0  0x00007bfce56329fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007bfce55de476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007bfce55c47f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00007bfce5625677 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#4  0x00007bfce563ccfc in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#5  0x00007bfce563ee7c in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#6  0x00007bfce5641453 in free () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#7  0x000063e2f1c8e92e in _PyMem_RawFree (ctx=<optimized out>, ptr=0x63e304e17b50) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:129`
+  - `#8  0x000063e2f1c90b98 in PyObject_Free (ptr=0x63e304e17b50) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:741`
+  - `#9  0x000063e2f1cb989f in object_dealloc (self=0x63e304e17b50) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:4580`
+  - `#10 0x000063e2f1c8dd8c in _Py_Dealloc (op=0x63e304e17b50) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:2389`
+  - `#11 0x000063e2f1bc5164 in Py_DECREF (op=0x63e304e17b50) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:538`
+  - `#12 Py_XDECREF (op=0x63e304e17b50) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:602`
+  - `#13 code_dealloc (co=0x63e304dade10) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/codeobject.c:1618`
+  - `#14 0x000063e2f1c8dd8c in _Py_Dealloc (op=0x63e304dade10) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:2389`
+  - `#15 0x000063e2f1c08285 in Py_DECREF (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.76c772a299fc.STACK.f5756095e.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7990a85219fc.STACK.f5756095e.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7a92d87a69fc.STACK.f5756095e.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7b39274359fc.STACK.f5756095e.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 69. cpython-311-071560c27003
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|??|??|??|free|_PyMem_RawFree|PyObject_Free|unicode_dealloc|_Py_Dealloc|Py_DECREF|Py_XDECREF|display_source_line_with_margin|tb_displayline|tb_printinternal|_PyTraceBack_Print_Indented|print_exception_traceback`
+- Honggfuzz stack hash: `f78fb5c47`
+- PC: `0x7a9b4c7029fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-071560c27003.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7a9b4c7029fc.STACK.f78fb5c47.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `??`
+  - `free`
+  - `_PyMem_RawFree`
+  - `PyObject_Free`
+  - `unicode_dealloc`
+  - `_Py_Dealloc`
+  - `Py_DECREF`
+  - `Py_XDECREF`
+  - `display_source_line_with_margin`
+  - `tb_displayline`
+  - `tb_printinternal`
+  - `_PyTraceBack_Print_Indented`
+  - `print_exception_traceback`
+- Reproduced stack frames:
+  - `#0  0x00007658c041e9fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007658c03ca476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007658c03b07f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00007658c0411677 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#4  0x00007658c0428cfc in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#5  0x00007658c042aa44 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#6  0x00007658c042d453 in free () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#7  0x000056fb9c68092e in _PyMem_RawFree (ctx=<optimized out>, ptr=0x56fbdbbb58d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:129`
+  - `#8  0x000056fb9c682b98 in PyObject_Free (ptr=0x56fbdbbb58d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:741`
+  - `#9  0x000056fb9c74ef14 in unicode_dealloc (unicode=0x56fbdbbb58d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/unicodeobject.c:1956`
+  - `#10 0x000056fb9c67fd8c in _Py_Dealloc (op=0x56fbdbbb58d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:2389`
+  - `#11 0x000056fb9c921e0b in Py_DECREF (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 Py_XDECREF (op=0x56fbdbbb58d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:602`
+  - `#13 display_source_line_with_margin (f=<optimized out>, filename=0x56fbdbb0ce70, lineno=<optimized out>, indent=<optimized out>, margin_indent=<optimized out>, margin=<optimized out>, truncation=<optimized out>, line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/traceback.c:504`
+  - `#14 0x000056fb9c922df5 in tb_displayline (tb=0x56fbdbbc2e10, f=0x383c1, filename=0x383c1, lineno=6, frame=0x56fbdbbbca50, name=<optimized out>, margin_indent=39701696, margin=0x56fb9ca76c3a "") at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/traceback.c:783`
+  - `#15 tb_printinternal (tb=0x56fbdbbc2e10, f=0x383c1, limit=<optimized out>, indent=39701696, margin=0x56fb9ca76c3a "") at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/traceback.c:955`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7a9b4c7029fc.STACK.f78fb5c47.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7c32a646d9fc.STACK.f78fb5c47.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7c72696999fc.STACK.f78fb5c47.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 70. cpython-311-150c32ac2f32
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyExc_PrepReraiseStar|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `19622af9dd`
+- PC: `0x5b92a65b07d2`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%rbx`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-150c32ac2f32.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b92a65b07d2.STACK.19622af9dd.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rbx.pyc`
+- Normalized function stack:
+  - `_PyExc_PrepReraiseStar`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  _PyExc_PrepReraiseStar (orig=<optimized out>, excs=0x6031d916f300) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/exceptions.c:1338`
+  - `#1  0x00006031c7365e53 in _PyEval_EvalFrameDefault (tstate=0x6031c7893910 <_PyRuntime+166328>, frame=0x6031d90ced10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2695`
+  - `#2  0x00006031c7363f4c in _PyEval_EvalFrame (tstate=0x6031c7893910 <_PyRuntime+166328>, frame=0x6031d90cec90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x6031c7893910 <_PyRuntime+166328>, func=0x6031d90ef3f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00006031c7447b5a in run_eval_code_obj (tstate=0x6031c7893910 <_PyRuntime+166328>, co=0x6031d91ad1a0, globals=0x3f, locals=0x3f) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x3f, locals=0x3f, flags=0x7ffdae1d0430, arena=0x6031d915a910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x3f, locals=0x3f, closeit=1, flags=0x7ffdae1d0430) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x00006031c7446bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x6031d919e1f0, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x00006031c749d2d4 in pymain_run_file_obj (program_name=0x6031d91a2370, filename=0x6031d919e1f0, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x6031c7879958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x00006031c749dc29 in pymain_main (args=0x7ffdae1d06a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b92a65b07d2.STACK.19622af9dd.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5f4dd3e727d2.STACK.19622af9dd.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.63ae823257d2.STACK.19622af9dd.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rbx.pyc`
+
+### 71. cpython-311-180849cc3760
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyVectorcall_FunctionInline|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain`
+- Honggfuzz stack hash: `1ac3eacd5e`
+- PC: `0x59456ab41865`
+- Fault address: `0x0`
+- Instruction: `mov____0xa8(%r13),%r12`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-180849cc3760.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59456ab41865.STACK.1ac3eacd5e.CODE.128.ADDR.0.INSTR.mov____0xa8(%r13),%r12.pyc`
+- Normalized function stack:
+  - `_PyVectorcall_FunctionInline`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+- Reproduced stack frames:
+  - `#0  _PyVectorcall_FunctionInline (callable=0x5b847887ed06) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:44`
+  - `#1  _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5b847887ed06, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:87`
+  - `#2  0x00005b844b0d2813 in PyObject_Vectorcall (callable=0x5b847887ed06, args=0x5b84787a3d30, nargsf=9223372036854775855, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#3  0x00005b844b33fdae in _PyEval_EvalFrameDefault (tstate=0x5b844b866910 <_PyRuntime+166328>, frame=0x5b84787a3e10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#4  0x00005b844b336f4c in _PyEval_EvalFrame (tstate=0x5b844b866910 <_PyRuntime+166328>, frame=0x5b84787a3cf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#5  _PyEval_Vector (tstate=0x5b844b866910 <_PyRuntime+166328>, func=0x5b84787c3f10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#6  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005b844b41ab5a in run_eval_code_obj (tstate=0x5b844b866910 <_PyRuntime+166328>, co=0x5b847887ea20, globals=0x5b84787a3d30, locals=0x5b84787a3d30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#8  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x5b84787a3d30, locals=0x5b84787a3d30, flags=0x7ffd42caee30, arena=0x5b84788228b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#9  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x5b84787a3d30, locals=0x5b84787a3d30, closeit=1, flags=0x7ffd42caee30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#10 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#11 0x00005b844b419bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5b8478872d30, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#12 0x00005b844b4702d4 in pymain_run_file_obj (program_name=0x5b8478877d50, filename=0x5b8478872d30, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#13 pymain_run_file (config=0x5b844b84c958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#14 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#15 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59456ab41865.STACK.1ac3eacd5e.CODE.128.ADDR.0.INSTR.mov____0xa8(%r13),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a6e62b2a865.STACK.1ac3eacd5e.CODE.128.ADDR.0.INSTR.mov____0xa8(%r13),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6317c0240865.STACK.1ac3eacd5e.CODE.1.ADDR.a8.INSTR.mov____0xa8(%r13),%r12.pyc`
+
+### 72. cpython-311-20f318ca057b
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_GetIter|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `dc2011a9c`
+- PC: `0x59621cce1ddb`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-20f318ca057b.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59621cce1ddb.STACK.dc2011a9c.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_GetIter`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PyObject_GetIter (o=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:2793`
+  - `#1  0x00005942f4668d31 in _PyEval_EvalFrameDefault (tstate=0x5942f4b94910 <_PyRuntime+166328>, frame=0xffffffffffffef80, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4293`
+  - `#2  0x00005942f4664f4c in _PyEval_EvalFrame (tstate=0x5942f4b94910 <_PyRuntime+166328>, frame=0x594316c5ddd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5942f4b94910 <_PyRuntime+166328>, func=0x594316ddc650, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005942f465d452 in builtin_exec_impl (source=0x594316ddb6d0, globals=0x5942f4aeb580 <globalCovFeedback>, locals=0x594316de38f0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005942f44c4fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005942f44008eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x594316c59450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x00005942f4400813 in PyObject_Vectorcall (callable=0x594316c59450, args=0x594316c5dda8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x00005942f466ddae in _PyEval_EvalFrameDefault (tstate=0x5942f4b94910 <_PyRuntime+166328>, frame=0x594316c5dd50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x00005942f4664f4c in _PyEval_EvalFrame (tstate=0x5942f4b94910 <_PyRuntime+166328>, frame=0x594316c5dd50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x5942f4b94910 <_PyRuntime+166328>, func=0x594316c7e4d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00005942f4748b5a in run_eval_code_obj (tstate=0x5942f4b94910 <_PyRuntime+166328>, co=0x594316ce7be0, globals=0x1a65738, locals=0x1a65738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1a65738, locals=0x1a65738, flags=0x7ffffa55d800, arena=0x594316ce9c30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59621cce1ddb.STACK.dc2011a9c.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.601affadeddb.STACK.dc2011a9c.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.612b3f39bddb.STACK.dc2011a9c.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 73. cpython-311-27eb285f1285
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_IsTrue|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `193cadf425`
+- PC: `0x566d8ad79838`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-27eb285f1285.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.566d8ad79838.STACK.193cadf425.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_IsTrue`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  PyObject_IsTrue (v=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1505`
+  - `#1  0x000063883fd88b86 in _PyEval_EvalFrameDefault (tstate=0x6388402b6910 <_PyRuntime+166328>, frame=0x638875787d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4088`
+  - `#2  0x000063883fd86f4c in _PyEval_EvalFrame (tstate=0x6388402b6910 <_PyRuntime+166328>, frame=0x638875787c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x6388402b6910 <_PyRuntime+166328>, func=0x6388757a83f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000063883fe6ab5a in run_eval_code_obj (tstate=0x6388402b6910 <_PyRuntime+166328>, co=0x6388758661c0, globals=0x2187738, locals=0x2187738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x2187738, locals=0x2187738, flags=0x7fff26a80e40, arena=0x638875806d90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x2187738, locals=0x2187738, closeit=1, flags=0x7fff26a80e40) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x000063883fe69bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x638875856f50, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x000063883fec02d4 in pymain_run_file_obj (program_name=0x63887585b3f0, filename=0x638875856f50, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x63884029c958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x000063883fec0c29 in pymain_main (args=0x7fff26a810b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5653eb65d838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.569b296a5838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56dff591b838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b317d486838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dbf3528f838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 74. cpython-311-27eb285f1285
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_IsTrue|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `c75237363`
+- PC: `0x5671b7354838`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-27eb285f1285.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5671b7354838.STACK.c75237363.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_IsTrue`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  PyObject_IsTrue (v=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1505`
+  - `#1  0x000063883fd88b86 in _PyEval_EvalFrameDefault (tstate=0x6388402b6910 <_PyRuntime+166328>, frame=0x638875787d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4088`
+  - `#2  0x000063883fd86f4c in _PyEval_EvalFrame (tstate=0x6388402b6910 <_PyRuntime+166328>, frame=0x638875787c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x6388402b6910 <_PyRuntime+166328>, func=0x6388757a83f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000063883fe6ab5a in run_eval_code_obj (tstate=0x6388402b6910 <_PyRuntime+166328>, co=0x6388758661c0, globals=0x2187738, locals=0x2187738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x2187738, locals=0x2187738, flags=0x7fff26a80e40, arena=0x638875806d90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x2187738, locals=0x2187738, closeit=1, flags=0x7fff26a80e40) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x000063883fe69bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x638875856f50, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x000063883fec02d4 in pymain_run_file_obj (program_name=0x63887585b3f0, filename=0x638875856f50, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x63884029c958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x000063883fec0c29 in pymain_main (args=0x7fff26a810b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5653eb65d838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.569b296a5838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56dff591b838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b317d486838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dbf3528f838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 75. cpython-311-2bde86f7f959
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:list_extend|_PyList_Extend|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `cb639c0cf`
+- PC: `0x5d41a3608164`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%rax`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-2bde86f7f959.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5d41a3608164.STACK.cb639c0cf.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rax.pyc`
+- Normalized function stack:
+  - `list_extend`
+  - `_PyList_Extend`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  list_extend (self=<optimized out>, iterable=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/listobject.c:891`
+  - `#1  0x0000651318751125 in _PyList_Extend (self=0x65134bc46120, iterable=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/listobject.c:1004`
+  - `#2  0x000065131896149b in _PyEval_EvalFrameDefault (tstate=0x651318e8d910 <_PyRuntime+166328>, frame=0x65134bc48d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3272`
+  - `#3  0x000065131895df4c in _PyEval_EvalFrame (tstate=0x651318e8d910 <_PyRuntime+166328>, frame=0x65134bc48c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x651318e8d910 <_PyRuntime+166328>, func=0x65134bc693f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x0000651318a41b5a in run_eval_code_obj (tstate=0x651318e8d910 <_PyRuntime+166328>, co=0x65134bd271a0, globals=0x1d6148e, locals=0x1d6148e) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#7  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1d6148e, locals=0x1d6148e, flags=0x7ffd69631a10, arena=0x65134bcd4910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#8  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1d6148e, locals=0x1d6148e, closeit=1, flags=0x7ffd69631a10) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#9  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#10 0x0000651318a40bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x65134bd181f0, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#11 0x0000651318a972d4 in pymain_run_file_obj (program_name=0x65134bd1c280, filename=0x65134bd181f0, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#12 pymain_run_file (config=0x651318e73958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#13 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#14 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#15 0x0000651318a97c29 in pymain_main (args=0x7ffd69631c80) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5d41a3608164.STACK.cb639c0cf.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ebc17fc8262.STACK.cb639c0cf.CODE.1.ADDR.10.INSTR.mov____0x10(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.615bef3b84cc.STACK.cb639c0cf.CODE.1.ADDR.2c.INSTR.addq___$0x1,(%r15).pyc`
+
+### 76. cpython-311-3dea9da3226b
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_GetIter|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `1939452581`
+- PC: `0x56cff6b22ddb`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-3dea9da3226b.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56cff6b22ddb.STACK.1939452581.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_GetIter`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  PyObject_GetIter (o=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:2793`
+  - `#1  0x000055d464c5cd31 in _PyEval_EvalFrameDefault (tstate=0x55d465188910 <_PyRuntime+166328>, frame=0xffffffffffffef80, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4293`
+  - `#2  0x000055d464c58f4c in _PyEval_EvalFrame (tstate=0x55d465188910 <_PyRuntime+166328>, frame=0x55d4a70c7c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x55d465188910 <_PyRuntime+166328>, func=0x55d4a70e83f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000055d464d3cb5a in run_eval_code_obj (tstate=0x55d465188910 <_PyRuntime+166328>, co=0x55d4a71a6100, globals=0x2059738, locals=0x2059738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x2059738, locals=0x2059738, flags=0x7ffe2480cda0, arena=0x55d4a7153910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x2059738, locals=0x2059738, closeit=1, flags=0x7ffe2480cda0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x000055d464d3bbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x55d4a7197110, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x000055d464d922d4 in pymain_run_file_obj (program_name=0x55d4a719a090, filename=0x55d4a7197110, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x55d46516e958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x000055d464d92c29 in pymain_main (args=0x7ffe2480d010) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56cff6b22ddb.STACK.1939452581.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ae2a9944ddb.STACK.1939452581.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5df486e90ddb.STACK.1939452581.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 77. cpython-311-3fd06f3e7374
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyLong_AsLongAndOverflow|_PyLong_AsInt|import_name|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode`
+- Honggfuzz stack hash: `1af420268e`
+- PC: `0x580210f16b3a`
+- Fault address: `0x26b020c`
+- Instruction: `mov____0xa8(%rax),%rbx`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-3fd06f3e7374.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.580210f16b3a.STACK.1af420268e.CODE.1.ADDR.26b020c.INSTR.mov____0xa8(%rax),%rbx.pyc`
+- Normalized function stack:
+  - `PyLong_AsLongAndOverflow`
+  - `_PyLong_AsInt`
+  - `import_name`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+- Reproduced stack frames:
+  - `#0  PyLong_AsLongAndOverflow (vv=0x5cf6d35b2cfa, overflow=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/longobject.c:470`
+  - `#1  _PyLong_AsInt (obj=0x5cf6d35b2cfa) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/longobject.c:553`
+  - `#2  0x00005cf6c41b0892 in import_name (tstate=0x5cf6c46d7910 <_PyRuntime+166328>, frame=0x5cf6d3433dd0, name=0x5cf6d3501c30, fromlist=0x1ffffffff, level=0x5cf6d35b2cfa) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7418`
+  - `#3  _PyEval_EvalFrameDefault (tstate=0x5cf6c46d7910 <_PyRuntime+166328>, frame=0x5cf6d3433dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3950`
+  - `#4  0x00005cf6c41a7f4c in _PyEval_EvalFrame (tstate=0x5cf6c46d7910 <_PyRuntime+166328>, frame=0x5cf6d3433dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#5  _PyEval_Vector (tstate=0x5cf6c46d7910 <_PyRuntime+166328>, func=0x5cf6d3509d50, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#6  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005cf6c41a0452 in builtin_exec_impl (source=0x5cf6d35b2c40, globals=0x5cf6c462e580 <globalCovFeedback>, locals=0x5cf6d353aa60, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#8  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00005cf6c4007fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x00005cf6c3f438eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5cf6d342f450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#11 0x00005cf6c3f43813 in PyObject_Vectorcall (callable=0x5cf6d342f450, args=0x5cf6d3433da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#12 0x00005cf6c41b0dae in _PyEval_EvalFrameDefault (tstate=0x5cf6c46d7910 <_PyRuntime+166328>, frame=0x5cf6d3433d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#13 0x00005cf6c41a7f4c in _PyEval_EvalFrame (tstate=0x5cf6c46d7910 <_PyRuntime+166328>, frame=0x5cf6d3433d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#14 _PyEval_Vector (tstate=0x5cf6c46d7910 <_PyRuntime+166328>, func=0x5cf6d34544d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#15 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.580210f16b3a.STACK.1af420268e.CODE.1.ADDR.26b020c.INSTR.mov____0xa8(%rax),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.60d94a18eb3a.STACK.1af420268e.CODE.1.ADDR.26b0164020d.INSTR.mov____0xa8(%rax),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.64478c6e1b3a.STACK.1af420268e.CODE.1.ADDR.26b0164020d.INSTR.mov____0xa8(%rax),%rbx.pyc`
+
+### 78. cpython-311-6f743f2fed14
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:??|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `c086bf138`
+- PC: `0x60a53b25c777`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%r14`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-6f743f2fed14.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.60a53b25c777.STACK.c086bf138.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r14.pyc`
+- Normalized function stack:
+  - `??`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  0x000000003b9ac9ff in ?? ()`
+  - `#1  0x00005aab389842cf in _PyEval_EvalFrameDefault (tstate=0x5aab38eae910 <_PyRuntime+166328>, frame=0x5aab595dfdd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5549`
+  - `#2  0x00005aab3897ef4c in _PyEval_EvalFrame (tstate=0x5aab38eae910 <_PyRuntime+166328>, frame=0x5aab595dfdd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5aab38eae910 <_PyRuntime+166328>, func=0x5aab59750ff0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005aab38977452 in builtin_exec_impl (source=0x5aab5975e5b0, globals=0x1ffffffff, locals=0x5aab5975c470, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005aab387defdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005aab3871a8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5aab595db450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x00005aab3871a813 in PyObject_Vectorcall (callable=0x5aab595db450, args=0x5aab595dfda8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x00005aab38987dae in _PyEval_EvalFrameDefault (tstate=0x5aab38eae910 <_PyRuntime+166328>, frame=0x5aab595dfd50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x00005aab3897ef4c in _PyEval_EvalFrame (tstate=0x5aab38eae910 <_PyRuntime+166328>, frame=0x5aab595dfd50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x5aab38eae910 <_PyRuntime+166328>, func=0x5aab596004d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00005aab38a62b5a in run_eval_code_obj (tstate=0x5aab38eae910 <_PyRuntime+166328>, co=0x5aab59669be0, globals=0x5aab39833680 <bbMapFb>, locals=0x5aab39833680 <bbMapFb>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x5aab39833680 <bbMapFb>, locals=0x5aab39833680 <bbMapFb>, flags=0x7ffe93716f80, arena=0x5aab5966bc30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.60a53b25c777.STACK.c086bf138.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6258ae210777.STACK.c086bf138.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.62a862a77777.STACK.c086bf138.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r14.pyc`
+
+### 79. cpython-311-71aed297eaef
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:visit_decref|func_traverse|subtract_refs|deduce_unreachable|gc_collect_main|gc_collect_with_callback|gc_collect_generations|_PyObject_GC_Link|gc_alloc|_PyObject_GC_New|new_dict|PyDict_Copy|type_new_set_names|type_new_impl|type_new|type_call`
+- Honggfuzz stack hash: `1bcfb68838`
+- PC: `0x5e66f213b31b`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-71aed297eaef.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e66f213b31b.STACK.1bcfb68838.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `visit_decref`
+  - `func_traverse`
+  - `subtract_refs`
+  - `deduce_unreachable`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `gc_collect_generations`
+  - `_PyObject_GC_Link`
+  - `gc_alloc`
+  - `_PyObject_GC_New`
+  - `new_dict`
+  - `PyDict_Copy`
+  - `type_new_set_names`
+  - `type_new_impl`
+  - `type_new`
+  - `type_call`
+- Reproduced stack frames:
+  - `#0  visit_decref (op=0x1ffffffff, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:452`
+  - `#1  0x00005acc94b306de in func_traverse (f=0x5acca7346d00, visit=<optimized out>, arg=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:735`
+  - `#2  0x00005acc94e80086 in subtract_refs (containers=0x5acc9525a830 <_PyRuntime+59608>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:478`
+  - `#3  deduce_unreachable (base=0x5acc9525a830 <_PyRuntime+59608>, unreachable=0x7fff907f83b8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1100`
+  - `#4  gc_collect_main (tstate=0x5acc95274910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1226`
+  - `#5  0x00005acc94e7f8a6 in gc_collect_with_callback (tstate=0x5acc95274910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#6  0x00005acc94e821b6 in gc_collect_generations (tstate=0x5acc95235f6c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1455`
+  - `#7  _PyObject_GC_Link (op=0x5acca7455f80) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2270`
+  - `#8  gc_alloc (basicsize=<optimized out>, presize=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2290`
+  - `#9  _PyObject_GC_New (tp=0x5acc950d0420 <PyDict_Type>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2298`
+  - `#10 0x00005acc94b6c96f in new_dict (keys=<optimized out>, values=<optimized out>, used=<optimized out>, free_values_on_failure=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:737`
+  - `#11 0x00005acc94b7ac94 in PyDict_Copy (o=0x5acca7455880) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:3081`
+  - `#12 0x00005acc94be08b7 in type_new_set_names (type=0x5acca7455aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:8574`
+  - `#13 type_new_impl (ctx=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:3205`
+  - `#14 type_new (metatype=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x00005acc94bdc631 in type_call (type=0x5acc950d7aa0 <PyType_Type>, args=<optimized out>, kwds=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1100`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e66f213b31b.STACK.1bcfb68838.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5f0a13af031b.STACK.1bcfb68838.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6127f55bb31b.STACK.1bcfb68838.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 80. cpython-311-720d71dace6f
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyDict_SetItem_Take2|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `19cb95f136`
+- PC: `0x5617b7f21161`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r12),%rax`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-720d71dace6f.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5617b7f21161.STACK.19cb95f136.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r12),%rax.pyc`
+- Normalized function stack:
+  - `_PyDict_SetItem_Take2`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  _PyDict_SetItem_Take2 (mp=<optimized out>, key=0x1ffffffff, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1874`
+  - `#1  0x0000591fe4c5f560 in _PyEval_EvalFrameDefault (tstate=0x591fe518c910 <_PyRuntime+166328>, frame=0x5920250c2dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3455`
+  - `#2  0x0000591fe4c5cf4c in _PyEval_EvalFrame (tstate=0x591fe518c910 <_PyRuntime+166328>, frame=0x5920250c2dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x591fe518c910 <_PyRuntime+166328>, func=0x592025198cd0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x0000591fe4c55452 in builtin_exec_impl (source=0x5920251dd520, globals=0x1ffffffff, locals=0x592025248580, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x0000591fe4abcfdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x0000591fe49f88eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5920250be450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x0000591fe49f8813 in PyObject_Vectorcall (callable=0x5920250be450, args=0x5920250c2da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x0000591fe4c65dae in _PyEval_EvalFrameDefault (tstate=0x591fe518c910 <_PyRuntime+166328>, frame=0x5920250c2d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x0000591fe4c5cf4c in _PyEval_EvalFrame (tstate=0x591fe518c910 <_PyRuntime+166328>, frame=0x5920250c2d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x591fe518c910 <_PyRuntime+166328>, func=0x5920250e34f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x0000591fe4d40b5a in run_eval_code_obj (tstate=0x591fe518c910 <_PyRuntime+166328>, co=0x59202514cc40, globals=0x591fe4fd4ea0 <_Py_FalseStruct>, locals=0x591fe4fd4ea0 <_Py_FalseStruct>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x591fe4fd4ea0 <_Py_FalseStruct>, locals=0x591fe4fd4ea0 <_Py_FalseStruct>, flags=0x7fff01cf4ad0, arena=0x59202511e5e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5617b7f21161.STACK.19cb95f136.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r12),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b8afe3ac161.STACK.19cb95f136.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r12),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ceea55c3161.STACK.19cb95f136.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r12),%rax.pyc`
+
+### 81. cpython-311-9253c1750948
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error_exit|fatal_error|_Py_FatalErrorFormat|_Py_FatalRefcountErrorFunc|bool_dealloc|_Py_Dealloc|Py_DECREF|Py_XDECREF|tupledealloc|_Py_Dealloc|Py_DECREF|func_clear|func_dealloc|_Py_Dealloc|Py_DECREF`
+- Honggfuzz stack hash: `dfa2f364c`
+- PC: `0x70f5cf9f89fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-9253c1750948.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.70f5cf9f89fc.STACK.dfa2f364c.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error_exit`
+  - `fatal_error`
+  - `_Py_FatalErrorFormat`
+  - `_Py_FatalRefcountErrorFunc`
+  - `bool_dealloc`
+  - `_Py_Dealloc`
+  - `Py_DECREF`
+  - `Py_XDECREF`
+  - `tupledealloc`
+  - `func_clear`
+  - `func_dealloc`
+  - `free_keys_object`
+  - `dictkeys_decref`
+- Reproduced stack frames:
+  - `#0  0x00007063674ef9fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x000070636749b476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007063674817f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00005a3b52191413 in fatal_error_exit (status=-1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2624`
+  - `#4  0x00005a3b521910f5 in fatal_error (fd=<optimized out>, header=<optimized out>, prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2805`
+  - `#5  0x00005a3b521913c3 in _Py_FatalErrorFormat (func=<optimized out>, format=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2855`
+  - `#6  0x00005a3b5218b3d5 in _Py_FatalRefcountErrorFunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005a3b51e080f7 in bool_dealloc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005a3b51f28d8c in _Py_Dealloc (op=0x5a3b5242fea0 <_Py_FalseStruct>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:2389`
+  - `#9  0x00005a3b51f44994 in Py_DECREF (op=0x5a3b5242fea0 <_Py_FalseStruct>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:538`
+  - `#10 Py_XDECREF (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 tupledealloc (op=0x5a3b9781e080) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:208`
+  - `#12 0x00005a3b51f28d8c in _Py_Dealloc (op=0x5a3b9781e080) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:2389`
+  - `#13 0x00005a3b51ea2fec in Py_DECREF (op=0x5a3b9781e080) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:538`
+  - `#14 func_clear (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 func_dealloc (op=0x5a3b97848a50) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:708`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.70f5cf9f89fc.STACK.dfa2f364c.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.77b4946649fc.STACK.dfa2f364c.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7e4e1239d9fc.STACK.dfa2f364c.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 82. cpython-311-a0eb21a4490f
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_GetAttr|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `184ca2ea5e`
+- PC: `0x60af59670d45`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%r13`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-a0eb21a4490f.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.60af59670d45.STACK.184ca2ea5e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r13.pyc`
+- Normalized function stack:
+  - `PyObject_GetAttr`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PyObject_GetAttr (v=0x1ffffffff, name=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:906`
+  - `#1  0x00005f647400f3d3 in _PyEval_EvalFrameDefault (tstate=0x5f6474539910 <_PyRuntime+166328>, frame=0x5f64a789edd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3466`
+  - `#2  0x00005f6474009f4c in _PyEval_EvalFrame (tstate=0x5f6474539910 <_PyRuntime+166328>, frame=0x5f64a789edd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5f6474539910 <_PyRuntime+166328>, func=0x5f64a7974bb0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005f6474002452 in builtin_exec_impl (source=0x5f64a79b9f50, globals=0x5f64a79833c0, locals=0x5f64a7a1ae70, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005f6473e69fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005f6473da58eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5f64a789a450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x00005f6473da5813 in PyObject_Vectorcall (callable=0x5f64a789a450, args=0x5f64a789eda8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x00005f6474012dae in _PyEval_EvalFrameDefault (tstate=0x5f6474539910 <_PyRuntime+166328>, frame=0x5f64a789ed50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x00005f6474009f4c in _PyEval_EvalFrame (tstate=0x5f6474539910 <_PyRuntime+166328>, frame=0x5f64a789ed50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x5f6474539910 <_PyRuntime+166328>, func=0x5f64a78bf4f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00005f64740edb5a in run_eval_code_obj (tstate=0x5f6474539910 <_PyRuntime+166328>, co=0x5f64a7928c90, globals=0x140f3b3, locals=0x140f3b3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x140f3b3, locals=0x140f3b3, flags=0x7ffc8c226e00, arena=0x5f64a791de80) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.60af59670d45.STACK.184ca2ea5e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6181afbc1d45.STACK.184ca2ea5e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.63cf462b4d45.STACK.184ca2ea5e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r13.pyc`
+
+### 83. cpython-311-a8f5bd82a6d2
+
+- Status: crash
+- Signal: SIGSEGV
+- Stack source: honggfuzz-filename
+- Stack signature: `SIGSEGV:ed3a400e1`
+- Honggfuzz stack hash: `ed3a400e1`
+- PC: `0x5ae30471f31f`
+- Fault address: `0x0`
+- Instruction: `mov____0xa8(%r15),%r12`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-a8f5bd82a6d2.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ae30471f31f.STACK.ed3a400e1.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+- Reproduced stack frames: `not available; rerun did not produce a native backtrace`
+- Manual gdb command: `PYTHONHOME=data/rq3/cpython-3.11/source/cpython-* PYTHONPATH=data/rq3/cpython-3.11/source/cpython-*/Lib gdb -q --args data/rq3/cpython-3.11/instrumented/python data/rq3/harness.py data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ae30471f31f.STACK.ed3a400e1.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+- Rerun diagnostic excerpt:
+  - `info "(gdb)Auto-loading safe path"`
+  - `warning: Error disabling address space randomization: Operation not permitted`
+  - `[Thread debugging using libthread_db enabled]`
+  - `Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".`
+  - `Traceback (most recent call last):`
+  - `File "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", line 29, in <module>`
+  - `result = target()`
+  - `^^^^^^^^`
+  - `File "data/rq3/cpython-3.11/unittest_seeds/aw/cpython_case_test_exceptions_ExceptionTests_test_yield_in_nested_try_excepts.py", line 16, in __pybcsec_seed__`
+  - `UnboundLocalError: cannot access local variable 'coro' where it is not associated with a value`
+  - `[Inferior 1 (process 236701) exited with code 01]`
+  - `No stack.`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ae30471f31f.STACK.ed3a400e1.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6018148b531f.STACK.ed3a400e1.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.60dff28d131f.STACK.ed3a400e1.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+
+### 84. cpython-311-a95758ba00a8
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_GetMethod|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `1a4a90e14c`
+- PC: `0x5a94075cf59a`
+- Fault address: `0x1`
+- Instruction: `addq___$0x1,(%rbx)`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-a95758ba00a8.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a94075cf59a.STACK.1a4a90e14c.CODE.1.ADDR.1.INSTR.addq___$0x1,(%rbx).pyc`
+- Normalized function stack:
+  - `_PyObject_GetMethod`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  _PyObject_GetMethod (obj=0x633b393e2e90, name=<optimized out>, method=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1156`
+  - `#1  0x0000633b27cebcbc in _PyEval_EvalFrameDefault (tstate=0x633b28215910 <_PyRuntime+166328>, frame=0x633b39269d70, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4491`
+  - `#2  0x0000633b27ce5f4c in _PyEval_EvalFrame (tstate=0x633b28215910 <_PyRuntime+166328>, frame=0x633b39269cf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x633b28215910 <_PyRuntime+166328>, func=0x633b39289f10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x0000633b27dc9b5a in run_eval_code_obj (tstate=0x633b28215910 <_PyRuntime+166328>, co=0x633b39348020, globals=0x7ffc8521fc08, locals=0x7ffc8521fc08) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x7ffc8521fc08, locals=0x7ffc8521fc08, flags=0x7ffc8521ff60, arena=0x633b392f56a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x7ffc8521fc08, locals=0x7ffc8521fc08, closeit=1, flags=0x7ffc8521ff60) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x0000633b27dc8bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x633b39339880, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x0000633b27e1f2d4 in pymain_run_file_obj (program_name=0x633b3933d8f0, filename=0x633b39339880, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x633b281fb958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x0000633b27e1fc29 in pymain_main (args=0x7ffc852201d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5600dff6d77b.STACK.18f32fce25.CODE.128.ADDR.0.INSTR.cmpq___$0x0,0x108(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5749eca1a7eb.STACK.18f32fce25.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57da7d5ed80f.STACK.18f32fce25.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.593182d307eb.STACK.18f32fce25.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5994ddbd57eb.STACK.18f32fce25.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+
+### 85. cpython-311-a9ae065d4b70
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:initialize_locals|_PyEvalFramePushAndInit|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file`
+- Honggfuzz stack hash: `d86f4c330`
+- PC: `0x5964f2660e1c`
+- Fault address: `0x7372ba893000`
+- Instruction: `cmpq___$0x1,0x48(%r12,%r14,8)`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-a9ae065d4b70.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGBUS.PC.5964f2660e1c.STACK.d86f4c330.CODE.2.ADDR.7372ba893000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+- Normalized function stack:
+  - `initialize_locals`
+  - `_PyEvalFramePushAndInit`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  0x00005f62096f4e1c in initialize_locals (tstate=0x5f6209c08910 <_PyRuntime+166328>, func=0x5f622de40d30, localsplus=0x7d9195f33070, args=0x0, argcount=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6281`
+  - `#1  _PyEvalFramePushAndInit (tstate=0x5f6209c08910 <_PyRuntime+166328>, func=0x5f622de40d30, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6369`
+  - `#2  0x00005f62096d8ec0 in _PyEval_Vector (tstate=<optimized out>, func=0x5f622de40d30, locals=0x5f622deed1a0, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6423`
+  - `#3  PyEval_EvalCode (co=<optimized out>, globals=0x5f622deed1a0, locals=0x5f622deed1a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:1154`
+  - `#4  0x00005f62096d1452 in builtin_exec_impl (source=0x5f622de85990, globals=0x5f6209b5f580 <globalCovFeedback>, locals=0x5f622deed1a0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#5  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005f6209538fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005f62094748eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5f622dd66510, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#8  0x00005f6209474813 in PyObject_Vectorcall (callable=0x5f622dd66510, args=0x5f622dd6ae68, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#9  0x00005f62096e1dae in _PyEval_EvalFrameDefault (tstate=0x5f6209c08910 <_PyRuntime+166328>, frame=0x5f622dd6ae10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#10 0x00005f62096d8f4c in _PyEval_EvalFrame (tstate=0x5f6209c08910 <_PyRuntime+166328>, frame=0x5f622dd6ae10, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#11 _PyEval_Vector (tstate=0x5f6209c08910 <_PyRuntime+166328>, func=0x5f622dd8b580, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#12 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x00005f62097bcb5a in run_eval_code_obj (tstate=0x5f6209c08910 <_PyRuntime+166328>, co=0x5f622de49750, globals=0x1af4e1c, locals=0x1af4e1c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#14 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1af4e1c, locals=0x1af4e1c, flags=0x7ffcc46506c0, arena=0x5f622dde9f20) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#15 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1af4e1c, locals=0x1af4e1c, closeit=1, flags=0x7ffcc46506c0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGBUS.PC.5964f2660e1c.STACK.d86f4c330.CODE.2.ADDR.7372ba893000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGBUS.PC.5e15731d8e1c.STACK.d86f4c330.CODE.2.ADDR.74b667322000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGBUS.PC.647165ec4e1c.STACK.d86f4c330.CODE.2.ADDR.7ca563ff9000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5594c57e2e1c.STACK.d86f4c330.CODE.1.ADDR.5594f3db3000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58b9de2d4e1c.STACK.d86f4c330.CODE.1.ADDR.58ba0e9d4000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+
+### 86. cpython-311-b98162f742d9
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyCoro_GetAwaitableIter|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `19fff11ca6`
+- PC: `0x56fc9c195e4e`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r14),%r13`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-b98162f742d9.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56fc9c195e4e.STACK.19fff11ca6.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r13.pyc`
+- Normalized function stack:
+  - `_PyCoro_GetAwaitableIter`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  _PyCoro_GetAwaitableIter (o=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:1047`
+  - `#1  0x00005bca271c84a6 in _PyEval_EvalFrameDefault (tstate=0x5bca276f5910 <_PyRuntime+166328>, frame=0xffffffffffffef80, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2552`
+  - `#2  0x00005bca271c5f4c in _PyEval_EvalFrame (tstate=0x5bca276f5910 <_PyRuntime+166328>, frame=0x5bca413c3dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5bca276f5910 <_PyRuntime+166328>, func=0x5bca41499cd0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005bca271be452 in builtin_exec_impl (source=0x5bca415423e0, globals=0x5bca2807a680 <bbMapFb>, locals=0x5bca41529ad0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005bca27025fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005bca26f618eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5bca413bf450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x00005bca26f61813 in PyObject_Vectorcall (callable=0x5bca413bf450, args=0x5bca413c3da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x00005bca271cedae in _PyEval_EvalFrameDefault (tstate=0x5bca276f5910 <_PyRuntime+166328>, frame=0x5bca413c3d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x00005bca271c5f4c in _PyEval_EvalFrame (tstate=0x5bca276f5910 <_PyRuntime+166328>, frame=0x5bca413c3d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x5bca276f5910 <_PyRuntime+166328>, func=0x5bca413e44f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00005bca272a9b5a in run_eval_code_obj (tstate=0x5bca276f5910 <_PyRuntime+166328>, co=0x5bca4144dc40, globals=0x74b3, locals=0x74b3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x74b3, locals=0x74b3, flags=0x7ffd7659eaa0, arena=0x5bca4141f5e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56fc9c195e4e.STACK.19fff11ca6.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.583e1223be4e.STACK.19fff11ca6.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b1939e22e4e.STACK.19fff11ca6.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r13.pyc`
+
+### 87. cpython-311-d84049333b64
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_IsTrue|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `188e674c7e`
+- PC: `0x590ad5c2d838`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-d84049333b64.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.590ad5c2d838.STACK.188e674c7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_IsTrue`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PyObject_IsTrue (v=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1505`
+  - `#1  0x00005e0d2b548057 in _PyEval_EvalFrameDefault (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, frame=0x5e0d5897add0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4159`
+  - `#2  0x00005e0d2b545f4c in _PyEval_EvalFrame (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, frame=0x5e0d5897add0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, func=0x5e0d58afdb70, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005e0d2b53e452 in builtin_exec_impl (source=0x5e0d58af8fb0, globals=0x5e0d2b9cc580 <globalCovFeedback>, locals=0x5e0d58a819d0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005e0d2b3a5fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005e0d2b2e18eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5e0d58976450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x00005e0d2b2e1813 in PyObject_Vectorcall (callable=0x5e0d58976450, args=0x5e0d5897ada8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x00005e0d2b54edae in _PyEval_EvalFrameDefault (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, frame=0x5e0d5897ad50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x00005e0d2b545f4c in _PyEval_EvalFrame (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, frame=0x5e0d5897ad50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, func=0x5e0d5899b4f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00005e0d2b629b5a in run_eval_code_obj (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, co=0x5e0d58a04c90, globals=0x1946738, locals=0x1946738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1946738, locals=0x1946738, flags=0x7ffd7e7113e0, arena=0x5e0d589f9e80) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.590ad5c2d838.STACK.188e674c7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5eca87508838.STACK.188e674c7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.609c6f5fc838.STACK.188e674c7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59381a16b7c7.STACK.18cf2b5115.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56be59898838.STACK.c44392baf.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 88. cpython-311-d906218175c2
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyDict_SetItem_Take2|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `d30d1ce2b`
+- PC: `0x571bd77d1161`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r12),%rax`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-d906218175c2.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.571bd77d1161.STACK.d30d1ce2b.CODE.1.ADDR.8.INSTR.mov____0x8(%r12),%rax.pyc`
+- Normalized function stack:
+  - `_PyDict_SetItem_Take2`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  _PyDict_SetItem_Take2 (mp=<optimized out>, key=0x0, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1874`
+  - `#1  0x00005eccf0fe5560 in _PyEval_EvalFrameDefault (tstate=0x5eccf1512910 <_PyRuntime+166328>, frame=0x5ecd25d34d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3455`
+  - `#2  0x00005eccf0fe2f4c in _PyEval_EvalFrame (tstate=0x5eccf1512910 <_PyRuntime+166328>, frame=0x5ecd25d34c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5eccf1512910 <_PyRuntime+166328>, func=0x5ecd25d553f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005eccf10c6b5a in run_eval_code_obj (tstate=0x5eccf1512910 <_PyRuntime+166328>, co=0x5ecd25e135e0, globals=0x0, locals=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x0, locals=0x0, flags=0x7fff23e78a60, arena=0x5ecd25dc0910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x0, locals=0x0, closeit=1, flags=0x7fff23e78a60) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x00005eccf10c5bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5ecd25e04120, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x00005eccf111c2d4 in pymain_run_file_obj (program_name=0x5ecd25e082a0, filename=0x5ecd25e04120, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x5eccf14f8958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x00005eccf111cc29 in pymain_main (args=0x7fff23e78cd0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.571bd77d1161.STACK.d30d1ce2b.CODE.1.ADDR.8.INSTR.mov____0x8(%r12),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5fa34ee45161.STACK.d30d1ce2b.CODE.1.ADDR.8.INSTR.mov____0x8(%r12),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.63adb3500161.STACK.d30d1ce2b.CODE.1.ADDR.8.INSTR.mov____0x8(%r12),%rax.pyc`
+
+### 89. cpython-311-e16438cf4348
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:visit_decref|func_traverse|subtract_refs|deduce_unreachable|gc_collect_main|gc_collect_with_callback|gc_collect_generations|_PyObject_GC_Link|_PyType_AllocNoTrack|PyType_GenericAlloc|super_vectorcall|_PyObject_VectorcallTstate|_PyObject_FastCallTstate|_PyObject_FastCall|type_new_init_subclass|type_new_impl`
+- Honggfuzz stack hash: `190be21d72`
+- PC: `0x5ad81da6531b`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-e16438cf4348.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ad81da6531b.STACK.190be21d72.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `visit_decref`
+  - `func_traverse`
+  - `subtract_refs`
+  - `deduce_unreachable`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `gc_collect_generations`
+  - `_PyObject_GC_Link`
+  - `_PyType_AllocNoTrack`
+  - `PyType_GenericAlloc`
+  - `super_vectorcall`
+  - `_PyObject_VectorcallTstate`
+  - `_PyObject_FastCallTstate`
+  - `_PyObject_FastCall`
+  - `type_new_init_subclass`
+  - `type_new_impl`
+- Reproduced stack frames:
+  - `#0  visit_decref (op=0x1ffffffff, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:452`
+  - `#1  0x000059a9a864e737 in func_traverse (f=0x59a9e3103ca0, visit=<optimized out>, arg=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:736`
+  - `#2  0x000059a9a899e086 in subtract_refs (containers=0x59a9a8d78830 <_PyRuntime+59608>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:478`
+  - `#3  deduce_unreachable (base=0x59a9a8d78830 <_PyRuntime+59608>, unreachable=0x7fff106473e8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1100`
+  - `#4  gc_collect_main (tstate=0x59a9a8d92910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1226`
+  - `#5  0x000059a9a899d8a6 in gc_collect_with_callback (tstate=0x59a9a8d92910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#6  0x000059a9a899fe7b in gc_collect_generations (tstate=0x59a9a8d53f6c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1455`
+  - `#7  _PyObject_GC_Link (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000059a9a86f440d in _PyType_AllocNoTrack (type=0x59a9a8bf7930 <PySuper_Type>, nitems=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1141`
+  - `#9  PyType_GenericAlloc (type=0x59a9a8bf7930 <PySuper_Type>, nitems=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1157`
+  - `#10 0x000059a9a87020e4 in super_vectorcall (self=<optimized out>, args=<optimized out>, nargsf=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x000059a9a85fe8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x59a9a8bf7930 <PySuper_Type>, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#12 0x000059a9a85fee4f in _PyObject_FastCallTstate (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 _PyObject_FastCall (func=0x59a9a8bf7930 <PySuper_Type>, args=0x7fff10647680, nargs=2) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:308`
+  - `#14 0x000059a9a86ff1ce in type_new_init_subclass (type=0x59a9e3213180, kwds=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:8618`
+  - `#15 type_new_impl (ctx=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:3209`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ad81da6531b.STACK.190be21d72.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ffcc193031b.STACK.190be21d72.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61d8667c731b.STACK.190be21d72.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56d5793ad31b.STACK.199564096a.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5da8b392a31b.STACK.199564096a.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 90. cpython-311-e16438cf4348
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:visit_decref|func_traverse|subtract_refs|deduce_unreachable|gc_collect_main|gc_collect_with_callback|gc_collect_generations|_PyObject_GC_Link|_PyType_AllocNoTrack|PyType_GenericAlloc|super_vectorcall|_PyObject_VectorcallTstate|_PyObject_FastCallTstate|_PyObject_FastCall|type_new_init_subclass|type_new_impl`
+- Honggfuzz stack hash: `199564096a`
+- PC: `0x56d5793ad31b`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-e16438cf4348.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56d5793ad31b.STACK.199564096a.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `visit_decref`
+  - `func_traverse`
+  - `subtract_refs`
+  - `deduce_unreachable`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `gc_collect_generations`
+  - `_PyObject_GC_Link`
+  - `_PyType_AllocNoTrack`
+  - `PyType_GenericAlloc`
+  - `super_vectorcall`
+  - `_PyObject_VectorcallTstate`
+  - `_PyObject_FastCallTstate`
+  - `_PyObject_FastCall`
+  - `type_new_init_subclass`
+  - `type_new_impl`
+- Reproduced stack frames:
+  - `#0  visit_decref (op=0x1ffffffff, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:452`
+  - `#1  0x000059a9a864e737 in func_traverse (f=0x59a9e3103ca0, visit=<optimized out>, arg=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:736`
+  - `#2  0x000059a9a899e086 in subtract_refs (containers=0x59a9a8d78830 <_PyRuntime+59608>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:478`
+  - `#3  deduce_unreachable (base=0x59a9a8d78830 <_PyRuntime+59608>, unreachable=0x7fff106473e8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1100`
+  - `#4  gc_collect_main (tstate=0x59a9a8d92910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1226`
+  - `#5  0x000059a9a899d8a6 in gc_collect_with_callback (tstate=0x59a9a8d92910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#6  0x000059a9a899fe7b in gc_collect_generations (tstate=0x59a9a8d53f6c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1455`
+  - `#7  _PyObject_GC_Link (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000059a9a86f440d in _PyType_AllocNoTrack (type=0x59a9a8bf7930 <PySuper_Type>, nitems=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1141`
+  - `#9  PyType_GenericAlloc (type=0x59a9a8bf7930 <PySuper_Type>, nitems=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1157`
+  - `#10 0x000059a9a87020e4 in super_vectorcall (self=<optimized out>, args=<optimized out>, nargsf=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x000059a9a85fe8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x59a9a8bf7930 <PySuper_Type>, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#12 0x000059a9a85fee4f in _PyObject_FastCallTstate (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 _PyObject_FastCall (func=0x59a9a8bf7930 <PySuper_Type>, args=0x7fff10647680, nargs=2) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:308`
+  - `#14 0x000059a9a86ff1ce in type_new_init_subclass (type=0x59a9e3213180, kwds=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:8618`
+  - `#15 type_new_impl (ctx=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:3209`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ad81da6531b.STACK.190be21d72.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ffcc193031b.STACK.190be21d72.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61d8667c731b.STACK.190be21d72.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56d5793ad31b.STACK.199564096a.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5da8b392a31b.STACK.199564096a.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 91. cpython-311-2350c53c731c
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_XDECREF|tupledealloc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `19226e26db`
+- PC: `0x61e450646933`
+- Fault address: `0xffffffff`
+- Instruction: `mov____0x0(%r13),%r14`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-2350c53c731c.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61e450646933.STACK.19226e26db.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+- Normalized function stack:
+  - `Py_XDECREF`
+  - `tupledealloc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  Py_XDECREF (op=0xffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:602`
+  - `#1  tupledealloc (op=0x5589c82abe60) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:208`
+  - `#2  0x00005589ab0e5bdf in _PyEval_EvalFrameDefault (tstate=0x5589ab60c910 <_PyRuntime+166328>, frame=0x5589c812ddd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4142`
+  - `#3  0x00005589ab0dcf4c in _PyEval_EvalFrame (tstate=0x5589ab60c910 <_PyRuntime+166328>, frame=0x5589c812dd50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x5589ab60c910 <_PyRuntime+166328>, func=0x5589c814e4d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005589ab1c0b5a in run_eval_code_obj (tstate=0x5589ab60c910 <_PyRuntime+166328>, co=0x5589c81b7be0, globals=0x2369929, locals=0x2369929) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#7  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x2369929, locals=0x2369929, flags=0x7ffd9eebbb00, arena=0x5589c81b9c30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#8  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x2369929, locals=0x2369929, closeit=1, flags=0x7ffd9eebbb00) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#9  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#10 0x00005589ab1bfbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5589c8200e00, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#11 0x00005589ab2162d4 in pymain_run_file_obj (program_name=0x5589c8202120, filename=0x5589c8200e00, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#12 pymain_run_file (config=0x5589ab5f2958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#13 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#14 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#15 0x00005589ab216c29 in pymain_main (args=0x7ffd9eebbd70) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.581029f65933.STACK.18b245354f.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e0220816933.STACK.18bf8f4afd.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61e450646933.STACK.19226e26db.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.627fc2ac7933.STACK.19226e26db.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.632db7919933.STACK.d300f6c35.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+
+### 92. cpython-311-2de9f8a450f8
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_SetAttr|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `cb2b73220`
+- PC: `0x590038cd35a4`
+- Fault address: `0x9`
+- Instruction: `mov____0x8(%r15),%r13`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-2de9f8a450f8.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.590038cd35a4.STACK.cb2b73220.CODE.1.ADDR.9.INSTR.mov____0x8(%r15),%r13.pyc`
+- Normalized function stack:
+  - `PyObject_SetAttr`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  PyObject_SetAttr (v=0x0, name=0x7261207473696c20, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1015`
+  - `#1  0x00005ecffea9fb69 in _PyEval_EvalFrameDefault (tstate=0x5ecffefc9910 <_PyRuntime+166328>, frame=0x5ed00d6e7d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2889`
+  - `#2  0x00005ecffea99f4c in _PyEval_EvalFrame (tstate=0x5ecffefc9910 <_PyRuntime+166328>, frame=0x5ed00d6e7c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5ecffefc9910 <_PyRuntime+166328>, func=0x5ed00d7083b0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005ecffeb7db5a in run_eval_code_obj (tstate=0x5ecffefc9910 <_PyRuntime+166328>, co=0x5ed00d7c6060, globals=0x0, locals=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x0, locals=0x0, flags=0x7fff8b30c880, arena=0x5ed00d7738f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x0, locals=0x0, closeit=1, flags=0x7fff8b30c880) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x00005ecffeb7cbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5ed00d7ba520, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x00005ecffebd32d4 in pymain_run_file_obj (program_name=0x5ed00d7bb170, filename=0x5ed00d7ba520, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x5ecffefaf958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x00005ecffebd3c29 in pymain_main (args=0x7fff8b30caf0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56445fffd59c.STACK.18bf5c6743.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5747068b35a4.STACK.18bf5c6743.CODE.1.ADDR.58.INSTR.mov____0x8(%r15),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5874e60d659c.STACK.18bf5c6743.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58caa0b8859c.STACK.18bf5c6743.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5953157675a8.STACK.18bf5c6743.CODE.128.ADDR.0.INSTR.mov____0xa8(%r13),%r14.pyc`
+
+### 93. cpython-311-2dfb1fc06fe4
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|??|??|??|??|??|malloc|_PyMem_RawMalloc|PyMem_Malloc|_buffered_init|_io_BufferedReader___init___impl|_io_BufferedReader___init__|type_call|_PyObject_MakeTpCall|_PyObject_VectorcallTstate|_PyObject_CallFunctionVa`
+- Honggfuzz stack hash: `f5756f699`
+- PC: `0x76d1b2ffe9fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-2dfb1fc06fe4.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.76d1b2ffe9fc.STACK.f5756f699.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `??`
+  - `malloc`
+  - `_PyMem_RawMalloc`
+  - `PyMem_Malloc`
+  - `_buffered_init`
+  - `_io_BufferedReader___init___impl`
+  - `_io_BufferedReader___init__`
+  - `type_call`
+  - `_PyObject_MakeTpCall`
+  - `_PyObject_VectorcallTstate`
+  - `_PyObject_CallFunctionVa`
+  - `_PyObject_CallFunction_SizeT`
+  - `_io_open_impl`
+- Reproduced stack frames:
+  - `#0  0x00007344f326b9fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007344f3217476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007344f31fd7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00007344f325e677 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#4  0x00007344f3275cfc in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#5  0x00007344f32767e2 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#6  0x00007344f3276969 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#7  0x00007344f3278bdb in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#8  0x00007344f327a262 in malloc () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#9  0x00005a20adf23821 in _PyMem_RawMalloc (ctx=<optimized out>, size=230300) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:101`
+  - `#10 0x00005a20adf25514 in PyMem_Malloc (size=4096) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:623`
+  - `#11 0x00005a20ae2542aa in _buffered_init (self=0x5a20dbf72790) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/_io/bufferedio.c:718`
+  - `#12 _io_BufferedReader___init___impl (self=0x5a20dbf72790, raw=0x5a20dbf77fc0, buffer_size=4096) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/_io/bufferedio.c:1431`
+  - `#13 _io_BufferedReader___init__ (self=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00005a20adf4984f in type_call (type=<optimized out>, args=<optimized out>, kwds=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1112`
+  - `#15 0x00005a20ade4f50e in _PyObject_MakeTpCall (tstate=0x5a20ae5e1910 <_PyRuntime+166328>, callable=0x3839c, args=0x7ffe50f7f7e0, nargs=<optimized out>, keywords=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:214`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.76d1b2ffe9fc.STACK.f5756f699.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7862e4d679fc.STACK.f5756f699.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.592e8fc7d31f.STACK.1b95d1a31e.CODE.1.ADDR.ae.INSTR.mov____0xa8(%r15),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5efd8283631b.STACK.1b95d1a31e.CODE.1.ADDR.100000007.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 94. cpython-311-2dfb1fc06fe4
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|??|??|??|??|??|malloc|_PyMem_RawMalloc|PyMem_Malloc|_buffered_init|_io_BufferedReader___init___impl|_io_BufferedReader___init__|type_call|_PyObject_MakeTpCall|_PyObject_VectorcallTstate|_PyObject_CallFunctionVa`
+- Honggfuzz stack hash: `1b95d1a31e`
+- PC: `0x592e8fc7d31f`
+- Fault address: `0xae`
+- Instruction: `mov____0xa8(%r15),%r12`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-2dfb1fc06fe4.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.592e8fc7d31f.STACK.1b95d1a31e.CODE.1.ADDR.ae.INSTR.mov____0xa8(%r15),%r12.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `??`
+  - `malloc`
+  - `_PyMem_RawMalloc`
+  - `PyMem_Malloc`
+  - `_buffered_init`
+  - `_io_BufferedReader___init___impl`
+  - `_io_BufferedReader___init__`
+  - `type_call`
+  - `_PyObject_MakeTpCall`
+  - `_PyObject_VectorcallTstate`
+  - `_PyObject_CallFunctionVa`
+  - `_PyObject_CallFunction_SizeT`
+  - `_io_open_impl`
+- Reproduced stack frames:
+  - `#0  0x00007344f326b9fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007344f3217476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007344f31fd7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00007344f325e677 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#4  0x00007344f3275cfc in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#5  0x00007344f32767e2 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#6  0x00007344f3276969 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#7  0x00007344f3278bdb in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#8  0x00007344f327a262 in malloc () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#9  0x00005a20adf23821 in _PyMem_RawMalloc (ctx=<optimized out>, size=230300) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:101`
+  - `#10 0x00005a20adf25514 in PyMem_Malloc (size=4096) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:623`
+  - `#11 0x00005a20ae2542aa in _buffered_init (self=0x5a20dbf72790) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/_io/bufferedio.c:718`
+  - `#12 _io_BufferedReader___init___impl (self=0x5a20dbf72790, raw=0x5a20dbf77fc0, buffer_size=4096) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/_io/bufferedio.c:1431`
+  - `#13 _io_BufferedReader___init__ (self=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00005a20adf4984f in type_call (type=<optimized out>, args=<optimized out>, kwds=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1112`
+  - `#15 0x00005a20ade4f50e in _PyObject_MakeTpCall (tstate=0x5a20ae5e1910 <_PyRuntime+166328>, callable=0x3839c, args=0x7ffe50f7f7e0, nargs=<optimized out>, keywords=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:214`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.76d1b2ffe9fc.STACK.f5756f699.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7862e4d679fc.STACK.f5756f699.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.592e8fc7d31f.STACK.1b95d1a31e.CODE.1.ADDR.ae.INSTR.mov____0xa8(%r15),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5efd8283631b.STACK.1b95d1a31e.CODE.1.ADDR.100000007.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 95. cpython-311-3041ae97dcb2
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PySequence_Contains|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `1955fe5403`
+- PC: `0x5b56cd421062`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r15),%r14`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-3041ae97dcb2.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b56cd421062.STACK.1955fe5403.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r15),%r14.pyc`
+- Normalized function stack:
+  - `PySequence_Contains`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PySequence_Contains (seq=0x1ffffffff, ob=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:2276`
+  - `#1  0x000061d25353872d in _PyEval_EvalFrameDefault (tstate=0x61d253a66910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3877`
+  - `#2  0x000061d253536f4c in _PyEval_EvalFrame (tstate=0x61d253a66910 <_PyRuntime+166328>, frame=0x61d278845dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x61d253a66910 <_PyRuntime+166328>, func=0x61d2789ab900, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000061d25352f452 in builtin_exec_impl (source=0x61d278961490, globals=0x61d27896154a, locals=0x61d2789cc450, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x000061d253396fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000061d2532d28eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x61d278841450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x000061d2532d2813 in PyObject_Vectorcall (callable=0x61d278841450, args=0x61d278845da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x000061d25353fdae in _PyEval_EvalFrameDefault (tstate=0x61d253a66910 <_PyRuntime+166328>, frame=0x61d278845d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x000061d253536f4c in _PyEval_EvalFrame (tstate=0x61d253a66910 <_PyRuntime+166328>, frame=0x61d278845d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x61d253a66910 <_PyRuntime+166328>, func=0x61d278918130, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x000061d25361ab5a in run_eval_code_obj (tstate=0x61d253a66910 <_PyRuntime+166328>, co=0x61d278920ab0, globals=0x1937738, locals=0x1937738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1937738, locals=0x1937738, flags=0x7ffe864ffdb0, arena=0x61d2788a15e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b56cd421062.STACK.1955fe5403.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r15),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c0b93757062.STACK.1955fe5403.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r15),%r14.pyc`
+
+### 96. cpython-311-391d5ea40c55
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_Repr|unicode_fromformat_arg|PyUnicode_FromFormatV|_PyErr_FormatV|_PyErr_Format|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file`
+- Honggfuzz stack hash: `ed5ccc8a9`
+- PC: `0x56b1edca1efb`
+- Fault address: `0xe`
+- Instruction: `mov____0x8(%r15),%rbx`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-391d5ea40c55.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56b1edca1efb.STACK.ed5ccc8a9.CODE.1.ADDR.e.INSTR.mov____0x8(%r15),%rbx.pyc`
+- Normalized function stack:
+  - `PyObject_Repr`
+  - `unicode_fromformat_arg`
+  - `PyUnicode_FromFormatV`
+  - `_PyErr_FormatV`
+  - `_PyErr_Format`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  PyObject_Repr (v=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:415`
+  - `#1  0x00005f8daddf876b in unicode_fromformat_arg (writer=0x7fff72cbe9a0, f=<optimized out>, vargs=0x7fff72cbea00) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/unicodeobject.c:3036`
+  - `#2  PyUnicode_FromFormatV (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#3  0x00005f8dadfa0b8b in _PyErr_FormatV (tstate=0x5f8dae452910 <_PyRuntime+166328>, exception=0x5f8dae2a65f0 <_PyExc_SystemError>, format=0x5f8daedd7680 <bbMapFb> "", vargs=0x7fff72cbeb10) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:1078`
+  - `#4  _PyErr_Format (tstate=0x5f8dae452910 <_PyRuntime+166328>, exception=<optimized out>, format=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:1104`
+  - `#5  0x00005f8dadf3887f in _PyEval_EvalFrameDefault (tstate=0x5f8dae452910 <_PyRuntime+166328>, frame=0x5f8de2be4d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4405`
+  - `#6  0x00005f8dadf22f4c in _PyEval_EvalFrame (tstate=0x5f8dae452910 <_PyRuntime+166328>, frame=0x5f8de2be4c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#7  _PyEval_Vector (tstate=0x5f8dae452910 <_PyRuntime+166328>, func=0x5f8de2c053f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#8  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00005f8dae006b5a in run_eval_code_obj (tstate=0x5f8dae452910 <_PyRuntime+166328>, co=0x5f8de2cc35e0, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#10 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, flags=0x7fff72cbef20, arena=0x5f8de2c70910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#11 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, closeit=1, flags=0x7fff72cbef20) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#12 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#13 0x00005f8dae005bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5f8de2cb4120, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#14 0x00005f8dae05c2d4 in pymain_run_file_obj (program_name=0x5f8de2cb82a0, filename=0x5f8de2cb4120, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#15 pymain_run_file (config=0x5f8dae438958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.556b66f9aefb.STACK.e16824515.CODE.1.ADDR.28.INSTR.mov____0x8(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56167848eefb.STACK.e16824515.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5898edd37efb.STACK.e16824515.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5990b1961efb.STACK.e16824515.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a5810f7befb.STACK.e16824515.CODE.1.ADDR.28.INSTR.mov____0x8(%r15),%rbx.pyc`
+
+### 97. cpython-311-3e8527f976f6
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|??|??|??|??|free|_PyMem_RawFree|PyObject_Free|PyDict_Clear|_PyUnicode_ClearInterned|finalize_interp_types|finalize_interp_clear|Py_FinalizeEx|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `f49661632`
+- PC: `0x7596d4bb69fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-3e8527f976f6.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7596d4bb69fc.STACK.f49661632.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `??`
+  - `free`
+  - `_PyMem_RawFree`
+  - `PyObject_Free`
+  - `PyDict_Clear`
+  - `_PyUnicode_ClearInterned`
+  - `finalize_interp_types`
+  - `finalize_interp_clear`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  0x00007642aa86d9fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007642aa819476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007642aa7ff7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00007642aa860677 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#4  0x00007642aa877cfc in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#5  0x00007642aa87898c in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#6  0x00007642aa879ea0 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#7  0x00007642aa87c453 in free () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#8  0x0000652ef129f92e in _PyMem_RawFree (ctx=<optimized out>, ptr=0x652f08a870d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:129`
+  - `#9  0x0000652ef12a1b98 in PyObject_Free (ptr=0x652f08a870d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:741`
+  - `#10 0x0000652ef125d402 in PyDict_Clear (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x0000652ef1372502 in _PyUnicode_ClearInterned (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x0000652ef1504c2c in finalize_interp_types (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 finalize_interp_clear (tstate=0x652ef195d910 <_PyRuntime+166328>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1726`
+  - `#14 Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1897`
+  - `#15 0x0000652ef1565e0a in Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:682`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7596d4bb69fc.STACK.f49661632.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7c8dc04d29fc.STACK.f49661632.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 98. cpython-311-3fd7c2097893
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_INCREF|Py_XINCREF|PyException_GetContext|_PyErr_SetObject|_PyErr_FormatV|_PyErr_Format|format_exc_check_arg|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall`
+- Honggfuzz stack hash: `f7e1f6e84`
+- PC: `0x5c8a37df859a`
+- Fault address: `0x5c8a37e579c0`
+- Instruction: `addq___$0x1,(%rbx)`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-3fd7c2097893.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c8a37df859a.STACK.f7e1f6e84.CODE.2.ADDR.5c8a37e579c0.INSTR.addq___$0x1,(%rbx).pyc`
+- Normalized function stack:
+  - `Py_INCREF`
+  - `Py_XINCREF`
+  - `PyException_GetContext`
+  - `_PyErr_SetObject`
+  - `_PyErr_FormatV`
+  - `_PyErr_Format`
+  - `format_exc_check_arg`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+- Reproduced stack frames:
+  - `#0  Py_INCREF (op=0x59edee50b9c0 <long_mul>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:502`
+  - `#1  Py_XINCREF (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#2  PyException_GetContext (self=self@entry=0x59edeea68ea0 <_Py_FalseStruct>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/exceptions.c:409`
+  - `#3  0x000059edee76e5ef in _PyErr_SetObject (tstate=<optimized out>, exception=0x59edeea72710 <_PyExc_NameError>, value=0x59ee0e467c40) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:155`
+  - `#4  0x000059edee76eb9c in _PyErr_FormatV (tstate=0x59edeec20910 <_PyRuntime+166328>, exception=0x59edeea72710 <_PyExc_NameError>, format=0x59edee99f0f0 "name '%.200s' is not defined", vargs=0x7ffcfb96ada0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:1080`
+  - `#5  _PyErr_Format (tstate=0x59edeec20910 <_PyRuntime+166328>, exception=<optimized out>, format=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:1104`
+  - `#6  0x000059edee707d29 in format_exc_check_arg (tstate=0x59edeeb77580 <globalCovFeedback>, exc=<optimized out>, obj=0x59ee0e485bc0, format_str=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7750`
+  - `#7  _PyEval_EvalFrameDefault (tstate=0x59edeeb77580 <globalCovFeedback>, frame=0x59ee0e301e28, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3015`
+  - `#8  0x000059edee6f0f4c in _PyEval_EvalFrame (tstate=0x59edeec20910 <_PyRuntime+166328>, frame=0x59ee0e301dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#9  _PyEval_Vector (tstate=0x59edeec20910 <_PyRuntime+166328>, func=0x59ee0e3d7c60, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#10 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x000059edee6e9452 in builtin_exec_impl (source=0x59ee0e4805b0, globals=0x59edef5a5680 <bbMapFb>, locals=0x59ee0e467e60, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#12 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x000059edee550fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x000059edee48c8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x59ee0e2fd450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#15 0x000059edee48c813 in PyObject_Vectorcall (callable=0x59ee0e2fd450, args=0x59ee0e301da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c8a37df859a.STACK.f7e1f6e84.CODE.2.ADDR.5c8a37e579c0.INSTR.addq___$0x1,(%rbx).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5fe023c3259a.STACK.f7e1f6e84.CODE.2.ADDR.5fe023c919c0.INSTR.addq___$0x1,(%rbx).pyc`
+
+### 99. cpython-311-746ceac13e0e
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_XDECREF|list_dealloc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `df2ced1cf`
+- PC: `0x57401a53c625`
+- Fault address: `0xffffffff`
+- Instruction: `mov____(%r12),%r14`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-746ceac13e0e.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57401a53c625.STACK.df2ced1cf.CODE.1.ADDR.ffffffff.INSTR.mov____(%r12),%r14.pyc`
+- Normalized function stack:
+  - `Py_XDECREF`
+  - `list_dealloc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  Py_XDECREF (op=0xffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:602`
+  - `#1  list_dealloc (op=0x5f9887633630) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/listobject.c:357`
+  - `#2  0x00005f9859fabe33 in _PyEval_EvalFrameDefault (tstate=0x5f985a4d5910 <_PyRuntime+166328>, frame=0x5f98874bfd70, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3708`
+  - `#3  0x00005f9859fa5f4c in _PyEval_EvalFrame (tstate=0x5f985a4d5910 <_PyRuntime+166328>, frame=0x5f98874bfcf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x5f985a4d5910 <_PyRuntime+166328>, func=0x5f98874dff10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005f985a089b5a in run_eval_code_obj (tstate=0x5f985a4d5910 <_PyRuntime+166328>, co=0x5f988759dbf0, globals=0x219b61c, locals=0x219b61c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#7  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x219b61c, locals=0x219b61c, flags=0x7ffdfbe1dff0, arena=0x5f988753e8b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#8  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x219b61c, locals=0x219b61c, closeit=1, flags=0x7ffdfbe1dff0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#9  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#10 0x00005f985a088bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5f988758ee00, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#11 0x00005f985a0df2d4 in pymain_run_file_obj (program_name=0x5f9887593bf0, filename=0x5f988758ee00, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#12 pymain_run_file (config=0x5f985a4bb958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#13 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#14 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#15 0x00005f985a0dfc29 in pymain_main (args=0x7ffdfbe1e260) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.60cbfcc09625.STACK.1962ca97a8.CODE.1.ADDR.ffffffff.INSTR.mov____(%r12),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57401a53c625.STACK.df2ced1cf.CODE.1.ADDR.ffffffff.INSTR.mov____(%r12),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6353710b0933.STACK.df2ced1cf.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+
+### 100. cpython-311-770410f7c39e
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_INCREF|Py_XINCREF|PyCell_New|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain`
+- Honggfuzz stack hash: `19224fd726`
+- PC: `0x5826035e30d0`
+- Fault address: `0x3`
+- Instruction: `addq___$0x1,(%r14)`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-770410f7c39e.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5826035e30d0.STACK.19224fd726.CODE.1.ADDR.3.INSTR.addq___$0x1,(%r14).pyc`
+- Normalized function stack:
+  - `Py_INCREF`
+  - `Py_XINCREF`
+  - `PyCell_New`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+- Reproduced stack frames:
+  - `#0  Py_INCREF (op=0x3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:502`
+  - `#1  Py_XINCREF (op=0x3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:592`
+  - `#2  PyCell_New (obj=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/cellobject.c:15`
+  - `#3  0x0000639db67a3d85 in _PyEval_EvalFrameDefault (tstate=0x639db6ccf910 <_PyRuntime+166328>, frame=0x639de485acb0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3129`
+  - `#4  0x0000639db679ff4c in _PyEval_EvalFrame (tstate=0x639db6ccf910 <_PyRuntime+166328>, frame=0x639de485ac30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#5  _PyEval_Vector (tstate=0x639db6ccf910 <_PyRuntime+166328>, func=0x639de487b3a0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#6  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x0000639db6883b5a in run_eval_code_obj (tstate=0x639db6ccf910 <_PyRuntime+166328>, co=0x639de4938ee0, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#8  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, flags=0x7ffe302d1ac0, arena=0x639de48e66a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#9  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, closeit=1, flags=0x7ffe302d1ac0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#10 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#11 0x0000639db6882bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x639de4929f20, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#12 0x0000639db68d92d4 in pymain_run_file_obj (program_name=0x639de492dd70, filename=0x639de4929f20, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#13 pymain_run_file (config=0x639db6cb5958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#14 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#15 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5826035e30d0.STACK.19224fd726.CODE.1.ADDR.3.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ceaa8e980d0.STACK.19224fd726.CODE.1.ADDR.100000006.INSTR.addq___$0x1,(%r14).pyc`
+
+### 101. cpython-311-8983d39ed62d
+
+- Status: crash
+- Signal: SIGABRT
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT:pthread_kill|fatal_error_exit|fatal_error|_Py_FatalErrorFunc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|_PyFunction_Vectorcall|_PyVectorcall_Call|_PyObject_Call|PyObject_Call|do_call_core|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|_PyFunction_Vectorcall`
+- Honggfuzz stack hash: `c7a63d61e`
+- PC: `0x7a80397a59fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-8983d39ed62d.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7a80397a59fc.STACK.c7a63d61e.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error_exit`
+  - `fatal_error`
+  - `_Py_FatalErrorFunc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `_PyFunction_Vectorcall`
+  - `_PyVectorcall_Call`
+  - `_PyObject_Call`
+  - `PyObject_Call`
+  - `do_call_core`
+  - `_PyObject_VectorcallTstate`
+  - `method_vectorcall`
+- Reproduced stack frames:
+  - `#0  0x00007f83448a59fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007f8344851476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007f83448377f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x000065218efa8413 in fatal_error_exit (status=-1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2624`
+  - `#4  0x000065218efa8229 in fatal_error (fd=<optimized out>, header=<optimized out>, prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2805`
+  - `#5  0x000065218efa2384 in _Py_FatalErrorFunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x000065218eecf6af in _PyEval_EvalFrameDefault (tstate=0x65219ae2e340, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:853`
+  - `#7  0x000065218eecf1b0 in _PyEval_EvalFrame (tstate=0x65219ae2e340, frame=0x7f8334000cf8, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#8  _PyEval_Vector (tstate=<optimized out>, func=0x65219acea2c0, locals=<optimized out>, args=<optimized out>, argcount=0, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#9  0x000065218ec6b865 in _PyFunction_Vectorcall (func=0x65219acea2c0, stack=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/cpython/abstract.h:59`
+  - `#10 0x000065218ec6a1f5 in _PyVectorcall_Call (tstate=<optimized out>, func=<optimized out>, callable=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x000065218ec6b1f3 in _PyObject_Call (tstate=0x38229, callable=0x65219acea2c0, args=0x65218f3e4570 <_PyRuntime+58904>, kwargs=0x7f833b65a490) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:328`
+  - `#12 PyObject_Call (callable=0x65219acea2c0, args=<optimized out>, kwargs=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:355`
+  - `#13 0x000065218eee1a98 in do_call_core (tstate=0x65219ae2e340, func=0x38229, callargs=0x65218f3e4570 <_PyRuntime+58904>, kwdict=0x65219ad44410, use_tracing=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7350`
+  - `#14 _PyEval_EvalFrameDefault (tstate=0x65219ae2e340, frame=0x7f8334000c80, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5377`
+  - `#15 0x000065218eecf1b0 in _PyEval_EvalFrame (tstate=0x65219ae2e340, frame=0x7f8334000b90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7a80397a59fc.STACK.c7a63d61e.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7c77983669fc.STACK.c7a63d61e.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 102. cpython-311-a26c375cfa0b
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_Positive|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `dc2306ff1`
+- PC: `0x57aadbd76d0f`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-a26c375cfa0b.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57aadbd76d0f.STACK.dc2306ff1.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyNumber_Positive`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PyNumber_Positive (o=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:1350`
+  - `#1  0x0000591fec0d7d4a in _PyEval_EvalFrameDefault (tstate=0x591fec602910 <_PyRuntime+166328>, frame=0xffffffffffffef80, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:1920`
+  - `#2  0x0000591fec0d2f4c in _PyEval_EvalFrame (tstate=0x591fec602910 <_PyRuntime+166328>, frame=0x5920289e5dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x591fec602910 <_PyRuntime+166328>, func=0x592028b63950, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x0000591fec0cb452 in builtin_exec_impl (source=0x592028b66560, globals=0x591fecf87680 <bbMapFb>, locals=0x592028b69840, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x0000591febf32fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x0000591febe6e8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5920289e1450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x0000591febe6e813 in PyObject_Vectorcall (callable=0x5920289e1450, args=0x5920289e5da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x0000591fec0dbdae in _PyEval_EvalFrameDefault (tstate=0x591fec602910 <_PyRuntime+166328>, frame=0x5920289e5d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x0000591fec0d2f4c in _PyEval_EvalFrame (tstate=0x591fec602910 <_PyRuntime+166328>, frame=0x5920289e5d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x591fec602910 <_PyRuntime+166328>, func=0x592028a064d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x0000591fec1b6b5a in run_eval_code_obj (tstate=0x591fec602910 <_PyRuntime+166328>, co=0x592028a6fbe0, globals=0x4392, locals=0x4392) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x4392, locals=0x4392, flags=0x7ffcfb8913a0, arena=0x592028a71c30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57aadbd76d0f.STACK.dc2306ff1.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.63b1caaead0f.STACK.dc2306ff1.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 103. cpython-311-a757bcc1c7ba
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_GetIter|unpack_iterable|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `ef3a82e7d`
+- PC: `0x55b79dc65ddb`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-a757bcc1c7ba.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55b79dc65ddb.STACK.ef3a82e7d.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_GetIter`
+  - `unpack_iterable`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  PyObject_GetIter (o=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:2793`
+  - `#1  0x00006538120748f0 in unpack_iterable (tstate=0x65381259e910 <_PyRuntime+166328>, v=0x0, argcnt=2, argcntafter=-1, sp=0x65384e9ccd88) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6691`
+  - `#2  _PyEval_EvalFrameDefault (tstate=0x65381259e910 <_PyRuntime+166328>, frame=0x65384e9ccd10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2801`
+  - `#3  0x000065381206ef4c in _PyEval_EvalFrame (tstate=0x65381259e910 <_PyRuntime+166328>, frame=0x65384e9ccc90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x65381259e910 <_PyRuntime+166328>, func=0x65384e9ed3b0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x0000653812152b5a in run_eval_code_obj (tstate=0x65381259e910 <_PyRuntime+166328>, co=0x65384eaab060, globals=0x14748dc, locals=0x14748dc) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#7  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x14748dc, locals=0x14748dc, flags=0x7ffd60ce5210, arena=0x65384ea588f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#8  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x14748dc, locals=0x14748dc, closeit=1, flags=0x7ffd60ce5210) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#9  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#10 0x0000653812151bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x65384ea9f520, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#11 0x00006538121a82d4 in pymain_run_file_obj (program_name=0x65384eaa0170, filename=0x65384ea9f520, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#12 pymain_run_file (config=0x653812584958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#13 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#14 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#15 0x00006538121a8c29 in pymain_main (args=0x7ffd60ce5480) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55b79dc65ddb.STACK.ef3a82e7d.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57ead0621ddb.STACK.ef3a82e7d.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 104. cpython-311-a9ae065d4b70
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:initialize_locals|_PyEvalFramePushAndInit|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file`
+- Honggfuzz stack hash: `d86f4c330`
+- PC: `0x5594c57e2e1c`
+- Fault address: `0x5594f3db3000`
+- Instruction: `cmpq___$0x1,0x48(%r12,%r14,8)`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-a9ae065d4b70.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5594c57e2e1c.STACK.d86f4c330.CODE.1.ADDR.5594f3db3000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+- Normalized function stack:
+  - `initialize_locals`
+  - `_PyEvalFramePushAndInit`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  0x00005f62096f4e1c in initialize_locals (tstate=0x5f6209c08910 <_PyRuntime+166328>, func=0x5f622de40d30, localsplus=0x7d9195f33070, args=0x0, argcount=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6281`
+  - `#1  _PyEvalFramePushAndInit (tstate=0x5f6209c08910 <_PyRuntime+166328>, func=0x5f622de40d30, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6369`
+  - `#2  0x00005f62096d8ec0 in _PyEval_Vector (tstate=<optimized out>, func=0x5f622de40d30, locals=0x5f622deed1a0, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6423`
+  - `#3  PyEval_EvalCode (co=<optimized out>, globals=0x5f622deed1a0, locals=0x5f622deed1a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:1154`
+  - `#4  0x00005f62096d1452 in builtin_exec_impl (source=0x5f622de85990, globals=0x5f6209b5f580 <globalCovFeedback>, locals=0x5f622deed1a0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#5  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005f6209538fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005f62094748eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5f622dd66510, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#8  0x00005f6209474813 in PyObject_Vectorcall (callable=0x5f622dd66510, args=0x5f622dd6ae68, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#9  0x00005f62096e1dae in _PyEval_EvalFrameDefault (tstate=0x5f6209c08910 <_PyRuntime+166328>, frame=0x5f622dd6ae10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#10 0x00005f62096d8f4c in _PyEval_EvalFrame (tstate=0x5f6209c08910 <_PyRuntime+166328>, frame=0x5f622dd6ae10, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#11 _PyEval_Vector (tstate=0x5f6209c08910 <_PyRuntime+166328>, func=0x5f622dd8b580, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#12 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x00005f62097bcb5a in run_eval_code_obj (tstate=0x5f6209c08910 <_PyRuntime+166328>, co=0x5f622de49750, globals=0x1af4e1c, locals=0x1af4e1c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#14 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1af4e1c, locals=0x1af4e1c, flags=0x7ffcc46506c0, arena=0x5f622dde9f20) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#15 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1af4e1c, locals=0x1af4e1c, closeit=1, flags=0x7ffcc46506c0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGBUS.PC.5964f2660e1c.STACK.d86f4c330.CODE.2.ADDR.7372ba893000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGBUS.PC.5e15731d8e1c.STACK.d86f4c330.CODE.2.ADDR.74b667322000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGBUS.PC.647165ec4e1c.STACK.d86f4c330.CODE.2.ADDR.7ca563ff9000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5594c57e2e1c.STACK.d86f4c330.CODE.1.ADDR.5594f3db3000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58b9de2d4e1c.STACK.d86f4c330.CODE.1.ADDR.58ba0e9d4000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+
+### 105. cpython-311-bb8ef554f4f2
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error_exit|fatal_error|_Py_FatalErrorFunc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector`
+- Honggfuzz stack hash: `d458dead2`
+- PC: `0x57e7ea499ff4`
+- Fault address: `0x36a0084`
+- Instruction: `mov____0x8(%r15),%rax`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-bb8ef554f4f2.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57e7ea499ff4.STACK.d458dead2.CODE.1.ADDR.36a0084.INSTR.mov____0x8(%r15),%rax.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error_exit`
+  - `fatal_error`
+  - `_Py_FatalErrorFunc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+- Reproduced stack frames:
+  - `#0  0x00007ac75fb999fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007ac75fb45476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007ac75fb2b7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00005dbc833a9413 in fatal_error_exit (status=-1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2624`
+  - `#4  0x00005dbc833a9229 in fatal_error (fd=<optimized out>, header=<optimized out>, prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2805`
+  - `#5  0x00005dbc833a3384 in _Py_FatalErrorFunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005dbc832d06af in _PyEval_EvalFrameDefault (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:853`
+  - `#7  0x00005dbc832cff4c in _PyEval_EvalFrame (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=0x5dbcbf7e7dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#8  _PyEval_Vector (tstate=0x5dbc837ff910 <_PyRuntime+166328>, func=0x5dbcbf87ccb0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#9  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x00005dbc832c8452 in builtin_exec_impl (source=0x5dbcbf9669e0, globals=0x38455, locals=0x5dbcbf94e150, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#11 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x00005dbc8312ffdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x00005dbc8306b8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5dbcbf7e3450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#14 0x00005dbc8306b813 in PyObject_Vectorcall (callable=0x5dbcbf7e3450, args=0x5dbcbf7e7da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#15 0x00005dbc832d8dae in _PyEval_EvalFrameDefault (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=0x5dbcbf7e7d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5bb047cf9838.STACK.180b5d66cf.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57fea7df115d.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a5482194105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5cbb2a423105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dc27a8d9105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+
+### 106. cpython-311-bea3b9eb1d87
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyEval_EvalFrameDefault|_PyEval_EvalFrame|gen_send_ex2|gen_iternext|builtin_next|cfunction_vectorcall_FASTCALL|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject`
+- Honggfuzz stack hash: `cd84a88c9`
+- PC: `0x615b4c15697d`
+- Fault address: `0x3d89`
+- Instruction: `mov____0x10(%rax),%rbx`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-bea3b9eb1d87.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.615b4c15697d.STACK.cd84a88c9.CODE.1.ADDR.3d89.INSTR.mov____0x10(%rax),%rbx.pyc`
+- Normalized function stack:
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `gen_send_ex2`
+  - `gen_iternext`
+  - `builtin_next`
+  - `cfunction_vectorcall_FASTCALL`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  _PyEval_EvalFrameDefault (tstate=0x5ee7ddba9910 <_PyRuntime+166328>, frame=0x5ee7ec0702b0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3187`
+  - `#1  0x00005ee7dd44b22d in _PyEval_EvalFrame (tstate=0x5ee7ddba9910 <_PyRuntime+166328>, frame=0x5ee7ec0702b0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#2  gen_send_ex2 (gen=0x5ee7ec070260, arg=0x0, exc=0, closing=0, presult=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:219`
+  - `#3  gen_iternext (gen=0x5ee7ec070260) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:594`
+  - `#4  0x00005ee7dd673efe in builtin_next (self=<optimized out>, args=<optimized out>, nargs=1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1475`
+  - `#5  0x00005ee7dd4d9e70 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005ee7dd4158eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5ee7ebfcbd20, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#7  0x00005ee7dd415813 in PyObject_Vectorcall (callable=0x5ee7ebfcbd20, args=0x5ee7ebfcfdf8, nargsf=9223372036854775809, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#8  0x00005ee7dd682dae in _PyEval_EvalFrameDefault (tstate=0x5ee7ddba9910 <_PyRuntime+166328>, frame=0x5ee7ebfcfd70, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#9  0x00005ee7dd679f4c in _PyEval_EvalFrame (tstate=0x5ee7ddba9910 <_PyRuntime+166328>, frame=0x5ee7ebfcfcf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#10 _PyEval_Vector (tstate=0x5ee7ddba9910 <_PyRuntime+166328>, func=0x5ee7ebfeff10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#11 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x00005ee7dd75db5a in run_eval_code_obj (tstate=0x5ee7ddba9910 <_PyRuntime+166328>, co=0x5ee7ec0adf40, globals=0x1a7d975, locals=0x1a7d975) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#13 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1a7d975, locals=0x1a7d975, flags=0x7ffd5b6fbac0, arena=0x5ee7ec04e8f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#14 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1a7d975, locals=0x1a7d975, closeit=1, flags=0x7ffd5b6fbac0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#15 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.615b4c15697d.STACK.cd84a88c9.CODE.1.ADDR.3d89.INSTR.mov____0x10(%rax),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61d8c034304a.STACK.cd84a88c9.CODE.1.ADDR.38.INSTR.mov____0x8(%rcx),%rax.pyc`
+
+### 107. cpython-311-c0890f534ec4
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_DelItem|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `c448d5aee`
+- PC: `0x5d73407ec852`
+- Fault address: `0x200000070`
+- Instruction: `mov____0x70(%r13),%rax`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-c0890f534ec4.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5d73407ec852.STACK.c448d5aee.CODE.1.ADDR.200000070.INSTR.mov____0x70(%r13),%rax.pyc`
+- Normalized function stack:
+  - `PyObject_DelItem`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PyObject_DelItem (o=0x5eeb4ded6a24, key=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:244`
+  - `#1  0x00005eeb3994fb5e in _PyEval_EvalFrameDefault (tstate=0x5eeb39e7e910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2386`
+  - `#2  0x00005eeb3994ef4c in _PyEval_EvalFrame (tstate=0x5eeb39e7e910 <_PyRuntime+166328>, frame=0x5eeb4dd57dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5eeb39e7e910 <_PyRuntime+166328>, func=0x5eeb4ded4ff0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005eeb39947452 in builtin_exec_impl (source=0x5eeb4ded6940, globals=0x1ffffffff, locals=0x5eeb4ded4800, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005eeb397aefdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005eeb396ea8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5eeb4dd53450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x00005eeb396ea813 in PyObject_Vectorcall (callable=0x5eeb4dd53450, args=0x5eeb4dd57da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x00005eeb39957dae in _PyEval_EvalFrameDefault (tstate=0x5eeb39e7e910 <_PyRuntime+166328>, frame=0x5eeb4dd57d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x00005eeb3994ef4c in _PyEval_EvalFrame (tstate=0x5eeb39e7e910 <_PyRuntime+166328>, frame=0x5eeb4dd57d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x5eeb39e7e910 <_PyRuntime+166328>, func=0x5eeb4dd784f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00005eeb39a32b5a in run_eval_code_obj (tstate=0x5eeb39e7e910 <_PyRuntime+166328>, co=0x5eeb4dde1c20, globals=0x1d4f738, locals=0x1d4f738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1d4f738, locals=0x1d4f738, flags=0x7ffc88629b90, arena=0x5eeb4ddd6e10) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5d73407ec852.STACK.c448d5aee.CODE.1.ADDR.200000070.INSTR.mov____0x70(%r13),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.640b1117984e.STACK.c448d5aee.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r13.pyc`
+
+### 108. cpython-311-c35c19a1424f
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_Py_Specialize_LoadMethod|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `c346f6e08`
+- PC: `0x5cee137b57c7`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-c35c19a1424f.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5cee137b57c7.STACK.c346f6e08.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `_Py_Specialize_LoadMethod`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  _Py_Specialize_LoadMethod (owner=0x0, instr=<optimized out>, name=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/specialize.c:917`
+  - `#1  0x0000599421b80114 in _PyEval_EvalFrameDefault (tstate=0x5994220ab910 <_PyRuntime+166328>, frame=0x599453343d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4530`
+  - `#2  0x0000599421b7bf4c in _PyEval_EvalFrame (tstate=0x5994220ab910 <_PyRuntime+166328>, frame=0x599453343c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5994220ab910 <_PyRuntime+166328>, func=0x5994533643f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x0000599421c5fb5a in run_eval_code_obj (tstate=0x5994220ab910 <_PyRuntime+166328>, co=0x599453422140, globals=0x61, locals=0x61) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x61, locals=0x61, flags=0x7ffcab062540, arena=0x59945339f4a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x61, locals=0x61, closeit=1, flags=0x7ffcab062540) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x0000599421c5ebab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x599453413030, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x0000599421cb52d4 in pymain_run_file_obj (program_name=0x5994534171b0, filename=0x599453413030, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x599422091958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x0000599421cb5c29 in pymain_main (args=0x7ffcab0627b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5cee137b57c7.STACK.c346f6e08.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dad75be27c7.STACK.c346f6e08.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 109. cpython-311-c7e46bf7dec9
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:initialize_locals|_PyEvalFramePushAndInit|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `18f3492cf7`
+- PC: `0x5f38d37c4e1c`
+- Fault address: `0x725f14274000`
+- Instruction: `cmpq___$0x1,0x48(%r12,%r14,8)`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-c7e46bf7dec9.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGBUS.PC.5f38d37c4e1c.STACK.18f3492cf7.CODE.2.ADDR.725f14274000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+- Normalized function stack:
+  - `initialize_locals`
+  - `_PyEvalFramePushAndInit`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  0x00005559d6477e1c in initialize_locals (tstate=0x5559d698b910 <_PyRuntime+166328>, func=0x555a0a69e2b0, localsplus=0x768b573f2070, args=0x555a0a520ec8, argcount=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6281`
+  - `#1  _PyEvalFramePushAndInit (tstate=0x5559d698b910 <_PyRuntime+166328>, func=0x555a0a69e2b0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6369`
+  - `#2  0x00005559d6471cd3 in _PyEval_EvalFrameDefault (tstate=0x10, frame=0x555a0a520e70, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4745`
+  - `#3  0x00005559d645bf4c in _PyEval_EvalFrame (tstate=0x5559d698b910 <_PyRuntime+166328>, frame=0x555a0a520e70, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x5559d698b910 <_PyRuntime+166328>, func=0x555a0a541620, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005559d653fb5a in run_eval_code_obj (tstate=0x5559d698b910 <_PyRuntime+166328>, co=0x555a0a5aadc0, globals=0x1877e1c, locals=0x1877e1c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#7  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1877e1c, locals=0x1877e1c, flags=0x7ffedebd9420, arena=0x555a0a59ffb0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#8  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1877e1c, locals=0x1877e1c, closeit=1, flags=0x7ffedebd9420) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#9  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#10 0x00005559d653ebab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x555a0a5f4c80, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#11 0x00005559d65952d4 in pymain_run_file_obj (program_name=0x555a0a5f4a40, filename=0x555a0a5f4c80, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#12 pymain_run_file (config=0x5559d6971958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#13 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#14 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#15 0x00005559d6595c29 in pymain_main (args=0x7ffedebd9690) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGBUS.PC.5f38d37c4e1c.STACK.18f3492cf7.CODE.2.ADDR.725f14274000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGBUS.PC.63a6f394de1c.STACK.18f3492cf7.CODE.2.ADDR.7cd669b20000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59d311834e1c.STACK.18f3492cf7.CODE.1.ADDR.59d339e8d000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e2d0175fb83.STACK.18f3492cf7.CODE.1.ADDR.0.INSTR.mov____(%r12),%rbx.pyc`
+
+### 110. cpython-311-c7e46bf7dec9
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:initialize_locals|_PyEvalFramePushAndInit|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `18f3492cf7`
+- PC: `0x59d311834e1c`
+- Fault address: `0x59d339e8d000`
+- Instruction: `cmpq___$0x1,0x48(%r12,%r14,8)`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-c7e46bf7dec9.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59d311834e1c.STACK.18f3492cf7.CODE.1.ADDR.59d339e8d000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+- Normalized function stack:
+  - `initialize_locals`
+  - `_PyEvalFramePushAndInit`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  0x00005559d6477e1c in initialize_locals (tstate=0x5559d698b910 <_PyRuntime+166328>, func=0x555a0a69e2b0, localsplus=0x768b573f2070, args=0x555a0a520ec8, argcount=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6281`
+  - `#1  _PyEvalFramePushAndInit (tstate=0x5559d698b910 <_PyRuntime+166328>, func=0x555a0a69e2b0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6369`
+  - `#2  0x00005559d6471cd3 in _PyEval_EvalFrameDefault (tstate=0x10, frame=0x555a0a520e70, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4745`
+  - `#3  0x00005559d645bf4c in _PyEval_EvalFrame (tstate=0x5559d698b910 <_PyRuntime+166328>, frame=0x555a0a520e70, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x5559d698b910 <_PyRuntime+166328>, func=0x555a0a541620, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005559d653fb5a in run_eval_code_obj (tstate=0x5559d698b910 <_PyRuntime+166328>, co=0x555a0a5aadc0, globals=0x1877e1c, locals=0x1877e1c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#7  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1877e1c, locals=0x1877e1c, flags=0x7ffedebd9420, arena=0x555a0a59ffb0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#8  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1877e1c, locals=0x1877e1c, closeit=1, flags=0x7ffedebd9420) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#9  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#10 0x00005559d653ebab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x555a0a5f4c80, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#11 0x00005559d65952d4 in pymain_run_file_obj (program_name=0x555a0a5f4a40, filename=0x555a0a5f4c80, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#12 pymain_run_file (config=0x5559d6971958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#13 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#14 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#15 0x00005559d6595c29 in pymain_main (args=0x7ffedebd9690) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGBUS.PC.5f38d37c4e1c.STACK.18f3492cf7.CODE.2.ADDR.725f14274000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGBUS.PC.63a6f394de1c.STACK.18f3492cf7.CODE.2.ADDR.7cd669b20000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59d311834e1c.STACK.18f3492cf7.CODE.1.ADDR.59d339e8d000.INSTR.cmpq___$0x1,0x48(%r12,%r14,8).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e2d0175fb83.STACK.18f3492cf7.CODE.1.ADDR.0.INSTR.mov____(%r12),%rbx.pyc`
+
+### 111. cpython-311-de83acc270b8
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|??|??|??|free|_PyMem_RawFree|PyObject_Free|free_keys_object|dictkeys_decref|dict_dealloc|_Py_Dealloc|Py_DECREF|Py_XDECREF|_PyObject_FreeInstanceAttributes|subtype_dealloc|_PyEval_EvalFrameDefault`
+- Honggfuzz stack hash: `1b771acffd`
+- PC: `0x7168534c29fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-de83acc270b8.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7168534c29fc.STACK.1b771acffd.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `??`
+  - `free`
+  - `_PyMem_RawFree`
+  - `PyObject_Free`
+  - `free_keys_object`
+  - `dictkeys_decref`
+  - `dict_dealloc`
+  - `_Py_Dealloc`
+  - `Py_DECREF`
+  - `Py_XDECREF`
+  - `_PyObject_FreeInstanceAttributes`
+  - `subtype_dealloc`
+  - `_PyEval_EvalFrameDefault`
+- Reproduced stack frames:
+  - `#0  0x000078b15c1709fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x000078b15c11c476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x000078b15c1027f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x000078b15c163677 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#4  0x000078b15c17acfc in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#5  0x000078b15c17ca44 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#6  0x000078b15c17f453 in free () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#7  0x00006521d8add92e in _PyMem_RawFree (ctx=<optimized out>, ptr=0x6521fdae8ff0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:129`
+  - `#8  0x00006521d8adfb98 in PyObject_Free (ptr=0x6521fdae8ff0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:741`
+  - `#9  0x00006521d8aa47f9 in free_keys_object (keys=0x6521fdae8ff0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:689`
+  - `#10 dictkeys_decref (dk=0x6521fdae8ff0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:324`
+  - `#11 dict_dealloc (mp=0x6521fda7ebb0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:2378`
+  - `#12 0x00006521d8adcd8c in _Py_Dealloc (op=0x6521fda7ebb0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:2389`
+  - `#13 0x00006521d8aaef54 in Py_DECREF (op=0x6521fda7ebb0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:538`
+  - `#14 Py_XDECREF (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 _PyObject_FreeInstanceAttributes (self=0x6521fdafc8d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:5581`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7168534c29fc.STACK.1b771acffd.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7e99813b29fc.STACK.1b771acffd.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 112. cpython-311-f4ffcfa646c0
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyAsyncGenValueWrapperNew|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `19fe018189`
+- PC: `0x58f10b4bb5ea`
+- Fault address: `0x1ffffffff`
+- Instruction: `addq___$0x1,(%r14)`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-f4ffcfa646c0.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58f10b4bb5ea.STACK.19fe018189.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+- Normalized function stack:
+  - `_PyAsyncGenValueWrapperNew`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  _PyAsyncGenValueWrapperNew (val=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:2036`
+  - `#1  0x000062b041ecd4b6 in _PyEval_EvalFrameDefault (tstate=0x62b0423fb910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2636`
+  - `#2  0x000062b041ecbf4c in _PyEval_EvalFrame (tstate=0x62b0423fb910 <_PyRuntime+166328>, frame=0x62b04cc85d70, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x62b0423fb910 <_PyRuntime+166328>, func=0x62b04cd56ad0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000062b041ec4452 in builtin_exec_impl (source=0x62b04ce048b0, globals=0x62b042d80680 <bbMapFb>, locals=0x62b04ce0a9c0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x000062b041d2bfdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000062b041c678eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x62b04cc813f0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x000062b041c67813 in PyObject_Vectorcall (callable=0x62b04cc813f0, args=0x62b04cc85d48, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x000062b041ed4dae in _PyEval_EvalFrameDefault (tstate=0x62b0423fb910 <_PyRuntime+166328>, frame=0x62b04cc85cf0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x000062b041ecbf4c in _PyEval_EvalFrame (tstate=0x62b0423fb910 <_PyRuntime+166328>, frame=0x62b04cc85cf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x62b0423fb910 <_PyRuntime+166328>, func=0x62b04cca5f10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x000062b041fafb5a in run_eval_code_obj (tstate=0x62b0423fb910 <_PyRuntime+166328>, co=0x62b04cd63bf0, globals=0x7545, locals=0x7545) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x7545, locals=0x7545, flags=0x7ffd62113070, arena=0x62b04cd048b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58f10b4bb5ea.STACK.19fe018189.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b057cb525ea.STACK.19fe018189.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+
+### 113. cpython-311-04608fe5d29c
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error_exit|fatal_error|_Py_FatalErrorFunc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|gen_send_ex2|gen_iternext|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject`
+- Honggfuzz stack hash: `cbc137e9f`
+- PC: `0x7fcae81889fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-04608fe5d29c.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7fcae81889fc.STACK.cbc137e9f.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error_exit`
+  - `fatal_error`
+  - `_Py_FatalErrorFunc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `gen_send_ex2`
+  - `gen_iternext`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+- Reproduced stack frames:
+  - `#0  0x000079d423eb09fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x000079d423e5c476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x000079d423e427f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x000063f79b27f413 in fatal_error_exit (status=-1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2624`
+  - `#4  0x000063f79b27f229 in fatal_error (fd=<optimized out>, header=<optimized out>, prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2805`
+  - `#5  0x000063f79b279384 in _Py_FatalErrorFunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x000063f79b1a66af in _PyEval_EvalFrameDefault (tstate=0x63f79b6d5910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:853`
+  - `#7  0x000063f79af7722d in _PyEval_EvalFrame (tstate=0x63f79b6d5910 <_PyRuntime+166328>, frame=0x63f7d3e4bbc0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#8  gen_send_ex2 (gen=0x63f7d3e4bb70, arg=0x0, exc=0, closing=0, presult=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:219`
+  - `#9  gen_iternext (gen=0x63f7d3e4bb70) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:594`
+  - `#10 0x000063f79b1a7914 in _PyEval_EvalFrameDefault (tstate=0x63f79b6d5910 <_PyRuntime+166328>, frame=0x63f7d3ccecb0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4340`
+  - `#11 0x000063f79b1a5f4c in _PyEval_EvalFrame (tstate=0x63f79b6d5910 <_PyRuntime+166328>, frame=0x63f7d3ccec30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x63f79b6d5910 <_PyRuntime+166328>, func=0x63f7d3da2c90, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x000063f79b289b5a in run_eval_code_obj (tstate=0x63f79b6d5910 <_PyRuntime+166328>, co=0x63f7d3dacbb0, globals=0x6, locals=0x6) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x6, locals=0x6, flags=0x7ffdb8670340, arena=0x63f7d3d5a6a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7fcae81889fc.STACK.cbc137e9f.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 114. cpython-311-04dea2474c2e
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_XDECREF|tupledealloc|_Py_Dealloc|Py_DECREF|Py_XDECREF|free_keys_object|dictkeys_decref|dict_dealloc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate`
+- Honggfuzz stack hash: `f3ea7343a`
+- PC: `0x63b29b60c933`
+- Fault address: `0x1ffffffff`
+- Instruction: `mov____0x0(%r13),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-04dea2474c2e.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.63b29b60c933.STACK.f3ea7343a.CODE.1.ADDR.1ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+- Normalized function stack:
+  - `Py_XDECREF`
+  - `tupledealloc`
+  - `_Py_Dealloc`
+  - `Py_DECREF`
+  - `free_keys_object`
+  - `dictkeys_decref`
+  - `dict_dealloc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+- Reproduced stack frames:
+  - `#0  Py_XDECREF (op=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:602`
+  - `#1  tupledealloc (op=0x64938ae55da0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:208`
+  - `#2  0x0000649373d91d8c in _Py_Dealloc (op=0x64938ae55da0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:2389`
+  - `#3  0x0000649373d593ca in Py_DECREF (op=0x64938ae55da0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:538`
+  - `#4  Py_XDECREF (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  free_keys_object (keys=0x64938ae56830) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:664`
+  - `#6  dictkeys_decref (dk=0x64938ae56830) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:324`
+  - `#7  dict_dealloc (mp=0x64938ae4b710) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:2378`
+  - `#8  0x0000649373f26e33 in _PyEval_EvalFrameDefault (tstate=0x649374450910 <_PyRuntime+166328>, frame=0x64938acd7dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3708`
+  - `#9  0x0000649373f20f4c in _PyEval_EvalFrame (tstate=0x649374450910 <_PyRuntime+166328>, frame=0x64938acd7dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#10 _PyEval_Vector (tstate=0x649374450910 <_PyRuntime+166328>, func=0x64938adadd20, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#11 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x0000649373f19452 in builtin_exec_impl (source=0x64938ae56590, globals=0x6493743a7580 <globalCovFeedback>, locals=0x64938ae5d190, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#13 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x0000649373d80fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x0000649373cbc8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x64938acd3450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.63b29b60c933.STACK.f3ea7343a.CODE.1.ADDR.1ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+
+### 115. cpython-311-05f23e8f2dc0
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_INCREF|Py_XINCREF|PyException_GetContext|_PyErr_SetObject|_PyErr_SetString|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame`
+- Honggfuzz stack hash: `1b73265470`
+- PC: `0x60480e24059a`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%rbx)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-05f23e8f2dc0.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.60480e24059a.STACK.1b73265470.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rbx).pyc`
+- Normalized function stack:
+  - `Py_INCREF`
+  - `Py_XINCREF`
+  - `PyException_GetContext`
+  - `_PyErr_SetObject`
+  - `_PyErr_SetString`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+- Reproduced stack frames:
+  - `#0  Py_INCREF (op=0xfff800000003) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:502`
+  - `#1  Py_XINCREF (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#2  PyException_GetContext (self=self@entry=0x55aaac615cb0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/exceptions.c:409`
+  - `#3  0x000055aa81c256ea in _PyErr_SetObject (tstate=<optimized out>, exception=0x55aa81f2b5f0 <_PyExc_SystemError>, value=0x55aaac6589f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:155`
+  - `#4  0x000055aa81c25f29 in _PyErr_SetString (tstate=0x55aa820d7910 <_PyRuntime+166328>, exception=0x55aa81f2b5f0 <_PyExc_SystemError>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000055aa81bbc27b in _PyEval_EvalFrameDefault (tstate=0x55aa820d7910 <_PyRuntime+166328>, frame=0x55aaac4d3d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5688`
+  - `#6  0x000055aa81ba7f4c in _PyEval_EvalFrame (tstate=0x55aa820d7910 <_PyRuntime+166328>, frame=0x55aaac4d3d10, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#7  _PyEval_Vector (tstate=0x55aa820d7910 <_PyRuntime+166328>, func=0x55aaac652cb0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#8  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x000055aa81ba0452 in builtin_exec_impl (source=0x55aaac651ba0, globals=0x55aa82a5c680 <bbMapFb>, locals=0x55aaac656ee0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#10 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x000055aa81a07fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x000055aa819438eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x55aaac4cf390, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#13 0x000055aa81943813 in PyObject_Vectorcall (callable=0x55aaac4cf390, args=0x55aaac4d3ce8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#14 0x000055aa81bb0dae in _PyEval_EvalFrameDefault (tstate=0x55aa820d7910 <_PyRuntime+166328>, frame=0x55aaac4d3c90, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#15 0x000055aa81ba7f4c in _PyEval_EvalFrame (tstate=0x55aa820d7910 <_PyRuntime+166328>, frame=0x55aaac4d3c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.60480e24059a.STACK.1b73265470.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rbx).pyc`
+
+### 116. cpython-311-15179ea85736
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:visit_decref|func_traverse|subtract_refs|deduce_unreachable|gc_collect_main|gc_collect_with_callback|gc_collect_generations|_PyObject_GC_Link|_PyType_AllocNoTrack|PyType_GenericAlloc|PyType_FromModuleAndSpec|PyType_FromSpecWithBases|PyInit__testcapi|_PyImport_LoadDynamicModuleWithSpec|_imp_create_dynamic_impl|_imp_create_dynamic`
+- Honggfuzz stack hash: `f0580f93d`
+- PC: `0x63590d0ec31b`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-15179ea85736.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.63590d0ec31b.STACK.f0580f93d.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `visit_decref`
+  - `func_traverse`
+  - `subtract_refs`
+  - `deduce_unreachable`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `gc_collect_generations`
+  - `_PyObject_GC_Link`
+  - `_PyType_AllocNoTrack`
+  - `PyType_GenericAlloc`
+  - `PyType_FromModuleAndSpec`
+  - `PyType_FromSpecWithBases`
+  - `PyInit__testcapi`
+  - `_PyImport_LoadDynamicModuleWithSpec`
+  - `_imp_create_dynamic_impl`
+  - `_imp_create_dynamic`
+- Reproduced stack frames:
+  - `#0  visit_decref (op=0x1ffffffff, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:452`
+  - `#1  0x0000611c22a646de in func_traverse (f=0x611c36229ce0, visit=<optimized out>, arg=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:735`
+  - `#2  0x0000611c22db4086 in subtract_refs (containers=0x611c2318e830 <_PyRuntime+59608>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:478`
+  - `#3  deduce_unreachable (base=0x611c2318e830 <_PyRuntime+59608>, unreachable=0x7ffff32c4bf8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1100`
+  - `#4  gc_collect_main (tstate=0x611c231a8910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1226`
+  - `#5  0x0000611c22db38a6 in gc_collect_with_callback (tstate=0x611c231a8910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#6  0x0000611c22db5e7b in gc_collect_generations (tstate=0x611c23169f6c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1455`
+  - `#7  _PyObject_GC_Link (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x0000611c22b0c0c8 in _PyType_AllocNoTrack (nitems=1, type=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1141`
+  - `#9  PyType_GenericAlloc (nitems=1, type=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1157`
+  - `#10 PyType_FromModuleAndSpec (module=<optimized out>, spec=0x7351e9d3a678 <HeapCTypeSubclass_spec>, bases=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:3417`
+  - `#11 0x0000611c22b0be37 in PyType_FromSpecWithBases (spec=0x7351e9d3a678 <HeapCTypeSubclass_spec>, bases=0x611c362708b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:3373`
+  - `#12 0x00007351e9cfc35b in PyInit__testcapi () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/_testcapimodule.c:7814`
+  - `#13 0x0000611c22d2307d in _PyImport_LoadDynamicModuleWithSpec (spec=0x611c362d7010, fp=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/importdl.c:169`
+  - `#14 0x0000611c22d21c64 in _imp_create_dynamic_impl (spec=0x611c23169f6c, file=<optimized out>, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/import.c:2384`
+  - `#15 _imp_create_dynamic (module=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.63590d0ec31b.STACK.f0580f93d.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 117. cpython-311-19426cff68b5
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyVectorcall_FunctionInline|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode`
+- Honggfuzz stack hash: `1808ad81b0`
+- PC: `0x58b0d1a1e738`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-19426cff68b5.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58b0d1a1e738.STACK.1808ad81b0.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%rax.pyc`
+- Normalized function stack:
+  - `_PyVectorcall_FunctionInline`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  _PyVectorcall_FunctionInline (callable=0x638bfb702b98) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:44`
+  - `#1  _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x638bfb702b98, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:87`
+  - `#2  0x0000638be27f7813 in PyObject_Vectorcall (callable=0x638bfb702b98, args=0x7ffc4fef0ad8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#3  0x0000638be2a647eb in _PyEval_EvalFrameDefault (tstate=0x638be2f8b910 <_PyRuntime+166328>, frame=0x638bfb583dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4455`
+  - `#4  0x0000638be2a5bf4c in _PyEval_EvalFrame (tstate=0x638be2f8b910 <_PyRuntime+166328>, frame=0x638bfb583dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#5  _PyEval_Vector (tstate=0x638be2f8b910 <_PyRuntime+166328>, func=0x638bfb659cb0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#6  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x0000638be2a54452 in builtin_exec_impl (source=0x638bfb7029e0, globals=0x638bfb702b98, locals=0x638bfb709630, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#8  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x0000638be28bbfdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x0000638be27f78eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x638bfb57f450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#11 0x0000638be27f7813 in PyObject_Vectorcall (callable=0x638bfb57f450, args=0x638bfb583da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#12 0x0000638be2a64dae in _PyEval_EvalFrameDefault (tstate=0x638be2f8b910 <_PyRuntime+166328>, frame=0x638bfb583d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#13 0x0000638be2a5bf4c in _PyEval_EvalFrame (tstate=0x638be2f8b910 <_PyRuntime+166328>, frame=0x638bfb583d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#14 _PyEval_Vector (tstate=0x638be2f8b910 <_PyRuntime+166328>, func=0x638bfb5a44f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#15 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58b0d1a1e738.STACK.1808ad81b0.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%rax.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.567cc0bb9865.STACK.1af5a42139.CODE.128.ADDR.0.INSTR.mov____0xa8(%r13),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5987c0af6865.STACK.1af5a42139.CODE.1.ADDR.26b0164020d.INSTR.mov____0xa8(%r13),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5bd8d6564865.STACK.1af5a42139.CODE.1.ADDR.26b0164020d.INSTR.mov____0xa8(%r13),%r12.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c0a64730865.STACK.1af5a42139.CODE.1.ADDR.26b016c620d.INSTR.mov____0xa8(%r13),%r12.pyc`
+
+### 118. cpython-311-1cf745f3ddfb
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error_exit|fatal_error|_Py_FatalErrorFunc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|gen_send_ex2|PyGen_am_send|PyIter_Send|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|gen_send_ex2|gen_iternext|builtin_next|cfunction_vectorcall_FASTCALL|_PyObject_VectorcallTstate`
+- Honggfuzz stack hash: `cbc038cbb`
+- PC: `0x702c7cf3e9fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-1cf745f3ddfb.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.702c7cf3e9fc.STACK.cbc038cbb.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error_exit`
+  - `fatal_error`
+  - `_Py_FatalErrorFunc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `gen_send_ex2`
+  - `PyGen_am_send`
+  - `PyIter_Send`
+  - `gen_iternext`
+  - `builtin_next`
+  - `cfunction_vectorcall_FASTCALL`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+- Reproduced stack frames:
+  - `#0  0x00007f53a73089fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007f53a72b4476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007f53a729a7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00005e1badda8413 in fatal_error_exit (status=-1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2624`
+  - `#4  0x00005e1badda8229 in fatal_error (fd=<optimized out>, header=<optimized out>, prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2805`
+  - `#5  0x00005e1badda2384 in _Py_FatalErrorFunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005e1badccf6af in _PyEval_EvalFrameDefault (tstate=0x5e1bae1fe910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:853`
+  - `#7  0x00005e1badaa3232 in _PyEval_EvalFrame (tstate=0x5e1bae1fe910 <_PyRuntime+166328>, frame=0x3824f, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#8  gen_send_ex2 (gen=0x5e1bbad67340, arg=0x5e1bae05ea60 <_Py_NoneStruct>, presult=0x7ffe81a94938, exc=0, closing=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:219`
+  - `#9  PyGen_am_send (gen=0x5e1bbad67340, arg=0x5e1bae05ea60 <_Py_NoneStruct>, result=0x7ffe81a94938) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:280`
+  - `#10 0x00005e1bada1dc0d in PyIter_Send (iter=0x5e1bbad67340, arg=<optimized out>, result=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:2882`
+  - `#11 0x00005e1badcd5a9e in _PyEval_EvalFrameDefault (tstate=0x5e1bae1fe910 <_PyRuntime+166328>, frame=0x5e1bbae4c580, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2592`
+  - `#12 0x00005e1badaa022d in _PyEval_EvalFrame (tstate=0x5e1bae1fe910 <_PyRuntime+166328>, frame=0x5e1bbae4c580, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 gen_send_ex2 (gen=0x5e1bbae4c530, arg=0x0, exc=0, closing=0, presult=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:219`
+  - `#14 gen_iternext (gen=0x5e1bbae4c530) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:594`
+  - `#15 0x00005e1badcc8efe in builtin_next (self=<optimized out>, args=<optimized out>, nargs=1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1475`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.702c7cf3e9fc.STACK.cbc038cbb.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 119. cpython-311-201b75984cf2
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_Hash|tuplehash|PyObject_Hash|tuplehash|PyObject_Hash|_PyDict_LoadGlobal|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj`
+- Honggfuzz stack hash: `c3e006746`
+- PC: `0x56f6965849ea`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-201b75984cf2.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56f6965849ea.STACK.c3e006746.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_Hash`
+  - `tuplehash`
+  - `_PyDict_LoadGlobal`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+- Reproduced stack frames:
+  - `#0  PyObject_Hash (v=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:773`
+  - `#1  0x00005b2f54231ee2 in tuplehash (v=0x5b2f7656e8d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:328`
+  - `#2  0x00005b2f54210a10 in PyObject_Hash (v=0x5b2f7656e8d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:775`
+  - `#3  0x00005b2f54231ee2 in tuplehash (v=0x5b2f7656cd20) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:328`
+  - `#4  0x00005b2f54210a10 in PyObject_Hash (v=0x5b2f7656cd20) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:775`
+  - `#5  0x00005b2f541d1015 in _PyDict_LoadGlobal (globals=<optimized out>, builtins=<optimized out>, key=0x5b2f7656cd20) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1848`
+  - `#6  0x00005b2f543adfb4 in _PyEval_EvalFrameDefault (tstate=0x5b2f548d4910 <_PyRuntime+166328>, frame=0x5b2f763e7d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3008`
+  - `#7  0x00005b2f543a4f4c in _PyEval_EvalFrame (tstate=0x5b2f548d4910 <_PyRuntime+166328>, frame=0x5b2f763e7c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#8  _PyEval_Vector (tstate=0x5b2f548d4910 <_PyRuntime+166328>, func=0x5b2f764083f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#9  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x00005b2f54488b5a in run_eval_code_obj (tstate=0x5b2f548d4910 <_PyRuntime+166328>, co=0x5b2f764c5f60, globals=0x1631ed8, locals=0x1631ed8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#11 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1631ed8, locals=0x1631ed8, flags=0x7ffd9dd91180, arena=0x5b2f76473910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#12 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1631ed8, locals=0x1631ed8, closeit=1, flags=0x7ffd9dd91180) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#13 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#14 0x00005b2f54487bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5b2f764b71f0, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#15 0x00005b2f544de2d4 in pymain_run_file_obj (program_name=0x5b2f764bb5a0, filename=0x5b2f764b71f0, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56f6965849ea.STACK.c3e006746.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 120. cpython-311-2350c53c731c
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_XDECREF|tupledealloc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `18b245354f`
+- PC: `0x581029f65933`
+- Fault address: `0xffffffff`
+- Instruction: `mov____0x0(%r13),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-2350c53c731c.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.581029f65933.STACK.18b245354f.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+- Normalized function stack:
+  - `Py_XDECREF`
+  - `tupledealloc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  Py_XDECREF (op=0xffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:602`
+  - `#1  tupledealloc (op=0x5589c82abe60) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:208`
+  - `#2  0x00005589ab0e5bdf in _PyEval_EvalFrameDefault (tstate=0x5589ab60c910 <_PyRuntime+166328>, frame=0x5589c812ddd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4142`
+  - `#3  0x00005589ab0dcf4c in _PyEval_EvalFrame (tstate=0x5589ab60c910 <_PyRuntime+166328>, frame=0x5589c812dd50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x5589ab60c910 <_PyRuntime+166328>, func=0x5589c814e4d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005589ab1c0b5a in run_eval_code_obj (tstate=0x5589ab60c910 <_PyRuntime+166328>, co=0x5589c81b7be0, globals=0x2369929, locals=0x2369929) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#7  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x2369929, locals=0x2369929, flags=0x7ffd9eebbb00, arena=0x5589c81b9c30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#8  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x2369929, locals=0x2369929, closeit=1, flags=0x7ffd9eebbb00) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#9  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#10 0x00005589ab1bfbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5589c8200e00, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#11 0x00005589ab2162d4 in pymain_run_file_obj (program_name=0x5589c8202120, filename=0x5589c8200e00, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#12 pymain_run_file (config=0x5589ab5f2958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#13 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#14 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#15 0x00005589ab216c29 in pymain_main (args=0x7ffd9eebbd70) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.581029f65933.STACK.18b245354f.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e0220816933.STACK.18bf8f4afd.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61e450646933.STACK.19226e26db.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.627fc2ac7933.STACK.19226e26db.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.632db7919933.STACK.d300f6c35.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+
+### 121. cpython-311-2350c53c731c
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_XDECREF|tupledealloc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `18bf8f4afd`
+- PC: `0x5e0220816933`
+- Fault address: `0xffffffff`
+- Instruction: `mov____0x0(%r13),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-2350c53c731c.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e0220816933.STACK.18bf8f4afd.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+- Normalized function stack:
+  - `Py_XDECREF`
+  - `tupledealloc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  Py_XDECREF (op=0xffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:602`
+  - `#1  tupledealloc (op=0x5589c82abe60) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:208`
+  - `#2  0x00005589ab0e5bdf in _PyEval_EvalFrameDefault (tstate=0x5589ab60c910 <_PyRuntime+166328>, frame=0x5589c812ddd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4142`
+  - `#3  0x00005589ab0dcf4c in _PyEval_EvalFrame (tstate=0x5589ab60c910 <_PyRuntime+166328>, frame=0x5589c812dd50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x5589ab60c910 <_PyRuntime+166328>, func=0x5589c814e4d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005589ab1c0b5a in run_eval_code_obj (tstate=0x5589ab60c910 <_PyRuntime+166328>, co=0x5589c81b7be0, globals=0x2369929, locals=0x2369929) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#7  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x2369929, locals=0x2369929, flags=0x7ffd9eebbb00, arena=0x5589c81b9c30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#8  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x2369929, locals=0x2369929, closeit=1, flags=0x7ffd9eebbb00) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#9  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#10 0x00005589ab1bfbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5589c8200e00, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#11 0x00005589ab2162d4 in pymain_run_file_obj (program_name=0x5589c8202120, filename=0x5589c8200e00, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#12 pymain_run_file (config=0x5589ab5f2958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#13 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#14 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#15 0x00005589ab216c29 in pymain_main (args=0x7ffd9eebbd70) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.581029f65933.STACK.18b245354f.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e0220816933.STACK.18bf8f4afd.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61e450646933.STACK.19226e26db.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.627fc2ac7933.STACK.19226e26db.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.632db7919933.STACK.d300f6c35.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+
+### 122. cpython-311-2350c53c731c
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_XDECREF|tupledealloc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `d300f6c35`
+- PC: `0x632db7919933`
+- Fault address: `0xffffffff`
+- Instruction: `mov____0x0(%r13),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-2350c53c731c.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.632db7919933.STACK.d300f6c35.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+- Normalized function stack:
+  - `Py_XDECREF`
+  - `tupledealloc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  Py_XDECREF (op=0xffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:602`
+  - `#1  tupledealloc (op=0x5589c82abe60) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:208`
+  - `#2  0x00005589ab0e5bdf in _PyEval_EvalFrameDefault (tstate=0x5589ab60c910 <_PyRuntime+166328>, frame=0x5589c812ddd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4142`
+  - `#3  0x00005589ab0dcf4c in _PyEval_EvalFrame (tstate=0x5589ab60c910 <_PyRuntime+166328>, frame=0x5589c812dd50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x5589ab60c910 <_PyRuntime+166328>, func=0x5589c814e4d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005589ab1c0b5a in run_eval_code_obj (tstate=0x5589ab60c910 <_PyRuntime+166328>, co=0x5589c81b7be0, globals=0x2369929, locals=0x2369929) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#7  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x2369929, locals=0x2369929, flags=0x7ffd9eebbb00, arena=0x5589c81b9c30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#8  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x2369929, locals=0x2369929, closeit=1, flags=0x7ffd9eebbb00) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#9  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#10 0x00005589ab1bfbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5589c8200e00, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#11 0x00005589ab2162d4 in pymain_run_file_obj (program_name=0x5589c8202120, filename=0x5589c8200e00, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#12 pymain_run_file (config=0x5589ab5f2958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#13 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#14 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#15 0x00005589ab216c29 in pymain_main (args=0x7ffd9eebbd70) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.581029f65933.STACK.18b245354f.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e0220816933.STACK.18bf8f4afd.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61e450646933.STACK.19226e26db.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.627fc2ac7933.STACK.19226e26db.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.632db7919933.STACK.d300f6c35.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+
+### 123. cpython-311-2350c53c731c
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_XDECREF|tupledealloc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `ecc096990`
+- PC: `0x59e3f0b07933`
+- Fault address: `0xffffffff`
+- Instruction: `mov____0x0(%r13),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-2350c53c731c.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59e3f0b07933.STACK.ecc096990.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+- Normalized function stack:
+  - `Py_XDECREF`
+  - `tupledealloc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  Py_XDECREF (op=0xffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:602`
+  - `#1  tupledealloc (op=0x5589c82abe60) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:208`
+  - `#2  0x00005589ab0e5bdf in _PyEval_EvalFrameDefault (tstate=0x5589ab60c910 <_PyRuntime+166328>, frame=0x5589c812ddd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4142`
+  - `#3  0x00005589ab0dcf4c in _PyEval_EvalFrame (tstate=0x5589ab60c910 <_PyRuntime+166328>, frame=0x5589c812dd50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x5589ab60c910 <_PyRuntime+166328>, func=0x5589c814e4d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005589ab1c0b5a in run_eval_code_obj (tstate=0x5589ab60c910 <_PyRuntime+166328>, co=0x5589c81b7be0, globals=0x2369929, locals=0x2369929) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#7  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x2369929, locals=0x2369929, flags=0x7ffd9eebbb00, arena=0x5589c81b9c30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#8  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x2369929, locals=0x2369929, closeit=1, flags=0x7ffd9eebbb00) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#9  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#10 0x00005589ab1bfbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5589c8200e00, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#11 0x00005589ab2162d4 in pymain_run_file_obj (program_name=0x5589c8202120, filename=0x5589c8200e00, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#12 pymain_run_file (config=0x5589ab5f2958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#13 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#14 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#15 0x00005589ab216c29 in pymain_main (args=0x7ffd9eebbd70) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.581029f65933.STACK.18b245354f.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e0220816933.STACK.18bf8f4afd.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61e450646933.STACK.19226e26db.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.627fc2ac7933.STACK.19226e26db.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.632db7919933.STACK.d300f6c35.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+
+### 124. cpython-311-27eb285f1285
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_IsTrue|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `197db089c0`
+- PC: `0x5c557240f838`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-27eb285f1285.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c557240f838.STACK.197db089c0.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_IsTrue`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  PyObject_IsTrue (v=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1505`
+  - `#1  0x000063883fd88b86 in _PyEval_EvalFrameDefault (tstate=0x6388402b6910 <_PyRuntime+166328>, frame=0x638875787d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4088`
+  - `#2  0x000063883fd86f4c in _PyEval_EvalFrame (tstate=0x6388402b6910 <_PyRuntime+166328>, frame=0x638875787c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x6388402b6910 <_PyRuntime+166328>, func=0x6388757a83f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000063883fe6ab5a in run_eval_code_obj (tstate=0x6388402b6910 <_PyRuntime+166328>, co=0x6388758661c0, globals=0x2187738, locals=0x2187738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x2187738, locals=0x2187738, flags=0x7fff26a80e40, arena=0x638875806d90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x2187738, locals=0x2187738, closeit=1, flags=0x7fff26a80e40) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x000063883fe69bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x638875856f50, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x000063883fec02d4 in pymain_run_file_obj (program_name=0x63887585b3f0, filename=0x638875856f50, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x63884029c958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x000063883fec0c29 in pymain_main (args=0x7fff26a810b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5653eb65d838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.569b296a5838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56dff591b838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b317d486838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dbf3528f838.STACK.18bf7d14b2.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 125. cpython-311-2892d05adfc4
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:binary_op1|PyNumber_Add|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|builtin___build_class__|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file`
+- Honggfuzz stack hash: `19d1f59b59`
+- PC: `0x568f58f73fb6`
+- Fault address: `0x0`
+- Instruction: `cmpq___$0x0,0x60(%rbx)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-2892d05adfc4.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.568f58f73fb6.STACK.19d1f59b59.CODE.128.ADDR.0.INSTR.cmpq___$0x0,0x60(%rbx).pyc`
+- Normalized function stack:
+  - `binary_op1`
+  - `PyNumber_Add`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `builtin___build_class__`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  binary_op1 (v=0x6366ea054ef2, w=0x1ffffffff, op_slot=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:866`
+  - `#1  PyNumber_Add (v=0x6366ea054ef2, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:1073`
+  - `#2  0x00006366c43672cf in _PyEval_EvalFrameDefault (tstate=0x6366c4891910 <_PyRuntime+166328>, frame=0x6366e9f39e18, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5549`
+  - `#3  0x00006366c43621b0 in _PyEval_EvalFrame (tstate=0x6366c4891910 <_PyRuntime+166328>, frame=0x6366e9f39e18, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=<optimized out>, func=0x6366e9fce730, locals=<optimized out>, args=<optimized out>, argcount=0, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  0x00006366c4357d9d in builtin___build_class__ (self=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00006366c41c1fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00006366c40fd8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x6366e9f34b20, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#8  0x00006366c40fd813 in PyObject_Vectorcall (callable=0x6366e9f34b20, args=0x6366e9f39e00, nargsf=9223372036854775810, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#9  0x00006366c436adae in _PyEval_EvalFrameDefault (tstate=0x6366c4891910 <_PyRuntime+166328>, frame=0x6366e9f39d70, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#10 0x00006366c4361f4c in _PyEval_EvalFrame (tstate=0x6366c4891910 <_PyRuntime+166328>, frame=0x6366e9f39cf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#11 _PyEval_Vector (tstate=0x6366c4891910 <_PyRuntime+166328>, func=0x6366e9f59ed0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#12 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x00006366c4445b5a in run_eval_code_obj (tstate=0x6366c4891910 <_PyRuntime+166328>, co=0x6366ea017ec0, globals=0x6366c5216680 <bbMapFb>, locals=0x6366c5216680 <bbMapFb>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#14 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x6366c5216680 <bbMapFb>, locals=0x6366c5216680 <bbMapFb>, flags=0x7ffd516d9990, arena=0x6366e9fb88b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#15 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x6366c5216680 <bbMapFb>, locals=0x6366c5216680 <bbMapFb>, closeit=1, flags=0x7ffd516d9990) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.568f58f73fb6.STACK.19d1f59b59.CODE.128.ADDR.0.INSTR.cmpq___$0x0,0x60(%rbx).pyc`
+
+### 126. cpython-311-2f5aa1bc4e0c
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_Repr|unicode_fromformat_arg|PyUnicode_FromFormatV|_PyErr_FormatV|_PyErr_Format|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|_PyFunction_Vectorcall|_PyObject_VectorcallTstate|vectorcall_unbound|vectorcall_method|slot_tp_setattro|PyObject_SetAttr|_PyEval_EvalFrameDefault|_PyEval_EvalFrame`
+- Honggfuzz stack hash: `c2584365e`
+- PC: `0x55b575d02efb`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r15),%rbx`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-2f5aa1bc4e0c.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55b575d02efb.STACK.c2584365e.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rbx.pyc`
+- Normalized function stack:
+  - `PyObject_Repr`
+  - `unicode_fromformat_arg`
+  - `PyUnicode_FromFormatV`
+  - `_PyErr_FormatV`
+  - `_PyErr_Format`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `_PyFunction_Vectorcall`
+  - `_PyObject_VectorcallTstate`
+  - `vectorcall_unbound`
+  - `vectorcall_method`
+  - `slot_tp_setattro`
+  - `PyObject_SetAttr`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+- Reproduced stack frames:
+  - `#0  PyObject_Repr (v=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:415`
+  - `#1  0x000061f5757a276b in unicode_fromformat_arg (writer=0x7ffe56f582d0, f=<optimized out>, vargs=0x7ffe56f58330) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/unicodeobject.c:3036`
+  - `#2  PyUnicode_FromFormatV (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#3  0x000061f57594ab8b in _PyErr_FormatV (tstate=0x61f575dfc910 <_PyRuntime+166328>, exception=0x61f575c505f0 <_PyExc_SystemError>, format=0x61f576781680 <bbMapFb> "", vargs=0x7ffe56f58440) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:1078`
+  - `#4  _PyErr_Format (tstate=0x61f575dfc910 <_PyRuntime+166328>, exception=<optimized out>, format=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:1104`
+  - `#5  0x000061f5758e287f in _PyEval_EvalFrameDefault (tstate=0x61f575dfc910 <_PyRuntime+166328>, frame=0x61f5ba821db8, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4405`
+  - `#6  0x000061f5758cd1b0 in _PyEval_EvalFrame (tstate=0x61f575dfc910 <_PyRuntime+166328>, frame=0x61f5ba821db8, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#7  _PyEval_Vector (tstate=<optimized out>, func=0x61f5ba8f7850, locals=<optimized out>, args=<optimized out>, argcount=3, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#8  0x000061f575669865 in _PyFunction_Vectorcall (func=0x61f5ba8f7850, stack=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/cpython/abstract.h:59`
+  - `#9  0x000061f575795107 in _PyObject_VectorcallTstate (tstate=0x61f575dfc910 <_PyRuntime+166328>, callable=0x61f5ba8f7850, args=0x7ffe56f58780, nargsf=18446744073709547432, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 vectorcall_unbound (tstate=0x61f575dfc910 <_PyRuntime+166328>, func=0x61f5ba8f7850, args=0x7ffe56f58780, nargs=3, unbound=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1650`
+  - `#11 vectorcall_method (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x000061f575785e9d in slot_tp_setattro (self=0x61f5ba9a1a50, name=0x61f5ba9a89e0, value=0x61f575c44e80 <_Py_TrueStruct>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:7727`
+  - `#13 0x000061f575739635 in PyObject_SetAttr (v=0x61f5ba9a1a50, name=0x61f5ba9a89e0, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1028`
+  - `#14 0x000061f5758d2b69 in _PyEval_EvalFrameDefault (tstate=0x61f575dfc910 <_PyRuntime+166328>, frame=0x61f5ba821d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2889`
+  - `#15 0x000061f5758ccf4c in _PyEval_EvalFrame (tstate=0x61f575dfc910 <_PyRuntime+166328>, frame=0x61f5ba821c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55b575d02efb.STACK.c2584365e.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rbx.pyc`
+
+### 127. cpython-311-303efba053be
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:visit_decref|func_traverse|subtract_refs|deduce_unreachable|gc_collect_main|gc_collect_with_callback|gc_collect_generations|_PyObject_GC_Link|_PyType_AllocNoTrack|PyType_GenericAlloc|descr_new|PyDescr_NewWrapper|add_operators|type_ready_fill_dict|type_ready|PyType_Ready`
+- Honggfuzz stack hash: `f9e8b9f8f`
+- PC: `0x5cff63b9631b`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-303efba053be.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5cff63b9631b.STACK.f9e8b9f8f.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `visit_decref`
+  - `func_traverse`
+  - `subtract_refs`
+  - `deduce_unreachable`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `gc_collect_generations`
+  - `_PyObject_GC_Link`
+  - `_PyType_AllocNoTrack`
+  - `PyType_GenericAlloc`
+  - `descr_new`
+  - `PyDescr_NewWrapper`
+  - `add_operators`
+  - `type_ready_fill_dict`
+  - `type_ready`
+  - `PyType_Ready`
+- Reproduced stack frames:
+  - `#0  visit_decref (op=0x1ffffffff, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:452`
+  - `#1  0x00005fadf4315521 in func_traverse (f=0x5fae25576d20, visit=<optimized out>, arg=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:730`
+  - `#2  0x00005fadf4665086 in subtract_refs (containers=0x5fadf4a3f830 <_PyRuntime+59608>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:478`
+  - `#3  deduce_unreachable (base=0x5fadf4a3f830 <_PyRuntime+59608>, unreachable=0x7ffc3f81a388) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1100`
+  - `#4  gc_collect_main (tstate=0x5fadf4a59910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1226`
+  - `#5  0x00005fadf46648a6 in gc_collect_with_callback (tstate=0x5fadf4a59910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#6  0x00005fadf4666e7b in gc_collect_generations (tstate=0x5fadf4a1af6c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1455`
+  - `#7  _PyObject_GC_Link (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005fadf43bb40d in _PyType_AllocNoTrack (type=0x5fadf48a72b0 <PyWrapperDescr_Type>, nitems=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1141`
+  - `#9  PyType_GenericAlloc (type=0x5fadf48a72b0 <PyWrapperDescr_Type>, nitems=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1157`
+  - `#10 0x00005fadf42dfff5 in descr_new (descrtype=0x5fadf4a1af6c, type=0x5fae25635f90, name=0x5fadf4794075 "__init__") at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/descrobject.c:904`
+  - `#11 PyDescr_NewWrapper (type=<optimized out>, base=0x5fadf48bd938 <slotdefs+1288>, wrapped=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/descrobject.c:1007`
+  - `#12 0x00005fadf43db553 in add_operators (type=0x5fadf4a1af6c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:8756`
+  - `#13 type_ready_fill_dict (type=0x5fadf4a1af6c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:6192`
+  - `#14 0x00005fadf43bef1a in type_ready (type=0x5fae25635f90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:6474`
+  - `#15 PyType_Ready (type=0x5fae25635f90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:6513`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5cff63b9631b.STACK.f9e8b9f8f.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 128. cpython-311-3264726321f9
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_Negative|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `1948a111ce`
+- PC: `0x5eabfb2cec0f`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-3264726321f9.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5eabfb2cec0f.STACK.1948a111ce.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyNumber_Negative`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PyNumber_Negative (o=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:1333`
+  - `#1  0x0000625f583877af in _PyEval_EvalFrameDefault (tstate=0x625f588b6910 <_PyRuntime+166328>, frame=0xffffffffffffef80, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:1930`
+  - `#2  0x0000625f58386f4c in _PyEval_EvalFrame (tstate=0x625f588b6910 <_PyRuntime+166328>, frame=0x625f9ce17dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x625f588b6910 <_PyRuntime+166328>, func=0x625f9ceacc90, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x0000625f5837f452 in builtin_exec_impl (source=0x625f9cf96940, globals=0x625f5923b680 <bbMapFb>, locals=0x625f9cf7da90, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x0000625f581e6fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x0000625f581228eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x625f9ce13450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x0000625f58122813 in PyObject_Vectorcall (callable=0x625f9ce13450, args=0x625f9ce17da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x0000625f5838fdae in _PyEval_EvalFrameDefault (tstate=0x625f588b6910 <_PyRuntime+166328>, frame=0x625f9ce17d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x0000625f58386f4c in _PyEval_EvalFrame (tstate=0x625f588b6910 <_PyRuntime+166328>, frame=0x625f9ce17d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x625f588b6910 <_PyRuntime+166328>, func=0x625f9ce384f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x0000625f5846ab5a in run_eval_code_obj (tstate=0x625f588b6910 <_PyRuntime+166328>, co=0x625f9cea1c20, globals=0x438c, locals=0x438c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x438c, locals=0x438c, flags=0x7ffc1ba30bc0, arena=0x625f9ce96e10) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5eabfb2cec0f.STACK.1948a111ce.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 129. cpython-311-36b3d4d99e62
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyTraceBack_FromFrame|PyTraceBack_Here|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `190ae30c1f`
+- PC: `0x62b52fc1ca7a`
+- Fault address: `0x38`
+- Instruction: `mov____0x38(%rax),%ebx`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-36b3d4d99e62.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.62b52fc1ca7a.STACK.190ae30c1f.CODE.1.ADDR.38.INSTR.mov____0x38(%rax),%ebx.pyc`
+- Normalized function stack:
+  - `_PyTraceBack_FromFrame`
+  - `PyTraceBack_Here`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  0x000057f4042cda7a in _PyTraceBack_FromFrame (tb_next=0x0, frame=0x57f404533ea0 <_Py_FalseStruct>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/traceback.c:242`
+  - `#1  PyTraceBack_Here (frame=0x57f404533ea0 <_Py_FalseStruct>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/traceback.c:253`
+  - `#2  0x000057f4041d4675 in _PyEval_EvalFrameDefault (tstate=0x57f4046eb910 <_PyRuntime+166328>, frame=0x57f425adcd70, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5752`
+  - `#3  0x000057f4041bbf4c in _PyEval_EvalFrame (tstate=0x57f4046eb910 <_PyRuntime+166328>, frame=0x57f425adcd70, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x57f4046eb910 <_PyRuntime+166328>, func=0x57f425bb2730, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x000057f4041b4452 in builtin_exec_impl (source=0x57f425c5b750, globals=0x7ffec593a5a8, locals=0x57f425c59610, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000057f40401bfdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x000057f403f578eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x57f425ad83f0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x000057f403f57813 in PyObject_Vectorcall (callable=0x57f425ad83f0, args=0x57f425adcd48, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x000057f4041c4dae in _PyEval_EvalFrameDefault (tstate=0x57f4046eb910 <_PyRuntime+166328>, frame=0x57f425adccf0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x000057f4041bbf4c in _PyEval_EvalFrame (tstate=0x57f4046eb910 <_PyRuntime+166328>, frame=0x57f425adccf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x57f4046eb910 <_PyRuntime+166328>, func=0x57f425afcf10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x000057f40429fb5a in run_eval_code_obj (tstate=0x57f4046eb910 <_PyRuntime+166328>, co=0x57f425b66740, globals=0x7ffec593a5b0, locals=0x7ffec593a5b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.62b52fc1ca7a.STACK.190ae30c1f.CODE.1.ADDR.38.INSTR.mov____0x38(%rax),%ebx.pyc`
+
+### 130. cpython-311-3d91baaa2a9f
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyDict_FromItems|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|builtin___build_class__|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject`
+- Honggfuzz stack hash: `1b2f714199`
+- PC: `0x640d7708a0f4`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rax),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-3d91baaa2a9f.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.640d7708a0f4.STACK.1b2f714199.CODE.1.ADDR.8.INSTR.mov____0x8(%rax),%rax.pyc`
+- Normalized function stack:
+  - `_PyDict_FromItems`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `builtin___build_class__`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  _PyDict_FromItems (keys=<optimized out>, keys_offset=<optimized out>, values=<optimized out>, values_offset=<optimized out>, length=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1609`
+  - `#1  0x00005a256665a849 in _PyEval_EvalFrameDefault (tstate=0x5a2566b87910 <_PyRuntime+166328>, frame=0x5a25a5856da8, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3323`
+  - `#2  0x00005a25666581b0 in _PyEval_EvalFrame (tstate=0x5a2566b87910 <_PyRuntime+166328>, frame=0x5a25a5856da8, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=<optimized out>, func=0x5a25a58eb9e0, locals=<optimized out>, args=<optimized out>, argcount=0, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  0x00005a256664dd9d in builtin___build_class__ (self=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005a25664b7fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005a25663f38eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5a25a5851ac0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#7  0x00005a25663f3813 in PyObject_Vectorcall (callable=0x5a25a5851ac0, args=0x5a25a5856d90, nargsf=9223372036854775810, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#8  0x00005a2566660dae in _PyEval_EvalFrameDefault (tstate=0x5a2566b87910 <_PyRuntime+166328>, frame=0x5a25a5856d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#9  0x00005a2566657f4c in _PyEval_EvalFrame (tstate=0x5a2566b87910 <_PyRuntime+166328>, frame=0x5a25a5856c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#10 _PyEval_Vector (tstate=0x5a2566b87910 <_PyRuntime+166328>, func=0x5a25a58773f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#11 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x00005a256673bb5a in run_eval_code_obj (tstate=0x5a2566b87910 <_PyRuntime+166328>, co=0x5a25a59351c0, globals=0x3e, locals=0x3e) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#13 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x3e, locals=0x3e, flags=0x7fffbc59c8d0, arena=0x5a25a58e2910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#14 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x3e, locals=0x3e, closeit=1, flags=0x7fffbc59c8d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#15 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.640d7708a0f4.STACK.1b2f714199.CODE.1.ADDR.8.INSTR.mov____0x8(%rax),%rax.pyc`
+
+### 131. cpython-311-3f3e7d9af2e9
+
+- Status: crash
+- Signal: SIGSEGV
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV:deduce_unreachable|gc_collect_main|gc_collect_with_callback|gc_collect_generations|_PyObject_GC_Link|gc_alloc|_PyObject_GC_NewVar|tuple_alloc|PyTuple_New|r_object|r_object|r_object|r_object|r_object|r_object|r_object`
+- Honggfuzz stack hash: `1b4288cf59`
+- PC: `0x6183b87c531b`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-3f3e7d9af2e9.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6183b87c531b.STACK.1b4288cf59.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `deduce_unreachable`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `gc_collect_generations`
+  - `_PyObject_GC_Link`
+  - `gc_alloc`
+  - `_PyObject_GC_NewVar`
+  - `tuple_alloc`
+  - `PyTuple_New`
+  - `r_object`
+  - `read_object`
+  - `marshal_loads_impl`
+  - `marshal_loads`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+- Reproduced stack frames:
+  - `#3  deduce_unreachable (base=0x5c0601915830 <_PyRuntime+59608>, unreachable=0x7ffdab0b0d88) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1100`
+  - `#4  gc_collect_main (tstate=0x5c060192f910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1226`
+  - `#5  0x00005c060153a8a6 in gc_collect_with_callback (tstate=0x5c060192f910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#6  0x00005c060153d53c in gc_collect_generations (tstate=0x5c06018f0f6c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1455`
+  - `#7  _PyObject_GC_Link (op=0x5c062005c410) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2270`
+  - `#8  gc_alloc (basicsize=<optimized out>, presize=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2290`
+  - `#9  _PyObject_GC_NewVar (tp=<optimized out>, nitems=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2318`
+  - `#10 0x00005c060128b52f in tuple_alloc (size=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:50`
+  - `#11 PyTuple_New (size=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:75`
+  - `#12 0x00005c06014c3243 in r_object (p=0x7ffdab0b1ab8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/marshal.c:1213`
+  - `#13 0x00005c06014c4bc6 in r_object (p=0x7ffdab0b1ab8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/marshal.c:1398`
+  - `#14 0x00005c06014c32b4 in r_object (p=0x7ffdab0b1ab8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/marshal.c:1219`
+  - `#15 0x00005c06014c4b99 in r_object (p=0x7ffdab0b1ab8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/marshal.c:1392`
+  - `#16 0x00005c06014c32b4 in r_object (p=0x7ffdab0b1ab8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/marshal.c:1219`
+  - `#17 0x00005c06014c4b99 in r_object (p=0x7ffdab0b1ab8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/marshal.c:1392`
+  - `#18 0x00005c06014c32b4 in r_object (p=0x7ffdab0b1ab8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/marshal.c:1219`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6183b87c531b.STACK.1b4288cf59.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 132. cpython-311-4104352150cc
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|??|??|realloc|_PyMem_RawRealloc|PyMem_Realloc|list_resize|list_extend|_PyList_Extend|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file`
+- Honggfuzz stack hash: `efa49e33f`
+- PC: `0x7de0d94009fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-4104352150cc.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7de0d94009fc.STACK.efa49e33f.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `??`
+  - `realloc`
+  - `_PyMem_RawRealloc`
+  - `PyMem_Realloc`
+  - `list_resize`
+  - `list_extend`
+  - `_PyList_Extend`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+- Reproduced stack frames:
+  - `#0  0x000078464eceb9fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x000078464ec97476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x000078464ec7d7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x000078464ecde677 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#4  0x000078464ecf5cfc in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#5  0x000078464ecfaaac in realloc () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#6  0x0000640e48e108f8 in _PyMem_RawRealloc (ctx=<optimized out>, ptr=0x640e492493f5, size=230189) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:123`
+  - `#7  0x0000640e48e1265b in PyMem_Realloc (ptr=<optimized out>, new_size=64) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:645`
+  - `#8  0x0000640e48d92418 in list_resize (self=0x640e49342830 <PyZip_Type>, newsize=5) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/listobject.c:81`
+  - `#9  list_extend (self=<optimized out>, iterable=0x640e71c9d1c0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/listobject.c:913`
+  - `#10 0x0000640e48d92125 in _PyList_Extend (self=0x640e49342830 <PyZip_Type>, iterable=0x640e71c9d1c0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/listobject.c:1004`
+  - `#11 0x0000640e48fa249b in _PyEval_EvalFrameDefault (tstate=0x640e494ce910 <_PyRuntime+166328>, frame=0x640e71b83cb0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3272`
+  - `#12 0x0000640e48f9ef4c in _PyEval_EvalFrame (tstate=0x640e494ce910 <_PyRuntime+166328>, frame=0x640e71b83c30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x640e494ce910 <_PyRuntime+166328>, func=0x640e71ba43a0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x0000640e49082b5a in run_eval_code_obj (tstate=0x640e494ce910 <_PyRuntime+166328>, co=0x640e71c61e70, globals=0x6, locals=0x6) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7de0d94009fc.STACK.efa49e33f.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 133. cpython-311-4825097c6720
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_INCREF|Py_XINCREF|PyException_GetContext|_PyErr_SetObject|_PyErr_SetString|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file`
+- Honggfuzz stack hash: `c70abd15e`
+- PC: `0x5bdf039a259a`
+- Fault address: `0x5bdf03a83860`
+- Instruction: `addq___$0x1,(%rbx)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-4825097c6720.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5bdf039a259a.STACK.c70abd15e.CODE.2.ADDR.5bdf03a83860.INSTR.addq___$0x1,(%rbx).pyc`
+- Normalized function stack:
+  - `Py_INCREF`
+  - `Py_XINCREF`
+  - `PyException_GetContext`
+  - `_PyErr_SetObject`
+  - `_PyErr_SetString`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  Py_INCREF (op=0x5dd46426b860 <object_dealloc>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:502`
+  - `#1  Py_XINCREF (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#2  PyException_GetContext (self=self@entry=0x5dd464761c38 <PyBaseObject_Type>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/exceptions.c:409`
+  - `#3  0x00005dd46444c5ef in _PyErr_SetObject (tstate=<optimized out>, exception=0x5dd4647525f0 <_PyExc_SystemError>, value=0x5dd4a52d3c60) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:155`
+  - `#4  0x00005dd46444cf29 in _PyErr_SetString (tstate=0x5dd4648fe910 <_PyRuntime+166328>, exception=0x5dd4647525f0 <_PyExc_SystemError>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005dd4643e56eb in _PyEval_EvalFrameDefault (tstate=0x5dd4648fe910 <_PyRuntime+166328>, frame=0x5dd4a510add0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2737`
+  - `#6  0x00005dd4643cef4c in _PyEval_EvalFrame (tstate=0x5dd4648fe910 <_PyRuntime+166328>, frame=0x5dd4a510ad50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#7  _PyEval_Vector (tstate=0x5dd4648fe910 <_PyRuntime+166328>, func=0x5dd4a512b4d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#8  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00005dd4644b2b5a in run_eval_code_obj (tstate=0x5dd4648fe910 <_PyRuntime+166328>, co=0x5dd4a5194be0, globals=0x6b37, locals=0x6b37) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#10 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x6b37, locals=0x6b37, flags=0x7ffc96981930, arena=0x5dd4a5196c30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#11 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x6b37, locals=0x6b37, closeit=1, flags=0x7ffc96981930) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#12 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#13 0x00005dd4644b1bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5dd4a51da4b0, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#14 0x00005dd4645082d4 in pymain_run_file_obj (program_name=0x5dd4a51dedb0, filename=0x5dd4a51da4b0, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#15 pymain_run_file (config=0x5dd4648e4958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5bdf039a259a.STACK.c70abd15e.CODE.2.ADDR.5bdf03a83860.INSTR.addq___$0x1,(%rbx).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61b52105c59a.STACK.d717cf59e.CODE.2.ADDR.61b52113d860.INSTR.addq___$0x1,(%rbx).pyc`
+
+### 134. cpython-311-4825097c6720
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_INCREF|Py_XINCREF|PyException_GetContext|_PyErr_SetObject|_PyErr_SetString|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file`
+- Honggfuzz stack hash: `d717cf59e`
+- PC: `0x61b52105c59a`
+- Fault address: `0x61b52113d860`
+- Instruction: `addq___$0x1,(%rbx)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-4825097c6720.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61b52105c59a.STACK.d717cf59e.CODE.2.ADDR.61b52113d860.INSTR.addq___$0x1,(%rbx).pyc`
+- Normalized function stack:
+  - `Py_INCREF`
+  - `Py_XINCREF`
+  - `PyException_GetContext`
+  - `_PyErr_SetObject`
+  - `_PyErr_SetString`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  Py_INCREF (op=0x5dd46426b860 <object_dealloc>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:502`
+  - `#1  Py_XINCREF (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#2  PyException_GetContext (self=self@entry=0x5dd464761c38 <PyBaseObject_Type>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/exceptions.c:409`
+  - `#3  0x00005dd46444c5ef in _PyErr_SetObject (tstate=<optimized out>, exception=0x5dd4647525f0 <_PyExc_SystemError>, value=0x5dd4a52d3c60) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:155`
+  - `#4  0x00005dd46444cf29 in _PyErr_SetString (tstate=0x5dd4648fe910 <_PyRuntime+166328>, exception=0x5dd4647525f0 <_PyExc_SystemError>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005dd4643e56eb in _PyEval_EvalFrameDefault (tstate=0x5dd4648fe910 <_PyRuntime+166328>, frame=0x5dd4a510add0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2737`
+  - `#6  0x00005dd4643cef4c in _PyEval_EvalFrame (tstate=0x5dd4648fe910 <_PyRuntime+166328>, frame=0x5dd4a510ad50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#7  _PyEval_Vector (tstate=0x5dd4648fe910 <_PyRuntime+166328>, func=0x5dd4a512b4d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#8  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00005dd4644b2b5a in run_eval_code_obj (tstate=0x5dd4648fe910 <_PyRuntime+166328>, co=0x5dd4a5194be0, globals=0x6b37, locals=0x6b37) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#10 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x6b37, locals=0x6b37, flags=0x7ffc96981930, arena=0x5dd4a5196c30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#11 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x6b37, locals=0x6b37, closeit=1, flags=0x7ffc96981930) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#12 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#13 0x00005dd4644b1bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5dd4a51da4b0, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#14 0x00005dd4645082d4 in pymain_run_file_obj (program_name=0x5dd4a51dedb0, filename=0x5dd4a51da4b0, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#15 pymain_run_file (config=0x5dd4648e4958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5bdf039a259a.STACK.c70abd15e.CODE.2.ADDR.5bdf03a83860.INSTR.addq___$0x1,(%rbx).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61b52105c59a.STACK.d717cf59e.CODE.2.ADDR.61b52113d860.INSTR.addq___$0x1,(%rbx).pyc`
+
+### 135. cpython-311-492ff1fe49e3
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:visit_decref|func_traverse|subtract_refs|deduce_unreachable|gc_collect_main|gc_collect_with_callback|PyGC_Collect|Py_FinalizeEx|Py_RunMain|pymain_main|Py_BytesMain|main`
+- Honggfuzz stack hash: `e5bb94ab8`
+- PC: `0xffffffffffffffff`
+- Fault address: `0xffffffffffffffff`
+- Instruction: `[NOT_MMAPED]`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-492ff1fe49e3.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.ffffffffffffffff.STACK.e5bb94ab8.CODE.1.ADDR.ffffffffffffffff.INSTR.[NOT_MMAPED].pyc`
+- Normalized function stack:
+  - `visit_decref`
+  - `func_traverse`
+  - `subtract_refs`
+  - `deduce_unreachable`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `PyGC_Collect`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  visit_decref (op=0x1ffffffff, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:452`
+  - `#1  0x000055a1c05b9521 in func_traverse (f=0x55a1ed062d20, visit=<optimized out>, arg=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:730`
+  - `#2  0x000055a1c0909086 in subtract_refs (containers=0x55a1c0ce3860 <_PyRuntime+59656>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:478`
+  - `#3  deduce_unreachable (base=0x55a1c0ce3860 <_PyRuntime+59656>, unreachable=0x7fff4d9155a8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1100`
+  - `#4  gc_collect_main (tstate=0x55a1c0cfd910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1226`
+  - `#5  0x000055a1c09088a6 in gc_collect_with_callback (tstate=0x55a1c0cfd910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#6  0x000055a1c09085cc in PyGC_Collect () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2086`
+  - `#7  0x000055a1c08a47fd in Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1828`
+  - `#8  0x000055a1c0905e0a in Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:682`
+  - `#9  0x000055a1c0907c29 in pymain_main (args=0x7fff4d915a30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#10 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x000055a1c0468673 in main (argc=3, argv=0x7fff4d915bb8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Programs/python.c:15`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55861dc2931b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.562a600e131b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56ce1dc0431b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56efeeba531b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.579189b3231b.STACK.e1a76e1fc.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 136. cpython-311-4f167c8f9636
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_GetMethod|match_keys|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|gen_send_ex2|PyGen_am_send|PyIter_Send|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|gen_send_ex2|gen_send_ex|gen_send|method_vectorcall_O|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault`
+- Honggfuzz stack hash: `e88ab82f3`
+- PC: `0x5a681c779777`
+- Fault address: `0x10200000007`
+- Instruction: `mov____0x8(%rbx),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-4f167c8f9636.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a681c779777.STACK.e88ab82f3.CODE.1.ADDR.10200000007.INSTR.mov____0x8(%rbx),%r14.pyc`
+- Normalized function stack:
+  - `_PyObject_GetMethod`
+  - `match_keys`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `gen_send_ex2`
+  - `PyGen_am_send`
+  - `PyIter_Send`
+  - `gen_send_ex`
+  - `gen_send`
+  - `method_vectorcall_O`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+- Reproduced stack frames:
+  - `#0  _PyObject_GetMethod (obj=0x101ffffffff, name=<optimized out>, method=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1155`
+  - `#1  0x0000605ccc645be1 in match_keys (tstate=0x605cccb70910 <_PyRuntime+166328>, map=0x101ffffffff, keys=0x605ccc9d0a60 <_Py_NoneStruct>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:923`
+  - `#2  _PyEval_EvalFrameDefault (tstate=0x605cccb70910 <_PyRuntime+166328>, frame=0x605ce0f97b00, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4282`
+  - `#3  0x0000605ccc415232 in _PyEval_EvalFrame (tstate=0x605cccb70910 <_PyRuntime+166328>, frame=0x605cccb50c70 <_PyRuntime+36120>, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  gen_send_ex2 (gen=0x605ce0f97ab0, arg=0x605ccc9d0a60 <_Py_NoneStruct>, presult=0x7ffc1e612f18, exc=0, closing=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:219`
+  - `#5  PyGen_am_send (gen=0x605ce0f97ab0, arg=0x605ccc9d0a60 <_Py_NoneStruct>, result=0x7ffc1e612f18) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:280`
+  - `#6  0x0000605ccc38fc0d in PyIter_Send (iter=0x605ce0f97ab0, arg=<optimized out>, result=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:2882`
+  - `#7  0x0000605ccc647a9e in _PyEval_EvalFrameDefault (tstate=0x605cccb70910 <_PyRuntime+166328>, frame=0x605ce0f2c630, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2592`
+  - `#8  0x0000605ccc414d0f in _PyEval_EvalFrame (tstate=0x605cccb70910 <_PyRuntime+166328>, frame=0x605ce0f2c630, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#9  gen_send_ex2 (gen=0x605ce0f2c5e0, arg=0x605ccc9d0a60 <_Py_NoneStruct>, exc=0, closing=<optimized out>, presult=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:219`
+  - `#10 gen_send_ex (gen=0x605ce0f2c5e0, arg=0x605ccc9d0a60 <_Py_NoneStruct>, exc=<optimized out>, closing=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:287`
+  - `#11 0x0000605ccc415539 in gen_send (gen=0x605ce0f2c5e0, arg=0x605ccc9d0a60 <_Py_NoneStruct>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:310`
+  - `#12 0x0000605ccc3f681b in method_vectorcall_O (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x0000605ccc3dc8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x605ce0dc8950, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#14 0x0000605ccc3dc813 in PyObject_Vectorcall (callable=0x605ce0dc8950, args=0x605ce0e11e58, nargsf=9223372036854775810, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#15 0x0000605ccc649dae in _PyEval_EvalFrameDefault (tstate=0x605cccb70910 <_PyRuntime+166328>, frame=0x605ce0e11dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a681c779777.STACK.e88ab82f3.CODE.1.ADDR.10200000007.INSTR.mov____0x8(%rbx),%r14.pyc`
+
+### 137. cpython-311-50eef3c67ce7
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_GC_UNTRACK|PyObject_GC_UnTrack|subtype_dealloc|_Py_Dealloc|Py_DECREF|tupleiter_next|list_extend|list___init___impl|list_vectorcall|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `189664d3eb`
+- PC: `0x6205b8b2bb81`
+- Fault address: `0x0`
+- Instruction: `mov____%rax,(%rcx)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-50eef3c67ce7.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6205b8b2bb81.STACK.189664d3eb.CODE.128.ADDR.0.INSTR.mov____%rax,(%rcx).pyc`
+- Normalized function stack:
+  - `_PyObject_GC_UNTRACK`
+  - `PyObject_GC_UnTrack`
+  - `subtype_dealloc`
+  - `_Py_Dealloc`
+  - `Py_DECREF`
+  - `tupleiter_next`
+  - `list_extend`
+  - `list___init___impl`
+  - `list_vectorcall`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+- Reproduced stack frames:
+  - `#0  _PyObject_GC_UNTRACK (op=0x5cd09717ede0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_object.h:171`
+  - `#1  PyObject_GC_UnTrack (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#2  0x00005cd066afe25e in subtype_dealloc (self=0x5cd09717ede0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1368`
+  - `#3  0x00005cd066adad8c in _Py_Dealloc (op=0x5cd09717ede0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:2389`
+  - `#4  0x00005cd066af8822 in Py_DECREF (op=0x5cd09717ede0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:538`
+  - `#5  tupleiter_next (it=0x5cd097184ae0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:1057`
+  - `#6  0x00005cd066a5d5de in list_extend (self=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005cd066a6093d in list___init___impl (self=0x5cd097184500, iterable=0x5cd097184ae0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/listobject.c:2790`
+  - `#8  list_vectorcall (type=<optimized out>, args=<optimized out>, nargsf=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00005cd066a058eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5cd066ff3b20 <PyList_Type>, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x00005cd066a05813 in PyObject_Vectorcall (callable=0x5cd066ff3b20 <PyList_Type>, args=0x5cd097000d90, nargsf=9223372036854775809, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x00005cd066c72dae in _PyEval_EvalFrameDefault (tstate=0x5cd067199910 <_PyRuntime+166328>, frame=0x5cd097000d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x00005cd066c69f4c in _PyEval_EvalFrame (tstate=0x5cd067199910 <_PyRuntime+166328>, frame=0x5cd097000c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x5cd067199910 <_PyRuntime+166328>, func=0x5cd0970213f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x00005cd066d4db5a in run_eval_code_obj (tstate=0x5cd067199910 <_PyRuntime+166328>, co=0x5cd0970df3d0, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6205b8b2bb81.STACK.189664d3eb.CODE.128.ADDR.0.INSTR.mov____%rax,(%rcx).pyc`
+
+### 138. cpython-311-52943bb669b6
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:visit_decref|tupletraverse|subtract_refs|deduce_unreachable|gc_collect_main|gc_collect_with_callback|gc_collect_generations|_PyObject_GC_Link|gc_alloc|_PyObject_GC_New|new_dict|PyDict_Copy|type_new_set_names|type_new_impl|type_new|type_call`
+- Honggfuzz stack hash: `1a483a9378`
+- PC: `0x625f05d9031b`
+- Fault address: `0x100000007`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-52943bb669b6.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.625f05d9031b.STACK.1a483a9378.CODE.1.ADDR.100000007.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `visit_decref`
+  - `tupletraverse`
+  - `subtract_refs`
+  - `deduce_unreachable`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `gc_collect_generations`
+  - `_PyObject_GC_Link`
+  - `gc_alloc`
+  - `_PyObject_GC_New`
+  - `new_dict`
+  - `PyDict_Copy`
+  - `type_new_set_names`
+  - `type_new_impl`
+  - `type_new`
+  - `type_call`
+- Reproduced stack frames:
+  - `#0  visit_decref (op=0xffffffff, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:452`
+  - `#1  0x00005f69e4e52039 in tupletraverse (o=0x5f6a0286df70, visit=<optimized out>, arg=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:623`
+  - `#2  0x00005f69e5100086 in subtract_refs (containers=0x5f69e54da830 <_PyRuntime+59608>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:478`
+  - `#3  deduce_unreachable (base=0x5f69e54da830 <_PyRuntime+59608>, unreachable=0x7ffde4c0f9e8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1100`
+  - `#4  gc_collect_main (tstate=0x5f69e54f4910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1226`
+  - `#5  0x00005f69e50ff8a6 in gc_collect_with_callback (tstate=0x5f69e54f4910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#6  0x00005f69e51021b6 in gc_collect_generations (tstate=0x5f69e54b5f6c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1455`
+  - `#7  _PyObject_GC_Link (op=0x5f6a02894710) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2270`
+  - `#8  gc_alloc (basicsize=<optimized out>, presize=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2290`
+  - `#9  _PyObject_GC_New (tp=0x5f69e5350420 <PyDict_Type>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2298`
+  - `#10 0x00005f69e4dec96f in new_dict (keys=<optimized out>, values=<optimized out>, used=<optimized out>, free_values_on_failure=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:737`
+  - `#11 0x00005f69e4dfac94 in PyDict_Copy (o=0x5f6a02894010) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:3081`
+  - `#12 0x00005f69e4e608b7 in type_new_set_names (type=0x5f6a02894230) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:8574`
+  - `#13 type_new_impl (ctx=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:3205`
+  - `#14 type_new (metatype=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x00005f69e4e5c631 in type_call (type=0x5f69e5357aa0 <PyType_Type>, args=<optimized out>, kwds=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1100`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.625f05d9031b.STACK.1a483a9378.CODE.1.ADDR.100000007.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 139. cpython-311-5759b93de53b
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyTuple_FromArray|_PyObject_MakeTpCall|type_vectorcall|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file`
+- Honggfuzz stack hash: `d31690013`
+- PC: `0x60075f867000`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%r14)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-5759b93de53b.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.60075f867000.STACK.d31690013.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+- Normalized function stack:
+  - `_PyTuple_FromArray`
+  - `_PyObject_MakeTpCall`
+  - `type_vectorcall`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  _PyTuple_FromArray (src=<optimized out>, n=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:388`
+  - `#1  0x00005fd7a6920b91 in _PyObject_MakeTpCall (tstate=<optimized out>, callable=0x5fd7a6f18aa0 <PyType_Type>, args=<optimized out>, nargs=<optimized out>, keywords=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:188`
+  - `#2  0x00005fd7a6a224ec in type_vectorcall (metatype=0x5fd7a6f18aa0 <PyType_Type>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#3  0x00005fd7a69218eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5fd7a6f18aa0 <PyType_Type>, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#4  0x00005fd7a6921813 in PyObject_Vectorcall (callable=0x5fd7a6f18aa0 <PyType_Type>, args=0x5fd7dadf7560, nargsf=9223372036854776063, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#5  0x00005fd7a6b8edae in _PyEval_EvalFrameDefault (tstate=0x5fd7a70b5910 <_PyRuntime+166328>, frame=0x5fd7dadf7cb0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#6  0x00005fd7a6b85f4c in _PyEval_EvalFrame (tstate=0x5fd7a70b5910 <_PyRuntime+166328>, frame=0x5fd7dadf7c30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#7  _PyEval_Vector (tstate=0x5fd7a70b5910 <_PyRuntime+166328>, func=0x5fd7dae183a0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#8  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00005fd7a6c69b5a in run_eval_code_obj (tstate=0x5fd7a70b5910 <_PyRuntime+166328>, co=0x5fd7dae81650, globals=0x1e11ff8, locals=0x1e11ff8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#10 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1e11ff8, locals=0x1e11ff8, flags=0x7ffe5bfc8ad0, arena=0x5fd7dae836a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#11 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1e11ff8, locals=0x1e11ff8, closeit=1, flags=0x7ffe5bfc8ad0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#12 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#13 0x00005fd7a6c68bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5fd7daec9560, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#14 0x00005fd7a6cbf2d4 in pymain_run_file_obj (program_name=0x5fd7daecaae0, filename=0x5fd7daec9560, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#15 pymain_run_file (config=0x5fd7a709b958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.60075f867000.STACK.d31690013.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+
+### 140. cpython-311-5821f496f911
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:list_extend|_PyList_Extend|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `c80772ca8`
+- PC: `0x5644567fe164`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-5821f496f911.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5644567fe164.STACK.c80772ca8.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%rax.pyc`
+- Normalized function stack:
+  - `list_extend`
+  - `_PyList_Extend`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  list_extend (self=<optimized out>, iterable=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/listobject.c:891`
+  - `#1  0x0000649e57398125 in _PyList_Extend (self=0x1ffffffff, iterable=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/listobject.c:1004`
+  - `#2  0x0000649e575a849b in _PyEval_EvalFrameDefault (tstate=0x649e57ad4910 <_PyRuntime+166328>, frame=0x649e63802dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3272`
+  - `#3  0x0000649e575a4f4c in _PyEval_EvalFrame (tstate=0x649e57ad4910 <_PyRuntime+166328>, frame=0x649e63802dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x649e57ad4910 <_PyRuntime+166328>, func=0x649e63968ba0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x0000649e5759d452 in builtin_exec_impl (source=0x649e63981950, globals=0x1ffffffff, locals=0x649e63988be0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x0000649e57404fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x0000649e573408eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x649e637fe450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x0000649e57340813 in PyObject_Vectorcall (callable=0x649e637fe450, args=0x649e63802da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x0000649e575addae in _PyEval_EvalFrameDefault (tstate=0x649e57ad4910 <_PyRuntime+166328>, frame=0x649e63802d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x0000649e575a4f4c in _PyEval_EvalFrame (tstate=0x649e57ad4910 <_PyRuntime+166328>, frame=0x649e63802d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x649e57ad4910 <_PyRuntime+166328>, func=0x649e638234d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x0000649e57688b5a in run_eval_code_obj (tstate=0x649e57ad4910 <_PyRuntime+166328>, co=0x649e6388cbe0, globals=0x19a848e, locals=0x19a848e) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5644567fe164.STACK.c80772ca8.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%rax.pyc`
+
+### 141. cpython-311-59f5f21e80ec
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_LookupSpecial|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `1849f30d3d`
+- PC: `0x562f1d64359c`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-59f5f21e80ec.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.562f1d64359c.STACK.1849f30d3d.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%rax.pyc`
+- Normalized function stack:
+  - `_PyObject_LookupSpecial`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  _PyObject_LookupSpecial (self=0x1ffffffff, attr=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1582`
+  - `#1  0x00005d6915f87252 in _PyEval_EvalFrameDefault (tstate=0x5d69164b2910 <_PyRuntime+166328>, frame=0xffffffffffffef80, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4366`
+  - `#2  0x00005d6915f82f4c in _PyEval_EvalFrame (tstate=0x5d69164b2910 <_PyRuntime+166328>, frame=0x5d6936a11dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5d69164b2910 <_PyRuntime+166328>, func=0x5d6936a324f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005d6915f7b452 in builtin_exec_impl (source=0x5d6936b90600, globals=0x5d691648fa70 <_PyRuntime+23320>, locals=0x5d6936b96fa0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005d6915de2fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005d6915d1e8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5d6936a0d450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x00005d6915d1e813 in PyObject_Vectorcall (callable=0x5d6936a0d450, args=0x5d6936a11da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x00005d6915f8bdae in _PyEval_EvalFrameDefault (tstate=0x5d69164b2910 <_PyRuntime+166328>, frame=0x5d6936a11d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x00005d6915f82f4c in _PyEval_EvalFrame (tstate=0x5d69164b2910 <_PyRuntime+166328>, frame=0x5d6936a11d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x5d69164b2910 <_PyRuntime+166328>, func=0x5d6936ae4130, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00005d6916066b5a in run_eval_code_obj (tstate=0x5d69164b2910 <_PyRuntime+166328>, co=0x5d6936aecab0, globals=0x2383738, locals=0x2383738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x2383738, locals=0x2383738, flags=0x7ffee2852aa0, arena=0x5d6936a6d5e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.562f1d64359c.STACK.1849f30d3d.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%rax.pyc`
+
+### 142. cpython-311-5bdaa1635e51
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_Py_Specialize_Precall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `dc72ae39e`
+- PC: `0x57aad6b6692f`
+- Fault address: `0x26b020c`
+- Instruction: `mov____0xa8(%rbx),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-5bdaa1635e51.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57aad6b6692f.STACK.dc72ae39e.CODE.1.ADDR.26b020c.INSTR.mov____0xa8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `_Py_Specialize_Precall`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  _Py_Specialize_Precall (callable=0x5ae5106aefba, instr=0x5ae5106aefba, nargs=1, kwnames=0x0, oparg=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/specialize.c:1632`
+  - `#1  0x00005ae4daa7bde4 in _PyEval_EvalFrameDefault (tstate=0x5ae4dafa4910 <_PyRuntime+166328>, frame=0x5ae51052fdd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4802`
+  - `#2  0x00005ae4daa74f4c in _PyEval_EvalFrame (tstate=0x5ae4dafa4910 <_PyRuntime+166328>, frame=0x5ae51052fdd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5ae4dafa4910 <_PyRuntime+166328>, func=0x5ae5106ad950, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005ae4daa6d452 in builtin_exec_impl (source=0x5ae5106aef00, globals=0x5ae5106aefba, locals=0x5ae510604540, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005ae4da8d4fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005ae4da8108eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5ae51052b450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x00005ae4da810813 in PyObject_Vectorcall (callable=0x5ae51052b450, args=0x5ae51052fda8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x00005ae4daa7ddae in _PyEval_EvalFrameDefault (tstate=0x5ae4dafa4910 <_PyRuntime+166328>, frame=0x5ae51052fd50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x00005ae4daa74f4c in _PyEval_EvalFrame (tstate=0x5ae4dafa4910 <_PyRuntime+166328>, frame=0x5ae51052fd50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x5ae4dafa4910 <_PyRuntime+166328>, func=0x5ae5105504d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00005ae4dab58b5a in run_eval_code_obj (tstate=0x5ae4dafa4910 <_PyRuntime+166328>, co=0x5ae5105b9be0, globals=0x1, locals=0x1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1, locals=0x1, flags=0x7ffd692a30d0, arena=0x5ae5105bbc30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57aad6b6692f.STACK.dc72ae39e.CODE.1.ADDR.26b020c.INSTR.mov____0xa8(%rbx),%r15.pyc`
+
+### 143. cpython-311-5e17ee64a60a
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_GetIter|unpack_iterable|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `1a08ec1160`
+- PC: `0x612569ed6ddb`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-5e17ee64a60a.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.612569ed6ddb.STACK.1a08ec1160.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_GetIter`
+  - `unpack_iterable`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  PyObject_GetIter (o=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:2793`
+  - `#1  0x000057e06a1db8f0 in unpack_iterable (tstate=0x57e06a705910 <_PyRuntime+166328>, v=0x1ffffffff, argcnt=173, argcntafter=-1, sp=0x57e08f716378) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6691`
+  - `#2  _PyEval_EvalFrameDefault (tstate=0x57e06a705910 <_PyRuntime+166328>, frame=0x57e08f715dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2801`
+  - `#3  0x000057e06a1d5f4c in _PyEval_EvalFrame (tstate=0x57e06a705910 <_PyRuntime+166328>, frame=0x57e08f715dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x57e06a705910 <_PyRuntime+166328>, func=0x57e08f7aacb0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x000057e06a1ce452 in builtin_exec_impl (source=0x57e08f894780, globals=0x57e06a65c580 <globalCovFeedback>, locals=0x57e08f7eb550, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000057e06a035fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x000057e069f718eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x57e08f711450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x000057e069f71813 in PyObject_Vectorcall (callable=0x57e08f711450, args=0x57e08f715da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x000057e06a1dedae in _PyEval_EvalFrameDefault (tstate=0x57e06a705910 <_PyRuntime+166328>, frame=0x57e08f715d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x000057e06a1d5f4c in _PyEval_EvalFrame (tstate=0x57e06a705910 <_PyRuntime+166328>, frame=0x57e08f715d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x57e06a705910 <_PyRuntime+166328>, func=0x57e08f7364f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x000057e06a2b9b5a in run_eval_code_obj (tstate=0x57e06a705910 <_PyRuntime+166328>, co=0x57e08f79fb90, globals=0x15db8dc, locals=0x15db8dc) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.612569ed6ddb.STACK.1a08ec1160.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56eb87729ddb.STACK.d996d0011.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58169dfe2ddb.STACK.d996d0011.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59905619dddb.STACK.d996d0011.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.599829e44ddb.STACK.d996d0011.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 144. cpython-311-5ec7fc596442
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_Py_DumpExtensionModules|fatal_error|_Py_FatalErrorFunc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode`
+- Honggfuzz stack hash: `1870cfb795`
+- PC: `0x61f494c42cac`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r15,%r13,1),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-5ec7fc596442.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61f494c42cac.STACK.1870cfb795.CODE.128.ADDR.0.INSTR.mov____0x8(%r15,%r13,1),%rax.pyc`
+- Normalized function stack:
+  - `_Py_DumpExtensionModules`
+  - `fatal_error`
+  - `_Py_FatalErrorFunc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+- Reproduced stack frames:
+  - `#0  _Py_DumpExtensionModules (fd=<optimized out>, interp=0x5ea0cf270590 <_PyRuntime+58936>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2659`
+  - `#1  0x00005ea0cee33ef7 in fatal_error (fd=<optimized out>, header=<optimized out>, prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2787`
+  - `#2  0x00005ea0cee2e384 in _Py_FatalErrorFunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#3  0x00005ea0ced5b6af in _PyEval_EvalFrameDefault (tstate=0x5ea0cf28a910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:853`
+  - `#4  0x00005ea0ced5af4c in _PyEval_EvalFrame (tstate=0x5ea0cf28a910 <_PyRuntime+166328>, frame=0x5ea0dbc78dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#5  _PyEval_Vector (tstate=0x5ea0cf28a910 <_PyRuntime+166328>, func=0x5ea0dbdf5dc0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#6  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005ea0ced53452 in builtin_exec_impl (source=0x5ea0dbdb57f0, globals=0x5ea0cf1e1580 <globalCovFeedback>, locals=0x5ea0dbdfe580, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#8  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00005ea0cebbafdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x00005ea0ceaf68eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5ea0dbc74450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#11 0x00005ea0ceaf6813 in PyObject_Vectorcall (callable=0x5ea0dbc74450, args=0x5ea0dbc78da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#12 0x00005ea0ced63dae in _PyEval_EvalFrameDefault (tstate=0x5ea0cf28a910 <_PyRuntime+166328>, frame=0x5ea0dbc78d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#13 0x00005ea0ced5af4c in _PyEval_EvalFrame (tstate=0x5ea0cf28a910 <_PyRuntime+166328>, frame=0x5ea0dbc78d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#14 _PyEval_Vector (tstate=0x5ea0cf28a910 <_PyRuntime+166328>, func=0x5ea0dbc994f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#15 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61f494c42cac.STACK.1870cfb795.CODE.128.ADDR.0.INSTR.mov____0x8(%r15,%r13,1),%rax.pyc`
+
+### 145. cpython-311-653c723d2437
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|??|??|??|??|realloc|_PyMem_RawRealloc|PyObject_Realloc|_PyBytes_Resize|w_reserve|w_long|w_pstring|w_complex_object|w_object|w_complex_object|w_object`
+- Honggfuzz stack hash: `18f7fcd5dd`
+- PC: `0x7fcc4ce969fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-653c723d2437.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7fcc4ce969fc.STACK.18f7fcd5dd.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `??`
+  - `realloc`
+  - `_PyMem_RawRealloc`
+  - `PyObject_Realloc`
+  - `_PyBytes_Resize`
+  - `w_reserve`
+  - `w_long`
+  - `w_pstring`
+  - `w_complex_object`
+  - `w_object`
+  - `PyMarshal_WriteObjectToString`
+  - `marshal_dumps_impl`
+  - `marshal_dumps`
+- Reproduced stack frames:
+  - `#0  0x000079949159f9fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x000079949154b476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007994915317f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x0000799491592677 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#4  0x00007994915a9cfc in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#5  0x00007994915ad0dc in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#6  0x00007994915adb8a in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#7  0x00007994915ae909 in realloc () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#8  0x0000556ccc09e8f8 in _PyMem_RawRealloc (ctx=<optimized out>, ptr=0x556ce8e86150, size=229781) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:123`
+  - `#9  0x0000556ccc0a0b2b in PyObject_Realloc (ptr=<optimized out>, new_size=3305) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:734`
+  - `#10 0x0000556ccbfaf666 in _PyBytes_Resize (pv=0x7fff9fcd2470, newsize=3272) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/bytesobject.c:3091`
+  - `#11 0x0000556ccc2e85d9 in w_reserve (p=0x7fff9fcd2460, needed=1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/marshal.c:128`
+  - `#12 w_long (x=<optimized out>, p=0x7fff9fcd2460) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/marshal.c:176`
+  - `#13 0x0000556ccc2eb0eb in w_pstring (s=<optimized out>, n=0, p=0x7fff9fcd2460) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/marshal.c:199`
+  - `#14 w_complex_object (v=0x556ccc7362c0 <_PyRuntime+9064>, flag=<optimized out>, p=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/marshal.c:427`
+  - `#15 0x0000556ccc2e8f28 in w_object (v=<optimized out>, p=0x7fff9fcd2460) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/marshal.c:372`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.7fcc4ce969fc.STACK.18f7fcd5dd.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 146. cpython-311-666dac1761a4
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:unicode_fromformat_write_cstr|unicode_fromformat_arg|PyUnicode_FromFormatV|_PyErr_FormatV|PyErr_Format|binop_type_error|PyNumber_InPlaceAdd|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject`
+- Honggfuzz stack hash: `d75f36436`
+- PC: `0x6525a875fa88`
+- Fault address: `0x3eb7`
+- Instruction: `movzbl_(%r12,%r14,1),%ebx`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-666dac1761a4.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6525a875fa88.STACK.d75f36436.CODE.1.ADDR.3eb7.INSTR.movzbl_(%r12,%r14,1),%ebx.pyc`
+- Normalized function stack:
+  - `unicode_fromformat_write_cstr`
+  - `unicode_fromformat_arg`
+  - `PyUnicode_FromFormatV`
+  - `_PyErr_FormatV`
+  - `PyErr_Format`
+  - `binop_type_error`
+  - `PyNumber_InPlaceAdd`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  0x00005b9c8e97ca88 in unicode_fromformat_write_cstr (writer=0x7ffd45cfd200, str=0x3ecf <error: Cannot access memory at address 0x3ecf>, width=-1, precision=100) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/unicodeobject.c:2773`
+  - `#1  unicode_fromformat_arg (writer=0x7ffd45cfd200, f=<optimized out>, vargs=0x7ffd45cfd260) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/unicodeobject.c:2983`
+  - `#2  PyUnicode_FromFormatV (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#3  0x00005b9c8eb28a8d in _PyErr_FormatV (tstate=0x5b9c8efd6910 <_PyRuntime+166328>, exception=0x5b9c8ee257f0 <_PyExc_TypeError>, format=0x0, vargs=0x7ffd45cfd370) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:1078`
+  - `#4  PyErr_Format (exception=<optimized out>, format=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:1120`
+  - `#5  0x00005b9c8e7eb21a in binop_type_error (v=0x5b9cc9728870, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  PyNumber_InPlaceAdd (v=0x5b9cc9728870, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:1276`
+  - `#7  0x00005b9c8eaac2cf in _PyEval_EvalFrameDefault (tstate=0x5b9c8efd6910 <_PyRuntime+166328>, frame=0x5b9cc95a4dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5549`
+  - `#8  0x00005b9c8eaa6f4c in _PyEval_EvalFrame (tstate=0x5b9c8efd6910 <_PyRuntime+166328>, frame=0x5b9cc95a4d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#9  _PyEval_Vector (tstate=0x5b9c8efd6910 <_PyRuntime+166328>, func=0x5b9cc95c54d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#10 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x00005b9c8eb8ab5a in run_eval_code_obj (tstate=0x5b9c8efd6910 <_PyRuntime+166328>, co=0x5b9cc962ebe0, globals=0x1d7ca88, locals=0x1d7ca88) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#12 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1d7ca88, locals=0x1d7ca88, flags=0x7ffd45cfd7d0, arena=0x5b9cc9630c30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#13 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1d7ca88, locals=0x1d7ca88, closeit=1, flags=0x7ffd45cfd7d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#14 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#15 0x00005b9c8eb89bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5b9cc9677e20, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6525a875fa88.STACK.d75f36436.CODE.1.ADDR.3eb7.INSTR.movzbl_(%r12,%r14,1),%ebx.pyc`
+
+### 147. cpython-311-6d4ced3ba815
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|_PyFunction_Vectorcall|_PyObject_VectorcallTstate|PyObject_CallOneArg|call_unbound_noarg|mro_invoke|mro_internal|type_ready_mro|type_ready|PyType_Ready|type_new_impl|type_new|type_call|_PyObject_MakeTpCall`
+- Honggfuzz stack hash: `ebe1e13be`
+- PC: `0x59e6452ee67c`
+- Fault address: `0x0`
+- Instruction: `mov____0x0(%r13),%rbx`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-6d4ced3ba815.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59e6452ee67c.STACK.ebe1e13be.CODE.1.ADDR.0.INSTR.mov____0x0(%r13),%rbx.pyc`
+- Normalized function stack:
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `_PyFunction_Vectorcall`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_CallOneArg`
+  - `call_unbound_noarg`
+  - `mro_invoke`
+  - `mro_internal`
+  - `type_ready_mro`
+  - `type_ready`
+  - `PyType_Ready`
+  - `type_new_impl`
+  - `type_new`
+  - `type_call`
+  - `_PyObject_MakeTpCall`
+- Reproduced stack frames:
+  - `#0  0x00005ea77919867c in _PyEval_EvalFrameDefault (tstate=0x5ea7796b8910 <_PyRuntime+166328>, frame=0x5ea798a04da8, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4783`
+  - `#1  0x00005ea7791891b0 in _PyEval_EvalFrame (tstate=0x5ea7796b8910 <_PyRuntime+166328>, frame=0x5ea798a04da8, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#2  _PyEval_Vector (tstate=<optimized out>, func=0x5ea798b81c70, locals=<optimized out>, args=<optimized out>, argcount=1, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#3  0x00005ea778f25865 in _PyFunction_Vectorcall (func=0x5ea798b81c70, stack=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/cpython/abstract.h:59`
+  - `#4  0x00005ea778f248eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5ea798b81c70, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#5  0x00005ea778f257a9 in PyObject_CallOneArg (func=0x5ea798b81c70, arg=0x5ea798b83d20) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:376`
+  - `#6  0x00005ea779039b3e in call_unbound_noarg (func=0x5ea798b81c70, self=0x5ea798b83d20, unbound=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1657`
+  - `#7  mro_invoke (type=0x5ea798b83d20) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:2079`
+  - `#8  mro_internal (type=0x5ea798b83d20, p_old_mro=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:2140`
+  - `#9  type_ready_mro (type=0x5ea798b83d20) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:6215`
+  - `#10 0x00005ea77901ddae in type_ready (type=0x5ea798b83d20) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:6468`
+  - `#11 PyType_Ready (type=0x5ea798b83d20) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:6513`
+  - `#12 0x00005ea779024827 in type_new_impl (ctx=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:3198`
+  - `#13 type_new (metatype=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00005ea779020631 in type_call (type=0x5ea798b838b0, args=<optimized out>, kwds=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1100`
+  - `#15 0x00005ea778f23701 in _PyObject_MakeTpCall (tstate=0x5ea7796b8910 <_PyRuntime+166328>, callable=0x5ea798b838b0, args=<optimized out>, nargs=<optimized out>, keywords=0x5ea798b17a10) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:214`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59e6452ee67c.STACK.ebe1e13be.CODE.1.ADDR.0.INSTR.mov____0x0(%r13),%rbx.pyc`
+
+### 148. cpython-311-6fa6691cd327
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_INCREF|Py_XINCREF|PyException_GetContext|_PyErr_SetObject|_PyErr_SetString|PyErr_SetString|long_divrem|l_divmod|long_div|binary_op1|binary_op|PyNumber_FloorDivide|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode`
+- Honggfuzz stack hash: `cf0000b21`
+- PC: `0x634d80c7459a`
+- Fault address: `0x1`
+- Instruction: `addq___$0x1,(%rbx)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-6fa6691cd327.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.634d80c7459a.STACK.cf0000b21.CODE.1.ADDR.1.INSTR.addq___$0x1,(%rbx).pyc`
+- Normalized function stack:
+  - `Py_INCREF`
+  - `Py_XINCREF`
+  - `PyException_GetContext`
+  - `_PyErr_SetObject`
+  - `_PyErr_SetString`
+  - `PyErr_SetString`
+  - `long_divrem`
+  - `l_divmod`
+  - `long_div`
+  - `binary_op1`
+  - `binary_op`
+  - `PyNumber_FloorDivide`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+- Reproduced stack frames:
+  - `#0  Py_INCREF (op=0x15) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:502`
+  - `#1  Py_XINCREF (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#2  PyException_GetContext (self=self@entry=0x61d1e4ab2580) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/exceptions.c:409`
+  - `#3  0x000061d1d1c1e5ef in _PyErr_SetObject (tstate=<optimized out>, exception=0x61d1d1f24450 <_PyExc_ZeroDivisionError>, value=0x61d1e4b5e060) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:155`
+  - `#4  0x000061d1d1c1efd4 in _PyErr_SetString (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  PyErr_SetString (exception=0x61d1d1f24450 <_PyExc_ZeroDivisionError>, string=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/errors.c:236`
+  - `#6  0x000061d1d19b6bb0 in long_divrem (a=0x61d1d20a8340 <_PyRuntime+1000>, b=0x61d1d20a82a0 <_PyRuntime+840>, pdiv=<optimized out>, prem=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/longobject.c:2706`
+  - `#7  0x000061d1d19c148b in l_divmod (v=0x61d1d2027580 <globalCovFeedback>, w=<optimized out>, pdiv=<optimized out>, pmod=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/longobject.c:3896`
+  - `#8  0x000061d1d19c023d in long_div (a=0x61d1d20a8340 <_PyRuntime+1000>, b=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/longobject.c:3972`
+  - `#9  0x000061d1d18e06b4 in binary_op1 (v=0x61d1d20a8340 <_PyRuntime+1000>, w=0x61d1d20a82a0 <_PyRuntime+840>, op_slot=232) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:893`
+  - `#10 binary_op (v=0x61d1d20a8340 <_PyRuntime+1000>, w=0x61d1d20a82a0 <_PyRuntime+840>, op_slot=232, op_name=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:932`
+  - `#11 PyNumber_FloorDivide (v=0x61d1d20a8340 <_PyRuntime+1000>, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:1136`
+  - `#12 0x000061d1d1ba62cf in _PyEval_EvalFrameDefault (tstate=0x61d1d20d0910 <_PyRuntime+166328>, frame=0x61d1e49dfcb0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5549`
+  - `#13 0x000061d1d1ba0f4c in _PyEval_EvalFrame (tstate=0x61d1d20d0910 <_PyRuntime+166328>, frame=0x61d1e49dfc30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#14 _PyEval_Vector (tstate=0x61d1d20d0910 <_PyRuntime+166328>, func=0x61d1e4a003a0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#15 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.634d80c7459a.STACK.cf0000b21.CODE.1.ADDR.1.INSTR.addq___$0x1,(%rbx).pyc`
+
+### 149. cpython-311-71d66c0dd918
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_XDECREF|tupledealloc|_Py_Dealloc|Py_DECREF|Py_XDECREF|tupledealloc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault`
+- Honggfuzz stack hash: `19d5a1d470`
+- PC: `0x5b90a6759933`
+- Fault address: `0x1ffffffff`
+- Instruction: `mov____0x0(%r13),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-71d66c0dd918.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b90a6759933.STACK.19d5a1d470.CODE.1.ADDR.1ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+- Normalized function stack:
+  - `Py_XDECREF`
+  - `tupledealloc`
+  - `_Py_Dealloc`
+  - `Py_DECREF`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+- Reproduced stack frames:
+  - `#0  Py_XDECREF (op=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:602`
+  - `#1  tupledealloc (op=0x5626cb9d5660) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:208`
+  - `#2  0x0000562696dfad8c in _Py_Dealloc (op=0x5626cb9d5660) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:2389`
+  - `#3  0x0000562696e16994 in Py_DECREF (op=0x5626cb9d5660) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:538`
+  - `#4  Py_XDECREF (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  tupledealloc (op=0x5626cb9b46a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:208`
+  - `#6  0x0000562696f936ed in _PyEval_EvalFrameDefault (tstate=0x5626974b9910 <_PyRuntime+166328>, frame=0x5626cb8cedd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4041`
+  - `#7  0x0000562696f89f4c in _PyEval_EvalFrame (tstate=0x5626974b9910 <_PyRuntime+166328>, frame=0x5626cb8cedd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#8  _PyEval_Vector (tstate=0x5626974b9910 <_PyRuntime+166328>, func=0x5626cba51b70, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#9  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x0000562696f82452 in builtin_exec_impl (source=0x5626cba4cfb0, globals=0x562697410580 <globalCovFeedback>, locals=0x5626cba52c20, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#11 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x0000562696de9fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x0000562696d258eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5626cb8ca450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#14 0x0000562696d25813 in PyObject_Vectorcall (callable=0x5626cb8ca450, args=0x5626cb8ceda8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#15 0x0000562696f92dae in _PyEval_EvalFrameDefault (tstate=0x5626974b9910 <_PyRuntime+166328>, frame=0x5626cb8ced50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5b90a6759933.STACK.19d5a1d470.CODE.1.ADDR.1ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+
+### 150. cpython-311-72d076ae3d30
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_LookupAttr|import_from|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|builtin___build_class__|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file`
+- Honggfuzz stack hash: `1996262373`
+- PC: `0x621d33ccca90`
+- Fault address: `0x9`
+- Instruction: `mov____0x8(%r12),%rbx`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-72d076ae3d30.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.621d33ccca90.STACK.1996262373.CODE.1.ADDR.9.INSTR.mov____0x8(%r12),%rbx.pyc`
+- Normalized function stack:
+  - `_PyObject_LookupAttr`
+  - `import_from`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `builtin___build_class__`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  _PyObject_LookupAttr (v=0x5f99e29d3640, name=0x66a, result=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:942`
+  - `#1  0x00005f99a65053dc in import_from (tstate=0x5f99a6a33910 <_PyRuntime+166328>, v=0x5f99e29d3640, name=0x66a) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7449`
+  - `#2  _PyEval_EvalFrameDefault (tstate=0x5f99a6a33910 <_PyRuntime+166328>, frame=0x5f99e284cda8, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3986`
+  - `#3  0x00005f99a65041b0 in _PyEval_EvalFrame (tstate=0x5f99a6a33910 <_PyRuntime+166328>, frame=0x5f99e284cda8, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=<optimized out>, func=0x5f99e29b4e70, locals=<optimized out>, args=<optimized out>, argcount=0, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  0x00005f99a64f9d9d in builtin___build_class__ (self=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005f99a6363fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005f99a629f8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5f99e2847ac0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#8  0x00005f99a629f813 in PyObject_Vectorcall (callable=0x5f99e2847ac0, args=0x5f99e284cd90, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#9  0x00005f99a650cdae in _PyEval_EvalFrameDefault (tstate=0x5f99a6a33910 <_PyRuntime+166328>, frame=0x5f99e284cd10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#10 0x00005f99a6503f4c in _PyEval_EvalFrame (tstate=0x5f99a6a33910 <_PyRuntime+166328>, frame=0x5f99e284cc90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#11 _PyEval_Vector (tstate=0x5f99a6a33910 <_PyRuntime+166328>, func=0x5f99e286d3f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#12 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x00005f99a65e7b5a in run_eval_code_obj (tstate=0x5f99a6a33910 <_PyRuntime+166328>, co=0x5f99e292b1c0, globals=0x7fff7cc66e00, locals=0x7fff7cc66e00) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#14 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x7fff7cc66e00, locals=0x7fff7cc66e00, flags=0x7fff7cc674d0, arena=0x5f99e28cbd90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#15 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x7fff7cc66e00, locals=0x7fff7cc66e00, closeit=1, flags=0x7fff7cc674d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.621d33ccca90.STACK.1996262373.CODE.1.ADDR.9.INSTR.mov____0x8(%r12),%rbx.pyc`
+
+### 151. cpython-311-746ceac13e0e
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_XDECREF|list_dealloc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `1962ca97a8`
+- PC: `0x60cbfcc09625`
+- Fault address: `0xffffffff`
+- Instruction: `mov____(%r12),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-746ceac13e0e.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.60cbfcc09625.STACK.1962ca97a8.CODE.1.ADDR.ffffffff.INSTR.mov____(%r12),%r14.pyc`
+- Normalized function stack:
+  - `Py_XDECREF`
+  - `list_dealloc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  Py_XDECREF (op=0xffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:602`
+  - `#1  list_dealloc (op=0x5f9887633630) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/listobject.c:357`
+  - `#2  0x00005f9859fabe33 in _PyEval_EvalFrameDefault (tstate=0x5f985a4d5910 <_PyRuntime+166328>, frame=0x5f98874bfd70, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3708`
+  - `#3  0x00005f9859fa5f4c in _PyEval_EvalFrame (tstate=0x5f985a4d5910 <_PyRuntime+166328>, frame=0x5f98874bfcf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x5f985a4d5910 <_PyRuntime+166328>, func=0x5f98874dff10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005f985a089b5a in run_eval_code_obj (tstate=0x5f985a4d5910 <_PyRuntime+166328>, co=0x5f988759dbf0, globals=0x219b61c, locals=0x219b61c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#7  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x219b61c, locals=0x219b61c, flags=0x7ffdfbe1dff0, arena=0x5f988753e8b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#8  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x219b61c, locals=0x219b61c, closeit=1, flags=0x7ffdfbe1dff0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#9  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#10 0x00005f985a088bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5f988758ee00, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#11 0x00005f985a0df2d4 in pymain_run_file_obj (program_name=0x5f9887593bf0, filename=0x5f988758ee00, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#12 pymain_run_file (config=0x5f985a4bb958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#13 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#14 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#15 0x00005f985a0dfc29 in pymain_main (args=0x7ffdfbe1e260) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.60cbfcc09625.STACK.1962ca97a8.CODE.1.ADDR.ffffffff.INSTR.mov____(%r12),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57401a53c625.STACK.df2ced1cf.CODE.1.ADDR.ffffffff.INSTR.mov____(%r12),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6353710b0933.STACK.df2ced1cf.CODE.1.ADDR.ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+
+### 152. cpython-311-7750cad7cef0
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_INCREF|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|_PyFunction_Vectorcall|_PyObject_VectorcallTstate|vectorcall_unbound|slot_tp_richcompare|object_richcompare|wrap_richcmpfunc|richcmp_ne|wrapperdescr_raw_call|wrapperdescr_call|_PyObject_MakeTpCall|_PyObject_VectorcallTstate|vectorcall_unbound`
+- Honggfuzz stack hash: `e0645d36f`
+- PC: `0x646cc2f79996`
+- Fault address: `0x1e`
+- Instruction: `addq___$0x1,(%rbx)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-7750cad7cef0.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.646cc2f79996.STACK.e0645d36f.CODE.1.ADDR.1e.INSTR.addq___$0x1,(%rbx).pyc`
+- Normalized function stack:
+  - `Py_INCREF`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `_PyFunction_Vectorcall`
+  - `_PyObject_VectorcallTstate`
+  - `vectorcall_unbound`
+  - `slot_tp_richcompare`
+  - `object_richcompare`
+  - `wrap_richcmpfunc`
+  - `richcmp_ne`
+  - `wrapperdescr_raw_call`
+  - `wrapperdescr_call`
+  - `_PyObject_MakeTpCall`
+  - `do_richcompare`
+  - `PyObject_RichCompare`
+- Reproduced stack frames:
+  - `#0  Py_INCREF (op=0x1e) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:502`
+  - `#1  _PyEval_EvalFrameDefault (tstate=0x55ee54a9c910 <_PyRuntime+166328>, frame=0x55ee72930d48, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3192`
+  - `#2  0x000055ee5456d1b0 in _PyEval_EvalFrame (tstate=0x55ee54a9c910 <_PyRuntime+166328>, frame=0x55ee72930d48, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=<optimized out>, func=0x55ee72a06700, locals=<optimized out>, args=<optimized out>, argcount=2, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  0x000055ee54309865 in _PyFunction_Vectorcall (func=0x55ee72a06700, stack=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/cpython/abstract.h:59`
+  - `#5  0x000055ee54426adf in _PyObject_VectorcallTstate (tstate=0x55ee54a9c910 <_PyRuntime+166328>, callable=0x55ee72a06700, args=0x7ffd4dfa0d20, nargsf=26675573, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#6  vectorcall_unbound (tstate=0x55ee54a9c910 <_PyRuntime+166328>, func=0x55ee72a06700, args=0x7ffd4dfa0d20, nargs=2, unbound=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1650`
+  - `#7  slot_tp_richcompare (self=0x55ee72aa4750, other=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000055ee54409d54 in object_richcompare (self=<optimized out>, other=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x000055ee54427051 in wrap_richcmpfunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 richcmp_ne (self=<optimized out>, args=0x55ee729d2040, wrapped=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:7027`
+  - `#11 0x000055ee54320f32 in wrapperdescr_raw_call (descr=0x55ee728c36e0, self=0x55ee54a42790, args=0x55ee729d2040, kwds=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/descrobject.c:536`
+  - `#12 wrapperdescr_call (descr=<optimized out>, args=0x55ee729d2040, kwds=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/descrobject.c:573`
+  - `#13 0x000055ee54307cfb in _PyObject_MakeTpCall (tstate=<optimized out>, callable=0x55ee54a42790, args=<optimized out>, nargs=<optimized out>, keywords=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:214`
+  - `#14 0x000055ee54426b17 in _PyObject_VectorcallTstate (tstate=0x55ee54a42790, callable=0x55ee728c36e0, args=0x7ffd4dfa0ec0, nargsf=2, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:90`
+  - `#15 vectorcall_unbound (tstate=0x55ee54a42790, func=0x55ee728c36e0, args=0x7ffd4dfa0ec0, nargs=2, unbound=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/typeobject.c:1650`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.646cc2f79996.STACK.e0645d36f.CODE.1.ADDR.1e.INSTR.addq___$0x1,(%rbx).pyc`
+
+### 153. cpython-311-7af420705331
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|??|??|??|free|_PyMem_RawFree|PyObject_Free|PyObject_GC_Del|buffered_dealloc|_Py_Dealloc|Py_DECREF|textiowrapper_clear|textiowrapper_dealloc|_Py_Dealloc|Py_DECREF|display_source_line_with_margin`
+- Honggfuzz stack hash: `fdcd8d656`
+- PC: `0x721a65bdd71f`
+- Fault address: `0x0`
+- Instruction: `cmp____(%rdi,%rax,1),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-7af420705331.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.721a65bdd71f.STACK.fdcd8d656.CODE.128.ADDR.0.INSTR.cmp____(%rdi,%rax,1),%rax.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `??`
+  - `free`
+  - `_PyMem_RawFree`
+  - `PyObject_Free`
+  - `PyObject_GC_Del`
+  - `buffered_dealloc`
+  - `_Py_Dealloc`
+  - `Py_DECREF`
+  - `textiowrapper_clear`
+  - `textiowrapper_dealloc`
+  - `display_source_line_with_margin`
+  - `tb_displayline`
+  - `tb_printinternal`
+- Reproduced stack frames:
+  - `#0  0x00007d8fcb44c9fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007d8fcb3f8476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007d8fcb3de7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00007d8fcb43f677 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#4  0x00007d8fcb456cfc in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#5  0x00007d8fcb458e70 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#6  0x00007d8fcb45b453 in free () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#7  0x00005b2caf1b592e in _PyMem_RawFree (ctx=<optimized out>, ptr=0x5b2cf6fffcb0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:129`
+  - `#8  0x00005b2caf1b7b98 in PyObject_Free (ptr=0x5b2cf6fffcb0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:741`
+  - `#9  0x00005b2caf48170b in PyObject_GC_Del (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x00005b2caf4e5989 in buffered_dealloc (self=0x5b2cf6fffcc0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/_io/bufferedio.c:386`
+  - `#11 0x00005b2caf1b4d8c in _Py_Dealloc (op=0x5b2cf6fffcc0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:2389`
+  - `#12 0x00005b2caf4f5345 in Py_DECREF (op=0x5b2cf6fffcc0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:538`
+  - `#13 textiowrapper_clear (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 textiowrapper_dealloc (self=0x5b2cf6f212b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/_io/textio.c:1394`
+  - `#15 0x00005b2caf1b4d8c in _Py_Dealloc (op=0x5b2cf6f212b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:2389`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.721a65bdd71f.STACK.fdcd8d656.CODE.128.ADDR.0.INSTR.cmp____(%rdi,%rax,1),%rax.pyc`
+
+### 154. cpython-311-7b6ab4e3ddeb
+
+- Status: crash
+- Signal: SIGSEGV
+- Stack source: honggfuzz-filename
+- Stack signature: `SIGSEGV:e0fb7eb42`
+- Honggfuzz stack hash: `e0fb7eb42`
+- PC: `0x55d633d32cbd`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-7b6ab4e3ddeb.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55d633d32cbd.STACK.e0fb7eb42.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%rax.pyc`
+- Reproduced stack frames: `not available; rerun did not produce a native backtrace`
+- Manual gdb command: `PYTHONHOME=data/rq3/cpython-3.11/source/cpython-* PYTHONPATH=data/rq3/cpython-3.11/source/cpython-*/Lib gdb -q --args data/rq3/cpython-3.11/instrumented/python data/rq3/harness.py data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55d633d32cbd.STACK.e0fb7eb42.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%rax.pyc`
+- Rerun diagnostic excerpt:
+  - `info "(gdb)Auto-loading safe path"`
+  - `warning: Error disabling address space randomization: Operation not permitted`
+  - `[Thread debugging using libthread_db enabled]`
+  - `Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".`
+  - `Traceback (most recent call last):`
+  - `File "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", line 29, in <module>`
+  - `result = target()`
+  - `^^^^^^^^`
+  - `File "data/rQ3/cpython-3.11/unittest_seeds/r[Ã/cpython_case_test_embed_EmbeddingTests_test_quickned_static_code_gets_unquickned_at_Py_FINALIZE.py", line 11, in __pybcsec_seed__`
+  - `ValueError: Empty module name`
+  - `[Inferior 1 (process 235961) exited with code 01]`
+  - `No stack.`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55d633d32cbd.STACK.e0fb7eb42.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%rax.pyc`
+
+### 155. cpython-311-83a6d7d42ef7
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:??|PyObject_Hash|_PyDict_LoadGlobal|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode`
+- Honggfuzz stack hash: `180c430cda`
+- PC: `0x57cb0be31170`
+- Fault address: `0x57cb0be31170`
+- Instruction: `(bad)__`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-83a6d7d42ef7.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57cb0be31170.STACK.180c430cda.CODE.2.ADDR.57cb0be31170.INSTR.(bad)__.pyc`
+- Normalized function stack:
+  - `??`
+  - `PyObject_Hash`
+  - `_PyDict_LoadGlobal`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+- Reproduced stack frames:
+  - `#0  0x00005c6732fa6990 in ?? ()`
+  - `#1  0x00005c6722471a10 in PyObject_Hash (v=0x5c6733127ee0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:775`
+  - `#2  0x00005c6722432015 in _PyDict_LoadGlobal (globals=<optimized out>, builtins=<optimized out>, key=0x5c6733127ee0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1848`
+  - `#3  0x00005c672260efb4 in _PyEval_EvalFrameDefault (tstate=0x5c6722b35910 <_PyRuntime+166328>, frame=0x5c6732fabd08, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3008`
+  - `#4  0x00005c6722605f4c in _PyEval_EvalFrame (tstate=0x5c6722b35910 <_PyRuntime+166328>, frame=0x5c6732fabcb0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#5  _PyEval_Vector (tstate=0x5c6722b35910 <_PyRuntime+166328>, func=0x5c67330406c0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#6  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005c67225fe452 in builtin_exec_impl (source=0x5c673312f720, globals=0x5c6722a8c580 <globalCovFeedback>, locals=0x5c67331329f0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#8  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00005c6722465fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x00005c67223a18eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5c6732fa7330, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#11 0x00005c67223a1813 in PyObject_Vectorcall (callable=0x5c6732fa7330, args=0x5c6732fabc88, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#12 0x00005c672260edae in _PyEval_EvalFrameDefault (tstate=0x5c6722b35910 <_PyRuntime+166328>, frame=0x5c6732fabc30, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#13 0x00005c6722605f4c in _PyEval_EvalFrame (tstate=0x5c6722b35910 <_PyRuntime+166328>, frame=0x5c6732fabc30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#14 _PyEval_Vector (tstate=0x5c6722b35910 <_PyRuntime+166328>, func=0x5c6732fcc360, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#15 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57cb0be31170.STACK.180c430cda.CODE.2.ADDR.57cb0be31170.INSTR.(bad)__.pyc`
+
+### 156. cpython-311-8748dd3d40bc
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyEvalFramePushAndInit|_PyEval_Vector|_PyFunction_Vectorcall|_PyObject_VectorcallTstate|object_vacall|PyObject_CallMethodObjArgs|import_find_and_load|PyImport_ImportModuleLevelObject|import_name|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file`
+- Honggfuzz stack hash: `19f2cdf8f1`
+- PC: `0x62fd6c709916`
+- Fault address: `0x76b827d9f0e8`
+- Instruction: `mov____%r13,(%r12)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-8748dd3d40bc.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.62fd6c709916.STACK.19f2cdf8f1.CODE.1.ADDR.76b827d9f0e8.INSTR.mov____%r13,(%r12).pyc`
+- Normalized function stack:
+  - `_PyEvalFramePushAndInit`
+  - `_PyEval_Vector`
+  - `_PyFunction_Vectorcall`
+  - `_PyObject_VectorcallTstate`
+  - `object_vacall`
+  - `PyObject_CallMethodObjArgs`
+  - `import_find_and_load`
+  - `PyImport_ImportModuleLevelObject`
+  - `import_name`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+- Reproduced stack frames:
+  - `#0  _PyEvalFramePushAndInit (tstate=0x5e4a3d260910 <_PyRuntime+166328>, func=0x5e4a77093f60, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6364`
+  - `#1  0x00005e4a3cd3114d in _PyEval_Vector (tstate=<optimized out>, func=0x5e4a77093f60, locals=<optimized out>, args=<optimized out>, argcount=2, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6423`
+  - `#2  0x00005e4a3cacd865 in _PyFunction_Vectorcall (func=0x5e4a77093f60, stack=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/cpython/abstract.h:59`
+  - `#3  0x00005e4a3cacff52 in _PyObject_VectorcallTstate (tstate=0x5e4a3d260910 <_PyRuntime+166328>, callable=0x5e4a77093f60, args=0x5e4a3d1b7580 <globalCovFeedback>, nargsf=2, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#4  object_vacall (tstate=<optimized out>, base=<optimized out>, callable=0x5e4a77093f60, vargs=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:819`
+  - `#5  0x00005e4a3cacfb8d in PyObject_CallMethodObjArgs (obj=0x0, name=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:879`
+  - `#6  0x00005e4a3cdd4562 in import_find_and_load (tstate=0x5e4a3d260910 <_PyRuntime+166328>, abs_name=0x5e4a7720a790) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/import.c:1735`
+  - `#7  PyImport_ImportModuleLevelObject (name=0x5e4a7720a790, globals=<optimized out>, locals=<optimized out>, fromlist=<optimized out>, level=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/import.c:1834`
+  - `#8  0x00005e4a3cd398de in import_name (tstate=0x5e4a3d260910 <_PyRuntime+166328>, frame=0x71914937b188, name=0x5e4a7720a790, fromlist=0x5e4a3d0c0a60 <_Py_NoneStruct>, level=0x5e4a3d2382a0 <_PyRuntime+840>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7422`
+  - `#9  _PyEval_EvalFrameDefault (tstate=0x5e4a3d260910 <_PyRuntime+166328>, frame=0x71914937b188, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3950`
+  - `#10 0x00005e4a3cd30f4c in _PyEval_EvalFrame (tstate=0x5e4a3d260910 <_PyRuntime+166328>, frame=0x5e4a77084d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#11 _PyEval_Vector (tstate=0x5e4a3d260910 <_PyRuntime+166328>, func=0x5e4a770a54f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#12 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x00005e4a3ce14b5a in run_eval_code_obj (tstate=0x5e4a3d260910 <_PyRuntime+166328>, co=0x5e4a7710ec40, globals=0x214b80b, locals=0x214b80b) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#14 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x214b80b, locals=0x214b80b, flags=0x7ffcd751cc70, arena=0x5e4a770e05e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#15 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x214b80b, locals=0x214b80b, closeit=1, flags=0x7ffcd751cc70) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.62fd6c709916.STACK.19f2cdf8f1.CODE.1.ADDR.76b827d9f0e8.INSTR.mov____%r13,(%r12).pyc`
+
+### 157. cpython-311-87f995076e4f
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:dictresize|insertion_resize|insertdict|_PyDict_SetItem_Take2|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python`
+- Honggfuzz stack hash: `cf48a3f38`
+- PC: `0x5c29bcc75bd4`
+- Fault address: `0x0`
+- Instruction: `mov____(%rcx,%rax,1),%rbx`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-87f995076e4f.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c29bcc75bd4.STACK.cf48a3f38.CODE.128.ADDR.0.INSTR.mov____(%rcx,%rax,1),%rbx.pyc`
+- Normalized function stack:
+  - `dictresize`
+  - `insertion_resize`
+  - `insertdict`
+  - `_PyDict_SetItem_Take2`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+- Reproduced stack frames:
+  - `#0  0x00005c0b8a374bd4 in dictresize (mp=<optimized out>, log2_newsize=<optimized out>, unicode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1452`
+  - `#1  0x00005c0b8a36fc18 in insertion_resize (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#2  insertdict (mp=0x5c0ba3efb220, key=<optimized out>, hash=<optimized out>, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1231`
+  - `#3  0x00005c0b8a36f1fd in _PyDict_SetItem_Take2 (mp=<optimized out>, key=0x5c0b8aa4a2a0 <_PyRuntime+840>, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1886`
+  - `#4  0x00005c0b8a545560 in _PyEval_EvalFrameDefault (tstate=0x5c0b8aa72910 <_PyRuntime+166328>, frame=0x5c0ba3e18d70, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3455`
+  - `#5  0x00005c0b8a542f4c in _PyEval_EvalFrame (tstate=0x5c0b8aa72910 <_PyRuntime+166328>, frame=0x5c0ba3e18cf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#6  _PyEval_Vector (tstate=0x5c0b8aa72910 <_PyRuntime+166328>, func=0x5c0ba3e38f10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#7  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005c0b8a626b5a in run_eval_code_obj (tstate=0x5c0b8aa72910 <_PyRuntime+166328>, co=0x5c0ba3ef6f40, globals=0x1774bc9, locals=0x1774bc9) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#9  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1774bc9, locals=0x1774bc9, flags=0x7fff70a92a70, arena=0x5c0ba3e978f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#10 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1774bc9, locals=0x1774bc9, closeit=1, flags=0x7fff70a92a70) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#11 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#12 0x00005c0b8a625bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5c0ba3ee7dd0, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#13 0x00005c0b8a67c2d4 in pymain_run_file_obj (program_name=0x5c0ba3eedd40, filename=0x5c0ba3ee7dd0, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#14 pymain_run_file (config=0x5c0b8aa58958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#15 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c29bcc75bd4.STACK.cf48a3f38.CODE.128.ADDR.0.INSTR.mov____(%rcx,%rax,1),%rbx.pyc`
+
+### 158. cpython-311-8c801609b2b1
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PySet_Add|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `e0f7482e4`
+- PC: `0x589c6a7c5a43`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r15),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-8c801609b2b1.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.589c6a7c5a43.STACK.e0f7482e4.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+- Normalized function stack:
+  - `PySet_Add`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  PySet_Add (anyset=0x5c141906aac0, key=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/setobject.c:2337`
+  - `#1  0x00005c13d1abd888 in _PyEval_EvalFrameDefault (tstate=0x5c13d1fe8910 <_PyRuntime+166328>, frame=0x5c1418eedd10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3310`
+  - `#2  0x00005c13d1ab8f4c in _PyEval_EvalFrame (tstate=0x5c13d1fe8910 <_PyRuntime+166328>, frame=0x5c1418eedc90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5c13d1fe8910 <_PyRuntime+166328>, func=0x5c1418f0e3f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005c13d1b9cb5a in run_eval_code_obj (tstate=0x5c13d1fe8910 <_PyRuntime+166328>, co=0x5c1418fcc360, globals=0x13cab, locals=0x13cab) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x13cab, locals=0x13cab, flags=0x7fffcf27fac0, arena=0x5c1418f79910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x13cab, locals=0x13cab, closeit=1, flags=0x7fffcf27fac0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x00005c13d1b9bbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5c1418fbcfd0, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x00005c13d1bf22d4 in pymain_run_file_obj (program_name=0x5c1418fc0c00, filename=0x5c1418fbcfd0, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x5c13d1fce958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x00005c13d1bf2c29 in pymain_main (args=0x7fffcf27fd30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.589c6a7c5a43.STACK.e0f7482e4.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+
+### 159. cpython-311-945645c697c9
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyTuple_FromArray|_PyObject_MakeTpCall|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector`
+- Honggfuzz stack hash: `eb8237694`
+- PC: `0x5941b2afd000`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%r14)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-945645c697c9.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5941b2afd000.STACK.eb8237694.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+- Normalized function stack:
+  - `_PyTuple_FromArray`
+  - `_PyObject_MakeTpCall`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  _PyTuple_FromArray (src=<optimized out>, n=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:388`
+  - `#1  0x000059e3428cd966 in _PyObject_MakeTpCall (tstate=0x59e343061910 <_PyRuntime+166328>, callable=0x59e342eb6b10 <_PyExc_BytesWarning>, args=0x2, nargs=183, keywords=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:188`
+  - `#2  _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x59e342eb6b10 <_PyExc_BytesWarning>, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:90`
+  - `#3  0x000059e3428cd813 in PyObject_Vectorcall (callable=0x59e342eb6b10 <_PyExc_BytesWarning>, args=0x59e35c34f750, nargsf=9223372036854775991, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#4  0x000059e342b3adae in _PyEval_EvalFrameDefault (tstate=0x59e343061910 <_PyRuntime+166328>, frame=0x59e35c34fcb0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#5  0x000059e342b31f4c in _PyEval_EvalFrame (tstate=0x59e343061910 <_PyRuntime+166328>, frame=0x59e35c34fcb0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#6  _PyEval_Vector (tstate=0x59e343061910 <_PyRuntime+166328>, func=0x59e35c4ccf90, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#7  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000059e342b2a452 in builtin_exec_impl (source=0x59e35c4cd3d0, globals=0x59e342fb8580 <globalCovFeedback>, locals=0x59e35c421d70, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#9  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x000059e342991fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x000059e3428cd8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x59e35c34b330, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#12 0x000059e3428cd813 in PyObject_Vectorcall (callable=0x59e35c34b330, args=0x59e35c34fc88, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#13 0x000059e342b3adae in _PyEval_EvalFrameDefault (tstate=0x59e343061910 <_PyRuntime+166328>, frame=0x59e35c34fc30, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#14 0x000059e342b31f4c in _PyEval_EvalFrame (tstate=0x59e343061910 <_PyRuntime+166328>, frame=0x59e35c34fc30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#15 _PyEval_Vector (tstate=0x59e343061910 <_PyRuntime+166328>, func=0x59e35c370360, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56203caed000.STACK.1a372d8fd4.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ea218060000.STACK.1a372d8fd4.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ee56a2ff000.STACK.1a372d8fd4.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.64149f9ef000.STACK.1a372d8fd4.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5941b2afd000.STACK.eb8237694.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+
+### 160. cpython-311-98a39ece8b90
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyDict_SetItem|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `197d425171`
+- PC: `0x5e178034b564`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%r14)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-98a39ece8b90.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e178034b564.STACK.197d425171.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+- Normalized function stack:
+  - `PyDict_SetItem`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  PyDict_SetItem (op=0x5eb9cdf43fa0, key=<optimized out>, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1905`
+  - `#1  0x00005eb99f8eaef2 in _PyEval_EvalFrameDefault (tstate=0x5eb99fe12910 <_PyRuntime+166328>, frame=0x5eb9cdea3c30, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2769`
+  - `#2  0x00005eb99f8e2f4c in _PyEval_EvalFrame (tstate=0x5eb99fe12910 <_PyRuntime+166328>, frame=0x5eb9cdea3c30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5eb99fe12910 <_PyRuntime+166328>, func=0x5eb9cdf77c90, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005eb99f9c6b5a in run_eval_code_obj (tstate=0x5eb99fe12910 <_PyRuntime+166328>, co=0x5eb9cdf81bb0, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, flags=0x7ffee6080820, arena=0x5eb9cdf2f6a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0xffffffffffffefa8, locals=0xffffffffffffefa8, closeit=1, flags=0x7ffee6080820) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x00005eb99f9c5bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5eb9cdf72e40, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x00005eb99fa1c2d4 in pymain_run_file_obj (program_name=0x5eb9cdf76a60, filename=0x5eb9cdf72e40, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x5eb99fdf8958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x00005eb99fa1cc29 in pymain_main (args=0x7ffee6080a90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e178034b564.STACK.197d425171.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57ef6144655f.STACK.c7543a68f.CODE.128.ADDR.0.INSTR.addq___$0x1,(%r12).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5809f900355f.STACK.c7543a68f.CODE.1.ADDR.ab000000a6.INSTR.addq___$0x1,(%r12).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.585c700bd564.STACK.c7543a68f.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.589e1337f55f.STACK.c7543a68f.CODE.1.ADDR.41.INSTR.addq___$0x1,(%r12).pyc`
+
+### 161. cpython-311-9ba8e5be4f2f
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_SetAttr|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|gen_send_ex2|gen_send_ex|gen_send|method_vectorcall_O|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file`
+- Honggfuzz stack hash: `1b30465584`
+- PC: `0x5682cb62b5a4`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r15),%r13`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-9ba8e5be4f2f.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5682cb62b5a4.STACK.1b30465584.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%r13.pyc`
+- Normalized function stack:
+  - `PyObject_SetAttr`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `gen_send_ex2`
+  - `gen_send_ex`
+  - `gen_send`
+  - `method_vectorcall_O`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  PyObject_SetAttr (v=0x57d329f5e880, name=0x0, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1018`
+  - `#1  0x000057d2f6dccb69 in _PyEval_EvalFrameDefault (tstate=0x57d2f72f6910 <_PyRuntime+166328>, frame=0x57d329f151c0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2889`
+  - `#2  0x000057d2f6b9ad0f in _PyEval_EvalFrame (tstate=0x57d2f72f6910 <_PyRuntime+166328>, frame=0x57d329f151c0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  gen_send_ex2 (gen=0x57d329f15170, arg=0x57d2f7156a60 <_Py_NoneStruct>, exc=0, closing=<optimized out>, presult=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:219`
+  - `#4  gen_send_ex (gen=0x57d329f15170, arg=0x57d2f7156a60 <_Py_NoneStruct>, exc=<optimized out>, closing=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:287`
+  - `#5  0x000057d2f6b9b539 in gen_send (gen=0x57d329f15170, arg=0x57d2f7156a60 <_Py_NoneStruct>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:310`
+  - `#6  0x000057d2f6b7c81b in method_vectorcall_O (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x000057d2f6b628eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x57d329db0890, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#8  0x000057d2f6b62813 in PyObject_Vectorcall (callable=0x57d329db0890, args=0x57d329df9d90, nargsf=9223372036854775810, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#9  0x000057d2f6dcfdae in _PyEval_EvalFrameDefault (tstate=0x57d2f72f6910 <_PyRuntime+166328>, frame=0x57d329df9d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#10 0x000057d2f6dc6f4c in _PyEval_EvalFrame (tstate=0x57d2f72f6910 <_PyRuntime+166328>, frame=0x57d329df9c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#11 _PyEval_Vector (tstate=0x57d2f72f6910 <_PyRuntime+166328>, func=0x57d329e1a3f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#12 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x000057d2f6eaab5a in run_eval_code_obj (tstate=0x57d2f72f6910 <_PyRuntime+166328>, co=0x57d329ed8360, globals=0x57d2f7156a60 <_Py_NoneStruct>, locals=0x57d2f7156a60 <_Py_NoneStruct>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#14 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x57d2f7156a60 <_Py_NoneStruct>, locals=0x57d2f7156a60 <_Py_NoneStruct>, flags=0x7ffc2bd525f0, arena=0x57d329e85910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#15 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x57d2f7156a60 <_Py_NoneStruct>, locals=0x57d2f7156a60 <_Py_NoneStruct>, closeit=1, flags=0x7ffc2bd525f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5682cb62b5a4.STACK.1b30465584.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%r13.pyc`
+
+### 162. cpython-311-9edf90c27a2c
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_SetAttr|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|gen_send_ex2|gen_send_ex|_gen_throw|gen_throw|method_vectorcall_FASTCALL|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `c5b6ed4ab`
+- PC: `0x614414d265a4`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r15),%r13`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-9edf90c27a2c.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.614414d265a4.STACK.c5b6ed4ab.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%r13.pyc`
+- Normalized function stack:
+  - `PyObject_SetAttr`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `gen_send_ex2`
+  - `gen_send_ex`
+  - `_gen_throw`
+  - `gen_throw`
+  - `method_vectorcall_FASTCALL`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+- Reproduced stack frames:
+  - `#0  PyObject_SetAttr (v=0x0, name=0x617274206e657669, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1015`
+  - `#1  0x0000566fc798fb69 in _PyEval_EvalFrameDefault (tstate=0x566fc7eb9910 <_PyRuntime+166328>, frame=0x566fdd6e8920, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2889`
+  - `#2  0x0000566fc775dd0f in _PyEval_EvalFrame (tstate=0x566fc7eb9910 <_PyRuntime+166328>, frame=0x566fdd6e8920, throwflag=1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  gen_send_ex2 (gen=0x566fdd6e88d0, arg=0x566fc7d19a60 <_Py_NoneStruct>, exc=1, closing=<optimized out>, presult=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:219`
+  - `#4  gen_send_ex (gen=0x566fdd6e88d0, arg=0x566fc7d19a60 <_Py_NoneStruct>, exc=<optimized out>, closing=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:287`
+  - `#5  0x0000566fc775ef2d in _gen_throw (gen=0x566fdd6e88d0, close_on_genexit=<optimized out>, typ=<optimized out>, val=<optimized out>, tb=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:502`
+  - `#6  0x0000566fc775e637 in gen_throw (gen=<optimized out>, args=<optimized out>, nargs=1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:585`
+  - `#7  0x0000566fc773edfb in method_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x0000566fc77258eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x566fdd5218e0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x0000566fc7725813 in PyObject_Vectorcall (callable=0x566fdd5218e0, args=0x566fdd56ad98, nargsf=9223372036854775810, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x0000566fc7992dae in _PyEval_EvalFrameDefault (tstate=0x566fc7eb9910 <_PyRuntime+166328>, frame=0x566fdd56ad10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x0000566fc7989f4c in _PyEval_EvalFrame (tstate=0x566fc7eb9910 <_PyRuntime+166328>, frame=0x566fdd56ac90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x566fc7eb9910 <_PyRuntime+166328>, func=0x566fdd58b3f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x0000566fc7a6db5a in run_eval_code_obj (tstate=0x566fc7eb9910 <_PyRuntime+166328>, co=0x566fdd6491c0, globals=0x566fdd6eba80, locals=0x566fdd6eba80) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x566fdd6eba80, locals=0x566fdd6eba80, flags=0x7ffe35d1dd90, arena=0x566fdd5e9d90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.614414d265a4.STACK.c5b6ed4ab.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%r13.pyc`
+
+### 163. cpython-311-9f6a3f78e00c
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_DelItem|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `18bfc965f3`
+- PC: `0x6286ab592852`
+- Fault address: `0x0`
+- Instruction: `mov____0x70(%r13),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-9f6a3f78e00c.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6286ab592852.STACK.18bfc965f3.CODE.128.ADDR.0.INSTR.mov____0x70(%r13),%rax.pyc`
+- Normalized function stack:
+  - `PyObject_DelItem`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  PyObject_DelItem (o=0x5b743ac2a010, key=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:244`
+  - `#1  0x00005b74026ccb5e in _PyEval_EvalFrameDefault (tstate=0x5b7402bfb910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2386`
+  - `#2  0x00005b74026cbf4c in _PyEval_EvalFrame (tstate=0x5b7402bfb910 <_PyRuntime+166328>, frame=0x5b743aaa5cf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5b7402bfb910 <_PyRuntime+166328>, func=0x5b743aac5f10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005b74027afb5a in run_eval_code_obj (tstate=0x5b7402bfb910 <_PyRuntime+166328>, co=0x5b743ab83bf0, globals=0x1acc738, locals=0x1acc738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1acc738, locals=0x1acc738, flags=0x7ffecb9543c0, arena=0x5b743ab248b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1acc738, locals=0x1acc738, closeit=1, flags=0x7ffecb9543c0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x00005b74027aebab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5b743ab74e00, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x00005b74028052d4 in pymain_run_file_obj (program_name=0x5b743ab79bf0, filename=0x5b743ab74e00, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x5b7402be1958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x00005b7402805c29 in pymain_main (args=0x7ffecb954630) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6286ab592852.STACK.18bfc965f3.CODE.128.ADDR.0.INSTR.mov____0x70(%r13),%rax.pyc`
+
+### 164. cpython-311-9f970f80d058
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyFunction_NewWithQualName|PyFunction_New|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `dc70f3bca`
+- PC: `0x5d465bcab58a`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r14),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-9f970f80d058.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5d465bcab58a.STACK.dc70f3bca.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%rax.pyc`
+- Normalized function stack:
+  - `PyFunction_NewWithQualName`
+  - `PyFunction_New`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  PyFunction_NewWithQualName (code=0x63c2d0a232e0, globals=0x63c2d0992cf0, qualname=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:60`
+  - `#1  PyFunction_New (code=0x63c2d0a232e0, globals=0x63c2d0992cf0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/funcobject.c:148`
+  - `#2  0x000063c2adf87094 in _PyEval_EvalFrameDefault (tstate=0x63c2ae4b2910 <_PyRuntime+166328>, frame=0x63c2ade0fe70 <tuplehash>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5395`
+  - `#3  0x000063c2adf82f4c in _PyEval_EvalFrame (tstate=0x63c2ae4b2910 <_PyRuntime+166328>, frame=0x63c2d08b0dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x63c2ae4b2910 <_PyRuntime+166328>, func=0x63c2d0986cd0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x000063c2adf7b452 in builtin_exec_impl (source=0x63c2d0a2ef70, globals=0x63c2d0992cf0, locals=0x63c2d0992cf0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x000063c2adde2fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x000063c2add1e8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x63c2d08ac450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x000063c2add1e813 in PyObject_Vectorcall (callable=0x63c2d08ac450, args=0x63c2d08b0da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x000063c2adf8bdae in _PyEval_EvalFrameDefault (tstate=0x63c2ae4b2910 <_PyRuntime+166328>, frame=0x63c2d08b0d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x000063c2adf82f4c in _PyEval_EvalFrame (tstate=0x63c2ae4b2910 <_PyRuntime+166328>, frame=0x63c2d08b0d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x63c2ae4b2910 <_PyRuntime+166328>, func=0x63c2d08d14f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x000063c2ae066b5a in run_eval_code_obj (tstate=0x63c2ae4b2910 <_PyRuntime+166328>, co=0x63c2d093ac40, globals=0x63c2d08b0e18, locals=0x63c2d08b0e18) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.558258fdb053.STACK.188ea6926c.CODE.2.ADDR.55825907de70.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.558513953053.STACK.188ea6926c.CODE.2.ADDR.5585139f5e70.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.558559bb9053.STACK.188ea6926c.CODE.1.ADDR.5f5f.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.558e7e932053.STACK.188ea6926c.CODE.1.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.55aa595b2047.STACK.188ea6926c.CODE.1.ADDR.1ffffffff.INSTR.addq___$0x1,(%r14).pyc`
+
+### 165. cpython-311-a157b6374421
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:setiter_iternext|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `e5b5de29e`
+- PC: `0x63e3bf1e131f`
+- Fault address: `0xae`
+- Instruction: `mov____0xa8(%r15),%r12`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-a157b6374421.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.63e3bf1e131f.STACK.e5b5de29e.CODE.1.ADDR.ae.INSTR.mov____0xa8(%r15),%r12.pyc`
+- Normalized function stack:
+  - `setiter_iternext`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  setiter_iternext (si=0x5a2754d3a4d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/setobject.c:823`
+  - `#1  0x00005a270f2f6914 in _PyEval_EvalFrameDefault (tstate=0x5a270f824910 <_PyRuntime+166328>, frame=0x5a2754c54d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4340`
+  - `#2  0x00005a270f2f4f4c in _PyEval_EvalFrame (tstate=0x5a270f824910 <_PyRuntime+166328>, frame=0x5a2754c54c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5a270f824910 <_PyRuntime+166328>, func=0x5a2754c753f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005a270f3d8b5a in run_eval_code_obj (tstate=0x5a270f824910 <_PyRuntime+166328>, co=0x5a2754d33140, globals=0x156dd28, locals=0x156dd28) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x156dd28, locals=0x156dd28, flags=0x7fff7d434ff0, arena=0x5a2754cb04a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x156dd28, locals=0x156dd28, closeit=1, flags=0x7fff7d434ff0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x00005a270f3d7bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5a2754d24030, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x00005a270f42e2d4 in pymain_run_file_obj (program_name=0x5a2754d281b0, filename=0x5a2754d24030, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x5a270f80a958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x00005a270f42ec29 in pymain_main (args=0x7fff7d435260) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.63e3bf1e131f.STACK.e5b5de29e.CODE.1.ADDR.ae.INSTR.mov____0xa8(%r15),%r12.pyc`
+
+### 166. cpython-311-a369e696b533
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_INCREF|Py_XINCREF|PyException_GetTraceback|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain`
+- Honggfuzz stack hash: `ecc0979cc`
+- PC: `0x5f77d5b1f24a`
+- Fault address: `0x41`
+- Instruction: `addq___$0x1,(%rbx)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-a369e696b533.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5f77d5b1f24a.STACK.ecc0979cc.CODE.1.ADDR.41.INSTR.addq___$0x1,(%rbx).pyc`
+- Normalized function stack:
+  - `Py_INCREF`
+  - `Py_XINCREF`
+  - `PyException_GetTraceback`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+- Reproduced stack frames:
+  - `#0  Py_INCREF (op=0x51) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:502`
+  - `#1  Py_XINCREF (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#2  PyException_GetTraceback (self=self@entry=0x58fc96947c20) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/exceptions.c:377`
+  - `#3  0x000058fc8876d98e in _PyEval_EvalFrameDefault (tstate=0x58fc88c9c910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4450`
+  - `#4  0x000058fc8876cf4c in _PyEval_EvalFrame (tstate=0x58fc88c9c910 <_PyRuntime+166328>, frame=0x58fc96850c30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#5  _PyEval_Vector (tstate=0x58fc88c9c910 <_PyRuntime+166328>, func=0x58fc968713a0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#6  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x000058fc88850b5a in run_eval_code_obj (tstate=0x58fc88c9c910 <_PyRuntime+166328>, co=0x58fc9692ef00, globals=0x1b6d738, locals=0x1b6d738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#8  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1b6d738, locals=0x1b6d738, flags=0x7ffd610ba830, arena=0x58fc968ac030) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#9  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1b6d738, locals=0x1b6d738, closeit=1, flags=0x7ffd610ba830) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#10 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#11 0x000058fc8884fbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x58fc9691fe20, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#12 0x000058fc888a62d4 in pymain_run_file_obj (program_name=0x58fc96923950, filename=0x58fc9691fe20, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#13 pymain_run_file (config=0x58fc88c82958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#14 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#15 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5f77d5b1f24a.STACK.ecc0979cc.CODE.1.ADDR.41.INSTR.addq___$0x1,(%rbx).pyc`
+
+### 167. cpython-311-a39747ed1941
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_IS_GC|visit_decref|cell_traverse|subtract_refs|deduce_unreachable|gc_collect_main|gc_collect_with_callback|PyGC_Collect|Py_FinalizeEx|Py_RunMain|pymain_main|Py_BytesMain|main`
+- Honggfuzz stack hash: `e5b9848c4`
+- PC: `0x5ad43acdb31f`
+- Fault address: `0xa8`
+- Instruction: `mov____0xa8(%r15),%r12`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-a39747ed1941.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ad43acdb31f.STACK.e5b9848c4.CODE.1.ADDR.a8.INSTR.mov____0xa8(%r15),%r12.pyc`
+- Normalized function stack:
+  - `_PyObject_IS_GC`
+  - `visit_decref`
+  - `cell_traverse`
+  - `subtract_refs`
+  - `deduce_unreachable`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `PyGC_Collect`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  _PyObject_IS_GC (obj=0x56aa117830e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_object.h:213`
+  - `#1  visit_decref (op=0x56aa117830e0, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:452`
+  - `#2  0x000056a9f0da944a in cell_traverse (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#3  0x000056a9f1144086 in subtract_refs (containers=0x56a9f151e860 <_PyRuntime+59656>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:478`
+  - `#4  deduce_unreachable (base=0x56a9f151e860 <_PyRuntime+59656>, unreachable=0x7ffee26eaaa8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1100`
+  - `#5  gc_collect_main (tstate=0x56a9f1538910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1226`
+  - `#6  0x000056a9f11438a6 in gc_collect_with_callback (tstate=0x56a9f1538910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#7  0x000056a9f11435cc in PyGC_Collect () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2086`
+  - `#8  0x000056a9f10df7fd in Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1828`
+  - `#9  0x000056a9f1140e0a in Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:682`
+  - `#10 0x000056a9f1142c29 in pymain_main (args=0x7ffee26eaf30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#11 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x000056a9f0ca3673 in main (argc=3, argv=0x7ffee26eb0b8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Programs/python.c:15`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ad43acdb31f.STACK.e5b9848c4.CODE.1.ADDR.a8.INSTR.mov____0xa8(%r15),%r12.pyc`
+
+### 168. cpython-311-a59d1cbdafa5
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_Py_Specialize_BinaryOp|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `e0f863fde`
+- PC: `0x5a80f583118d`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r12),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-a59d1cbdafa5.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a80f583118d.STACK.e0f863fde.CODE.1.ADDR.8.INSTR.mov____0x8(%r12),%rax.pyc`
+- Normalized function stack:
+  - `_Py_Specialize_BinaryOp`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  _Py_Specialize_BinaryOp (lhs=0x0, rhs=0x0, instr=0x57d90d4cd38a, oparg=0, locals=0x57d90d368d58) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/specialize.c:1771`
+  - `#1  0x000057d8cc9fc8a5 in _PyEval_EvalFrameDefault (tstate=0x57d8ccf2a910 <_PyRuntime+166328>, frame=0x57d90d368d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:5567`
+  - `#2  0x000057d8cc9faf4c in _PyEval_EvalFrame (tstate=0x57d8ccf2a910 <_PyRuntime+166328>, frame=0x57d90d368c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x57d8ccf2a910 <_PyRuntime+166328>, func=0x57d90d3893b0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000057d8ccadeb5a in run_eval_code_obj (tstate=0x57d8ccf2a910 <_PyRuntime+166328>, co=0x57d90d447060, globals=0x57d8cce81580 <globalCovFeedback>, locals=0x57d8cce81580 <globalCovFeedback>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x57d8cce81580 <globalCovFeedback>, locals=0x57d8cce81580 <globalCovFeedback>, flags=0x7fffb84e81f0, arena=0x57d90d3f48f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x57d8cce81580 <globalCovFeedback>, locals=0x57d8cce81580 <globalCovFeedback>, closeit=1, flags=0x7fffb84e81f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x000057d8ccaddbab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x57d90d43b520, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x000057d8ccb342d4 in pymain_run_file_obj (program_name=0x57d90d43c170, filename=0x57d90d43b520, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x57d8ccf10958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x000057d8ccb34c29 in pymain_main (args=0x7fffb84e8460) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a80f583118d.STACK.e0f863fde.CODE.1.ADDR.8.INSTR.mov____0x8(%r12),%rax.pyc`
+
+### 169. cpython-311-ad41a465db4a
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_LookupAttr|import_all_from|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `19bc164563`
+- PC: `0x5e396b5e7a88`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%r13`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-ad41a465db4a.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e396b5e7a88.STACK.19bc164563.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r13.pyc`
+- Normalized function stack:
+  - `_PyObject_LookupAttr`
+  - `import_all_from`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  _PyObject_LookupAttr (v=0x0, name=<optimized out>, result=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:940`
+  - `#1  0x0000579b9c893f52 in import_all_from (tstate=0x579b9cdc2910 <_PyRuntime+166328>, locals=0x579bc04d0b00, v=0x579b9cd43c34) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7523`
+  - `#2  _PyEval_EvalFrameDefault (tstate=0x579b9cdc2910 <_PyRuntime+166328>, frame=0x579bc03b5d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3974`
+  - `#3  0x0000579b9c892f4c in _PyEval_EvalFrame (tstate=0x579b9cdc2910 <_PyRuntime+166328>, frame=0x579bc03b5c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x579b9cdc2910 <_PyRuntime+166328>, func=0x579bc03d63f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x0000579b9c976b5a in run_eval_code_obj (tstate=0x579b9cdc2910 <_PyRuntime+166328>, co=0x579bc04942a0, globals=0x7ffce641c980, locals=0x7ffce641c980) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#7  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x7ffce641c980, locals=0x7ffce641c980, flags=0x7ffce641cc90, arena=0x579bc0441910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#8  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x7ffce641c980, locals=0x7ffce641c980, closeit=1, flags=0x7ffce641cc90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#9  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#10 0x0000579b9c975bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x579bc04851f0, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#11 0x0000579b9c9cc2d4 in pymain_run_file_obj (program_name=0x579bc04895a0, filename=0x579bc04851f0, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#12 pymain_run_file (config=0x579b9cda8958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#13 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#14 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#15 0x0000579b9c9ccc29 in pymain_main (args=0x7ffce641cf00) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5e396b5e7a88.STACK.19bc164563.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r13.pyc`
+
+### 170. cpython-311-b2782d3da8b6
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyEval_EvalFrameDefault|_PyEval_EvalFrame|gen_send_ex2|gen_iternext|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python`
+- Honggfuzz stack hash: `fcf475ab6`
+- PC: `0x6303a2720996`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%rbx)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-b2782d3da8b6.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6303a2720996.STACK.fcf475ab6.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rbx).pyc`
+- Normalized function stack:
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `gen_send_ex2`
+  - `gen_iternext`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  _PyEval_EvalFrameDefault (tstate=0x630c3cc71910 <_PyRuntime+166328>, frame=0x630c7bd185b0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3187`
+  - `#1  0x0000630c3c51322d in _PyEval_EvalFrame (tstate=0x630c3cc71910 <_PyRuntime+166328>, frame=0x630c7bd185b0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#2  gen_send_ex2 (gen=0x630c7bd18560, arg=0x0, exc=0, closing=0, presult=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:219`
+  - `#3  gen_iternext (gen=0x630c7bd18560) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:594`
+  - `#4  0x0000630c3c743914 in _PyEval_EvalFrameDefault (tstate=0x630c3cc71910 <_PyRuntime+166328>, frame=0x630c7bc77d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4340`
+  - `#5  0x0000630c3c741f4c in _PyEval_EvalFrame (tstate=0x630c3cc71910 <_PyRuntime+166328>, frame=0x630c7bc77c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#6  _PyEval_Vector (tstate=0x630c3cc71910 <_PyRuntime+166328>, func=0x630c7bc983b0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#7  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x0000630c3c825b5a in run_eval_code_obj (tstate=0x630c3cc71910 <_PyRuntime+166328>, co=0x630c7bd56060, globals=0x1b45975, locals=0x1b45975) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#9  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1b45975, locals=0x1b45975, flags=0x7ffc494ef810, arena=0x630c7bd038f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#10 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1b45975, locals=0x1b45975, closeit=1, flags=0x7ffc494ef810) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#11 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#12 0x0000630c3c824bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x630c7bd4a520, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#13 0x0000630c3c87b2d4 in pymain_run_file_obj (program_name=0x630c7bd4b170, filename=0x630c7bd4a520, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#14 pymain_run_file (config=0x630c3cc57958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#15 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.6303a2720996.STACK.fcf475ab6.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rbx).pyc`
+
+### 171. cpython-311-b62cc83911d9
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyDict_Next|PyDict_Next|_Py_DumpExtensionModules|fatal_error|_Py_FatalErrorFunc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file`
+- Honggfuzz stack hash: `cb2351cdf`
+- PC: `0x5f9ff89b1cac`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r15,%r13,1),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-b62cc83911d9.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5f9ff89b1cac.STACK.cb2351cdf.CODE.128.ADDR.0.INSTR.mov____0x8(%r15,%r13,1),%rax.pyc`
+- Normalized function stack:
+  - `_PyDict_Next`
+  - `PyDict_Next`
+  - `_Py_DumpExtensionModules`
+  - `fatal_error`
+  - `_Py_FatalErrorFunc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  0x000060bfcd34bcac in _PyDict_Next (op=<optimized out>, phash=0x0, ppos=<optimized out>, pkey=<optimized out>, pvalue=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:2148`
+  - `#1  PyDict_Next (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#2  0x000060bfcd5fa472 in _Py_DumpExtensionModules (fd=<optimized out>, interp=0x60bfcda37590 <_PyRuntime+58936>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2658`
+  - `#3  0x000060bfcd5faef7 in fatal_error (fd=<optimized out>, header=<optimized out>, prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2787`
+  - `#4  0x000060bfcd5f5384 in _Py_FatalErrorFunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x000060bfcd5226af in _PyEval_EvalFrameDefault (tstate=0x60bfcda51910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:853`
+  - `#6  0x000060bfcd521f4c in _PyEval_EvalFrame (tstate=0x60bfcda51910 <_PyRuntime+166328>, frame=0x60bff5fc3d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#7  _PyEval_Vector (tstate=0x60bfcda51910 <_PyRuntime+166328>, func=0x60bff5fe44f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#8  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x000060bfcd605b5a in run_eval_code_obj (tstate=0x60bfcda51910 <_PyRuntime+166328>, co=0x60bff604dc40, globals=0x174bcac, locals=0x174bcac) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#10 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x174bcac, locals=0x174bcac, flags=0x7ffdc563beb0, arena=0x60bff601f5e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#11 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x174bcac, locals=0x174bcac, closeit=1, flags=0x7ffdc563beb0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#12 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#13 0x000060bfcd604bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x60bff6093350, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#14 0x000060bfcd65b2d4 in pymain_run_file_obj (program_name=0x60bff6097360, filename=0x60bff6093350, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#15 pymain_run_file (config=0x60bfcda37958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5f9ff89b1cac.STACK.cb2351cdf.CODE.128.ADDR.0.INSTR.mov____0x8(%r15,%r13,1),%rax.pyc`
+
+### 172. cpython-311-b80c09455b38
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:tupleiter_next|list_extend|_PyList_Extend|PySequence_List|unpack_iterable|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file`
+- Honggfuzz stack hash: `19b97b4fd9`
+- PC: `0x5de0145487cd`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%rax)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-b80c09455b38.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5de0145487cd.STACK.19b97b4fd9.CODE.1.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+- Normalized function stack:
+  - `tupleiter_next`
+  - `list_extend`
+  - `_PyList_Extend`
+  - `PySequence_List`
+  - `unpack_iterable`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  tupleiter_next (it=0x56b74fc4a240) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:1052`
+  - `#1  0x000056b71bcb25de in list_extend (self=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#2  0x000056b71bcb2125 in _PyList_Extend (self=0x56b74fb99630, iterable=0x56b74fc4a240) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/listobject.c:1004`
+  - `#3  0x000056b71bc09069 in PySequence_List (v=0x56b74fc4a240) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/abstract.c:2135`
+  - `#4  0x000056b71bec75d4 in unpack_iterable (tstate=0x56b71c3ee910 <_PyRuntime+166328>, v=0x56b74fc456e0, argcnt=2, argcntafter=0, sp=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6742`
+  - `#5  _PyEval_EvalFrameDefault (tstate=0x56b71c3ee910 <_PyRuntime+166328>, frame=0x56b74fac6cb0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2873`
+  - `#6  0x000056b71bebef4c in _PyEval_EvalFrame (tstate=0x56b71c3ee910 <_PyRuntime+166328>, frame=0x56b74fac6c30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#7  _PyEval_Vector (tstate=0x56b71c3ee910 <_PyRuntime+166328>, func=0x56b74fae73a0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#8  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x000056b71bfa2b5a in run_eval_code_obj (tstate=0x56b71c3ee910 <_PyRuntime+166328>, co=0x56b74fba4eb0, globals=0x214d7c0, locals=0x214d7c0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#10 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x214d7c0, locals=0x214d7c0, flags=0x7ffd3cf5d490, arena=0x56b74fb526a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#11 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x214d7c0, locals=0x214d7c0, closeit=1, flags=0x7ffd3cf5d490) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#12 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#13 0x000056b71bfa1bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x56b74fb99df0, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#14 0x000056b71bff82d4 in pymain_run_file_obj (program_name=0x56b74fb99ec0, filename=0x56b74fb99df0, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#15 pymain_run_file (config=0x56b71c3d4958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5de0145487cd.STACK.19b97b4fd9.CODE.1.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+
+### 173. cpython-311-bb3af8bee813
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:dict_merge|_PyDict_MergeEx|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `194eb0e813`
+- PC: `0x56e5e2c721fc`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%r15),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-bb3af8bee813.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56e5e2c721fc.STACK.194eb0e813.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r15),%rax.pyc`
+- Normalized function stack:
+  - `dict_merge`
+  - `_PyDict_MergeEx`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  dict_merge (a=0x1ffffffff, b=<optimized out>, override=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:2827`
+  - `#1  0x00006001f94976ae in _PyDict_MergeEx (a=0x1ffffffff, b=0x1ffffffff, override=2) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:3003`
+  - `#2  0x00006001f9664ee1 in _PyEval_EvalFrameDefault (tstate=0x6001f9b91910 <_PyRuntime+166328>, frame=0x6002377e1dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3437`
+  - `#3  0x00006001f9661f4c in _PyEval_EvalFrame (tstate=0x6001f9b91910 <_PyRuntime+166328>, frame=0x6002377e1dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x6001f9b91910 <_PyRuntime+166328>, func=0x600237955000, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00006001f965a452 in builtin_exec_impl (source=0x600237960490, globals=0x1ffffffff, locals=0x6002378b7550, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00006001f94c1fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00006001f93fd8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x6002377dd450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x00006001f93fd813 in PyObject_Vectorcall (callable=0x6002377dd450, args=0x6002377e1da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x00006001f966adae in _PyEval_EvalFrameDefault (tstate=0x6001f9b91910 <_PyRuntime+166328>, frame=0x6002377e1d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x00006001f9661f4c in _PyEval_EvalFrame (tstate=0x6001f9b91910 <_PyRuntime+166328>, frame=0x6002377e1d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x6001f9b91910 <_PyRuntime+166328>, func=0x6002378024f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x00006001f9745b5a in run_eval_code_obj (tstate=0x6001f9b91910 <_PyRuntime+166328>, co=0x60023786bb90, globals=0x2, locals=0x2) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56e5e2c721fc.STACK.194eb0e813.CODE.1.ADDR.200000007.INSTR.mov____0x8(%r15),%rax.pyc`
+
+### 174. cpython-311-bb8ef554f4f2
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error_exit|fatal_error|_Py_FatalErrorFunc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector`
+- Honggfuzz stack hash: `180b5d66cf`
+- PC: `0x5bb047cf9838`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-bb8ef554f4f2.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5bb047cf9838.STACK.180b5d66cf.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error_exit`
+  - `fatal_error`
+  - `_Py_FatalErrorFunc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+- Reproduced stack frames:
+  - `#0  0x00007ac75fb999fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007ac75fb45476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007ac75fb2b7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00005dbc833a9413 in fatal_error_exit (status=-1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2624`
+  - `#4  0x00005dbc833a9229 in fatal_error (fd=<optimized out>, header=<optimized out>, prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2805`
+  - `#5  0x00005dbc833a3384 in _Py_FatalErrorFunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005dbc832d06af in _PyEval_EvalFrameDefault (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:853`
+  - `#7  0x00005dbc832cff4c in _PyEval_EvalFrame (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=0x5dbcbf7e7dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#8  _PyEval_Vector (tstate=0x5dbc837ff910 <_PyRuntime+166328>, func=0x5dbcbf87ccb0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#9  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x00005dbc832c8452 in builtin_exec_impl (source=0x5dbcbf9669e0, globals=0x38455, locals=0x5dbcbf94e150, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#11 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x00005dbc8312ffdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x00005dbc8306b8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5dbcbf7e3450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#14 0x00005dbc8306b813 in PyObject_Vectorcall (callable=0x5dbcbf7e3450, args=0x5dbcbf7e7da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#15 0x00005dbc832d8dae in _PyEval_EvalFrameDefault (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=0x5dbcbf7e7d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5bb047cf9838.STACK.180b5d66cf.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57fea7df115d.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a5482194105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5cbb2a423105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dc27a8d9105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+
+### 175. cpython-311-bb8ef554f4f2
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error_exit|fatal_error|_Py_FatalErrorFunc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector`
+- Honggfuzz stack hash: `d86f4b6dd`
+- PC: `0x5768077fb838`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-bb8ef554f4f2.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5768077fb838.STACK.d86f4b6dd.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error_exit`
+  - `fatal_error`
+  - `_Py_FatalErrorFunc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+- Reproduced stack frames:
+  - `#0  0x00007ac75fb999fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007ac75fb45476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007ac75fb2b7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00005dbc833a9413 in fatal_error_exit (status=-1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2624`
+  - `#4  0x00005dbc833a9229 in fatal_error (fd=<optimized out>, header=<optimized out>, prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2805`
+  - `#5  0x00005dbc833a3384 in _Py_FatalErrorFunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005dbc832d06af in _PyEval_EvalFrameDefault (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:853`
+  - `#7  0x00005dbc832cff4c in _PyEval_EvalFrame (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=0x5dbcbf7e7dd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#8  _PyEval_Vector (tstate=0x5dbc837ff910 <_PyRuntime+166328>, func=0x5dbcbf87ccb0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#9  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#10 0x00005dbc832c8452 in builtin_exec_impl (source=0x5dbcbf9669e0, globals=0x38455, locals=0x5dbcbf94e150, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#11 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x00005dbc8312ffdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x00005dbc8306b8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5dbcbf7e3450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#14 0x00005dbc8306b813 in PyObject_Vectorcall (callable=0x5dbcbf7e3450, args=0x5dbcbf7e7da8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#15 0x00005dbc832d8dae in _PyEval_EvalFrameDefault (tstate=0x5dbc837ff910 <_PyRuntime+166328>, frame=0x5dbcbf7e7d50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5bb047cf9838.STACK.180b5d66cf.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57fea7df115d.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5a5482194105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5cbb2a423105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dc27a8d9105.STACK.190ae24ef0.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+
+### 176. cpython-311-c1c88e3dce7f
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:dump_frame|dump_traceback|_Py_DumpTracebackThreads|fatal_error|_Py_FatalErrorFunc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame`
+- Honggfuzz stack hash: `db3a96f0f`
+- PC: `0x61abbe39d62e`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rax),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-c1c88e3dce7f.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61abbe39d62e.STACK.db3a96f0f.CODE.128.ADDR.0.INSTR.mov____0x8(%rax),%rax.pyc`
+- Normalized function stack:
+  - `dump_frame`
+  - `dump_traceback`
+  - `_Py_DumpTracebackThreads`
+  - `fatal_error`
+  - `_Py_FatalErrorFunc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+- Reproduced stack frames:
+  - `#0  dump_frame (fd=2, frame=0x5bde986e09e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/traceback.c:1185`
+  - `#1  dump_traceback (fd=<optimized out>, tstate=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#2  0x00005bde7be74bb0 in _Py_DumpTracebackThreads (fd=<optimized out>, interp=<optimized out>, current_tstate=0x5bde7c28e910 <_PyRuntime+166328>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/traceback.c:1339`
+  - `#3  0x00005bde7be37eec in fatal_error (fd=<optimized out>, header=<optimized out>, prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:2778`
+  - `#4  0x00005bde7be32384 in _Py_FatalErrorFunc (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005bde7bd5f6af in _PyEval_EvalFrameDefault (tstate=0x5bde7c28e910 <_PyRuntime+166328>, frame=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:853`
+  - `#6  0x00005bde7bd5ef4c in _PyEval_EvalFrame (tstate=0x5bde7c28e910 <_PyRuntime+166328>, frame=0x5bde9864bd10, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#7  _PyEval_Vector (tstate=0x5bde7c28e910 <_PyRuntime+166328>, func=0x5bde987cf510, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#8  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00005bde7bd57452 in builtin_exec_impl (source=0x5bde987ca950, globals=0x1, locals=0x5bde987c8810, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#10 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x00005bde7bbbefdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x00005bde7bafa8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5bde98647390, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#13 0x00005bde7bafa813 in PyObject_Vectorcall (callable=0x5bde98647390, args=0x5bde9864bce8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#14 0x00005bde7bd67dae in _PyEval_EvalFrameDefault (tstate=0x5bde7c28e910 <_PyRuntime+166328>, frame=0x5bde9864bc90, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#15 0x00005bde7bd5ef4c in _PyEval_EvalFrame (tstate=0x5bde7c28e910 <_PyRuntime+166328>, frame=0x5bde9864bc90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.61abbe39d62e.STACK.db3a96f0f.CODE.128.ADDR.0.INSTR.mov____0x8(%rax),%rax.pyc`
+
+### 177. cpython-311-c8f0225022e8
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_XDECREF|tupledealloc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `1a374d568d`
+- PC: `0x5fb3caeb6933`
+- Fault address: `0x1ffffffff`
+- Instruction: `mov____0x0(%r13),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-c8f0225022e8.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5fb3caeb6933.STACK.1a374d568d.CODE.1.ADDR.1ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+- Normalized function stack:
+  - `Py_XDECREF`
+  - `tupledealloc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  Py_XDECREF (op=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:602`
+  - `#1  tupledealloc (op=0x5ddbcaa2a1f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:208`
+  - `#2  0x00005ddb9a2d86ed in _PyEval_EvalFrameDefault (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, frame=0x5ddbca8aadd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4041`
+  - `#3  0x00005ddb9a2cef4c in _PyEval_EvalFrame (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, frame=0x5ddbca8aadd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, func=0x5ddbcaa284a0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005ddb9a2c7452 in builtin_exec_impl (source=0x5ddbca9c5ab0, globals=0x5ddb9a755580 <globalCovFeedback>, locals=0x5ddbcaa28540, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005ddb9a12efdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00005ddb9a06a8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5ddbca8a6450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x00005ddb9a06a813 in PyObject_Vectorcall (callable=0x5ddbca8a6450, args=0x5ddbca8aada8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x00005ddb9a2d7dae in _PyEval_EvalFrameDefault (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, frame=0x5ddbca8aad50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x00005ddb9a2cef4c in _PyEval_EvalFrame (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, frame=0x5ddbca8aad50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, func=0x5ddbca8cb4f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x00005ddb9a3b2b5a in run_eval_code_obj (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, co=0x5ddbca934c40, globals=0x155b929, locals=0x155b929) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57402d16d933.STACK.19099a11c5.CODE.1.ADDR.1ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58b869129933.STACK.19099a11c5.CODE.1.ADDR.1ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58e90d558933.STACK.19099a11c5.CODE.1.ADDR.1ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c50de023625.STACK.19099a11c5.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r12),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dd707f7dffd.STACK.19099a11c5.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+
+### 178. cpython-311-c8f0225022e8
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:Py_XDECREF|tupledealloc|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `1af430b1ca`
+- PC: `0x574a8da03933`
+- Fault address: `0x1ffffffff`
+- Instruction: `mov____0x0(%r13),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-c8f0225022e8.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.574a8da03933.STACK.1af430b1ca.CODE.1.ADDR.1ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+- Normalized function stack:
+  - `Py_XDECREF`
+  - `tupledealloc`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+- Reproduced stack frames:
+  - `#0  Py_XDECREF (op=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/object.h:602`
+  - `#1  tupledealloc (op=0x5ddbcaa2a1f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/tupleobject.c:208`
+  - `#2  0x00005ddb9a2d86ed in _PyEval_EvalFrameDefault (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, frame=0x5ddbca8aadd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4041`
+  - `#3  0x00005ddb9a2cef4c in _PyEval_EvalFrame (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, frame=0x5ddbca8aadd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, func=0x5ddbcaa284a0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005ddb9a2c7452 in builtin_exec_impl (source=0x5ddbca9c5ab0, globals=0x5ddb9a755580 <globalCovFeedback>, locals=0x5ddbcaa28540, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005ddb9a12efdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#9  0x00005ddb9a06a8eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5ddbca8a6450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#10 0x00005ddb9a06a813 in PyObject_Vectorcall (callable=0x5ddbca8a6450, args=0x5ddbca8aada8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#11 0x00005ddb9a2d7dae in _PyEval_EvalFrameDefault (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, frame=0x5ddbca8aad50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#12 0x00005ddb9a2cef4c in _PyEval_EvalFrame (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, frame=0x5ddbca8aad50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#13 _PyEval_Vector (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, func=0x5ddbca8cb4f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#14 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#15 0x00005ddb9a3b2b5a in run_eval_code_obj (tstate=0x5ddb9a7fe910 <_PyRuntime+166328>, co=0x5ddbca934c40, globals=0x155b929, locals=0x155b929) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.57402d16d933.STACK.19099a11c5.CODE.1.ADDR.1ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58b869129933.STACK.19099a11c5.CODE.1.ADDR.1ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58e90d558933.STACK.19099a11c5.CODE.1.ADDR.1ffffffff.INSTR.mov____0x0(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5c50de023625.STACK.19099a11c5.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r12),%r14.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5dd707f7dffd.STACK.19099a11c5.CODE.1.ADDR.1ffffffff.INSTR.mov____(%r15),%rbx.pyc`
+
+### 179. cpython-311-cb5782851995
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|??|??|??|??|??|free|_PyMem_RawFree|PyObject_Free|PyDict_Clear|_PyUnicode_ClearInterned|finalize_interp_types|finalize_interp_clear|Py_FinalizeEx|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `1870693832`
+- PC: `0x5953f155eb62`
+- Fault address: `0x0`
+- Instruction: `mov____0xa8(%rax),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-cb5782851995.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5953f155eb62.STACK.1870693832.CODE.128.ADDR.0.INSTR.mov____0xa8(%rax),%r15.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `??`
+  - `free`
+  - `_PyMem_RawFree`
+  - `PyObject_Free`
+  - `PyDict_Clear`
+  - `_PyUnicode_ClearInterned`
+  - `finalize_interp_types`
+  - `finalize_interp_clear`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  0x00007eee54b049fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007eee54ab0476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007eee54a967f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00007eee54af7677 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#4  0x00007eee54b0ecfc in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#5  0x00007eee54b0f7cc in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#6  0x00007eee54b0f91b in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#7  0x00007eee54b10ea0 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#8  0x00007eee54b13453 in free () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#9  0x0000624e1732c92e in _PyMem_RawFree (ctx=<optimized out>, ptr=0x624e570e8060) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:129`
+  - `#10 0x0000624e1732eb98 in PyObject_Free (ptr=0x624e570e8060) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/obmalloc.c:741`
+  - `#11 0x0000624e172ea402 in PyDict_Clear (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x0000624e173ff502 in _PyUnicode_ClearInterned (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x0000624e17591c2c in finalize_interp_types (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 finalize_interp_clear (tstate=0x624e179ea910 <_PyRuntime+166328>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1726`
+  - `#15 Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1897`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5953f155eb62.STACK.1870693832.CODE.128.ADDR.0.INSTR.mov____0xa8(%rax),%r15.pyc`
+
+### 180. cpython-311-d7ef0f86f491
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_IS_GC|visit_decref|_PyFrame_Traverse|frame_traverse|subtract_refs|deduce_unreachable|gc_collect_main|gc_collect_with_callback|PyGC_Collect|Py_FinalizeEx|Py_RunMain|pymain_main|Py_BytesMain|main`
+- Honggfuzz stack hash: `18edf4fdaf`
+- PC: `0x5f4b7f2b531f`
+- Fault address: `0x0`
+- Instruction: `mov____0xa8(%r15),%r12`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-d7ef0f86f491.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5f4b7f2b531f.STACK.18edf4fdaf.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+- Normalized function stack:
+  - `_PyObject_IS_GC`
+  - `visit_decref`
+  - `_PyFrame_Traverse`
+  - `frame_traverse`
+  - `subtract_refs`
+  - `deduce_unreachable`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `PyGC_Collect`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  _PyObject_IS_GC (obj=0x6449975f2040) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_object.h:213`
+  - `#1  visit_decref (op=0x6449975f2040, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:452`
+  - `#2  0x00006449562678c4 in _PyFrame_Traverse (frame=0x644997519320, visit=<optimized out>, arg=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/frame.c:21`
+  - `#3  0x0000644955fc35e7 in frame_traverse (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#4  0x000064495631b086 in subtract_refs (containers=0x6449566f5860 <_PyRuntime+59656>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:478`
+  - `#5  deduce_unreachable (base=0x6449566f5860 <_PyRuntime+59656>, unreachable=0x7ffcd63d8628) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1100`
+  - `#6  gc_collect_main (tstate=0x64495670f910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1226`
+  - `#7  0x000064495631a8a6 in gc_collect_with_callback (tstate=0x64495670f910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#8  0x000064495631a5cc in PyGC_Collect () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2086`
+  - `#9  0x00006449562b67fd in Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1828`
+  - `#10 0x0000644956317e0a in Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:682`
+  - `#11 0x0000644956319c29 in pymain_main (args=0x7ffcd63d8ab0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#12 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#13 0x0000644955e7a673 in main (argc=3, argv=0x7ffcd63d8c38) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Programs/python.c:15`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5f4b7f2b531f.STACK.18edf4fdaf.CODE.128.ADDR.0.INSTR.mov____0xa8(%r15),%r12.pyc`
+
+### 181. cpython-311-d84049333b64
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_IsTrue|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `18cf2b5115`
+- PC: `0x59381a16b7c7`
+- Fault address: `0x200000007`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-d84049333b64.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59381a16b7c7.STACK.18cf2b5115.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_IsTrue`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  PyObject_IsTrue (v=0x1ffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:1505`
+  - `#1  0x00005e0d2b548057 in _PyEval_EvalFrameDefault (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, frame=0x5e0d5897add0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4159`
+  - `#2  0x00005e0d2b545f4c in _PyEval_EvalFrame (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, frame=0x5e0d5897add0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, func=0x5e0d58afdb70, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005e0d2b53e452 in builtin_exec_impl (source=0x5e0d58af8fb0, globals=0x5e0d2b9cc580 <globalCovFeedback>, locals=0x5e0d58a819d0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005e0d2b3a5fdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005e0d2b2e18eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5e0d58976450, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x00005e0d2b2e1813 in PyObject_Vectorcall (callable=0x5e0d58976450, args=0x5e0d5897ada8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x00005e0d2b54edae in _PyEval_EvalFrameDefault (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, frame=0x5e0d5897ad50, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x00005e0d2b545f4c in _PyEval_EvalFrame (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, frame=0x5e0d5897ad50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, func=0x5e0d5899b4f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00005e0d2b629b5a in run_eval_code_obj (tstate=0x5e0d2ba75910 <_PyRuntime+166328>, co=0x5e0d58a04c90, globals=0x1946738, locals=0x1946738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1946738, locals=0x1946738, flags=0x7ffd7e7113e0, arena=0x5e0d589f9e80) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.590ad5c2d838.STACK.188e674c7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5eca87508838.STACK.188e674c7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.609c6f5fc838.STACK.188e674c7e.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59381a16b7c7.STACK.18cf2b5115.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56be59898838.STACK.c44392baf.CODE.1.ADDR.200000007.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 182. cpython-311-d9b0ec3f5407
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|_PyFunction_Vectorcall|_PyObject_VectorcallTstate|_PyObject_CallNoArgs|calliter_iternext|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject`
+- Honggfuzz stack hash: `1b003b34e8`
+- PC: `0x5605c32f21e6`
+- Fault address: `0x0`
+- Instruction: `mov____0x0(%r13),%rbx`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-d9b0ec3f5407.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5605c32f21e6.STACK.1b003b34e8.CODE.1.ADDR.0.INSTR.mov____0x0(%r13),%rbx.pyc`
+- Normalized function stack:
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `_PyFunction_Vectorcall`
+  - `_PyObject_VectorcallTstate`
+  - `_PyObject_CallNoArgs`
+  - `calliter_iternext`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+- Reproduced stack frames:
+  - `#0  _PyEval_EvalFrameDefault (tstate=0x64b0f976b910 <_PyRuntime+166328>, frame=0x64b10d05edc8, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:2145`
+  - `#1  0x000064b0f923c1b0 in _PyEval_EvalFrame (tstate=0x64b0f976b910 <_PyRuntime+166328>, frame=0x64b10d05edc8, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#2  _PyEval_Vector (tstate=<optimized out>, func=0x64b10d1d4b90, locals=<optimized out>, args=<optimized out>, argcount=0, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#3  0x000064b0f8fd8865 in _PyFunction_Vectorcall (func=0x64b10d1d4b90, stack=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/cpython/abstract.h:59`
+  - `#4  0x000064b0f902b8da in _PyObject_VectorcallTstate (tstate=0x64b0f976b910 <_PyRuntime+166328>, callable=0x64b10d1d4b90, args=0x0, nargsf=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#5  _PyObject_CallNoArgs (func=0x64b10d1d4b90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:107`
+  - `#6  calliter_iternext (it=0x64b10d139db0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/iterobject.c:219`
+  - `#7  0x000064b0f923d914 in _PyEval_EvalFrameDefault (tstate=0x64b0f976b910 <_PyRuntime+166328>, frame=0x64b10d05ed10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4340`
+  - `#8  0x000064b0f923bf4c in _PyEval_EvalFrame (tstate=0x64b0f976b910 <_PyRuntime+166328>, frame=0x64b10d05ec90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#9  _PyEval_Vector (tstate=0x64b0f976b910 <_PyRuntime+166328>, func=0x64b10d07f3f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#10 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x000064b0f931fb5a in run_eval_code_obj (tstate=0x64b0f976b910 <_PyRuntime+166328>, co=0x64b10d13d1a0, globals=0x1655b, locals=0x1655b) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#12 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1655b, locals=0x1655b, flags=0x7fff70ca2ea0, arena=0x64b10d0ea910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#13 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1655b, locals=0x1655b, closeit=1, flags=0x7fff70ca2ea0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#14 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#15 0x000064b0f931ebab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x64b10d12e1f0, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5605c32f21e6.STACK.1b003b34e8.CODE.1.ADDR.0.INSTR.mov____0x0(%r13),%rbx.pyc`
+
+### 183. cpython-311-de13f63d4a69
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:listiter_next|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main|Py_BytesMain`
+- Honggfuzz stack hash: `ecdbd3670`
+- PC: `0x5fd5a965cbb0`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%rax)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-de13f63d4a69.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5fd5a965cbb0.STACK.ecdbd3670.CODE.1.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+- Normalized function stack:
+  - `listiter_next`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+- Reproduced stack frames:
+  - `#0  listiter_next (it=0x5ff735676ba0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/listobject.c:3254`
+  - `#1  0x00005ff709fe9914 in _PyEval_EvalFrameDefault (tstate=0x5ff70a517910 <_PyRuntime+166328>, frame=0x5ff7354f1cb0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4340`
+  - `#2  0x00005ff709fe7f4c in _PyEval_EvalFrame (tstate=0x5ff70a517910 <_PyRuntime+166328>, frame=0x5ff7354f1c30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5ff70a517910 <_PyRuntime+166328>, func=0x5ff7355123a0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005ff70a0cbb5a in run_eval_code_obj (tstate=0x5ff70a517910 <_PyRuntime+166328>, co=0x5ff73557b650, globals=0x21deba4, locals=0x21deba4) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#6  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x21deba4, locals=0x21deba4, flags=0x7ffc9c788b40, arena=0x5ff73557d6a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#7  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x21deba4, locals=0x21deba4, closeit=1, flags=0x7ffc9c788b40) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#8  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#9  0x00005ff70a0cabab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5ff7355c3560, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#10 0x00005ff70a1212d4 in pymain_run_file_obj (program_name=0x5ff7355c4ae0, filename=0x5ff7355c3560, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#11 pymain_run_file (config=0x5ff70a4fd958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#12 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#13 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#14 0x00005ff70a121c29 in pymain_main (args=0x7ffc9c788db0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#15 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5fd5a965cbb0.STACK.ecdbd3670.CODE.1.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+
+### 184. cpython-311-de146f7549ab
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:visit_decref|list_traverse|subtract_refs|deduce_unreachable|gc_collect_main|gc_collect_with_callback|PyGC_Collect|Py_FinalizeEx|Py_RunMain|pymain_main|Py_BytesMain|main`
+- Honggfuzz stack hash: `ecb513be3`
+- PC: `0x758d039889fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-de146f7549ab.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.758d039889fc.STACK.ecb513be3.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `visit_decref`
+  - `list_traverse`
+  - `subtract_refs`
+  - `deduce_unreachable`
+  - `gc_collect_main`
+  - `gc_collect_with_callback`
+  - `PyGC_Collect`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  visit_decref (op=0xffffffff, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:452`
+  - `#1  0x00005e7248ff2b37 in list_traverse (o=0x5e728f55c4b0, visit=<optimized out>, arg=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/listobject.c:2703`
+  - `#2  0x00005e7249338086 in subtract_refs (containers=0x5e7249712860 <_PyRuntime+59656>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:478`
+  - `#3  deduce_unreachable (base=0x5e7249712860 <_PyRuntime+59656>, unreachable=0x7ffcdbc452d8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1100`
+  - `#4  gc_collect_main (tstate=0x5e724972c910 <_PyRuntime+166328>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1226`
+  - `#5  0x00005e72493378a6 in gc_collect_with_callback (tstate=0x5e724972c910 <_PyRuntime+166328>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:1400`
+  - `#6  0x00005e72493375cc in PyGC_Collect () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/gcmodule.c:2086`
+  - `#7  0x00005e72492d37fd in Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pylifecycle.c:1828`
+  - `#8  0x00005e7249334e0a in Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:682`
+  - `#9  0x00005e7249336c29 in pymain_main (args=0x7ffcdbc45760) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+  - `#10 Py_BytesMain (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#11 0x00005e7248e97673 in main (argc=3, argv=0x7ffcdbc458e8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Programs/python.c:15`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGABRT.PC.758d039889fc.STACK.ecb513be3.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 185. cpython-311-e788feba5ef2
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyUnicode_JoinArray|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL_KEYWORDS|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `c85126021`
+- PC: `0x5ad69f094573`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r14),%r13`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-e788feba5ef2.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ad69f094573.STACK.c85126021.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%r13.pyc`
+- Normalized function stack:
+  - `_PyUnicode_JoinArray`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  _PyUnicode_JoinArray (separator=<optimized out>, items=<optimized out>, seqlen=26) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/unicodeobject.c:10137`
+  - `#1  0x00005faa6384ea4f in _PyEval_EvalFrameDefault (tstate=0x5faa63d7b910 <_PyRuntime+166328>, frame=0x5faa70135d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3222`
+  - `#2  0x00005faa6384bf4c in _PyEval_EvalFrame (tstate=0x5faa63d7b910 <_PyRuntime+166328>, frame=0x5faa70135d10, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#3  _PyEval_Vector (tstate=0x5faa63d7b910 <_PyRuntime+166328>, func=0x5faa7029b7b0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#4  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00005faa63844452 in builtin_exec_impl (source=0x5faa702510d0, globals=0x5faa63cd2580 <globalCovFeedback>, locals=0x5faa702bb7b0, closure=0x0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/bltinmodule.c:1075`
+  - `#6  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#7  0x00005faa636abfdf in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#8  0x00005faa635e78eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x5faa70131390, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#9  0x00005faa635e7813 in PyObject_Vectorcall (callable=0x5faa70131390, args=0x5faa70135ce8, nargsf=9223372036854775811, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#10 0x00005faa63854dae in _PyEval_EvalFrameDefault (tstate=0x5faa63d7b910 <_PyRuntime+166328>, frame=0x5faa70135c90, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#11 0x00005faa6384bf4c in _PyEval_EvalFrame (tstate=0x5faa63d7b910 <_PyRuntime+166328>, frame=0x5faa70135c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#12 _PyEval_Vector (tstate=0x5faa63d7b910 <_PyRuntime+166328>, func=0x5faa701563f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#13 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#14 0x00005faa6392fb5a in run_eval_code_obj (tstate=0x5faa63d7b910 <_PyRuntime+166328>, co=0x5faa70214300, globals=0x1b5a568, locals=0x1b5a568) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#15 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1b5a568, locals=0x1b5a568, flags=0x7ffe8c167eb0, arena=0x5faa701c1910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ad69f094573.STACK.c85126021.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%r13.pyc`
+
+### 186. cpython-311-ec10e80c74ee
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyEval_EvalFrameDefault|_PyEval_EvalFrame|gen_send_ex2|gen_iternext|builtin_all|cfunction_vectorcall_O|_PyObject_VectorcallTstate|PyObject_Vectorcall|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject`
+- Honggfuzz stack hash: `cf3fea1e3`
+- PC: `0x59d83c2328fb`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r12),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-ec10e80c74ee.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59d83c2328fb.STACK.cf3fea1e3.CODE.1.ADDR.8.INSTR.mov____0x8(%r12),%rax.pyc`
+- Normalized function stack:
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `gen_send_ex2`
+  - `gen_iternext`
+  - `builtin_all`
+  - `cfunction_vectorcall_O`
+  - `_PyObject_VectorcallTstate`
+  - `PyObject_Vectorcall`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+- Reproduced stack frames:
+  - `#0  _PyEval_EvalFrameDefault (tstate=0x645180778910 <_PyRuntime+166328>, frame=0x64519a9e6250, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:4340`
+  - `#1  0x000064518001a22d in _PyEval_EvalFrame (tstate=0x645180778910 <_PyRuntime+166328>, frame=0x64519a9e6250, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#2  gen_send_ex2 (gen=0x64519a9e6200, arg=0x0, exc=0, closing=0, presult=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:219`
+  - `#3  gen_iternext (gen=0x64519a9e6200) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/genobject.c:594`
+  - `#4  0x000064518023f5dd in builtin_all (module=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#5  0x00006451800a94fb in cfunction_vectorcall_O (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x000064517ffe48eb in _PyObject_VectorcallTstate (tstate=<optimized out>, callable=0x64519a863d20, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_call.h:92`
+  - `#7  0x000064517ffe4813 in PyObject_Vectorcall (callable=0x64519a863d20, args=0x64519a868d98, nargsf=9223372036854775809, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/call.c:299`
+  - `#8  0x0000645180251dae in _PyEval_EvalFrameDefault (tstate=0x645180778910 <_PyRuntime+166328>, frame=0x64519a868d10, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7308`
+  - `#9  0x0000645180248f4c in _PyEval_EvalFrame (tstate=0x645180778910 <_PyRuntime+166328>, frame=0x64519a868c90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#10 _PyEval_Vector (tstate=0x645180778910 <_PyRuntime+166328>, func=0x64519a8893f0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#11 PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#12 0x000064518032cb5a in run_eval_code_obj (tstate=0x645180778910 <_PyRuntime+166328>, co=0x64519a947140, globals=0x1649738, locals=0x1649738) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#13 run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1649738, locals=0x1649738, flags=0x7fff7a0327b0, arena=0x64519a8c44a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#14 pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1649738, locals=0x1649738, closeit=1, flags=0x7fff7a0327b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#15 _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.59d83c2328fb.STACK.cf3fea1e3.CODE.1.ADDR.8.INSTR.mov____0x8(%r12),%rax.pyc`
+
+### 187. cpython-311-edf710a1cafb
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_LookupAttr|import_from|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `19b05b8cde`
+- PC: `0x624c21b6ca88`
+- Fault address: `0x0`
+- Instruction: `movzbl_(%r12,%r14,1),%ebx`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-edf710a1cafb.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.624c21b6ca88.STACK.19b05b8cde.CODE.128.ADDR.0.INSTR.movzbl_(%r12,%r14,1),%ebx.pyc`
+- Normalized function stack:
+  - `_PyObject_LookupAttr`
+  - `import_from`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  _PyObject_LookupAttr (v=0x5de63f7e2c38 <PyBaseObject_Type>, name=0x0, result=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/object.c:942`
+  - `#1  0x00005de63f4513dc in import_from (tstate=0x5de63f97f910 <_PyRuntime+166328>, v=0x5de63f7e2c38 <PyBaseObject_Type>, name=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:7449`
+  - `#2  _PyEval_EvalFrameDefault (tstate=0x5de63f97f910 <_PyRuntime+166328>, frame=0x5de6577b6dd0, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3986`
+  - `#3  0x00005de63f44ff4c in _PyEval_EvalFrame (tstate=0x5de63f97f910 <_PyRuntime+166328>, frame=0x5de6577b6d50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x5de63f97f910 <_PyRuntime+166328>, func=0x5de6577d74d0, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x00005de63f533b5a in run_eval_code_obj (tstate=0x5de63f97f910 <_PyRuntime+166328>, co=0x5de657840be0, globals=0x7ffc17611390, locals=0x7ffc17611390) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#7  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x7ffc17611390, locals=0x7ffc17611390, flags=0x7ffc176116a0, arena=0x5de657842c30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#8  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x7ffc17611390, locals=0x7ffc17611390, closeit=1, flags=0x7ffc176116a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#9  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#10 0x00005de63f532bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x5de657889eb0, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#11 0x00005de63f5892d4 in pymain_run_file_obj (program_name=0x5de65788afa0, filename=0x5de657889eb0, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#12 pymain_run_file (config=0x5de63f965958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#13 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#14 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#15 0x00005de63f589c29 in pymain_main (args=0x7ffc17611910) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.624c21b6ca88.STACK.19b05b8cde.CODE.128.ADDR.0.INSTR.movzbl_(%r12,%r14,1),%ebx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.56c390b1ba88.STACK.cb7e71394.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r13.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5833ba168a90.STACK.cb7e71394.CODE.1.ADDR.9.INSTR.mov____0x8(%r12),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.58aa676f1a90.STACK.cb7e71394.CODE.128.ADDR.0.INSTR.mov____0x8(%r12),%rbx.pyc`
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.597c3159aa88.STACK.cb7e71394.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r13.pyc`
+
+### 188. cpython-311-f04611707e74
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyDictKeys_StringLookup|_Py_Specialize_LoadGlobal|_PyEval_EvalFrameDefault|_PyEval_EvalFrame|_PyEval_Vector|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|_PyRun_SimpleFileObject|_PyRun_AnyFileObject|pymain_run_file_obj|pymain_run_file|pymain_run_python|Py_RunMain|pymain_main`
+- Honggfuzz stack hash: `1932c19c4e`
+- PC: `0x5ee6ab404dac`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r14),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-f04611707e74.pyc`
+- Representative original: `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ee6ab404dac.STACK.1932c19c4e.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%r14.pyc`
+- Normalized function stack:
+  - `_PyDictKeys_StringLookup`
+  - `_Py_Specialize_LoadGlobal`
+  - `_PyEval_EvalFrameDefault`
+  - `_PyEval_EvalFrame`
+  - `_PyEval_Vector`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `_PyRun_SimpleFileObject`
+  - `_PyRun_AnyFileObject`
+  - `pymain_run_file_obj`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+  - `pymain_main`
+- Reproduced stack frames:
+  - `#0  _PyDictKeys_StringLookup (dk=0x608844426400, key=0x50639c8fd74db541) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Objects/dictobject.c:1011`
+  - `#1  0x000060881c25732b in _Py_Specialize_LoadGlobal (Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#2  0x000060881c168ae8 in _PyEval_EvalFrameDefault (tstate=0x60881c693910 <_PyRuntime+166328>, frame=0x6088442aad70, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:3058`
+  - `#3  0x000060881c163f4c in _PyEval_EvalFrame (tstate=0x60881c693910 <_PyRuntime+166328>, frame=0x6088442aacf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Include/internal/pycore_ceval.h:73`
+  - `#4  _PyEval_Vector (tstate=0x60881c693910 <_PyRuntime+166328>, func=0x6088442caf10, locals=<optimized out>, args=0x0, argcount=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/ceval.c:6428`
+  - `#5  PyEval_EvalCode (co=<optimized out>, Python Exception <class 'NameError'>: Installation error: gdb._execute_unwinders function is missing`
+  - `#6  0x000060881c247b5a in run_eval_code_obj (tstate=0x60881c693910 <_PyRuntime+166328>, co=0x608844388f00, globals=0x1, locals=0x1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1714`
+  - `#7  run_mod (mod=<optimized out>, filename=<optimized out>, globals=0x1, locals=0x1, flags=0x7ffe0f61c270, arena=0x608844329920) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1735`
+  - `#8  pyrun_file (fp=<optimized out>, filename=<optimized out>, start=257, globals=0x1, locals=0x1, closeit=1, flags=0x7ffe0f61c270) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:1630`
+  - `#9  _PyRun_SimpleFileObject (fp=<optimized out>, filename=<optimized out>, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:440`
+  - `#10 0x000060881c246bab in _PyRun_AnyFileObject (fp=<optimized out>, filename=0x608844379f50, closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Python/pythonrun.c:79`
+  - `#11 0x000060881c29d2d4 in pymain_run_file_obj (program_name=0x60884437ed40, filename=0x608844379f50, skip_source_first_line=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:360`
+  - `#12 pymain_run_file (config=0x60881c679958 <_PyRuntime+59904>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:379`
+  - `#13 pymain_run_python (exitcode=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:601`
+  - `#14 Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:680`
+  - `#15 0x000060881c29dc29 in pymain_main (args=0x7ffe0f61c4e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.11/source/cpython-3.11.0/Modules/main.c:710`
+- Example finding inputs:
+  - `data/rq3/cpython-3.11/fuzz/crashes/SIGSEGV.PC.5ee6ab404dac.STACK.1932c19c4e.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%r14.pyc`

@@ -1,0 +1,14 @@
+metric,value
+seeds,103456
+tags,7
+runs,7
+completed_runs,7
+crashes,12404
+timeouts,0
+seeds_cpython-310,15175
+seeds_cpython-311,15080
+seeds_cpython-312,14479
+seeds_cpython-313,14811
+seeds_cpython-314,15608
+seeds_cpython-38,13841
+seeds_cpython-39,14462
