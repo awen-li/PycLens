@@ -429,7 +429,8 @@ def run_under_gdb(interpreter: str, harness: Path, pyc_path: Path, timeout: int)
     interpreter_path = Path(interpreter).resolve()
     harness_path = harness.resolve()
     pyc_path = pyc_path.resolve()
-    env = cpython_runtime_env(interpreter_path)
+    inferior_env = cpython_runtime_env(interpreter_path)
+    gdb_env = clean_gdb_env()
     cwd = str(interpreter_path.parent)
     command = [
         "gdb",
@@ -440,6 +441,12 @@ def run_under_gdb(interpreter: str, harness: Path, pyc_path: Path, timeout: int)
         "-ex",
         "set confirm off",
         "-ex",
+        f"set environment PYTHONHOME {inferior_env.get('PYTHONHOME', '')}",
+        "-ex",
+        f"set environment PYTHONPATH {inferior_env.get('PYTHONPATH', '')}",
+        "-ex",
+        "set environment PYTHONNOUSERSITE 1",
+        "-ex",
         "run",
         "-ex",
         "bt",
@@ -449,12 +456,12 @@ def run_under_gdb(interpreter: str, harness: Path, pyc_path: Path, timeout: int)
         str(harness_path),
         str(pyc_path),
     ]
-    debug_header = rerun_debug_header(command, cwd, env)
+    debug_header = rerun_debug_header(command, cwd, inferior_env)
     try:
         completed = subprocess.run(
             command,
             cwd=cwd,
-            env=env,
+            env=gdb_env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             timeout=timeout,
@@ -473,15 +480,12 @@ def run_under_gdb(interpreter: str, harness: Path, pyc_path: Path, timeout: int)
     return "not_reproduced", output, signal_name, ""
 
 
-def rerun_debug_header(command: Sequence[str], cwd: str, env: dict[str, str]) -> str:
-    keys = ["PYTHONHOME", "PYTHONPATH", "PYTHONNOUSERSITE"]
-    lines = [
-        "[pybcsec-rerun] command=" + " ".join(command),
-        "[pybcsec-rerun] cwd=" + cwd,
-    ]
-    for key in keys:
-        lines.append(f"[pybcsec-rerun] {key}={env.get(key, '')}")
-    return "\n".join(lines) + "\n"
+def clean_gdb_env() -> dict[str, str]:
+    env = os.environ.copy()
+    env.pop("PYTHONHOME", None)
+    env.pop("PYTHONPATH", None)
+    env.pop("PYTHONNOUSERSITE", None)
+    return env
 
 
 def cpython_runtime_env(interpreter: Path) -> dict[str, str]:
