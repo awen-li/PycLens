@@ -139,10 +139,11 @@ stderr/stdout excerpt. The `python_tag` column records version tags from `.pyc`
 filenames, such as `cpython-38` or `cpython-39`, to help diagnose compatibility
 issues.
 
-`prepare-analysis-env` reads `data/rq1/rq1_versions.csv`, checks for the
-required `pythonX.Y` interpreters, creates per-version virtual environments
-under `data/rq2/envs/`, and installs `uncompyle6` and `decompyle3` in those
-environments. It also checks globally scoped tools (`pycdc` and PyLingual) and
+`prepare-analysis-env` reads `data/rq1/rq1_versions.csv`, keeps the RQ2
+CPython scope to versions 3.8--3.14, checks for the required `pythonX.Y`
+interpreters, creates per-version virtual environments under `data/rq2/envs/`,
+and installs `uncompyle6` and `decompyle3` in those environments. It also
+checks globally scoped tools (`pycdc` and PyLingual) and
 attempts to install them when they are missing. These tools are not installed
 per interpreter because they are used as global executables by the analysis
 runner.

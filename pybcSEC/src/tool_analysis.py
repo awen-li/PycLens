@@ -59,7 +59,8 @@ GLOBAL_TOOL_PACKAGES = {
     "pycdc": "pycdc",
     "pylingual": "pylingual",
 }
-RQ2_EXCLUDED_PYTHON_TAGS = {"cpython-315"}
+RQ2_MIN_CPYTHON_MINOR = 8
+RQ2_MAX_CPYTHON_MINOR = 14
 
 
 @dataclass
@@ -201,7 +202,7 @@ def load_interpreter_environment(
                 continue
             raw_tag = row.get("python_tag", "") or row.get("name", "")
             tag = tag_from_interpreter(interpreter) or canonical_analysis_tag(raw_tag)
-            if not tag or tag == "unknown" or tag in RQ2_EXCLUDED_PYTHON_TAGS or not supported_cpython_analysis_tag(tag):
+            if not tag or tag == "unknown" or not rq2_supported_cpython_tag(tag):
                 continue
             interpreters[tag] = find_interpreter(tag, interpreter, data_dir)
     return interpreters
@@ -318,7 +319,7 @@ def print_rq2_scope(interpreters: dict[str, str | None]) -> None:
         + (
             ", ".join(in_scope)
             if in_scope
-            else "no prepared CPython interpreters"
+            else f"no prepared CPython 3.{RQ2_MIN_CPYTHON_MINOR}--3.{RQ2_MAX_CPYTHON_MINOR} interpreters"
         )
     )
 
@@ -331,11 +332,8 @@ def prepare_analysis_environment(
 ) -> Path:
     interpreters = load_interpreter_environment(versions_csv, data_dir=data_dir)
     for tag in extra_tags:
-        if tag in RQ2_EXCLUDED_PYTHON_TAGS:
-            print(f"[prepare-env] {tag}: excluded from RQ2 scope; skipping")
-            continue
-        if not supported_cpython_analysis_tag(tag):
-            print(f"[prepare-env] {tag}: unsupported CPython tag; skipping")
+        if not rq2_supported_cpython_tag(tag):
+            print(f"[prepare-env] {tag}: outside RQ2 CPython scope; skipping")
             continue
         interpreters.setdefault(
             tag,
@@ -987,16 +985,19 @@ def supported_cpython_analysis_tag(tag: str) -> bool:
     return True
 
 
-def rq2_in_scope_tag(tag: str, interpreters: dict[str, str | None]) -> bool:
-    if tag in RQ2_EXCLUDED_PYTHON_TAGS:
-        return False
-    if not tag.startswith("cpython-"):
-        return False
+def rq2_supported_cpython_tag(tag: str) -> bool:
     version = cpython_tag_version(tag)
     if not version:
         return False
     major, _, minor = version.partition(".")
     if major != "3" or not minor.isdigit():
+        return False
+    minor_int = int(minor)
+    return RQ2_MIN_CPYTHON_MINOR <= minor_int <= RQ2_MAX_CPYTHON_MINOR
+
+
+def rq2_in_scope_tag(tag: str, interpreters: dict[str, str | None]) -> bool:
+    if not rq2_supported_cpython_tag(tag):
         return False
     return bool(interpreters.get(tag))
 
