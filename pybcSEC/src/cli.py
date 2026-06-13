@@ -645,6 +645,7 @@ def analyze_crashes(args: argparse.Namespace) -> int:
     benchmark_unique_csvs = crash_analysis.write_benchmark_unique_csvs(args.data_dir / "rq3", unique_bugs)
     crash_analysis.write_summary_csv(summary_csv, findings, unique_bugs)
     crash_analysis.write_unique_report(report_md, findings, unique_bugs)
+    benchmark_reports = crash_analysis.write_benchmark_unique_reports(args.data_dir / "rq3", findings, unique_bugs)
     print(
         "RQ3 crash analysis summary: findings={findings}, unique_bugs={unique}".format(
             findings=len(findings),
@@ -658,6 +659,9 @@ def analyze_crashes(args: argparse.Namespace) -> int:
         print(f"  {path}")
     print(f"wrote RQ3 crash summary to {summary_csv}")
     print(f"wrote RQ3 unique bug report to {report_md}")
+    print(f"wrote benchmark-level unique bug reports: {len(benchmark_reports)}")
+    for path in benchmark_reports:
+        print(f"  {path}")
     print(f"wrote representative unique-bug pyc files under {args.data_dir / 'rq3'}/<cpython-version>/unique_bug_pyc")
     return 0
 

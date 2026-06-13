@@ -465,6 +465,41 @@ def bug_id(tag: str, status: str, signature: str) -> str:
 
 
 def write_unique_report(path: Path, findings: Sequence[CrashFinding], unique_bugs: Sequence[UniqueBug]) -> None:
+    lines = build_unique_report_lines(findings, unique_bugs, title="RQ3 Unique Bug Report")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def write_benchmark_unique_reports(rq3_dir: Path, findings: Sequence[CrashFinding], unique_bugs: Sequence[UniqueBug]) -> list[Path]:
+    findings_by_tag: dict[str, list[CrashFinding]] = {}
+    bugs_by_tag: dict[str, list[UniqueBug]] = {}
+    for finding in findings:
+        findings_by_tag.setdefault(finding.python_tag, []).append(finding)
+    for bug in unique_bugs:
+        bugs_by_tag.setdefault(bug.python_tag, []).append(bug)
+
+    written: list[Path] = []
+    for tag, version_bugs in sorted(bugs_by_tag.items()):
+        version_dir = cpython_fuzz.version_dir_name(tag)
+        out_path = rq3_dir / version_dir / "unique_bug_report.md"
+        lines = build_unique_report_lines(
+            findings_by_tag.get(tag, []),
+            version_bugs,
+            title=f"RQ3 Unique Bug Report: {version_dir}",
+            include_version_summary=False,
+        )
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text("\n".join(lines), encoding="utf-8")
+        written.append(out_path)
+    return written
+
+
+def build_unique_report_lines(
+    findings: Sequence[CrashFinding],
+    unique_bugs: Sequence[UniqueBug],
+    title: str,
+    include_version_summary: bool = True,
+) -> list[str]:
     findings_by_bug: dict[str, list[CrashFinding]] = {}
     for finding in findings:
         findings_by_bug.setdefault(finding.unique_bug_id, []).append(finding)
@@ -474,7 +509,7 @@ def write_unique_report(path: Path, findings: Sequence[CrashFinding], unique_bug
         by_version.setdefault(bug.python_tag, []).append(bug)
 
     lines = [
-        "# RQ3 Unique Bug Report",
+        f"# {title}",
         "",
         "## Summary",
         "",
@@ -482,41 +517,65 @@ def write_unique_report(path: Path, findings: Sequence[CrashFinding], unique_bug
         f"- Unique bugs: {len(unique_bugs)}",
         f"- Representative pyc artifacts: {sum(1 for bug in unique_bugs if bug.artifact_path)}",
         "",
-        "## By CPython Version",
-        "",
     ]
-    for tag in sorted(by_version):
-        version_findings = sum(bug.findings for bug in by_version[tag])
-        lines.append(f"- {tag}: unique_bugs={len(by_version[tag])}, findings={version_findings}")
-    lines.extend(["", "## Unique Bugs", ""])
+    if include_version_summary:
+        lines.extend(["## By CPython Version", ""])
+        for tag in sorted(by_version):
+            version_findings = sum(bug.findings for bug in by_version[tag])
+            lines.append(f"- {tag}: unique_bugs={len(by_version[tag])}, findings={version_findings}")
+        lines.append("")
+    lines.extend(["## Unique Bugs", ""])
 
     for tag in sorted(by_version):
-        lines.extend([f"### {tag}", ""])
+        if include_version_summary:
+            lines.extend([f"### {tag}", ""])
+            heading_prefix = "####"
+        else:
+            heading_prefix = "###"
         bugs = sorted(by_version[tag], key=lambda bug: (-bug.findings, bug.unique_bug_id))
         for index, bug in enumerate(bugs, start=1):
-            examples = findings_by_bug.get(bug.unique_bug_id, [])[:5]
+            examples = findings_by_bug.get(bug.unique_bug_id, [])
+            representative = examples[0] if examples else None
+            metadata = parse_honggfuzz_filename(Path(bug.example))
+            frames = representative_stack_frames(representative)
             lines.extend(
                 [
-                    f"#### {index}. {bug.unique_bug_id}",
+                    f"{heading_prefix} {index}. {bug.unique_bug_id}",
                     "",
                     f"- Status: {bug.status}",
-                    f"- Signal: {bug.signal or 'unknown'}",
+                    f"- Signal: {bug.signal or metadata.get('signal') or 'unknown'}",
                     f"- Stack source: {bug.stack_source}",
-                    f"- Signature: `{bug.signature}`",
+                    f"- Stack signature: `{bug.signature}`",
+                    f"- Honggfuzz stack hash: `{metadata.get('stack_hash', representative.stack_hash if representative else '') or 'unknown'}`",
+                    f"- PC: `{metadata.get('pc', 'unknown')}`",
+                    f"- Fault address: `{metadata.get('fault_address', 'unknown')}`",
+                    f"- Instruction: `{metadata.get('instruction', 'unknown')}`",
                     f"- Findings: {bug.findings}",
                     f"- Representative pyc: `{bug.artifact_path or 'missing'}`",
                     f"- Representative original: `{bug.example}`",
                 ]
             )
+            if frames:
+                lines.append("- Reproduced stack frames:")
+                for frame in frames[:16]:
+                    lines.append(f"  - `{frame}`")
+            else:
+                lines.append("- Reproduced stack frames: `not available; use honggfuzz stack hash for grouping`")
             if examples:
                 lines.append("- Example finding inputs:")
-                for finding in examples:
+                for finding in examples[:5]:
                     lines.append(f"  - `{finding.path}`")
-                if bug.findings > len(examples):
-                    lines.append(f"  - ... {bug.findings - len(examples)} more")
+                if bug.findings > min(len(examples), 5):
+                    lines.append(f"  - ... {bug.findings - min(len(examples), 5)} more")
             lines.append("")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines), encoding="utf-8")
+    return lines
+
+
+def representative_stack_frames(finding: CrashFinding | None) -> list[str]:
+    if finding is None or finding.stack_source != "gdb-rerun":
+        return []
+    _signal, frames = parse_gdb_stack(finding.reason)
+    return frames
 
 
 def write_finding_csv(path: Path, rows: Sequence[CrashFinding]) -> None:

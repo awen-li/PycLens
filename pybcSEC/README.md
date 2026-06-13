@@ -197,6 +197,7 @@ data/rq3/unique_bugs.csv
 data/rq3/crash_summary.csv
 data/rq3/unique_bug_report.md
 data/rq3/<cpython-version>/unique_bugs.csv
+data/rq3/<cpython-version>/unique_bug_report.md
 data/rq3/<cpython-version>/unique_bug_pyc/
 ```
 
