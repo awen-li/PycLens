@@ -93,7 +93,7 @@ def analyze_crashes(
         selected_tags = discover_rq3_tags(rq3_dir)
 
     findings: list[CrashFinding] = []
-    unique_groups: dict[tuple[str, str, str], list[CrashFinding]] = {}
+    unique_bugs: list[UniqueBug] = []
 
     for tag in selected_tags:
         version_name = cpython_fuzz.version_dir_name(tag)
@@ -102,80 +102,103 @@ def analyze_crashes(
         if not paths:
             print(f"[rq3-crash] {tag}: no crash findings")
             continue
-        if not interpreter:
-            print(f"[rq3-crash] {tag}: missing interpreter; recording findings without reproduction")
-        else:
-            print(f"[rq3-crash] {tag}: findings={len(paths)} interpreter={interpreter}")
+        print(f"[rq3-crash] {tag}: findings={len(paths)} interpreter={interpreter or 'missing'}")
 
-        for index, (kind, crash_path) in enumerate(paths, start=1):
+        grouped: dict[str, list[tuple[str, Path, dict[str, str], str, int]]] = {}
+        for kind, crash_path in paths:
             data = crash_path.read_bytes()
             digest = hashlib.sha256(data).hexdigest()
             metadata = parse_honggfuzz_filename(crash_path)
+            group_key = initial_bug_key(kind, crash_path, metadata, digest)
+            grouped.setdefault(group_key, []).append((kind, crash_path, metadata, digest, len(data)))
+
+        print(f"[rq3-crash] {tag}: initial stack groups={len(grouped)}")
+        for group_index, (group_key, rows) in enumerate(sorted(grouped.items()), start=1):
+            status = "crash" if rows[0][0] == "crash" else rows[0][0]
+            signal_name = rows[0][2].get("signal", "")
+            stack_source = "honggfuzz-filename" if rows[0][2].get("stack_hash") else "filename"
+            signature = group_key
+            reason = ""
+            representative = rows[0]
+
             if interpreter:
-                status, reason, signal_name, stack_sig, stack_source = reproduce_finding(
-                    interpreter,
-                    harness,
-                    crash_path,
-                    timeout,
-                    metadata,
-                )
+                for candidate in rows:
+                    gdb_status, gdb_reason, gdb_signal, gdb_stack = run_under_gdb(
+                        interpreter,
+                        harness,
+                        candidate[1],
+                        timeout,
+                    )
+                    reason = gdb_reason
+                    if gdb_stack:
+                        status = gdb_status
+                        signal_name = gdb_signal or signal_name
+                        signature = f"{signal_name or 'SIGUNKNOWN'}:{gdb_stack}"
+                        stack_source = "gdb-rerun"
+                        representative = candidate
+                        break
+                if not reason:
+                    reason = "gdb did not return output"
             else:
-                status = "unavailable_interpreter"
                 reason = f"missing interpreter for {tag}"
-                signal_name = metadata.get("signal", "")
-                stack_sig = metadata.get("stack_hash", "")
-                stack_source = "honggfuzz-filename" if stack_sig else "none"
-            signature = make_signature(status, reason, stack_sig, metadata)
-            identity_status = "stack" if stack_sig else status
-            unique_bug_id = bug_id(tag, identity_status, signature)
-            row = CrashFinding(
-                finding_id=f"{tag}-{kind}-{index:06d}",
-                python_tag=tag,
-                version_dir=version_name,
-                kind=kind,
-                path=str(crash_path),
-                sha256=digest,
-                bytes=len(data),
-                signal=signal_name,
-                stack_hash=metadata.get("stack_hash", ""),
-                stack_source=stack_source,
-                status=status,
-                reason=reason,
-                signature=signature,
-                unique_bug_id=unique_bug_id,
+
+            unique_bug_id = bug_id(tag, "stack", signature)
+            artifact_path = collect_unique_bug_pyc(
+                rq3_dir,
+                version_name,
+                unique_bug_id,
+                representative[1],
             )
-            findings.append(row)
-            unique_groups.setdefault((tag, identity_status, signature), []).append(row)
-            if index == 1 or index % 100 == 0 or index == len(paths):
+
+            group_findings: list[CrashFinding] = []
+            for item_index, (kind, crash_path, metadata, digest, size) in enumerate(rows, start=1):
+                row = CrashFinding(
+                    finding_id=f"{tag}-{kind}-{group_index:06d}-{item_index:04d}",
+                    python_tag=tag,
+                    version_dir=version_name,
+                    kind=kind,
+                    path=str(crash_path),
+                    sha256=digest,
+                    bytes=size,
+                    signal=signal_name or metadata.get("signal", ""),
+                    stack_hash=metadata.get("stack_hash", ""),
+                    stack_source=stack_source,
+                    status=status,
+                    reason=reason if crash_path == representative[1] else "grouped with representative rerun",
+                    signature=signature,
+                    unique_bug_id=unique_bug_id,
+                )
+                findings.append(row)
+                group_findings.append(row)
+
+            unique_bugs.append(
+                UniqueBug(
+                    unique_bug_id=unique_bug_id,
+                    python_tag=tag,
+                    status=status,
+                    signal=signal_name or rows[0][2].get("signal", ""),
+                    stack_source=stack_source,
+                    signature=signature,
+                    findings=len(rows),
+                    example=str(representative[1]),
+                    artifact_path=artifact_path,
+                )
+            )
+            if group_index == 1 or group_index % 25 == 0 or group_index == len(grouped):
                 print(
-                    f"[rq3-crash {tag} {index}/{len(paths)}] "
-                    f"status={status} stack_source={stack_source} unique={len(unique_groups)}"
+                    f"[rq3-crash {tag} group {group_index}/{len(grouped)}] "
+                    f"source={stack_source} findings={len(group_findings)} unique={len(unique_bugs)}"
                 )
 
-    unique_bugs: list[UniqueBug] = []
-    for (tag, status, signature), rows in sorted(unique_groups.items()):
-        unique_bug_id = bug_id(tag, status, signature)
-        example = rows[0].path
-        artifact_path = collect_unique_bug_pyc(
-            rq3_dir,
-            cpython_fuzz.version_dir_name(tag),
-            unique_bug_id,
-            Path(example),
-        )
-        unique_bugs.append(
-            UniqueBug(
-                unique_bug_id=unique_bug_id,
-                python_tag=tag,
-                status=rows[0].status,
-                signal=rows[0].signal,
-                stack_source=rows[0].stack_source,
-                signature=signature,
-                findings=len(rows),
-                example=example,
-                artifact_path=artifact_path,
-            )
-        )
     return findings, unique_bugs
+
+
+def initial_bug_key(kind: str, path: Path, metadata: dict[str, str], digest: str) -> str:
+    signal_name = metadata.get("signal") or kind
+    stack_hash = metadata.get("stack_hash")
+    if stack_hash:
+        return f"{signal_name}:{stack_hash}"
+    return f"{kind}:sha256:{digest[:16]}"
 
 
 def collect_unique_bug_pyc(
@@ -341,7 +364,7 @@ def run_under_gdb(interpreter: str, harness: Path, pyc_path: Path, timeout: int)
         return "timeout", f"gdb_timeout_after_{timeout}s", "", ""
     except OSError as exc:
         return "error", f"gdb_{type(exc).__name__}:{exc}", "", ""
-    output = compact(completed.stdout, limit=6000)
+    output = compact(completed.stdout, limit=24000)
     signal_name, frames = parse_gdb_stack(output)
     if frames:
         return "crash", output, signal_name, stack_signature(frames)
@@ -538,6 +561,7 @@ def build_unique_report_lines(
             representative = examples[0] if examples else None
             metadata = parse_honggfuzz_filename(Path(bug.example))
             frames = representative_stack_frames(representative)
+            normalized_stack = normalized_stack_functions(frames)
             lines.extend(
                 [
                     f"{heading_prefix} {index}. {bug.unique_bug_id}",
@@ -556,11 +580,22 @@ def build_unique_report_lines(
                 ]
             )
             if frames:
+                lines.append("- Normalized function stack:")
+                for function in normalized_stack[:16]:
+                    lines.append(f"  - `{function}`")
                 lines.append("- Reproduced stack frames:")
                 for frame in frames[:16]:
                     lines.append(f"  - `{frame}`")
             else:
-                lines.append("- Reproduced stack frames: `not available; use honggfuzz stack hash for grouping`")
+                lines.append("- Reproduced stack frames: `not available; rerun did not produce a native backtrace`")
+                command = manual_gdb_command(representative)
+                if command:
+                    lines.append(f"- Manual gdb command: `{command}`")
+                diagnostic = rerun_diagnostic_excerpt(representative)
+                if diagnostic:
+                    lines.append("- Rerun diagnostic excerpt:")
+                    for line in diagnostic:
+                        lines.append(f"  - `{line}`")
             if examples:
                 lines.append("- Example finding inputs:")
                 for finding in examples[:5]:
@@ -571,11 +606,37 @@ def build_unique_report_lines(
     return lines
 
 
+def normalized_stack_functions(frames: Sequence[str]) -> list[str]:
+    functions: list[str] = []
+    for frame in frames:
+        function = frame_function(frame)
+        if function and function not in functions:
+            functions.append(function)
+    return functions
+
+
 def representative_stack_frames(finding: CrashFinding | None) -> list[str]:
     if finding is None or finding.stack_source != "gdb-rerun":
         return []
     _signal, frames = parse_gdb_stack(finding.reason)
     return frames
+
+
+def rerun_diagnostic_excerpt(finding: CrashFinding | None, limit: int = 12) -> list[str]:
+    if finding is None or not finding.reason:
+        return []
+    lines = [line.strip() for line in finding.reason.splitlines() if line.strip()]
+    if not lines:
+        return []
+    return lines[-limit:]
+
+
+def manual_gdb_command(finding: CrashFinding | None) -> str:
+    if finding is None:
+        return ""
+    version_dir = cpython_fuzz.version_dir_name(finding.python_tag)
+    interpreter = f"data/rq3/{version_dir}/instrumented/python"
+    return f"gdb -q --args {interpreter} data/rq3/harness.py {finding.path}"
 
 
 def write_finding_csv(path: Path, rows: Sequence[CrashFinding]) -> None:
