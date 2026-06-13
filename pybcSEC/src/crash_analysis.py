@@ -535,6 +535,20 @@ def write_unique_csv(path: Path, rows: Sequence[UniqueBug]) -> None:
         writer.writerows(row.__dict__ for row in rows)
 
 
+def write_benchmark_unique_csvs(rq3_dir: Path, rows: Sequence[UniqueBug]) -> list[Path]:
+    by_version: dict[str, list[UniqueBug]] = {}
+    for row in rows:
+        version_dir = cpython_fuzz.version_dir_name(row.python_tag)
+        by_version.setdefault(version_dir, []).append(row)
+
+    written: list[Path] = []
+    for version_dir, version_rows in sorted(by_version.items()):
+        out_path = rq3_dir / version_dir / "unique_bugs.csv"
+        write_unique_csv(out_path, version_rows)
+        written.append(out_path)
+    return written
+
+
 def write_summary_csv(path: Path, findings: Sequence[CrashFinding], unique_bugs: Sequence[UniqueBug]) -> None:
     by_tag: dict[str, int] = {}
     unique_by_tag: dict[str, int] = {}
