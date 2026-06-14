@@ -3,17 +3,19 @@
 from __future__ import annotations
 
 import csv
+from collections import Counter
 import dis
 import importlib.util
 import json
 import marshal
 import os
+import re
 import shlex
 import shutil
 import subprocess
 import sys
 import tempfile
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from multiprocessing import Pool
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from types import CodeType
@@ -135,26 +137,41 @@ def analyze_artifacts(
 
     if workers <= 1:
         results: list[ToolAnalysisResult] = []
-        for index, artifact in enumerate(artifacts, start=1):
-            artifact_results = analyze_artifact(artifact, selected_tools, interpreters, tool_envs, external_timeout)
-            results.extend(artifact_results)
-            print_progress(index, len(artifacts), artifact, artifact_results)
+        try:
+            for index, artifact in enumerate(artifacts, start=1):
+                artifact_results = analyze_artifact(artifact, selected_tools, interpreters, tool_envs, external_timeout)
+                results.extend(artifact_results)
+                print_progress(index, len(artifacts), artifact, artifact_results)
+        except KeyboardInterrupt:
+            print(f"interrupted; returning {len(results)} completed pyc-analysis rows")
         return results
 
     results = []
-    with ThreadPoolExecutor(max_workers=workers) as executor:
-        futures = {
-            executor.submit(analyze_artifact, artifact, selected_tools, interpreters, tool_envs, external_timeout): (index, artifact)
-            for index, artifact in enumerate(artifacts, start=1)
-        }
-        completed = 0
-        for future in as_completed(futures):
-            index, artifact = futures[future]
-            artifact_results = future.result()
+    jobs = [
+        (index, artifact, selected_tools, interpreters, tool_envs, external_timeout)
+        for index, artifact in enumerate(artifacts, start=1)
+    ]
+    completed = 0
+    pool = Pool(processes=workers)
+    try:
+        for index, artifact, artifact_results in pool.imap_unordered(analyze_artifact_job, jobs):
             results.extend(artifact_results)
             completed += 1
             print_progress(completed, len(artifacts), artifact, artifact_results)
+    except KeyboardInterrupt:
+        pool.terminate()
+        pool.join()
+        print(f"interrupted; terminated active workers and returning {len(results)} completed pyc-analysis rows")
+        return results
+    pool.close()
+    pool.join()
     return results
+
+
+def analyze_artifact_job(job: tuple[int, Path, dict[str, str | None], dict[str, str | None], dict[str, dict[str, str | None]], int]) -> tuple[int, Path, list[ToolAnalysisResult]]:
+    index, artifact, selected_tools, interpreters, tool_envs, external_timeout = job
+    artifact_results = analyze_artifact(artifact, selected_tools, interpreters, tool_envs, external_timeout)
+    return index, artifact, artifact_results
 
 
 def print_progress(
@@ -1175,6 +1192,338 @@ def decompiler_level(
     if successful_decompilers:
         return 4, "fully_decompilable"
     return 3, "partially_decompilable"
+
+
+SOURCE_LESS_TOOLS = ("stdlib_marshal", "stdlib_dis", "uncompyle6", "decompyle3", "pylingual")
+
+
+def write_source_less_reports(
+    out_dir: Path,
+    results: Sequence[ToolAnalysisResult],
+    scan_csv: Path | None = None,
+) -> list[Path]:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    source_less = [item for item in results if not item.source_present]
+    scan_rows = read_scan_rows(scan_csv) if scan_csv else {}
+    paths = [
+        out_dir / "source_less_summary.csv",
+        out_dir / "source_less_by_version.csv",
+        out_dir / "source_less_by_artifact_type.csv",
+        out_dir / "source_less_by_level.csv",
+        out_dir / "source_less_tool_outcomes.csv",
+        out_dir / "source_less_top_artifacts.csv",
+        out_dir / "source_less_artifact_properties.csv",
+        out_dir / "source_less_keyword_categories.csv",
+    ]
+    write_source_less_summary(paths[0], results, source_less, scan_rows)
+    write_source_less_group_csv(paths[1], source_less, "python_tag")
+    write_source_less_group_csv(paths[2], source_less, "artifact_type")
+    write_source_less_level_csv(paths[3], source_less)
+    write_source_less_tool_outcomes_csv(paths[4], source_less)
+    write_source_less_top_artifacts_csv(paths[5], source_less)
+    write_source_less_artifact_properties_csv(paths[6], results, source_less, scan_rows)
+    write_source_less_keyword_categories_csv(paths[7], source_less)
+    return paths
+
+
+def write_source_less_summary(
+    path: Path,
+    results: Sequence[ToolAnalysisResult],
+    source_less: Sequence[ToolAnalysisResult],
+    scan_rows: dict[str, dict[str, str]],
+) -> None:
+    total = len(results)
+    subset = len(source_less)
+    source_less_artifacts = {item.artifact for item in source_less}
+    rows = [
+        ("pyc_files", subset),
+        ("share_of_rq2_pyc", percent_value(subset, total)),
+        ("artifacts", len(source_less_artifacts)),
+        ("artifacts_with_dynamic_loading_indicators", count_dynamic_artifacts(source_less_artifacts, scan_rows)),
+        ("artifacts_with_security_keywords", count_keyword_artifacts(source_less)),
+        ("runtime_magic", sum(1 for item in source_less if item.magic_matches_runtime)),
+        ("marshal_ok", sum(1 for item in source_less if item.stdlib_marshal == "ok")),
+        ("dis_ok", sum(1 for item in source_less if item.stdlib_dis == "ok")),
+        ("uncompyle6_ok", sum(1 for item in source_less if item.uncompyle6 == "ok")),
+        ("decompyle3_ok", sum(1 for item in source_less if item.decompyle3 == "ok")),
+        ("pylingual_ok", sum(1 for item in source_less if item.pylingual == "ok")),
+        ("source_recoverable", sum(1 for item in source_less if item.overall_level == 4)),
+        ("not_source_recoverable", sum(1 for item in source_less if item.overall_level != 4)),
+    ]
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["metric", "value"])
+        writer.writeheader()
+        for metric, value in rows:
+            writer.writerow({"metric": metric, "value": value})
+
+
+def write_source_less_group_csv(path: Path, source_less: Sequence[ToolAnalysisResult], field: str) -> None:
+    groups: dict[str, list[ToolAnalysisResult]] = {}
+    for item in source_less:
+        key = str(getattr(item, field) or "unknown")
+        groups.setdefault(key, []).append(item)
+    rows = []
+    total = len(source_less)
+    for key, items in sorted(groups.items(), key=lambda entry: (-len(entry[1]), entry[0])):
+        rows.append(
+            {
+                field: key,
+                "pyc_files": len(items),
+                "pct_source_less_pyc": percent_value(len(items), total),
+                "artifacts": len({item.artifact for item in items}),
+                "source_recoverable": sum(1 for item in items if item.overall_level == 4),
+                "source_recoverable_pct": percent_value(sum(1 for item in items if item.overall_level == 4), len(items)),
+                "marshal_ok": sum(1 for item in items if item.stdlib_marshal == "ok"),
+                "dis_ok": sum(1 for item in items if item.stdlib_dis == "ok"),
+                "pylingual_ok": sum(1 for item in items if item.pylingual == "ok"),
+            }
+        )
+    fieldnames = [field, "pyc_files", "pct_source_less_pyc", "artifacts", "source_recoverable", "source_recoverable_pct", "marshal_ok", "dis_ok", "pylingual_ok"]
+    write_dict_rows(path, fieldnames, rows)
+
+
+def write_source_less_level_csv(path: Path, source_less: Sequence[ToolAnalysisResult]) -> None:
+    counts = Counter(item.overall_label for item in source_less)
+    total = len(source_less)
+    rows = [
+        {"level": label, "pyc_files": count, "pct_source_less_pyc": percent_value(count, total)}
+        for label, count in sorted(counts.items())
+    ]
+    write_dict_rows(path, ["level", "pyc_files", "pct_source_less_pyc"], rows)
+
+
+def write_source_less_tool_outcomes_csv(path: Path, source_less: Sequence[ToolAnalysisResult]) -> None:
+    rows = []
+    total = len(source_less)
+    for tool in SOURCE_LESS_TOOLS:
+        counts = Counter(str(getattr(item, tool)) for item in source_less)
+        reason_field = f"{tool}_reason"
+        reason_counts = Counter(
+            str(getattr(item, reason_field, ""))
+            for item in source_less
+            if str(getattr(item, tool)) != "ok"
+        )
+        common_reason = reason_counts.most_common(1)[0][0] if reason_counts else ""
+        for status, count in sorted(counts.items(), key=lambda entry: (-entry[1], entry[0])):
+            rows.append(
+                {
+                    "tool": tool,
+                    "status": status,
+                    "pyc_files": count,
+                    "pct_source_less_pyc": percent_value(count, total),
+                    "top_non_ok_reason": common_reason if status != "ok" else "",
+                }
+            )
+    write_dict_rows(path, ["tool", "status", "pyc_files", "pct_source_less_pyc", "top_non_ok_reason"], rows)
+
+
+def write_source_less_top_artifacts_csv(path: Path, source_less: Sequence[ToolAnalysisResult], limit: int = 50) -> None:
+    groups: dict[str, list[ToolAnalysisResult]] = {}
+    for item in source_less:
+        groups.setdefault(item.artifact, []).append(item)
+    rows = []
+    for artifact, items in sorted(groups.items(), key=lambda entry: (-len(entry[1]), entry[0]))[:limit]:
+        rows.append(
+            {
+                "artifact": artifact,
+                "artifact_type": items[0].artifact_type if items else "",
+                "source_less_pyc": len(items),
+                "python_tags": ";".join(sorted({item.python_tag for item in items if item.python_tag})),
+                "levels": ";".join(f"{level}:{sum(1 for item in items if item.overall_label == level)}" for level in sorted({item.overall_label for item in items})),
+                "pylingual_ok": sum(1 for item in items if item.pylingual == "ok"),
+            }
+        )
+    write_dict_rows(path, ["artifact", "artifact_type", "source_less_pyc", "python_tags", "levels", "pylingual_ok"], rows)
+
+
+
+
+def write_source_less_artifact_properties_csv(
+    path: Path,
+    results: Sequence[ToolAnalysisResult],
+    source_less: Sequence[ToolAnalysisResult],
+    scan_rows: dict[str, dict[str, str]],
+) -> None:
+    all_by_artifact: dict[str, list[ToolAnalysisResult]] = {}
+    source_less_by_artifact: dict[str, list[ToolAnalysisResult]] = {}
+    for item in results:
+        all_by_artifact.setdefault(item.artifact, []).append(item)
+    for item in source_less:
+        source_less_by_artifact.setdefault(item.artifact, []).append(item)
+
+    rows = []
+    for artifact, items in sorted(source_less_by_artifact.items(), key=lambda entry: (-len(entry[1]), entry[0])):
+        all_items = all_by_artifact.get(artifact, [])
+        scan_row = scan_rows.get(artifact, {})
+        categories = keyword_categories_for_items(items)
+        source_recoverable = sum(1 for item in items if item.overall_level == 4)
+        rows.append(
+            {
+                "artifact": artifact,
+                "package": package_name_from_artifact(artifact),
+                "artifact_type": items[0].artifact_type if items else "",
+                "source_less_pyc": len(items),
+                "total_pyc_in_artifact": len(all_items),
+                "source_less_pyc_pct_in_artifact": percent_value(len(items), len(all_items)),
+                "python_tags": ";".join(sorted({item.python_tag for item in items if item.python_tag})),
+                "top_level_paths": ";".join(top_level_paths(items)),
+                "source_recoverable_pyc": source_recoverable,
+                "source_recoverable_pct": percent_value(source_recoverable, len(items)),
+                "dynamic_loading_indicator": scan_row.get("has_dynamic_loading", ""),
+                "dynamic_load_hits": scan_row.get("dynamic_load_hits", ""),
+                "keyword_categories": ";".join(categories),
+                "security_keyword_indicator": "yes" if "security" in categories else "no",
+            }
+        )
+    write_dict_rows(
+        path,
+        [
+            "artifact",
+            "package",
+            "artifact_type",
+            "source_less_pyc",
+            "total_pyc_in_artifact",
+            "source_less_pyc_pct_in_artifact",
+            "python_tags",
+            "top_level_paths",
+            "source_recoverable_pyc",
+            "source_recoverable_pct",
+            "dynamic_loading_indicator",
+            "dynamic_load_hits",
+            "keyword_categories",
+            "security_keyword_indicator",
+        ],
+        rows,
+    )
+
+
+def write_source_less_keyword_categories_csv(path: Path, source_less: Sequence[ToolAnalysisResult]) -> None:
+    pyc_counts: Counter[str] = Counter()
+    artifact_groups: dict[str, set[str]] = {}
+    for item in source_less:
+        categories = keyword_categories_for_items([item])
+        if not categories:
+            categories = ["uncategorized"]
+        for category in categories:
+            pyc_counts[category] += 1
+            artifact_groups.setdefault(category, set()).add(item.artifact)
+    total = len(source_less)
+    rows = [
+        {
+            "keyword_category": category,
+            "pyc_files": count,
+            "pct_source_less_pyc": percent_value(count, total),
+            "artifacts": len(artifact_groups.get(category, set())),
+        }
+        for category, count in sorted(pyc_counts.items(), key=lambda entry: (-entry[1], entry[0]))
+    ]
+    write_dict_rows(path, ["keyword_category", "pyc_files", "pct_source_less_pyc", "artifacts"], rows)
+
+
+def read_scan_rows(scan_csv: Path | None) -> dict[str, dict[str, str]]:
+    if not scan_csv or not scan_csv.exists():
+        return {}
+    with scan_csv.open(newline="", encoding="utf-8") as handle:
+        return {row.get("input", ""): row for row in csv.DictReader(handle) if row.get("input")}
+
+
+def count_dynamic_artifacts(artifacts: set[str], scan_rows: dict[str, dict[str, str]]) -> int:
+    return sum(
+        1
+        for artifact in artifacts
+        if scan_rows.get(artifact, {}).get("has_dynamic_loading") == "True"
+        or int(scan_rows.get(artifact, {}).get("dynamic_load_hits") or 0) > 0
+    )
+
+
+def count_keyword_artifacts(source_less: Sequence[ToolAnalysisResult]) -> int:
+    return len(
+        {
+            item.artifact
+            for item in source_less
+            if "security" in keyword_categories_for_items([item])
+        }
+    )
+
+
+KEYWORD_CATEGORIES: dict[str, tuple[str, ...]] = {
+    "security": (
+        "auth",
+        "crypto",
+        "crypt",
+        "encrypt",
+        "decrypt",
+        "jwt",
+        "oauth",
+        "password",
+        "secret",
+        "secure",
+        "security",
+        "token",
+        "tls",
+        "ssl",
+    ),
+    "network": ("api", "client", "http", "https", "net", "proxy", "request", "rpc", "server", "socket", "url", "web"),
+    "data": ("csv", "data", "database", "db", "etl", "json", "sql", "table", "xml", "yaml"),
+    "ml": ("ai", "learn", "ml", "model", "numpy", "pandas", "torch", "tensorflow"),
+    "testing": ("test", "pytest", "unittest"),
+    "build": ("build", "compile", "dist", "pack", "setup", "wheel"),
+    "plugin": ("addon", "extension", "plugin"),
+    "cli": ("cli", "cmd", "command", "console"),
+}
+
+
+def keyword_categories_for_items(items: Sequence[ToolAnalysisResult]) -> list[str]:
+    text = " ".join(
+        " ".join([package_name_from_artifact(item.artifact), item.pyc_path])
+        for item in items
+    ).lower()
+    tokens = {token for token in re.split(r"[^a-z0-9]+", text) if token}
+    categories = [
+        category
+        for category, keywords in KEYWORD_CATEGORIES.items()
+        if any(keyword in tokens for keyword in keywords)
+    ]
+    return sorted(categories)
+
+
+def package_name_from_artifact(artifact: str) -> str:
+    parts = Path(artifact).parts
+    if "pypi" in parts:
+        index = parts.index("pypi")
+        if index + 1 < len(parts):
+            return parts[index + 1]
+    if len(parts) >= 3:
+        return parts[-3]
+    return Path(artifact).stem
+
+
+def top_level_paths(items: Sequence[ToolAnalysisResult], limit: int = 5) -> list[str]:
+    counts = Counter(top_level_path(item.pyc_path) for item in items)
+    return [path for path, _ in counts.most_common(limit) if path]
+
+
+def top_level_path(path: str) -> str:
+    parts = [part for part in scanner.normalize_path(path).split("/") if part]
+    if not parts:
+        return ""
+    if parts[0].endswith(".dist-info") or parts[0].endswith(".egg-info"):
+        return parts[0]
+    if len(parts) >= 2 and parts[1] == "__pycache__":
+        return parts[0]
+    return parts[0]
+
+def write_dict_rows(path: Path, fieldnames: Sequence[str], rows: Sequence[dict[str, object]]) -> None:
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def percent_value(numerator: int, denominator: int) -> str:
+    if not denominator:
+        return "0.00"
+    return f"{(numerator / denominator) * 100:.2f}"
 
 
 def write_csv(path: Path, results: Sequence[ToolAnalysisResult]) -> None:
