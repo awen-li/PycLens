@@ -143,8 +143,8 @@ issues.
 CPython scope to versions 3.8--3.14, checks for the required `pythonX.Y`
 interpreters, creates per-version virtual environments under `data/rq2/envs/`,
 and installs `uncompyle6` and `decompyle3` in those environments. It also
-checks globally scoped tools (`pycdc` and PyLingual) and
-attempts to install them when they are missing. PyLingual is prepared in a
+checks PyLingual as a globally scoped tool and attempts to install it when it is
+missing. PyLingual is prepared in a
 Python 3.12 environment under `data/rq2/envs/global-pylingual/`. By default,
 the tool installs PyLingual from the public `syssec-utd/pylingual` GitHub
 repository at a pinned commit. To override the source, set

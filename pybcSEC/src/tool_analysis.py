@@ -42,9 +42,6 @@ TOOL_ANALYSIS_FIELDNAMES = [
     "decompyle3",
     "decompyle3_reason",
     "decompyle3_level",
-    "pycdc",
-    "pycdc_reason",
-    "pycdc_level",
     "pylingual",
     "pylingual_reason",
     "pylingual_level",
@@ -52,15 +49,14 @@ TOOL_ANALYSIS_FIELDNAMES = [
     "overall_label",
     "error",
 ]
-OPTIONAL_TOOLS = ("uncompyle6", "decompyle3", "pycdc", "pylingual")
+OPTIONAL_TOOLS = ("uncompyle6", "decompyle3", "pylingual")
 DECOMPILER_TOOLS = OPTIONAL_TOOLS
 PER_INTERPRETER_TOOLS = ("uncompyle6", "decompyle3")
-GLOBAL_TOOLS = ("pycdc", "pylingual")
+GLOBAL_TOOLS = ("pylingual",)
 PYLINGUAL_GIT_URL = "https://github.com/syssec-utd/pylingual.git"
 PYLINGUAL_COMMIT = "99c74eeff5262c0200a3d378298af1f736e20b01"
 
 GLOBAL_TOOL_PACKAGES = {
-    "pycdc": "pycdc",
     "pylingual": f"git+{PYLINGUAL_GIT_URL}@{PYLINGUAL_COMMIT}",
 }
 GLOBAL_TOOL_PACKAGE_ENVS = {
@@ -97,9 +93,6 @@ class ToolAnalysisResult:
     decompyle3: str = "unavailable"
     decompyle3_reason: str = ""
     decompyle3_level: int = 0
-    pycdc: str = "unavailable"
-    pycdc_reason: str = ""
-    pycdc_level: int = 0
     pylingual: str = "unavailable"
     pylingual_reason: str = ""
     pylingual_level: int = 0
@@ -485,8 +478,6 @@ def write_tool_versions(data_dir: Path, interpreters: dict[str, str | None]) -> 
 def tool_version(tool: str, executable: str | None) -> str:
     if not executable:
         return "missing"
-    if tool == "pycdc":
-        return command_version([executable])
     if tool == "pylingual":
         help_text = command_version([executable, "--help"])
         if help_text.startswith("Usage: pylingual"):
@@ -1181,8 +1172,7 @@ def decompiler_level(
     successful_decompilers: Sequence[str],
     selected_tools: dict[str, str | None],
 ) -> tuple[int, str]:
-    available_decompilers = [tool for tool, executable in selected_tools.items() if executable]
-    if len(successful_decompilers) == len(available_decompilers):
+    if successful_decompilers:
         return 4, "fully_decompilable"
     return 3, "partially_decompilable"
 
@@ -1206,7 +1196,6 @@ def write_summary_csv(path: Path, results: Sequence[ToolAnalysisResult]) -> None
         ("dis_ok", summary["dis_ok"]),
         ("uncompyle6_ok", summary["uncompyle6_ok"]),
         ("decompyle3_ok", summary["decompyle3_ok"]),
-        ("pycdc_ok", summary["pycdc_ok"]),
         ("pylingual_ok", summary["pylingual_ok"]),
         ("level_0", summary["level_0"]),
         ("level_1", summary["level_1"]),
@@ -1232,7 +1221,6 @@ def summarize(results: Sequence[ToolAnalysisResult]) -> dict[str, int]:
         "dis_ok": sum(1 for item in results if item.stdlib_dis == "ok"),
         "uncompyle6_ok": sum(1 for item in results if item.uncompyle6 == "ok"),
         "decompyle3_ok": sum(1 for item in results if item.decompyle3 == "ok"),
-        "pycdc_ok": sum(1 for item in results if item.pycdc == "ok"),
         "pylingual_ok": sum(1 for item in results if item.pylingual == "ok"),
         "level_0": sum(1 for item in results if item.overall_level == 0),
         "level_1": sum(1 for item in results if item.overall_level == 1),

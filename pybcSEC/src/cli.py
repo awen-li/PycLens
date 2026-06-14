@@ -455,7 +455,7 @@ def analyze_tools(args: argparse.Namespace) -> int:
     print(
         "tool analysis summary: pyc_files={pyc}, source_present={src}, source_less={src_less}, "
         "runtime_magic={magic}, marshal_ok={marshal_ok}, dis_ok={dis_ok}, "
-        "uncompyle6_ok={uncompyle6}, decompyle3_ok={decompyle3}, pycdc_ok={pycdc}, pylingual_ok={pylingual}".format(
+        "uncompyle6_ok={uncompyle6}, decompyle3_ok={decompyle3}, pylingual_ok={pylingual}".format(
             pyc=summary["pyc_files"],
             src=summary["source_present"],
             src_less=summary["source_less"],
@@ -464,7 +464,6 @@ def analyze_tools(args: argparse.Namespace) -> int:
             dis_ok=summary["dis_ok"],
             uncompyle6=summary["uncompyle6_ok"],
             decompyle3=summary["decompyle3_ok"],
-            pycdc=summary["pycdc_ok"],
             pylingual=summary["pylingual_ok"],
         )
     )
