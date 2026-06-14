@@ -11,6 +11,7 @@ import marshal
 import os
 import re
 import shlex
+import signal
 import shutil
 import subprocess
 import sys
@@ -72,6 +73,7 @@ GLOBAL_TOOL_PYTHON_TAGS = {
 }
 RQ2_MIN_CPYTHON_MINOR = 8
 RQ2_MAX_CPYTHON_MINOR = 14
+ARTIFACT_ANALYSIS_TIMEOUT = 600
 
 
 @dataclass
@@ -139,7 +141,14 @@ def analyze_artifacts(
         results: list[ToolAnalysisResult] = []
         try:
             for index, artifact in enumerate(artifacts, start=1):
-                artifact_results = analyze_artifact(artifact, selected_tools, interpreters, tool_envs, external_timeout)
+                artifact_results = analyze_artifact(
+                    artifact,
+                    selected_tools,
+                    interpreters,
+                    tool_envs,
+                    external_timeout,
+                    progress_label=f"artifact {index}/{len(artifacts)}",
+                )
                 results.extend(artifact_results)
                 print_progress(index, len(artifacts), artifact, artifact_results)
         except KeyboardInterrupt:
@@ -148,7 +157,7 @@ def analyze_artifacts(
 
     results = []
     jobs = [
-        (index, artifact, selected_tools, interpreters, tool_envs, external_timeout)
+        (index, len(artifacts), artifact, selected_tools, interpreters, tool_envs, external_timeout)
         for index, artifact in enumerate(artifacts, start=1)
     ]
     completed = 0
@@ -168,9 +177,34 @@ def analyze_artifacts(
     return results
 
 
-def analyze_artifact_job(job: tuple[int, Path, dict[str, str | None], dict[str, str | None], dict[str, dict[str, str | None]], int]) -> tuple[int, Path, list[ToolAnalysisResult]]:
-    index, artifact, selected_tools, interpreters, tool_envs, external_timeout = job
-    artifact_results = analyze_artifact(artifact, selected_tools, interpreters, tool_envs, external_timeout)
+class ArtifactAnalysisTimeout(Exception):
+    pass
+
+
+def artifact_timeout_handler(signum: int, frame: object) -> None:
+    raise ArtifactAnalysisTimeout()
+
+
+def analyze_artifact_job(job: tuple[int, int, Path, dict[str, str | None], dict[str, str | None], dict[str, dict[str, str | None]], int]) -> tuple[int, Path, list[ToolAnalysisResult]]:
+    index, total, artifact, selected_tools, interpreters, tool_envs, external_timeout = job
+    old_handler = signal.signal(signal.SIGALRM, artifact_timeout_handler)
+    signal.alarm(ARTIFACT_ANALYSIS_TIMEOUT)
+    try:
+        artifact_results = analyze_artifact(
+            artifact,
+            selected_tools,
+            interpreters,
+            tool_envs,
+            external_timeout,
+            progress_label=f"artifact {index}/{total}",
+        )
+    except ArtifactAnalysisTimeout:
+        reason = f"artifact_timeout_after_{ARTIFACT_ANALYSIS_TIMEOUT}s"
+        print(f"[tool-analysis-timeout artifact {index}/{total}] {reason} artifact={artifact}", flush=True)
+        artifact_results = [artifact_error_result(artifact, reason)]
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, old_handler)
     return index, artifact, artifact_results
 
 
@@ -190,7 +224,7 @@ def print_progress(
         for level in range(5)
     )
     print(
-        f"[tool-analysis {completed}/{total}] pyc={pyc_count} marshal_ok={marshal_ok} "
+        f"[tool-analysis {completed}/{total}] pyc_files={pyc_count} marshal_ok={marshal_ok} "
         f"dis_ok={dis_ok} pylingual_ok={pylingual_ok} failed={failed} {levels} latest={artifact}"
     )
 
@@ -842,44 +876,57 @@ def install_env_package(env_dir: Path, tool: str, package: str, timeout: int) ->
     return f"exit_{completed.returncode}", compact_reason(completed.stderr) or compact_reason(completed.stdout)
 
 
+def artifact_error_result(artifact: Path, reason: str) -> ToolAnalysisResult:
+    return ToolAnalysisResult(
+        artifact=str(artifact),
+        artifact_type=scanner.input_type(artifact),
+        pyc_path="",
+        python_tag="",
+        magic_number="",
+        magic_matches_runtime=False,
+        source_present=False,
+        stdlib_marshal="error",
+        stdlib_marshal_reason=reason,
+        stdlib_marshal_level=0,
+        stdlib_dis="error",
+        stdlib_dis_reason=reason,
+        stdlib_dis_level=0,
+        error=reason,
+    )
+
+
 def analyze_artifact(
     artifact: Path,
     selected_tools: dict[str, str | None],
     interpreters: dict[str, str | None],
     tool_envs: dict[str, dict[str, str | None]],
     external_timeout: int,
+    progress_label: str = "",
 ) -> list[ToolAnalysisResult]:
     try:
         entries = list(scanner.iter_entries(artifact))
     except Exception as exc:
-        return [
-            ToolAnalysisResult(
-                artifact=str(artifact),
-                artifact_type=scanner.input_type(artifact),
-                pyc_path="",
-                python_tag="",
-                magic_number="",
-                magic_matches_runtime=False,
-                source_present=False,
-                stdlib_marshal="error",
-                stdlib_marshal_reason=f"open_failed:{type(exc).__name__}:{exc}",
-                stdlib_marshal_level=0,
-                stdlib_dis="error",
-                stdlib_dis_reason=f"open_failed:{type(exc).__name__}:{exc}",
-                stdlib_dis_level=0,
-                error=f"open_failed:{type(exc).__name__}:{exc}",
-            )
-        ]
+        return [artifact_error_result(artifact, f"open_failed:{type(exc).__name__}:{exc}")]
 
     py_paths = {scanner.normalize_path(entry.path) for entry in entries if not entry.is_dir and entry.path.endswith(".py")}
+    pyc_entries = [
+        entry
+        for entry in entries
+        if not entry.is_dir
+        and scanner.normalize_path(entry.path).endswith(".pyc")
+        and rq2_in_scope_tag(python_tag(scanner.normalize_path(entry.path)), interpreters)
+    ]
+    if progress_label:
+        print(f"[tool-analysis-active {progress_label}] pyc_files={len(pyc_entries)} artifact={artifact}", flush=True)
+
     results = []
-    for entry in entries:
+    for pyc_index, entry in enumerate(pyc_entries, start=1):
         entry_path = scanner.normalize_path(entry.path)
-        if entry.is_dir or not entry_path.endswith(".pyc"):
-            continue
-        tag = python_tag(entry_path)
-        if not rq2_in_scope_tag(tag, interpreters):
-            continue
+        if progress_label and (pyc_index == 1 or pyc_index == len(pyc_entries) or pyc_index % 25 == 0):
+            print(
+                f"[tool-analysis-active {progress_label}] pyc {pyc_index}/{len(pyc_entries)} artifact={artifact}",
+                flush=True,
+            )
         result = analyze_pyc_entry(
             artifact,
             scanner.input_type(artifact),
@@ -1212,6 +1259,7 @@ def write_source_less_reports(
         out_dir / "source_less_by_level.csv",
         out_dir / "source_less_tool_outcomes.csv",
         out_dir / "source_less_top_artifacts.csv",
+        out_dir / "source_less_top_packages.csv",
         out_dir / "source_less_artifact_properties.csv",
         out_dir / "source_less_keyword_categories.csv",
     ]
@@ -1221,8 +1269,9 @@ def write_source_less_reports(
     write_source_less_level_csv(paths[3], source_less)
     write_source_less_tool_outcomes_csv(paths[4], source_less)
     write_source_less_top_artifacts_csv(paths[5], source_less)
-    write_source_less_artifact_properties_csv(paths[6], results, source_less, scan_rows)
-    write_source_less_keyword_categories_csv(paths[7], source_less)
+    write_source_less_top_packages_csv(paths[6], results, source_less, scan_rows)
+    write_source_less_artifact_properties_csv(paths[7], results, source_less, scan_rows)
+    write_source_less_keyword_categories_csv(paths[8], source_less)
     return paths
 
 
@@ -1325,7 +1374,9 @@ def write_source_less_top_artifacts_csv(path: Path, source_less: Sequence[ToolAn
     for artifact, items in sorted(groups.items(), key=lambda entry: (-len(entry[1]), entry[0]))[:limit]:
         rows.append(
             {
-                "artifact": artifact,
+                "artifact": artifact_name_from_path(artifact),
+                "package": package_name_from_artifact(artifact),
+                "version": package_version_from_artifact(artifact)[1],
                 "artifact_type": items[0].artifact_type if items else "",
                 "source_less_pyc": len(items),
                 "python_tags": ";".join(sorted({item.python_tag for item in items if item.python_tag})),
@@ -1333,9 +1384,69 @@ def write_source_less_top_artifacts_csv(path: Path, source_less: Sequence[ToolAn
                 "pylingual_ok": sum(1 for item in items if item.pylingual == "ok"),
             }
         )
-    write_dict_rows(path, ["artifact", "artifact_type", "source_less_pyc", "python_tags", "levels", "pylingual_ok"], rows)
+    write_dict_rows(path, ["artifact", "package", "version", "artifact_type", "source_less_pyc", "python_tags", "levels", "pylingual_ok"], rows)
 
 
+
+
+def write_source_less_top_packages_csv(
+    path: Path,
+    results: Sequence[ToolAnalysisResult],
+    source_less: Sequence[ToolAnalysisResult],
+    scan_rows: dict[str, dict[str, str]],
+    limit: int = 50,
+) -> None:
+    all_by_package: dict[tuple[str, str], list[ToolAnalysisResult]] = {}
+    source_less_by_package: dict[tuple[str, str], list[ToolAnalysisResult]] = {}
+    for item in results:
+        key = package_version_from_artifact(item.artifact)
+        all_by_package.setdefault(key, []).append(item)
+    for item in source_less:
+        key = package_version_from_artifact(item.artifact)
+        source_less_by_package.setdefault(key, []).append(item)
+
+    rows = []
+    for (package, version), items in sorted(source_less_by_package.items(), key=lambda entry: (-len(entry[1]), entry[0]))[:limit]:
+        all_items = all_by_package.get((package, version), [])
+        artifacts = {item.artifact for item in items}
+        categories = keyword_categories_for_items(items)
+        source_recoverable = sum(1 for item in items if item.overall_level == 4)
+        rows.append(
+            {
+                "package": package,
+                "version": version,
+                "artifacts": len(artifacts),
+                "artifact_types": ";".join(sorted({item.artifact_type for item in items if item.artifact_type})),
+                "source_less_pyc": len(items),
+                "total_pyc_in_package_version": len(all_items),
+                "source_less_pyc_pct_in_package_version": percent_value(len(items), len(all_items)),
+                "python_tags": ";".join(sorted({item.python_tag for item in items if item.python_tag})),
+                "source_recoverable_pyc": source_recoverable,
+                "source_recoverable_pct": percent_value(source_recoverable, len(items)),
+                "artifacts_with_dynamic_loading_indicators": count_dynamic_artifacts(artifacts, scan_rows),
+                "keyword_categories": ";".join(categories),
+                "security_keyword_indicator": "yes" if "security" in categories else "no",
+            }
+        )
+    write_dict_rows(
+        path,
+        [
+            "package",
+            "version",
+            "artifacts",
+            "artifact_types",
+            "source_less_pyc",
+            "total_pyc_in_package_version",
+            "source_less_pyc_pct_in_package_version",
+            "python_tags",
+            "source_recoverable_pyc",
+            "source_recoverable_pct",
+            "artifacts_with_dynamic_loading_indicators",
+            "keyword_categories",
+            "security_keyword_indicator",
+        ],
+        rows,
+    )
 
 
 def write_source_less_artifact_properties_csv(
@@ -1359,8 +1470,9 @@ def write_source_less_artifact_properties_csv(
         source_recoverable = sum(1 for item in items if item.overall_level == 4)
         rows.append(
             {
-                "artifact": artifact,
+                "artifact": artifact_name_from_path(artifact),
                 "package": package_name_from_artifact(artifact),
+                "version": package_version_from_artifact(artifact)[1],
                 "artifact_type": items[0].artifact_type if items else "",
                 "source_less_pyc": len(items),
                 "total_pyc_in_artifact": len(all_items),
@@ -1380,6 +1492,7 @@ def write_source_less_artifact_properties_csv(
         [
             "artifact",
             "package",
+            "version",
             "artifact_type",
             "source_less_pyc",
             "total_pyc_in_artifact",
@@ -1485,6 +1598,20 @@ def keyword_categories_for_items(items: Sequence[ToolAnalysisResult]) -> list[st
         if any(keyword in tokens for keyword in keywords)
     ]
     return sorted(categories)
+
+
+def artifact_name_from_path(artifact: str) -> str:
+    return Path(artifact).name
+
+
+def package_version_from_artifact(artifact: str) -> tuple[str, str]:
+    parts = Path(artifact).parts
+    if "pypi" in parts:
+        index = parts.index("pypi")
+        package = parts[index + 1] if index + 1 < len(parts) else "unknown"
+        version = parts[index + 2] if index + 2 < len(parts) else "unknown"
+        return package, version
+    return package_name_from_artifact(artifact), "unknown"
 
 
 def package_name_from_artifact(artifact: str) -> str:
