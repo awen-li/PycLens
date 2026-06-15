@@ -227,6 +227,44 @@ def pyc_magic(data: bytes | None) -> str | None:
     return str(magic)
 
 
+def canonical_pyc_tag(value: str) -> str:
+    if value.startswith("cpython-"):
+        raw = value.removeprefix("cpython-")
+        digits = []
+        for char in raw:
+            if not char.isdigit():
+                break
+            digits.append(char)
+        if len(digits) in (2, 3):
+            return "cpython-" + "".join(digits)
+    if value.startswith("pypy-"):
+        raw = value.removeprefix("pypy-")
+        digits = []
+        for char in raw:
+            if not char.isdigit():
+                break
+            digits.append(char)
+        if len(digits) in (2, 3):
+            return "pypy-" + "".join(digits)
+    return ""
+
+
+def pyc_filename_tag(pyc_path: str) -> str:
+    name = Path(pyc_path).name
+    for part in name.split("."):
+        tag = canonical_pyc_tag(part)
+        if tag:
+            return tag
+    return ""
+
+
+def resolve_pyc_tag(pyc_path: str, data: bytes | None, magic_tags: dict[str, str] | None = None) -> str:
+    magic = pyc_magic(data) or ""
+    if magic_tags and magic in magic_tags:
+        return magic_tags[magic]
+    return pyc_filename_tag(pyc_path)
+
+
 def pyc_python_tag(pyc_path: str) -> str:
     name = Path(pyc_path).name
     for part in name.split("."):

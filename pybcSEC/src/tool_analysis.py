@@ -273,7 +273,7 @@ def load_interpreter_environment(
             if not interpreter:
                 continue
             raw_tag = row.get("python_tag", "") or row.get("name", "")
-            tag = tag_from_interpreter(interpreter) or canonical_analysis_tag(raw_tag)
+            tag = tag_from_interpreter(interpreter) or scanner.canonical_pyc_tag(raw_tag)
             if not tag or tag == "unknown" or not rq2_supported_cpython_tag(tag):
                 continue
             interpreters[tag] = find_interpreter(tag, interpreter, data_dir)
@@ -1155,45 +1155,21 @@ def interpreter_magic_number(executable: str, timeout: int) -> str:
 
 
 def pyc_analysis_tag(pyc_path: str, data: bytes, magic_tags: dict[str, str]) -> str:
-    magic = scanner.pyc_magic(data) or ""
-    if magic in magic_tags:
-        return magic_tags[magic]
-    tag = python_tag(pyc_path)
-    if rq2_supported_cpython_tag(tag):
-        return tag
-    return tag
+    return scanner.resolve_pyc_tag(pyc_path, data, magic_tags)
 
 
 def python_tag(pyc_path: str) -> str:
     name = Path(pyc_path).name
     parts = name.split(".")
     for part in parts:
-        tag = canonical_analysis_tag(part)
+        tag = scanner.canonical_pyc_tag(part)
         if tag:
             return tag
     return ""
 
 
 def canonical_analysis_tag(value: str) -> str:
-    if value.startswith("cpython-"):
-        raw = value.removeprefix("cpython-")
-        digits = []
-        for char in raw:
-            if not char.isdigit():
-                break
-            digits.append(char)
-        if len(digits) in (2, 3):
-            return "cpython-" + "".join(digits)
-    if value.startswith("pypy-"):
-        raw = value.removeprefix("pypy-")
-        digits = []
-        for char in raw:
-            if not char.isdigit():
-                break
-            digits.append(char)
-        if len(digits) in (2, 3):
-            return "pypy-" + "".join(digits)
-    return ""
+    return scanner.canonical_pyc_tag(value)
 
 
 def tag_from_interpreter(interpreter: str) -> str:
