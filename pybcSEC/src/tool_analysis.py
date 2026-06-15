@@ -126,12 +126,16 @@ def analyze_artifacts(
     data_dir: Path | None = None,
 ) -> list[ToolAnalysisResult]:
     selected_tools = available_tools(data_dir)
+    magic_tags = load_magic_tag_map(interpreters, external_timeout)
     print_rq2_scope(interpreters)
     print(
         "tool analysis inputs: artifacts={artifacts}, workers={workers}, optional_tools={tools}".format(
             artifacts=len(artifacts),
             workers=max(1, workers),
-            tools=",".join(f"{tool}:{'yes' if selected_tools[tool] else 'no'}" for tool in OPTIONAL_TOOLS),
+            tools=",".join(
+                f"{tool}:{'yes' if analysis_tool_available(tool, selected_tools, tool_envs) else 'no'}"
+                for tool in OPTIONAL_TOOLS
+            ),
         )
     )
     if not artifacts:
@@ -147,6 +151,7 @@ def analyze_artifacts(
                     interpreters,
                     tool_envs,
                     external_timeout,
+                    magic_tags,
                     progress_label=f"artifact {index}/{len(artifacts)}",
                 )
                 results.extend(artifact_results)
@@ -157,7 +162,7 @@ def analyze_artifacts(
 
     results = []
     jobs = [
-        (index, len(artifacts), artifact, selected_tools, interpreters, tool_envs, external_timeout)
+        (index, len(artifacts), artifact, selected_tools, interpreters, tool_envs, external_timeout, magic_tags)
         for index, artifact in enumerate(artifacts, start=1)
     ]
     completed = 0
@@ -185,8 +190,8 @@ def artifact_timeout_handler(signum: int, frame: object) -> None:
     raise ArtifactAnalysisTimeout()
 
 
-def analyze_artifact_job(job: tuple[int, int, Path, dict[str, str | None], dict[str, str | None], dict[str, dict[str, str | None]], int]) -> tuple[int, Path, list[ToolAnalysisResult]]:
-    index, total, artifact, selected_tools, interpreters, tool_envs, external_timeout = job
+def analyze_artifact_job(job: tuple[int, int, Path, dict[str, str | None], dict[str, str | None], dict[str, dict[str, str | None]], int, dict[str, str]]) -> tuple[int, Path, list[ToolAnalysisResult]]:
+    index, total, artifact, selected_tools, interpreters, tool_envs, external_timeout, magic_tags = job
     old_handler = signal.signal(signal.SIGALRM, artifact_timeout_handler)
     signal.alarm(ARTIFACT_ANALYSIS_TIMEOUT)
     try:
@@ -196,6 +201,7 @@ def analyze_artifact_job(job: tuple[int, int, Path, dict[str, str | None], dict[
             interpreters,
             tool_envs,
             external_timeout,
+            magic_tags,
             progress_label=f"artifact {index}/{total}",
         )
     except ArtifactAnalysisTimeout:
@@ -231,6 +237,14 @@ def print_progress(
 
 def available_tools(data_dir: Path | None = None) -> dict[str, str | None]:
     return {tool: find_global_tool(tool, data_dir) for tool in OPTIONAL_TOOLS}
+
+
+def analysis_tool_available(
+    tool: str,
+    global_tools: dict[str, str | None],
+    tool_envs: dict[str, dict[str, str | None]],
+) -> bool:
+    return bool(global_tools.get(tool)) or any(bool(env.get(tool)) for env in tool_envs.values())
 
 
 def tools_for_tag(
@@ -901,6 +915,7 @@ def analyze_artifact(
     interpreters: dict[str, str | None],
     tool_envs: dict[str, dict[str, str | None]],
     external_timeout: int,
+    magic_tags: dict[str, str] | None = None,
     progress_label: str = "",
 ) -> list[ToolAnalysisResult]:
     try:
@@ -909,18 +924,20 @@ def analyze_artifact(
         return [artifact_error_result(artifact, f"open_failed:{type(exc).__name__}:{exc}")]
 
     py_paths = {scanner.normalize_path(entry.path) for entry in entries if not entry.is_dir and entry.path.endswith(".py")}
-    pyc_entries = [
-        entry
-        for entry in entries
-        if not entry.is_dir
-        and scanner.normalize_path(entry.path).endswith(".pyc")
-        and rq2_in_scope_tag(python_tag(scanner.normalize_path(entry.path)), interpreters)
-    ]
+    magic_tags = magic_tags or {}
+    pyc_entries = []
+    for entry in entries:
+        entry_path = scanner.normalize_path(entry.path)
+        if entry.is_dir or not entry_path.endswith(".pyc"):
+            continue
+        tag = pyc_analysis_tag(entry_path, entry.data or b"", magic_tags)
+        if rq2_in_scope_tag(tag, interpreters):
+            pyc_entries.append((entry, tag))
     if progress_label:
         print(f"[tool-analysis-active {progress_label}] pyc_files={len(pyc_entries)} artifact={artifact}", flush=True)
 
     results = []
-    for pyc_index, entry in enumerate(pyc_entries, start=1):
+    for pyc_index, (entry, tag) in enumerate(pyc_entries, start=1):
         entry_path = scanner.normalize_path(entry.path)
         if progress_label and (pyc_index == 1 or pyc_index == len(pyc_entries) or pyc_index % 25 == 0):
             print(
@@ -937,6 +954,7 @@ def analyze_artifact(
             interpreters,
             tool_envs,
             external_timeout,
+            tag,
         )
         results.append(result)
     return results
@@ -952,10 +970,11 @@ def analyze_pyc_entry(
     interpreters: dict[str, str | None],
     tool_envs: dict[str, dict[str, str | None]],
     external_timeout: int,
+    tag: str | None = None,
 ) -> ToolAnalysisResult:
     magic_number = scanner.pyc_magic(data) or ""
     source_present = any(candidate in py_paths for candidate in scanner.module_source_candidates(pyc_path))
-    tag = python_tag(pyc_path)
+    tag = tag or python_tag(pyc_path)
 
     result = ToolAnalysisResult(
         artifact=str(artifact),
@@ -1098,6 +1117,51 @@ def disassemble_code_object(code: CodeType) -> tuple[str, str]:
         return "ok", ""
     except Exception as exc:
         return "error", f"dis_failed:{type(exc).__name__}:{exc}"
+
+
+def load_magic_tag_map(interpreters: dict[str, str | None], timeout: int) -> dict[str, str]:
+    magic_tags: dict[str, str] = {}
+    for tag, executable in sorted(interpreters.items()):
+        if not executable or not rq2_supported_cpython_tag(tag):
+            continue
+        magic = interpreter_magic_number(executable, max(1, min(timeout, 10)))
+        if magic:
+            magic_tags[magic] = tag
+    if magic_tags:
+        print(
+            "RQ2 magic map: "
+            + ", ".join(f"{magic}->{tag}" for magic, tag in sorted(magic_tags.items(), key=lambda item: item[1]))
+        )
+    return magic_tags
+
+
+def interpreter_magic_number(executable: str, timeout: int) -> str:
+    script = "import importlib.util,struct; print(struct.unpack('<H', importlib.util.MAGIC_NUMBER[:2])[0])"
+    try:
+        completed = subprocess.run(
+            [executable, "-c", script],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=timeout,
+            check=False,
+            text=True,
+            errors="replace",
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+    if completed.returncode != 0:
+        return ""
+    return completed.stdout.strip()
+
+
+def pyc_analysis_tag(pyc_path: str, data: bytes, magic_tags: dict[str, str]) -> str:
+    magic = scanner.pyc_magic(data) or ""
+    if magic in magic_tags:
+        return magic_tags[magic]
+    tag = python_tag(pyc_path)
+    if rq2_supported_cpython_tag(tag):
+        return tag
+    return tag
 
 
 def python_tag(pyc_path: str) -> str:
