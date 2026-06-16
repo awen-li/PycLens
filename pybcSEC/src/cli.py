@@ -462,6 +462,9 @@ def analyze_tools(args: argparse.Namespace) -> int:
     tool_analysis.write_csv(csv_out, results)
     summary_csv = args.data_dir / "rq2" / "rq2_summary.csv"
     tool_analysis.write_summary_csv(summary_csv, results)
+    completeness_csv = args.data_dir / "rq2" / "rq2_analysis_completeness.csv"
+    expected_pyc = tool_analysis.read_count_only_expected(args.data_dir / "rq2" / "rq2_denominator_summary.csv")
+    completeness = tool_analysis.write_analysis_completeness_report(completeness_csv, results, expected_pyc)
     source_less_reports = tool_analysis.write_source_less_reports(args.data_dir / "rq2", results, scan_csv)
     summary = tool_analysis.summarize(results)
     print(
@@ -491,6 +494,15 @@ def analyze_tools(args: argparse.Namespace) -> int:
     )
     print(f"wrote {len(results)} tool-analysis rows to {csv_out}")
     print(f"wrote RQ2 summary to {summary_csv}")
+    print(f"wrote RQ2 analysis completeness report to {completeness_csv}")
+    if completeness.get("complete") == "False":
+        print(
+            "WARNING: RQ2 tool analysis is incomplete: expected_pyc={expected}, analyzed_rows={actual}, missing_rows={missing}".format(
+                expected=completeness.get("expected_pyc"),
+                actual=completeness.get("analyzed_rows"),
+                missing=completeness.get("missing_rows"),
+            )
+        )
     print("wrote RQ2 source-less subset reports:")
     for path in source_less_reports:
         print(f"  {path}")

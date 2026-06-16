@@ -410,7 +410,7 @@ def analyze_artifacts(
                     run_tools=run_tools,
                 )
                 results.extend(artifact_results)
-                print_progress(index, len(artifacts), artifact, artifact_results)
+                print_progress(index, len(artifacts), artifact, artifact_results, run_tools=run_tools)
         except KeyboardInterrupt:
             print(f"interrupted; returning {len(results)} completed pyc-analysis rows")
         return results
@@ -426,7 +426,7 @@ def analyze_artifacts(
         for index, artifact, artifact_results in pool.imap_unordered(analyze_artifact_job, jobs):
             results.extend(artifact_results)
             completed += 1
-            print_progress(completed, len(artifacts), artifact, artifact_results)
+            print_progress(completed, len(artifacts), artifact, artifact_results, run_tools=run_tools)
     except KeyboardInterrupt:
         pool.terminate()
         pool.join()
@@ -464,6 +464,10 @@ def analyze_artifact_job(job: tuple[int, int, Path, dict[str, str | None], dict[
         reason = f"artifact_timeout_after_{ARTIFACT_ANALYSIS_TIMEOUT}s"
         print(f"[tool-analysis-timeout artifact {index}/{total}] {reason} artifact={artifact}", flush=True)
         artifact_results = [artifact_error_result(artifact, reason)]
+    except Exception as exc:
+        reason = f"worker_failed:{type(exc).__name__}:{exc}"
+        print(f"[tool-analysis-error artifact {index}/{total}] {reason} artifact={artifact}", flush=True)
+        artifact_results = [artifact_error_result(artifact, reason)]
     finally:
         signal.alarm(0)
         signal.signal(signal.SIGALRM, old_handler)
@@ -475,8 +479,12 @@ def print_progress(
     total: int,
     artifact: Path,
     artifact_results: Sequence[ToolAnalysisResult],
+    run_tools: bool = True,
 ) -> None:
     pyc_count = len(artifact_results)
+    if not run_tools:
+        print(f"[rq2-count {completed}/{total}] pyc_files={pyc_count} artifact={artifact}")
+        return
     marshal_ok = sum(1 for item in artifact_results if item.stdlib_marshal == "ok")
     dis_ok = sum(1 for item in artifact_results if item.stdlib_dis == "ok")
     pylingual_ok = sum(1 for item in artifact_results if item.pylingual == "ok")
@@ -1968,6 +1976,43 @@ def percent_value(numerator: int, denominator: int) -> str:
     if not denominator:
         return "0.00"
     return f"{(numerator / denominator) * 100:.2f}"
+
+
+def read_count_only_expected(summary_csv: Path) -> int | None:
+    if not summary_csv.exists():
+        return None
+    with summary_csv.open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            if row.get("metric") == "rq2_in_scope_pyc":
+                try:
+                    return int(row.get("value") or 0)
+                except ValueError:
+                    return None
+    return None
+
+
+def write_analysis_completeness_report(
+    path: Path,
+    results: Sequence[ToolAnalysisResult],
+    expected_pyc: int | None,
+) -> dict[str, object]:
+    analyzed = len(results)
+    error_rows = sum(1 for result in results if result.error)
+    timeout_rows = sum(1 for result in results if result.error.startswith("artifact_timeout_after_"))
+    worker_failed_rows = sum(1 for result in results if result.error.startswith("worker_failed:"))
+    complete = expected_pyc is None or analyzed == expected_pyc
+    rows = [
+        {"metric": "expected_pyc", "value": expected_pyc if expected_pyc is not None else "unknown"},
+        {"metric": "analyzed_rows", "value": analyzed},
+        {"metric": "complete", "value": str(complete)},
+        {"metric": "missing_rows", "value": "unknown" if expected_pyc is None else max(expected_pyc - analyzed, 0)},
+        {"metric": "extra_rows", "value": "unknown" if expected_pyc is None else max(analyzed - expected_pyc, 0)},
+        {"metric": "error_rows", "value": error_rows},
+        {"metric": "artifact_timeout_rows", "value": timeout_rows},
+        {"metric": "worker_failed_rows", "value": worker_failed_rows},
+    ]
+    write_dict_rows(path, ["metric", "value"], rows)
+    return {row["metric"]: row["value"] for row in rows}
 
 
 def write_csv(path: Path, results: Sequence[ToolAnalysisResult]) -> None:
