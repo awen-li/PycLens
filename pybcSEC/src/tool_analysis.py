@@ -137,7 +137,11 @@ def audit_rq2_denominator(
     magic_counts: Counter[str] = Counter()
     rows = []
 
-    for artifact in artifacts:
+    total_artifacts = len(artifacts)
+    print(f"RQ2 denominator audit: artifacts={total_artifacts}", flush=True)
+    for artifact_index, artifact in enumerate(artifacts, start=1):
+        if artifact_index == 1 or artifact_index == total_artifacts or artifact_index % 100 == 0:
+            print(f"[rq2-count {artifact_index}/{total_artifacts}] {artifact}", flush=True)
         row = {
             "artifact": artifact_name_from_path(str(artifact)),
             "package": package_name_from_artifact(str(artifact)),
@@ -233,6 +237,16 @@ def audit_rq2_denominator(
         summary_rows.append({"metric": f"magic:{magic}", "value": count})
 
     write_dict_rows(summary_path, ["metric", "value"], summary_rows)
+    print(
+        "RQ2 denominator audit summary: scan_pyc={scan}, artifact_pyc={artifact_pyc}, "
+        "in_scope={in_scope}, out_of_scope={out_scope}".format(
+            scan=full_scan_total,
+            artifact_pyc=summary["pyc_files_from_artifacts"],
+            in_scope=summary["rq2_in_scope_pyc"],
+            out_scope=summary["out_of_scope_pyc"],
+        ),
+        flush=True,
+    )
     write_dict_rows(
         artifact_path,
         [
