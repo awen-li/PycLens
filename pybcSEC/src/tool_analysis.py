@@ -117,6 +117,163 @@ def read_bytecode_artifacts(scan_csv: Path) -> list[Path]:
     return artifacts
 
 
+def audit_rq2_denominator(
+    artifacts: Sequence[Path],
+    scan_csv: Path,
+    interpreters: dict[str, str | None],
+    magic_tags: dict[str, str],
+    out_dir: Path,
+) -> tuple[Path, Path]:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    summary_path = out_dir / "rq2_denominator_summary.csv"
+    artifact_path = out_dir / "rq2_denominator_artifacts.csv"
+    full_scan_total = scan_pyc_total(scan_csv)
+    selected_scan_total = scan_pyc_total(scan_csv, artifacts)
+    summary = Counter()
+    tag_counts: Counter[str] = Counter()
+    in_scope_tag_counts: Counter[str] = Counter()
+    excluded_tag_counts: Counter[str] = Counter()
+    filename_tag_counts: Counter[str] = Counter()
+    magic_counts: Counter[str] = Counter()
+    rows = []
+
+    for artifact in artifacts:
+        row = {
+            "artifact": artifact_name_from_path(str(artifact)),
+            "package": package_name_from_artifact(str(artifact)),
+            "version": package_version_from_artifact(str(artifact))[1],
+            "artifact_type": scanner.input_type(artifact),
+            "pyc_files": 0,
+            "rq2_in_scope_pyc": 0,
+            "out_of_scope_pyc": 0,
+            "unknown_tag_pyc": 0,
+            "unsupported_tag_pyc": 0,
+            "missing_interpreter_pyc": 0,
+            "resolved_tags": "",
+            "filename_tags": "",
+            "magic_numbers": "",
+            "status": "ok",
+            "reason": "",
+        }
+        resolved_tags: Counter[str] = Counter()
+        filename_tags: Counter[str] = Counter()
+        artifact_magic: Counter[str] = Counter()
+        try:
+            entries = list(scanner.iter_entries(artifact))
+        except Exception as exc:
+            row["status"] = "open_failed"
+            row["reason"] = f"{type(exc).__name__}:{exc}"
+            summary["open_failed_artifacts"] += 1
+            rows.append(row)
+            continue
+
+        for entry in entries:
+            entry_path = scanner.normalize_path(entry.path)
+            if entry.is_dir or not entry_path.endswith(".pyc"):
+                continue
+            data = entry.data or b""
+            filename_tag = scanner.pyc_filename_tag(entry_path) or "unknown"
+            magic = scanner.pyc_magic(data) or "unknown"
+            resolved = scanner.resolve_pyc_tag(entry_path, data, magic_tags) or "unknown"
+            row["pyc_files"] += 1
+            filename_tags[filename_tag] += 1
+            artifact_magic[magic] += 1
+            resolved_tags[resolved] += 1
+            filename_tag_counts[filename_tag] += 1
+            magic_counts[magic] += 1
+            tag_counts[resolved] += 1
+            if resolved == "unknown":
+                row["unknown_tag_pyc"] += 1
+                excluded_tag_counts["unknown"] += 1
+            elif not rq2_supported_cpython_tag(resolved):
+                row["unsupported_tag_pyc"] += 1
+                excluded_tag_counts[resolved] += 1
+            elif not interpreters.get(resolved):
+                row["missing_interpreter_pyc"] += 1
+                excluded_tag_counts[f"{resolved}:missing_interpreter"] += 1
+            else:
+                row["rq2_in_scope_pyc"] += 1
+                in_scope_tag_counts[resolved] += 1
+
+        row["out_of_scope_pyc"] = row["pyc_files"] - row["rq2_in_scope_pyc"]
+        row["resolved_tags"] = format_counter(resolved_tags)
+        row["filename_tags"] = format_counter(filename_tags)
+        row["magic_numbers"] = format_counter(artifact_magic)
+        summary["artifacts"] += 1
+        summary["pyc_files_from_artifacts"] += int(row["pyc_files"])
+        summary["rq2_in_scope_pyc"] += int(row["rq2_in_scope_pyc"])
+        summary["out_of_scope_pyc"] += int(row["out_of_scope_pyc"])
+        summary["unknown_tag_pyc"] += int(row["unknown_tag_pyc"])
+        summary["unsupported_tag_pyc"] += int(row["unsupported_tag_pyc"])
+        summary["missing_interpreter_pyc"] += int(row["missing_interpreter_pyc"])
+        rows.append(row)
+
+    summary_rows = [
+        {"metric": "scan_csv_pyc_files_full", "value": full_scan_total},
+        {"metric": "scan_csv_pyc_files_selected_artifacts", "value": selected_scan_total},
+        {"metric": "artifact_paths", "value": len(artifacts)},
+        {"metric": "readable_artifacts", "value": summary["artifacts"]},
+        {"metric": "open_failed_artifacts", "value": summary["open_failed_artifacts"]},
+        {"metric": "pyc_files_from_artifacts", "value": summary["pyc_files_from_artifacts"]},
+        {"metric": "rq2_in_scope_pyc", "value": summary["rq2_in_scope_pyc"]},
+        {"metric": "out_of_scope_pyc", "value": summary["out_of_scope_pyc"]},
+        {"metric": "unknown_tag_pyc", "value": summary["unknown_tag_pyc"]},
+        {"metric": "unsupported_tag_pyc", "value": summary["unsupported_tag_pyc"]},
+        {"metric": "missing_interpreter_pyc", "value": summary["missing_interpreter_pyc"]},
+    ]
+    for tag, count in sorted(in_scope_tag_counts.items(), key=lambda item: (-item[1], item[0])):
+        summary_rows.append({"metric": f"in_scope_tag:{tag}", "value": count})
+    for tag, count in sorted(excluded_tag_counts.items(), key=lambda item: (-item[1], item[0])):
+        summary_rows.append({"metric": f"excluded_tag:{tag}", "value": count})
+    for tag, count in sorted(tag_counts.items(), key=lambda item: (-item[1], item[0])):
+        summary_rows.append({"metric": f"resolved_tag:{tag}", "value": count})
+    for tag, count in sorted(filename_tag_counts.items(), key=lambda item: (-item[1], item[0])):
+        summary_rows.append({"metric": f"filename_tag:{tag}", "value": count})
+    for magic, count in sorted(magic_counts.items(), key=lambda item: (-item[1], item[0])):
+        summary_rows.append({"metric": f"magic:{magic}", "value": count})
+
+    write_dict_rows(summary_path, ["metric", "value"], summary_rows)
+    write_dict_rows(
+        artifact_path,
+        [
+            "artifact",
+            "package",
+            "version",
+            "artifact_type",
+            "pyc_files",
+            "rq2_in_scope_pyc",
+            "out_of_scope_pyc",
+            "unknown_tag_pyc",
+            "unsupported_tag_pyc",
+            "missing_interpreter_pyc",
+            "resolved_tags",
+            "filename_tags",
+            "magic_numbers",
+            "status",
+            "reason",
+        ],
+        rows,
+    )
+    return summary_path, artifact_path
+
+
+def scan_pyc_total(scan_csv: Path, artifacts: Sequence[Path] | None = None) -> int:
+    if not scan_csv.exists():
+        return 0
+    selected = {str(path) for path in artifacts} if artifacts is not None else None
+    total = 0
+    with scan_csv.open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            if selected is not None and row.get("input", "") not in selected:
+                continue
+            total += int(row.get("pyc_files") or 0)
+    return total
+
+
+def format_counter(counts: Counter[str]) -> str:
+    return ";".join(f"{key}:{count}" for key, count in sorted(counts.items()))
+
+
 def analyze_artifacts(
     artifacts: Sequence[Path],
     workers: int,
@@ -124,9 +281,10 @@ def analyze_artifacts(
     interpreters: dict[str, str | None],
     tool_envs: dict[str, dict[str, str | None]],
     data_dir: Path | None = None,
+    magic_tags: dict[str, str] | None = None,
 ) -> list[ToolAnalysisResult]:
     selected_tools = available_tools(data_dir)
-    magic_tags = load_magic_tag_map(interpreters, external_timeout)
+    magic_tags = magic_tags if magic_tags is not None else load_magic_tag_map(interpreters, external_timeout)
     print_rq2_scope(interpreters)
     print(
         "tool analysis inputs: artifacts={artifacts}, workers={workers}, optional_tools={tools}".format(

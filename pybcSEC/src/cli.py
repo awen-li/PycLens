@@ -436,10 +436,23 @@ def analyze_tools(args: argparse.Namespace) -> int:
     )
     tool_envs = tool_analysis.load_tool_environment(args.data_dir, interpreters)
     tool_analysis.print_interpreter_environment(interpreters)
+    magic_tags = tool_analysis.load_magic_tag_map(interpreters, args.timeout)
     artifacts = tool_analysis.read_bytecode_artifacts(scan_csv)
     if args.limit:
         artifacts = artifacts[: args.limit]
         print(f"limited analysis to first {len(artifacts)} bytecode-containing artifacts")
+    denominator_summary, denominator_artifacts = tool_analysis.audit_rq2_denominator(
+        artifacts,
+        scan_csv,
+        interpreters,
+        magic_tags,
+        args.data_dir / "rq2",
+    )
+    print(f"wrote RQ2 denominator audit to {denominator_summary}")
+    print(f"wrote RQ2 denominator artifact audit to {denominator_artifacts}")
+    if args.count_only:
+        print("count-only mode: skipped marshal/dis/decompiler tool analysis")
+        return 0
     results = tool_analysis.analyze_artifacts(
         artifacts,
         workers=args.workers,
@@ -447,6 +460,7 @@ def analyze_tools(args: argparse.Namespace) -> int:
         interpreters=interpreters,
         tool_envs=tool_envs,
         data_dir=args.data_dir,
+        magic_tags=magic_tags,
     )
     tool_analysis.write_csv(csv_out, results)
     summary_csv = args.data_dir / "rq2" / "rq2_summary.csv"
@@ -831,6 +845,7 @@ def add_analyze_tools_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.add_argument("--workers", type=int, default=8, help="Parallel artifact analysis workers")
     parser.add_argument("--limit", type=int, help="Analyze only the first N bytecode-containing artifacts")
     parser.add_argument("--timeout", type=int, default=20, help="Per-file timeout for optional external tools")
+    parser.add_argument("--count-only", action="store_true", help="Only count RQ2 in-scope .pyc files and write denominator audit reports")
     parser.set_defaults(func=analyze_tools)
 
 
