@@ -441,18 +441,6 @@ def analyze_tools(args: argparse.Namespace) -> int:
     if args.limit:
         artifacts = artifacts[: args.limit]
         print(f"limited analysis to first {len(artifacts)} bytecode-containing artifacts")
-    denominator_summary, denominator_artifacts = tool_analysis.audit_rq2_denominator(
-        artifacts,
-        scan_csv,
-        interpreters,
-        magic_tags,
-        args.data_dir / "rq2",
-    )
-    print(f"wrote RQ2 denominator audit to {denominator_summary}")
-    print(f"wrote RQ2 denominator artifact audit to {denominator_artifacts}")
-    if args.count_only:
-        print("count-only mode: skipped marshal/dis/decompiler tool analysis")
-        return 0
     results = tool_analysis.analyze_artifacts(
         artifacts,
         workers=args.workers,
@@ -461,7 +449,16 @@ def analyze_tools(args: argparse.Namespace) -> int:
         tool_envs=tool_envs,
         data_dir=args.data_dir,
         magic_tags=magic_tags,
+        run_tools=not args.count_only,
     )
+    if args.count_only:
+        denominator_summary = args.data_dir / "rq2" / "rq2_denominator_summary.csv"
+        denominator_artifacts = args.data_dir / "rq2" / "rq2_denominator_artifacts.csv"
+        tool_analysis.write_count_only_reports(denominator_summary, denominator_artifacts, results, artifacts, scan_csv)
+        print(f"wrote RQ2 denominator audit to {denominator_summary}")
+        print(f"wrote RQ2 denominator artifact audit to {denominator_artifacts}")
+        print("count-only mode: skipped marshal/dis/decompiler tool analysis")
+        return 0
     tool_analysis.write_csv(csv_out, results)
     summary_csv = args.data_dir / "rq2" / "rq2_summary.csv"
     tool_analysis.write_summary_csv(summary_csv, results)

@@ -105,6 +105,19 @@ class ToolAnalysisResult:
     error: str = ""
 
 
+@dataclass
+class RQ2PycEntry:
+    artifact: Path
+    artifact_type: str
+    pyc_path: str
+    data: bytes
+    py_paths: set[str]
+    python_tag: str
+    filename_tag: str
+    magic_number: str
+
+
+
 def read_bytecode_artifacts(scan_csv: Path) -> list[Path]:
     if not scan_csv.exists():
         raise FileNotFoundError(f"scan CSV not found: {scan_csv}")
@@ -271,6 +284,72 @@ def audit_rq2_denominator(
     return summary_path, artifact_path
 
 
+def write_count_only_reports(
+    summary_path: Path,
+    artifact_path: Path,
+    results: Sequence[ToolAnalysisResult],
+    artifacts: Sequence[Path],
+    scan_csv: Path,
+) -> None:
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    by_artifact: dict[str, list[ToolAnalysisResult]] = {}
+    for result in results:
+        by_artifact.setdefault(result.artifact, []).append(result)
+
+    rows = []
+    for artifact in artifacts:
+        artifact_results = by_artifact.get(str(artifact), [])
+        tags = Counter(result.python_tag or "unknown" for result in artifact_results)
+        magic = Counter(result.magic_number or "unknown" for result in artifact_results)
+        rows.append(
+            {
+                "artifact": artifact_name_from_path(str(artifact)),
+                "package": package_name_from_artifact(str(artifact)),
+                "version": package_version_from_artifact(str(artifact))[1],
+                "artifact_type": scanner.input_type(artifact),
+                "rq2_in_scope_pyc": len(artifact_results),
+                "resolved_tags": format_counter(tags),
+                "magic_numbers": format_counter(magic),
+                "status": "ok",
+                "reason": "",
+            }
+        )
+
+    tag_counts = Counter(result.python_tag or "unknown" for result in results)
+    magic_counts = Counter(result.magic_number or "unknown" for result in results)
+    source_present = sum(1 for result in results if result.source_present)
+    source_less = len(results) - source_present
+    summary_rows = [
+        {"metric": "scan_csv_pyc_files_full", "value": scan_pyc_total(scan_csv)},
+        {"metric": "scan_csv_pyc_files_selected_artifacts", "value": scan_pyc_total(scan_csv, artifacts)},
+        {"metric": "artifact_paths", "value": len(artifacts)},
+        {"metric": "rq2_in_scope_pyc", "value": len(results)},
+        {"metric": "source_present", "value": source_present},
+        {"metric": "source_less", "value": source_less},
+    ]
+    for tag, count in sorted(tag_counts.items(), key=lambda item: (-item[1], item[0])):
+        summary_rows.append({"metric": f"in_scope_tag:{tag}", "value": count})
+    for magic, count in sorted(magic_counts.items(), key=lambda item: (-item[1], item[0])):
+        summary_rows.append({"metric": f"magic:{magic}", "value": count})
+
+    write_dict_rows(summary_path, ["metric", "value"], summary_rows)
+    write_dict_rows(
+        artifact_path,
+        [
+            "artifact",
+            "package",
+            "version",
+            "artifact_type",
+            "rq2_in_scope_pyc",
+            "resolved_tags",
+            "magic_numbers",
+            "status",
+            "reason",
+        ],
+        rows,
+    )
+
+
 def scan_pyc_total(scan_csv: Path, artifacts: Sequence[Path] | None = None) -> int:
     if not scan_csv.exists():
         return 0
@@ -296,10 +375,13 @@ def analyze_artifacts(
     tool_envs: dict[str, dict[str, str | None]],
     data_dir: Path | None = None,
     magic_tags: dict[str, str] | None = None,
+    run_tools: bool = True,
 ) -> list[ToolAnalysisResult]:
     selected_tools = available_tools(data_dir)
     magic_tags = magic_tags if magic_tags is not None else load_magic_tag_map(interpreters, external_timeout)
     print_rq2_scope(interpreters)
+    if not run_tools:
+        print("RQ2 count-only mode: using the same artifact/PYC selection path without running analysis tools")
     print(
         "tool analysis inputs: artifacts={artifacts}, workers={workers}, optional_tools={tools}".format(
             artifacts=len(artifacts),
@@ -325,6 +407,7 @@ def analyze_artifacts(
                     external_timeout,
                     magic_tags,
                     progress_label=f"artifact {index}/{len(artifacts)}",
+                    run_tools=run_tools,
                 )
                 results.extend(artifact_results)
                 print_progress(index, len(artifacts), artifact, artifact_results)
@@ -334,7 +417,7 @@ def analyze_artifacts(
 
     results = []
     jobs = [
-        (index, len(artifacts), artifact, selected_tools, interpreters, tool_envs, external_timeout, magic_tags)
+        (index, len(artifacts), artifact, selected_tools, interpreters, tool_envs, external_timeout, magic_tags, run_tools)
         for index, artifact in enumerate(artifacts, start=1)
     ]
     completed = 0
@@ -362,8 +445,8 @@ def artifact_timeout_handler(signum: int, frame: object) -> None:
     raise ArtifactAnalysisTimeout()
 
 
-def analyze_artifact_job(job: tuple[int, int, Path, dict[str, str | None], dict[str, str | None], dict[str, dict[str, str | None]], int, dict[str, str]]) -> tuple[int, Path, list[ToolAnalysisResult]]:
-    index, total, artifact, selected_tools, interpreters, tool_envs, external_timeout, magic_tags = job
+def analyze_artifact_job(job: tuple[int, int, Path, dict[str, str | None], dict[str, str | None], dict[str, dict[str, str | None]], int, dict[str, str], bool]) -> tuple[int, Path, list[ToolAnalysisResult]]:
+    index, total, artifact, selected_tools, interpreters, tool_envs, external_timeout, magic_tags, run_tools = job
     old_handler = signal.signal(signal.SIGALRM, artifact_timeout_handler)
     signal.alarm(ARTIFACT_ANALYSIS_TIMEOUT)
     try:
@@ -375,6 +458,7 @@ def analyze_artifact_job(job: tuple[int, int, Path, dict[str, str | None], dict[
             external_timeout,
             magic_tags,
             progress_label=f"artifact {index}/{total}",
+            run_tools=run_tools,
         )
     except ArtifactAnalysisTimeout:
         reason = f"artifact_timeout_after_{ARTIFACT_ANALYSIS_TIMEOUT}s"
@@ -1081,6 +1165,42 @@ def artifact_error_result(artifact: Path, reason: str) -> ToolAnalysisResult:
     )
 
 
+def collect_rq2_pyc_entries(
+    artifact: Path,
+    interpreters: dict[str, str | None],
+    magic_tags: dict[str, str],
+) -> list[RQ2PycEntry]:
+    entries = list(scanner.iter_entries(artifact))
+    artifact_type = scanner.input_type(artifact)
+    py_paths = {
+        scanner.normalize_path(entry.path)
+        for entry in entries
+        if not entry.is_dir and entry.path.endswith(".py")
+    }
+    pyc_entries: list[RQ2PycEntry] = []
+    for entry in entries:
+        entry_path = scanner.normalize_path(entry.path)
+        if entry.is_dir or not entry_path.endswith(".pyc"):
+            continue
+        data = entry.data or b""
+        tag = scanner.resolve_pyc_tag(entry_path, data, magic_tags)
+        if not rq2_in_scope_tag(tag, interpreters):
+            continue
+        pyc_entries.append(
+            RQ2PycEntry(
+                artifact=artifact,
+                artifact_type=artifact_type,
+                pyc_path=entry_path,
+                data=data,
+                py_paths=py_paths,
+                python_tag=tag,
+                filename_tag=scanner.pyc_filename_tag(entry_path) or "unknown",
+                magic_number=scanner.pyc_magic(data) or "",
+            )
+        )
+    return pyc_entries
+
+
 def analyze_artifact(
     artifact: Path,
     selected_tools: dict[str, str | None],
@@ -1089,72 +1209,51 @@ def analyze_artifact(
     external_timeout: int,
     magic_tags: dict[str, str] | None = None,
     progress_label: str = "",
+    run_tools: bool = True,
 ) -> list[ToolAnalysisResult]:
     try:
-        entries = list(scanner.iter_entries(artifact))
+        pyc_entries = collect_rq2_pyc_entries(artifact, interpreters, magic_tags or {})
     except Exception as exc:
         return [artifact_error_result(artifact, f"open_failed:{type(exc).__name__}:{exc}")]
-
-    py_paths = {scanner.normalize_path(entry.path) for entry in entries if not entry.is_dir and entry.path.endswith(".py")}
-    magic_tags = magic_tags or {}
-    pyc_entries = []
-    for entry in entries:
-        entry_path = scanner.normalize_path(entry.path)
-        if entry.is_dir or not entry_path.endswith(".pyc"):
-            continue
-        tag = pyc_analysis_tag(entry_path, entry.data or b"", magic_tags)
-        if rq2_in_scope_tag(tag, interpreters):
-            pyc_entries.append((entry, tag))
     if progress_label:
         print(f"[tool-analysis-active {progress_label}] pyc_files={len(pyc_entries)} artifact={artifact}", flush=True)
 
     results = []
-    for pyc_index, (entry, tag) in enumerate(pyc_entries, start=1):
-        entry_path = scanner.normalize_path(entry.path)
-        if progress_label and (pyc_index == 1 or pyc_index == len(pyc_entries) or pyc_index % 25 == 0):
+    for pyc_index, entry in enumerate(pyc_entries, start=1):
+        if progress_label and run_tools and (pyc_index == 1 or pyc_index == len(pyc_entries) or pyc_index % 25 == 0):
             print(
                 f"[tool-analysis-active {progress_label}] pyc {pyc_index}/{len(pyc_entries)} artifact={artifact}",
                 flush=True,
             )
         result = analyze_pyc_entry(
-            artifact,
-            scanner.input_type(artifact),
-            entry_path,
-            entry.data or b"",
-            py_paths,
+            entry,
             selected_tools,
             interpreters,
             tool_envs,
             external_timeout,
-            tag,
+            run_tools=run_tools,
         )
         results.append(result)
     return results
 
 
 def analyze_pyc_entry(
-    artifact: Path,
-    artifact_type: str,
-    pyc_path: str,
-    data: bytes,
-    py_paths: set[str],
+    entry: RQ2PycEntry,
     selected_tools: dict[str, str | None],
     interpreters: dict[str, str | None],
     tool_envs: dict[str, dict[str, str | None]],
     external_timeout: int,
-    tag: str | None = None,
+    run_tools: bool = True,
 ) -> ToolAnalysisResult:
-    magic_number = scanner.pyc_magic(data) or ""
-    source_present = any(candidate in py_paths for candidate in scanner.module_source_candidates(pyc_path))
-    tag = tag or python_tag(pyc_path)
+    source_present = any(candidate in entry.py_paths for candidate in scanner.module_source_candidates(entry.pyc_path))
 
     result = ToolAnalysisResult(
-        artifact=str(artifact),
-        artifact_type=artifact_type,
-        pyc_path=pyc_path,
-        python_tag=tag,
-        magic_number=magic_number,
-        magic_matches_runtime=data[:4] == importlib.util.MAGIC_NUMBER if len(data) >= 4 else False,
+        artifact=str(entry.artifact),
+        artifact_type=entry.artifact_type,
+        pyc_path=entry.pyc_path,
+        python_tag=entry.python_tag,
+        magic_number=entry.magic_number,
+        magic_matches_runtime=entry.data[:4] == importlib.util.MAGIC_NUMBER if len(entry.data) >= 4 else False,
         source_present=source_present,
         stdlib_marshal="not_run",
         stdlib_marshal_reason="",
@@ -1164,13 +1263,19 @@ def analyze_pyc_entry(
         stdlib_dis_level=0,
     )
 
+    if not run_tools:
+        result.stdlib_marshal = "not_run"
+        result.stdlib_dis = "not_run"
+        result.overall_label = "count_only"
+        return result
+
     with tempfile.TemporaryDirectory(prefix="pybcsec-rq2-") as tmpdir:
         tmp_pyc = Path(tmpdir) / "sample.pyc"
-        tmp_pyc.write_bytes(data)
+        tmp_pyc.write_bytes(entry.data)
         marshal_status, marshal_reason, dis_status, dis_reason = run_stdlib_analysis(
             tmp_pyc,
-            data,
-            tag,
+            entry.data,
+            entry.python_tag,
             interpreters,
             external_timeout,
         )
@@ -1182,7 +1287,7 @@ def analyze_pyc_entry(
         result.stdlib_dis_level = 2 if dis_status == "ok" else 0
         result.error = "|".join(item for item in (marshal_reason, dis_reason) if item)
 
-        entry_tools = tools_for_tag(tag, selected_tools, tool_envs)
+        entry_tools = tools_for_tag(entry.python_tag, selected_tools, tool_envs)
         if any(entry_tools.values()):
             for tool, executable in entry_tools.items():
                 status, reason = run_optional_tool(tool, executable, tmp_pyc, external_timeout)
@@ -1190,7 +1295,7 @@ def analyze_pyc_entry(
                 setattr(result, f"{tool}_reason", reason)
                 setattr(result, f"{tool}_level", 3 if status == "ok" else 0)
 
-    result.overall_level, result.overall_label = classify_overall_level(result, tools_for_tag(tag, selected_tools, tool_envs))
+    result.overall_level, result.overall_label = classify_overall_level(result, tools_for_tag(entry.python_tag, selected_tools, tool_envs))
 
     return result
 
