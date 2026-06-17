@@ -11,7 +11,6 @@ import marshal
 import os
 import re
 import shlex
-import signal
 import shutil
 import subprocess
 import sys
@@ -73,7 +72,6 @@ GLOBAL_TOOL_PYTHON_TAGS = {
 }
 RQ2_MIN_CPYTHON_MINOR = 8
 RQ2_MAX_CPYTHON_MINOR = 14
-ARTIFACT_ANALYSIS_TIMEOUT = 600
 
 
 @dataclass
@@ -412,7 +410,8 @@ def analyze_artifacts(
                 results.extend(artifact_results)
                 print_progress(index, len(artifacts), artifact, artifact_results, run_tools=run_tools)
         except KeyboardInterrupt:
-            print(f"interrupted; returning {len(results)} completed pyc-analysis rows")
+            print(f"interrupted after {len(results)} completed pyc-analysis rows; no complete RQ2 result produced")
+            raise
         return results
 
     results = []
@@ -430,25 +429,16 @@ def analyze_artifacts(
     except KeyboardInterrupt:
         pool.terminate()
         pool.join()
-        print(f"interrupted; terminated active workers and returning {len(results)} completed pyc-analysis rows")
-        return results
+        print(f"interrupted after {len(results)} completed pyc-analysis rows; no complete RQ2 result produced")
+        raise
     pool.close()
     pool.join()
     return results
 
 
-class ArtifactAnalysisTimeout(Exception):
-    pass
-
-
-def artifact_timeout_handler(signum: int, frame: object) -> None:
-    raise ArtifactAnalysisTimeout()
-
 
 def analyze_artifact_job(job: tuple[int, int, Path, dict[str, str | None], dict[str, str | None], dict[str, dict[str, str | None]], int, dict[str, str], bool]) -> tuple[int, Path, list[ToolAnalysisResult]]:
     index, total, artifact, selected_tools, interpreters, tool_envs, external_timeout, magic_tags, run_tools = job
-    old_handler = signal.signal(signal.SIGALRM, artifact_timeout_handler)
-    signal.alarm(ARTIFACT_ANALYSIS_TIMEOUT)
     try:
         artifact_results = analyze_artifact(
             artifact,
@@ -460,17 +450,10 @@ def analyze_artifact_job(job: tuple[int, int, Path, dict[str, str | None], dict[
             progress_label=f"artifact {index}/{total}",
             run_tools=run_tools,
         )
-    except ArtifactAnalysisTimeout:
-        reason = f"artifact_timeout_after_{ARTIFACT_ANALYSIS_TIMEOUT}s"
-        print(f"[tool-analysis-timeout artifact {index}/{total}] {reason} artifact={artifact}", flush=True)
-        artifact_results = [artifact_error_result(artifact, reason)]
     except Exception as exc:
         reason = f"worker_failed:{type(exc).__name__}:{exc}"
         print(f"[tool-analysis-error artifact {index}/{total}] {reason} artifact={artifact}", flush=True)
         artifact_results = [artifact_error_result(artifact, reason)]
-    finally:
-        signal.alarm(0)
-        signal.signal(signal.SIGALRM, old_handler)
     return index, artifact, artifact_results
 
 
@@ -939,14 +922,11 @@ def run_shell_installer(command: str, env_dir: Path, timeout: int) -> tuple[str,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=timeout,
             check=False,
             text=True,
             errors="replace",
             env=env,
         )
-    except subprocess.TimeoutExpired:
-        return "timeout", f"timeout_after_{timeout}s"
     except OSError as exc:
         return "error", f"{type(exc).__name__}:{exc}"
     if completed.returncode == 0:
@@ -1066,13 +1046,10 @@ def run_installer(command: Sequence[str], timeout: int) -> tuple[str, str]:
             list(command),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=timeout,
             check=False,
             text=True,
             errors="replace",
         )
-    except subprocess.TimeoutExpired:
-        return "timeout", f"timeout_after_{timeout}s"
     except OSError as exc:
         return "error", f"{type(exc).__name__}:{exc}"
     if completed.returncode == 0:
@@ -1086,7 +1063,6 @@ def pyenv_install_version(pyenv: str, version: str, timeout: int) -> str:
             [pyenv, "install", "--list"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=timeout,
             check=False,
             text=True,
             errors="replace",
@@ -1112,13 +1088,10 @@ def create_venv(interpreter: str, env_dir: Path, timeout: int) -> tuple[str, str
             [interpreter, "-m", "venv", str(env_dir)],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=timeout,
             check=False,
             text=True,
             errors="replace",
         )
-    except subprocess.TimeoutExpired:
-        return "timeout", f"timeout_after_{timeout}s"
     except OSError as exc:
         return "error", f"{type(exc).__name__}:{exc}"
     if completed.returncode == 0:
@@ -1140,13 +1113,10 @@ def install_env_package(env_dir: Path, tool: str, package: str, timeout: int) ->
             [str(pip), "install", package],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=timeout,
             check=False,
             text=True,
             errors="replace",
         )
-    except subprocess.TimeoutExpired:
-        return "timeout", f"timeout_after_{timeout}s"
     except OSError as exc:
         return "error", f"{type(exc).__name__}:{exc}"
     if completed.returncode == 0:
@@ -1352,14 +1322,10 @@ def run_stdlib_interpreter(executable: str, pyc_path: Path, timeout: int) -> tup
             [executable, "-c", script, str(pyc_path)],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=timeout,
             check=False,
             text=True,
             errors="replace",
         )
-    except subprocess.TimeoutExpired:
-        reason = f"timeout_after_{timeout}s"
-        return "timeout", reason, "timeout", reason
     except OSError as exc:
         reason = f"{type(exc).__name__}:{exc}"
         return "error", reason, "error", reason
@@ -1427,12 +1393,11 @@ def interpreter_magic_number(executable: str, timeout: int) -> str:
             [executable, "-c", script],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=timeout,
             check=False,
             text=True,
             errors="replace",
         )
-    except (OSError, subprocess.TimeoutExpired):
+    except OSError:
         return ""
     if completed.returncode != 0:
         return ""
@@ -1503,13 +1468,10 @@ def run_optional_tool(tool: str, executable: str | None, pyc_path: Path, timeout
             command,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=timeout,
             check=False,
             text=True,
             errors="replace",
         )
-    except subprocess.TimeoutExpired:
-        return "timeout", f"timeout_after_{timeout}s"
     except OSError as exc:
         return "error", f"{type(exc).__name__}:{exc}"
     if completed.returncode == 0:
