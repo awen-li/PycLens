@@ -38,9 +38,6 @@ TOOL_ANALYSIS_FIELDNAMES = [
     "stdlib_dis",
     "stdlib_dis_reason",
     "stdlib_dis_level",
-    "uncompyle6",
-    "uncompyle6_reason",
-    "uncompyle6_level",
     "decompyle3",
     "decompyle3_reason",
     "decompyle3_level",
@@ -51,9 +48,9 @@ TOOL_ANALYSIS_FIELDNAMES = [
     "overall_label",
     "error",
 ]
-OPTIONAL_TOOLS = ("uncompyle6", "decompyle3", "pylingual")
+OPTIONAL_TOOLS = ("decompyle3", "pylingual")
 DECOMPILER_TOOLS = OPTIONAL_TOOLS
-PER_INTERPRETER_TOOLS = ("uncompyle6", "decompyle3")
+PER_INTERPRETER_TOOLS = ("decompyle3",)
 GLOBAL_TOOLS = ("pylingual",)
 PYLINGUAL_GIT_URL = "https://github.com/syssec-utd/pylingual.git"
 PYLINGUAL_COMMIT = "99c74eeff5262c0200a3d378298af1f736e20b01"
@@ -89,9 +86,6 @@ class ToolAnalysisResult:
     stdlib_dis: str
     stdlib_dis_reason: str
     stdlib_dis_level: int
-    uncompyle6: str = "unavailable"
-    uncompyle6_reason: str = ""
-    uncompyle6_level: int = 0
     decompyle3: str = "unavailable"
     decompyle3_reason: str = ""
     decompyle3_level: int = 0
@@ -469,16 +463,28 @@ def print_progress(
         print(f"[rq2-count {completed}/{total}] pyc_files={pyc_count} artifact={artifact}")
         return
     marshal_ok = sum(1 for item in artifact_results if item.stdlib_marshal == "ok")
+    marshal_failed = sum(1 for item in artifact_results if tool_status_failed(item.stdlib_marshal))
     dis_ok = sum(1 for item in artifact_results if item.stdlib_dis == "ok")
+    dis_failed = sum(1 for item in artifact_results if tool_status_failed(item.stdlib_dis))
     pylingual_ok = sum(1 for item in artifact_results if item.pylingual == "ok")
+    pylingual_failed = sum(1 for item in artifact_results if tool_status_failed(item.pylingual))
+    tool_timeouts = sum(
+        1
+        for item in artifact_results
+        for status in (item.stdlib_marshal, item.stdlib_dis, item.decompyle3, item.pylingual)
+        if status == "timeout"
+    )
     failed = sum(1 for item in artifact_results if item.overall_level == 0)
     levels = ",".join(
         f"L{level}={sum(1 for item in artifact_results if item.overall_level == level)}"
         for level in range(5)
     )
     print(
-        f"[tool-analysis {completed}/{total}] pyc_files={pyc_count} marshal_ok={marshal_ok} "
-        f"dis_ok={dis_ok} pylingual_ok={pylingual_ok} failed={failed} {levels} latest={artifact}"
+        f"[tool-analysis {completed}/{total}] pyc_files={pyc_count} "
+        f"marshal={marshal_ok}+{marshal_failed}/{pyc_count} "
+        f"dis={dis_ok}+{dis_failed}/{pyc_count} "
+        f"pylingual={pylingual_ok}+{pylingual_failed}/{pyc_count} "
+        f"tool_timeouts={tool_timeouts} failed={failed} {levels} latest={artifact}"
     )
 
 
@@ -922,11 +928,14 @@ def run_shell_installer(command: str, env_dir: Path, timeout: int) -> tuple[str,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            timeout=timeout,
             check=False,
             text=True,
             errors="replace",
             env=env,
         )
+    except subprocess.TimeoutExpired:
+        return "timeout", f"timeout_after_{timeout}s"
     except OSError as exc:
         return "error", f"{type(exc).__name__}:{exc}"
     if completed.returncode == 0:
@@ -1046,10 +1055,13 @@ def run_installer(command: Sequence[str], timeout: int) -> tuple[str, str]:
             list(command),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            timeout=timeout,
             check=False,
             text=True,
             errors="replace",
         )
+    except subprocess.TimeoutExpired:
+        return "timeout", f"timeout_after_{timeout}s"
     except OSError as exc:
         return "error", f"{type(exc).__name__}:{exc}"
     if completed.returncode == 0:
@@ -1063,6 +1075,7 @@ def pyenv_install_version(pyenv: str, version: str, timeout: int) -> str:
             [pyenv, "install", "--list"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            timeout=timeout,
             check=False,
             text=True,
             errors="replace",
@@ -1088,10 +1101,13 @@ def create_venv(interpreter: str, env_dir: Path, timeout: int) -> tuple[str, str
             [interpreter, "-m", "venv", str(env_dir)],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            timeout=timeout,
             check=False,
             text=True,
             errors="replace",
         )
+    except subprocess.TimeoutExpired:
+        return "timeout", f"timeout_after_{timeout}s"
     except OSError as exc:
         return "error", f"{type(exc).__name__}:{exc}"
     if completed.returncode == 0:
@@ -1113,10 +1129,13 @@ def install_env_package(env_dir: Path, tool: str, package: str, timeout: int) ->
             [str(pip), "install", package],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            timeout=timeout,
             check=False,
             text=True,
             errors="replace",
         )
+    except subprocess.TimeoutExpired:
+        return "timeout", f"timeout_after_{timeout}s"
     except OSError as exc:
         return "error", f"{type(exc).__name__}:{exc}"
     if completed.returncode == 0:
@@ -1322,10 +1341,14 @@ def run_stdlib_interpreter(executable: str, pyc_path: Path, timeout: int) -> tup
             [executable, "-c", script, str(pyc_path)],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            timeout=timeout,
             check=False,
             text=True,
             errors="replace",
         )
+    except subprocess.TimeoutExpired:
+        reason = f"timeout_after_{timeout}s"
+        return "timeout", reason, "timeout", reason
     except OSError as exc:
         reason = f"{type(exc).__name__}:{exc}"
         return "error", reason, "error", reason
@@ -1393,11 +1416,12 @@ def interpreter_magic_number(executable: str, timeout: int) -> str:
             [executable, "-c", script],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            timeout=timeout,
             check=False,
             text=True,
             errors="replace",
         )
-    except OSError:
+    except (OSError, subprocess.TimeoutExpired):
         return ""
     if completed.returncode != 0:
         return ""
@@ -1468,10 +1492,13 @@ def run_optional_tool(tool: str, executable: str | None, pyc_path: Path, timeout
             command,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            timeout=timeout,
             check=False,
             text=True,
             errors="replace",
         )
+    except subprocess.TimeoutExpired:
+        return "timeout", f"timeout_after_{timeout}s"
     except OSError as exc:
         return "error", f"{type(exc).__name__}:{exc}"
     if completed.returncode == 0:
@@ -1523,12 +1550,14 @@ def decompiler_level(
     successful_decompilers: Sequence[str],
     selected_tools: dict[str, str | None],
 ) -> tuple[int, str]:
-    if successful_decompilers:
-        return 4, "fully_decompilable"
-    return 3, "partially_decompilable"
+    if "pylingual" in successful_decompilers:
+        return 4, "pylingual_decompilable"
+    if "decompyle3" in successful_decompilers:
+        return 3, "decompyle3_decompilable"
+    return 2, "disassemblable"
 
 
-SOURCE_LESS_TOOLS = ("stdlib_marshal", "stdlib_dis", "uncompyle6", "decompyle3", "pylingual")
+SOURCE_LESS_TOOLS = ("stdlib_marshal", "stdlib_dis", "decompyle3", "pylingual")
 
 
 def write_source_less_reports(
@@ -1580,7 +1609,6 @@ def write_source_less_summary(
         ("runtime_magic", sum(1 for item in source_less if item.magic_matches_runtime)),
         ("marshal_ok", sum(1 for item in source_less if item.stdlib_marshal == "ok")),
         ("dis_ok", sum(1 for item in source_less if item.stdlib_dis == "ok")),
-        ("uncompyle6_ok", sum(1 for item in source_less if item.uncompyle6 == "ok")),
         ("decompyle3_ok", sum(1 for item in source_less if item.decompyle3 == "ok")),
         ("pylingual_ok", sum(1 for item in source_less if item.pylingual == "ok")),
         ("source_recoverable", sum(1 for item in source_less if item.overall_level == 4)),
@@ -1960,7 +1988,6 @@ def write_analysis_completeness_report(
 ) -> dict[str, object]:
     analyzed = len(results)
     error_rows = sum(1 for result in results if result.error)
-    timeout_rows = sum(1 for result in results if result.error.startswith("artifact_timeout_after_"))
     worker_failed_rows = sum(1 for result in results if result.error.startswith("worker_failed:"))
     complete = expected_pyc is None or analyzed == expected_pyc
     rows = [
@@ -1970,7 +1997,6 @@ def write_analysis_completeness_report(
         {"metric": "missing_rows", "value": "unknown" if expected_pyc is None else max(expected_pyc - analyzed, 0)},
         {"metric": "extra_rows", "value": "unknown" if expected_pyc is None else max(analyzed - expected_pyc, 0)},
         {"metric": "error_rows", "value": error_rows},
-        {"metric": "artifact_timeout_rows", "value": timeout_rows},
         {"metric": "worker_failed_rows", "value": worker_failed_rows},
     ]
     write_dict_rows(path, ["metric", "value"], rows)
@@ -1992,11 +2018,22 @@ def write_summary_csv(path: Path, results: Sequence[ToolAnalysisResult]) -> None
         ("source_present", summary["source_present"]),
         ("source_less", summary["source_less"]),
         ("runtime_magic", summary["runtime_magic"]),
+        ("marshal_total", summary["marshal_total"]),
         ("marshal_ok", summary["marshal_ok"]),
+        ("marshal_failed", summary["marshal_failed"]),
+        ("marshal_timeout", summary["marshal_timeout"]),
+        ("dis_total", summary["dis_total"]),
         ("dis_ok", summary["dis_ok"]),
-        ("uncompyle6_ok", summary["uncompyle6_ok"]),
+        ("dis_failed", summary["dis_failed"]),
+        ("dis_timeout", summary["dis_timeout"]),
+        ("decompyle3_total", summary["decompyle3_total"]),
         ("decompyle3_ok", summary["decompyle3_ok"]),
+        ("decompyle3_failed", summary["decompyle3_failed"]),
+        ("decompyle3_timeout", summary["decompyle3_timeout"]),
+        ("pylingual_total", summary["pylingual_total"]),
         ("pylingual_ok", summary["pylingual_ok"]),
+        ("pylingual_failed", summary["pylingual_failed"]),
+        ("pylingual_timeout", summary["pylingual_timeout"]),
         ("level_0", summary["level_0"]),
         ("level_1", summary["level_1"]),
         ("level_2", summary["level_2"]),
@@ -2017,14 +2054,41 @@ def summarize(results: Sequence[ToolAnalysisResult]) -> dict[str, int]:
         "source_present": sum(1 for item in results if item.source_present),
         "source_less": sum(1 for item in results if not item.source_present),
         "runtime_magic": sum(1 for item in results if item.magic_matches_runtime),
-        "marshal_ok": sum(1 for item in results if item.stdlib_marshal == "ok"),
-        "dis_ok": sum(1 for item in results if item.stdlib_dis == "ok"),
-        "uncompyle6_ok": sum(1 for item in results if item.uncompyle6 == "ok"),
-        "decompyle3_ok": sum(1 for item in results if item.decompyle3 == "ok"),
-        "pylingual_ok": sum(1 for item in results if item.pylingual == "ok"),
+        "marshal_ok": count_tool_status(results, "stdlib_marshal", "ok"),
+        "marshal_failed": count_tool_failed(results, "stdlib_marshal"),
+        "marshal_timeout": count_tool_status(results, "stdlib_marshal", "timeout"),
+        "marshal_total": count_tool_total(results, "stdlib_marshal"),
+        "dis_ok": count_tool_status(results, "stdlib_dis", "ok"),
+        "dis_failed": count_tool_failed(results, "stdlib_dis"),
+        "dis_timeout": count_tool_status(results, "stdlib_dis", "timeout"),
+        "dis_total": count_tool_total(results, "stdlib_dis"),
+        "decompyle3_ok": count_tool_status(results, "decompyle3", "ok"),
+        "decompyle3_failed": count_tool_failed(results, "decompyle3"),
+        "decompyle3_timeout": count_tool_status(results, "decompyle3", "timeout"),
+        "decompyle3_total": count_tool_total(results, "decompyle3"),
+        "pylingual_ok": count_tool_status(results, "pylingual", "ok"),
+        "pylingual_failed": count_tool_failed(results, "pylingual"),
+        "pylingual_timeout": count_tool_status(results, "pylingual", "timeout"),
+        "pylingual_total": count_tool_total(results, "pylingual"),
         "level_0": sum(1 for item in results if item.overall_level == 0),
         "level_1": sum(1 for item in results if item.overall_level == 1),
         "level_2": sum(1 for item in results if item.overall_level == 2),
         "level_3": sum(1 for item in results if item.overall_level == 3),
         "level_4": sum(1 for item in results if item.overall_level == 4),
     }
+
+
+def count_tool_status(results: Sequence[ToolAnalysisResult], field: str, status: str) -> int:
+    return sum(1 for item in results if getattr(item, field) == status)
+
+
+def count_tool_failed(results: Sequence[ToolAnalysisResult], field: str) -> int:
+    return sum(1 for item in results if tool_status_failed(str(getattr(item, field))))
+
+
+def count_tool_total(results: Sequence[ToolAnalysisResult], field: str) -> int:
+    return count_tool_status(results, field, "ok") + count_tool_failed(results, field)
+
+
+def tool_status_failed(status: str) -> bool:
+    return status not in ("", "ok", "not_run", "unavailable")

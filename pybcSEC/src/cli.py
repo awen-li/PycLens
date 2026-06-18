@@ -470,14 +470,13 @@ def analyze_tools(args: argparse.Namespace) -> int:
     print(
         "tool analysis summary: pyc_files={pyc}, source_present={src}, source_less={src_less}, "
         "runtime_magic={magic}, marshal_ok={marshal_ok}, dis_ok={dis_ok}, "
-        "uncompyle6_ok={uncompyle6}, decompyle3_ok={decompyle3}, pylingual_ok={pylingual}".format(
+        "decompyle3_ok={decompyle3}, pylingual_ok={pylingual}".format(
             pyc=summary["pyc_files"],
             src=summary["source_present"],
             src_less=summary["source_less"],
             magic=summary["runtime_magic"],
             marshal_ok=summary["marshal_ok"],
             dis_ok=summary["dis_ok"],
-            uncompyle6=summary["uncompyle6_ok"],
             decompyle3=summary["decompyle3_ok"],
             pylingual=summary["pylingual_ok"],
         )
@@ -853,7 +852,7 @@ def add_analyze_tools_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.add_argument("--csv-out", type=Path, help="Tool-analysis CSV; defaults to data/rq2/tool_analysis.csv")
     parser.add_argument("--workers", type=int, default=8, help="Parallel artifact analysis workers")
     parser.add_argument("--limit", type=int, help="Analyze only the first N bytecode-containing artifacts")
-    parser.add_argument("--timeout", type=int, default=20, help="Per-file timeout for optional external tools")
+    parser.add_argument("--timeout", type=int, default=600, help="Per-.pyc timeout in seconds for each external analysis tool")
     parser.add_argument("--count-only", action="store_true", help="Only count RQ2 in-scope .pyc files and write denominator audit reports")
     parser.set_defaults(func=analyze_tools)
 

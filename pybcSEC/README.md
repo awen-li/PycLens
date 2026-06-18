@@ -142,7 +142,7 @@ issues.
 `prepare-analysis-env` reads `data/rq1/rq1_versions.csv`, keeps the RQ2
 CPython scope to versions 3.8--3.14, checks for the required `pythonX.Y`
 interpreters, creates per-version virtual environments under `data/rq2/envs/`,
-and installs `uncompyle6` and `decompyle3` in those environments. It also
+and installs `decompyle3` in those environments. It also
 checks PyLingual as a globally scoped tool and attempts to install it when it is
 missing. PyLingual is prepared in a
 Python 3.12 environment under `data/rq2/envs/global-pylingual/`. By default,
