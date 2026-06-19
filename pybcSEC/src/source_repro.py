@@ -53,6 +53,8 @@ TOOL_FAILURE_FIELDNAMES = [
     "failure_class",
     "reason",
     "bytecode_status",
+    "decompile_stdout",
+    "decompile_stderr",
     "source_path",
     "compiled_pyc",
 ]
