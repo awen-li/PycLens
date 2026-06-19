@@ -14,16 +14,11 @@ cpython-313,decompyle3,data/rq2/envs/cpython-313/bin/decompyle3,"decompyle3, ver
 cpython-314,cpython,data/rq2/envs/cpython-314/bin/python,Python 3.14.5
 cpython-314,uncompyle6,data/rq2/envs/cpython-314/bin/uncompyle6,"uncompyle6, version 3.9.3"
 cpython-314,decompyle3,data/rq2/envs/cpython-314/bin/decompyle3,"decompyle3, version 3.9.3"
-cpython-315,cpython,data/rq2/envs/cpython-315/bin/python,Python 3.15.0b1
-cpython-315,uncompyle6,data/rq2/envs/cpython-315/bin/uncompyle6,I don't know about Python version '3.15.0' yet. Python versions 3.9 and greater are not supported. I don't know about Python version '3.15.0' yet. Python versions 3.9 and greater are not supported. I don't know about Python version '3.15...
-cpython-315,decompyle3,data/rq2/envs/cpython-315/bin/decompyle3,I don't know about Python version '3.15.0' yet. Python versions 3.9 and greater are not supported. I don't know about Python version '3.15.0' yet. Python versions 3.9 and greater are not supported. I don't know about Python version '3.15...
-cpython-36,cpython,,missing
-cpython-37,cpython,,missing
 cpython-38,cpython,data/rq2/envs/cpython-38/bin/python,Python 3.8.20
 cpython-38,uncompyle6,data/rq2/envs/cpython-38/bin/uncompyle6,"uncompyle6, version 3.9.3"
 cpython-38,decompyle3,data/rq2/envs/cpython-38/bin/decompyle3,"decompyle3, version 3.9.3"
 cpython-39,cpython,data/rq2/envs/cpython-39/bin/python,Python 3.9.25
 cpython-39,uncompyle6,data/rq2/envs/cpython-39/bin/uncompyle6,"uncompyle6, version 3.9.3"
 cpython-39,decompyle3,data/rq2/envs/cpython-39/bin/decompyle3,"decompyle3, version 3.9.3"
-global,pycdc,,missing
-global,pylingual,,missing
+global,pycdc,/root/.local/bin/pycdc,"usage: pycdc [-h] {search,recommend,occasions,budgets} ... Please Your Customer Direct Connect — find CRM gift ideas positional arguments: {search,recommend,occasions,budgets} search Search for gift ideas recommend Get recommendations fo..."
+global,pylingual,data/rq2/envs/global-pylingual/bin/pylingual,installed (version unavailable)

@@ -1,0 +1,4 @@
+artifact_type,pyc_files,pct_source_less_pyc,artifacts,source_recoverable,source_recoverable_pct,marshal_ok,dis_ok,pylingual_ok
+tar,13636,63.30,891,13636,100.00,13544,13544,13636
+wheel,7856,36.47,495,7856,100.00,7854,7812,7856
+zip,49,0.23,1,49,100.00,49,49,49
