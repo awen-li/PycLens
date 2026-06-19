@@ -48,6 +48,7 @@ TOOL_FAILURE_FIELDNAMES = [
     "decompiler",
     "stage",
     "status",
+    "failure_class",
     "reason",
     "bytecode_status",
     "source_path",
@@ -90,7 +91,7 @@ def analyze_reproducibility(
         if tag not in interpreters:
             interpreters[tag] = tool_analysis.find_interpreter(tag, tool_analysis.scanner.python_tag_to_executable(tag), data_dir)
     tool_envs = tool_analysis.load_tool_environment(data_dir, interpreters)
-    global_tools = tool_analysis.available_tools()
+    global_tools = tool_analysis.available_tools(data_dir)
     harness = data_dir / "rq4" / "harness.py"
     cpython_fuzz.write_harness(harness)
 
@@ -342,7 +343,7 @@ def run_decompiler(
     if completed.returncode != 0:
         return f"exit_{completed.returncode}", compact_reason(completed.stderr) or compact_reason(text)
     if not looks_like_python_source(text):
-        return "error", "no source emitted"
+        return "error", compact_reason(text) or compact_reason(completed.stderr) or "no source emitted"
     source_path.write_text(sanitize_decompiler_output(text), encoding="utf-8")
     return "ok", ""
 
@@ -352,7 +353,21 @@ def looks_like_python_source(text: str) -> bool:
     if not stripped:
         return False
     bad_prefixes = ("Usage:", "usage:", "Traceback", "Error:", "ERROR:")
-    return not stripped.startswith(bad_prefixes)
+    bad_fragments = (
+        "Unsupported Python version",
+        "Unknown magic number",
+        "Unknown type",
+        "ModuleNotFoundError",
+        "ImportError",
+        "SyntaxError:",
+        "Fatal Python error",
+        "Cannot decompile",
+        "failed to decompile",
+        "no source emitted",
+    )
+    if stripped.startswith(bad_prefixes):
+        return False
+    return not any(fragment in stripped for fragment in bad_fragments)
 
 
 def sanitize_decompiler_output(text: str) -> str:
@@ -426,7 +441,7 @@ def write_csv(path: Path, rows: Sequence[ReproductionResult]) -> None:
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=REPRO_FIELDNAMES, **CSV_WRITE_KWARGS)
         writer.writeheader()
-        writer.writerows(row.__dict__ for row in rows)
+        writer.writerows(sanitize_csv_row(row.__dict__) for row in rows)
 
 
 def write_finding_report_csv(path: Path, rows: Sequence[ReproductionResult]) -> None:
@@ -434,7 +449,7 @@ def write_finding_report_csv(path: Path, rows: Sequence[ReproductionResult]) -> 
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=FINDING_FIELDNAMES, **CSV_WRITE_KWARGS)
         writer.writeheader()
-        writer.writerows(finding_report_rows(rows))
+        writer.writerows(sanitize_csv_row(row) for row in finding_report_rows(rows))
 
 
 def finding_report_rows(rows: Sequence[ReproductionResult]) -> list[dict[str, str]]:
@@ -469,7 +484,7 @@ def write_tool_failure_csv(path: Path, rows: Sequence[ReproductionResult]) -> No
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=TOOL_FAILURE_FIELDNAMES, **CSV_WRITE_KWARGS)
         writer.writeheader()
-        writer.writerows(tool_failure_rows(rows))
+        writer.writerows(sanitize_csv_row(row) for row in tool_failure_rows(rows))
 
 
 def tool_failure_rows(rows: Sequence[ReproductionResult]) -> list[dict[str, str]]:
@@ -485,6 +500,7 @@ def tool_failure_rows(rows: Sequence[ReproductionResult]) -> list[dict[str, str]
                 "decompiler": row.decompiler or "none",
                 "stage": stage,
                 "status": status,
+                "failure_class": classify_tool_failure(row, stage, status, reason),
                 "reason": reason,
                 "bytecode_status": row.bytecode_status,
                 "source_path": row.source_path,
@@ -502,6 +518,39 @@ def tool_failure(row: ReproductionResult) -> tuple[str, str, str]:
     if row.decompile_status == "ok" and is_executed_source_status(row.source_status) and not row.reproduced:
         return "rerun", row.source_status, row.source_reason or "behavior diverged from original bytecode"
     return "", "", ""
+
+
+def classify_tool_failure(row: ReproductionResult, stage: str, status: str, reason: str) -> str:
+    reason_text = (reason or "").lower()
+    if status == "timeout" or status == "crash" or status.startswith("signal_"):
+        return "tool_robustness_failure"
+    if "segmentation fault" in reason_text or "core dumped" in reason_text:
+        return "tool_robustness_failure"
+    if "traceback" in reason_text and not is_expected_rejection_reason(reason):
+        return "tool_robustness_failure"
+    if status in {"unavailable", "not_run"} or "missing interpreter" in reason_text or "no decompiler available" in reason_text:
+        return "environment_failure"
+    if stage == "decompile" and is_expected_rejection_reason(reason):
+        return "expected_rejection"
+    if stage in {"compile", "rerun"}:
+        return "translation_failure"
+    return "expected_rejection"
+
+
+def is_expected_rejection_reason(reason: str) -> bool:
+    text = (reason or "").lower()
+    expected_fragments = (
+        "syntaxerror",
+        "bad marshal data",
+        "unknown magic number",
+        "unsupported python version",
+        "unsupported bytecode",
+        "unknown type",
+        "invalid",
+        "cannot decompile",
+        "no source emitted",
+    )
+    return any(fragment in text for fragment in expected_fragments)
 
 
 def failure_reason(category: str, rows: Sequence[ReproductionResult]) -> str:
@@ -546,6 +595,9 @@ def write_summary_csv(path: Path, rows: Sequence[ReproductionResult]) -> None:
         {"metric": "tool_failure_rows", "value": str(len(tool_failures))},
         {"metric": "tool_timeout_rows", "value": str(sum(1 for row in tool_failures if row["status"] == "timeout"))},
     ]
+    for failure_class in sorted({row["failure_class"] for row in tool_failures}):
+        class_rows = [row for row in tool_failures if row["failure_class"] == failure_class]
+        summary.append({"metric": f"tool_failure_class:{failure_class}", "value": str(len(class_rows))})
     for stage in sorted({row["stage"] for row in tool_failures}):
         stage_rows = [row for row in tool_failures if row["stage"] == stage]
         summary.append({"metric": f"tool_failure_stage:{stage}", "value": str(len(stage_rows))})
@@ -567,6 +619,9 @@ def write_summary_csv(path: Path, rows: Sequence[ReproductionResult]) -> None:
         summary.append({"metric": f"{tool}_reproduced", "value": str(sum(1 for row in tool_rows if row.reproduced))})
         summary.append({"metric": f"{tool}_failure_rows", "value": str(len(tool_failure_subset))})
         summary.append({"metric": f"{tool}_timeout_rows", "value": str(sum(1 for row in tool_failure_subset if row["status"] == "timeout"))})
+        for failure_class in sorted({row["failure_class"] for row in tool_failure_subset}):
+            count = sum(1 for row in tool_failure_subset if row["failure_class"] == failure_class)
+            summary.append({"metric": f"{tool}_failure_class:{failure_class}", "value": str(count)})
     for tag in sorted({row.python_tag for row in rows}):
         tag_findings = {row.finding for row in rows if row.python_tag == tag}
         tag_reproduced = {row.finding for row in rows if row.python_tag == tag and row.reproduced}
@@ -579,7 +634,16 @@ def write_summary_csv(path: Path, rows: Sequence[ReproductionResult]) -> None:
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=SUMMARY_FIELDNAMES, **CSV_WRITE_KWARGS)
         writer.writeheader()
-        writer.writerows(summary)
+        writer.writerows(sanitize_csv_row(row) for row in summary)
+
+
+def sanitize_csv_row(row: dict[str, object]) -> dict[str, str]:
+    return {key: sanitize_csv_value(value) for key, value in row.items()}
+
+
+def sanitize_csv_value(value: object) -> str:
+    text = str(value)
+    return text.replace("\x00", "\\0")
 
 
 def classify_findings(rows: Sequence[ReproductionResult]) -> dict[str, str]:
