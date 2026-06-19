@@ -362,10 +362,23 @@ def looks_like_python_source(text: str) -> bool:
         "SyntaxError:",
         "Fatal Python error",
         "Cannot decompile",
+        "Failed to decompile",
         "failed to decompile",
+        "Traceback (most recent call last)",
+        "The University of Texas at Dallas",
+        "pylingual.io",
+        "decompiler.py:",
+        "main.py:",
+        "INFO     Loading",
+        "ERROR    Failed",
         "no source emitted",
     )
     if stripped.startswith(bad_prefixes):
+        return False
+    first_line = stripped.splitlines()[0].strip()
+    if first_line.startswith(("─", "╭", "│", "╰", "â”", "â•")):
+        return False
+    if "â”" in stripped or "â•" in stripped:
         return False
     return not any(fragment in stripped for fragment in bad_fragments)
 
