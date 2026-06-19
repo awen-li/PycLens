@@ -7,9 +7,9 @@ decompile_ok_rows,87
 source_compile_ok_rows,87
 tool_failure_rows,2018
 tool_timeout_rows,1
-tool_failure_class:expected_rejection,1910
-tool_failure_class:tool_robustness_failure,100
-tool_failure_class:translation_failure,8
+tool_failure_class:expected_rejection,1911
+tool_failure_class:tool_robustness_failure,20
+tool_failure_class:translation_failure,87
 tool_failure_stage:decompile,1931
 tool_timeout_stage:decompile,1
 tool_failure_stage:rerun,87
@@ -25,9 +25,9 @@ decompyle3_decompile_ok,87
 decompyle3_reproduced,0
 decompyle3_failure_rows,1009
 decompyle3_timeout_rows,1
-decompyle3_failure_class:expected_rejection,901
-decompyle3_failure_class:tool_robustness_failure,100
-decompyle3_failure_class:translation_failure,8
+decompyle3_failure_class:expected_rejection,902
+decompyle3_failure_class:tool_robustness_failure,20
+decompyle3_failure_class:translation_failure,87
 pylingual_rows,1009
 pylingual_decompile_ok,0
 pylingual_reproduced,0
