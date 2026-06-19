@@ -24,6 +24,8 @@ REPRO_FIELDNAMES = [
     "decompiler",
     "decompile_status",
     "decompile_reason",
+    "decompile_stdout",
+    "decompile_stderr",
     "source_path",
     "compiled_pyc",
     "source_status",
@@ -72,6 +74,8 @@ class ReproductionResult:
     decompiler: str
     decompile_status: str
     decompile_reason: str
+    decompile_stdout: str
+    decompile_stderr: str
     source_path: str
     compiled_pyc: str
     source_status: str
@@ -115,6 +119,8 @@ def analyze_reproducibility(
                         decompiler="",
                         decompile_status="not_run",
                         decompile_reason="",
+                        decompile_stdout="",
+                        decompile_stderr="",
                         source_path="",
                         compiled_pyc="",
                         source_status="not_run",
@@ -249,6 +255,8 @@ def reproduce_finding(
                 decompiler="",
                 decompile_status="unavailable",
                 decompile_reason="no decompiler available",
+                decompile_stdout="",
+                decompile_stderr="",
                 source_path="",
                 compiled_pyc="",
                 source_status="not_run",
@@ -260,7 +268,18 @@ def reproduce_finding(
     for decompiler, executable in available:
         source_path = out_dir / f"{decompiler}.py"
         compiled_pyc = out_dir / f"{decompiler}.pyc"
-        decompile_status, decompile_reason = run_decompiler(decompiler, executable, finding, source_path, timeout)
+        trace_dir = data_dir / "rq4" / "tool_traces" / tag / finding.stem
+        stdout_path = trace_dir / f"{decompiler}.stdout.txt"
+        stderr_path = trace_dir / f"{decompiler}.stderr.txt"
+        decompile_status, decompile_reason, decompile_stdout, decompile_stderr = run_decompiler(
+            decompiler,
+            executable,
+            finding,
+            source_path,
+            timeout,
+            stdout_path,
+            stderr_path,
+        )
         source_status = "not_run"
         source_reason = ""
         reproduced = False
@@ -282,6 +301,8 @@ def reproduce_finding(
                 decompiler=decompiler,
                 decompile_status=decompile_status,
                 decompile_reason=decompile_reason,
+                decompile_stdout=decompile_stdout,
+                decompile_stderr=decompile_stderr,
                 source_path=str(source_path) if source_path.exists() else "",
                 compiled_pyc=str(compiled_pyc) if compiled_pyc.exists() else "",
                 source_status=source_status,
@@ -320,11 +341,10 @@ def run_decompiler(
     pyc_path: Path,
     source_path: Path,
     timeout: int,
-) -> tuple[str, str]:
-    if tool == "pylingual":
-        command = [executable, str(pyc_path)]
-    else:
-        command = [executable, str(pyc_path)]
+    stdout_path: Path,
+    stderr_path: Path,
+) -> tuple[str, str, str, str]:
+    command = [executable, str(pyc_path)]
     try:
         completed = subprocess.run(
             command,
@@ -335,17 +355,47 @@ def run_decompiler(
             text=True,
             errors="replace",
         )
-    except subprocess.TimeoutExpired:
-        return "timeout", f"timeout_after_{timeout}s"
+    except subprocess.TimeoutExpired as exc:
+        stdout_text = process_output_text(exc.stdout)
+        stderr_text = process_output_text(exc.stderr) or f"timeout_after_{timeout}s"
+        write_trace(stdout_path, stdout_text)
+        write_trace(stderr_path, stderr_text)
+        return "timeout", f"timeout_after_{timeout}s", str(stdout_path), str(stderr_path)
     except OSError as exc:
-        return "error", f"{type(exc).__name__}:{exc}"
-    text = completed.stdout
+        return "error", f"{type(exc).__name__}:{exc}", "", ""
+    stdout_text = completed.stdout or ""
+    stderr_text = completed.stderr or ""
     if completed.returncode != 0:
-        return f"exit_{completed.returncode}", compact_reason(completed.stderr) or compact_reason(text)
-    if not looks_like_python_source(text):
-        return "error", compact_reason(text) or compact_reason(completed.stderr) or "no source emitted"
-    source_path.write_text(sanitize_decompiler_output(text), encoding="utf-8")
-    return "ok", ""
+        status = f"exit_{completed.returncode}"
+        reason = compact_reason(stderr_text) or compact_reason(stdout_text)
+        if is_decompiler_robustness_failure(status, reason):
+            write_trace(stdout_path, stdout_text)
+            write_trace(stderr_path, stderr_text)
+            return status, reason, str(stdout_path), str(stderr_path)
+        return status, reason, "", ""
+    if not looks_like_python_source(stdout_text):
+        status = "error"
+        reason = compact_reason(stdout_text) or compact_reason(stderr_text) or "no source emitted"
+        if is_decompiler_robustness_failure(status, reason):
+            write_trace(stdout_path, stdout_text)
+            write_trace(stderr_path, stderr_text)
+            return status, reason, str(stdout_path), str(stderr_path)
+        return status, reason, "", ""
+    source_path.write_text(sanitize_decompiler_output(stdout_text), encoding="utf-8")
+    return "ok", "", "", ""
+
+
+def process_output_text(value: str | bytes | None) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return value
+
+
+def write_trace(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text or "", encoding="utf-8", errors="replace")
 
 
 def looks_like_python_source(text: str) -> bool:
@@ -516,6 +566,8 @@ def tool_failure_rows(rows: Sequence[ReproductionResult]) -> list[dict[str, str]
                 "failure_class": classify_tool_failure(row, stage, status, reason),
                 "reason": reason,
                 "bytecode_status": row.bytecode_status,
+                "decompile_stdout": row.decompile_stdout,
+                "decompile_stderr": row.decompile_stderr,
                 "source_path": row.source_path,
                 "compiled_pyc": row.compiled_pyc,
             }
@@ -535,19 +587,24 @@ def tool_failure(row: ReproductionResult) -> tuple[str, str, str]:
 
 def classify_tool_failure(row: ReproductionResult, stage: str, status: str, reason: str) -> str:
     reason_text = (reason or "").lower()
-    if status == "timeout" or status == "crash" or status.startswith("signal_"):
-        return "tool_robustness_failure"
-    if "segmentation fault" in reason_text or "core dumped" in reason_text:
-        return "tool_robustness_failure"
-    if "traceback" in reason_text and not is_expected_rejection_reason(reason):
-        return "tool_robustness_failure"
     if status in {"unavailable", "not_run"} or "missing interpreter" in reason_text or "no decompiler available" in reason_text:
         return "environment_failure"
-    if stage == "decompile" and is_expected_rejection_reason(reason):
-        return "expected_rejection"
     if stage in {"compile", "rerun"}:
         return "translation_failure"
+    if stage == "decompile" and is_decompiler_robustness_failure(status, reason):
+        return "tool_robustness_failure"
     return "expected_rejection"
+
+
+def is_decompiler_robustness_failure(status: str, reason: str) -> bool:
+    reason_text = (reason or "").lower()
+    if status == "timeout" or status == "crash" or status.startswith("signal_"):
+        return True
+    if "segmentation fault" in reason_text or "core dumped" in reason_text:
+        return True
+    if is_expected_rejection_reason(reason):
+        return False
+    return "traceback (most recent call last)" in reason_text
 
 
 def is_expected_rejection_reason(reason: str) -> bool:
@@ -561,6 +618,7 @@ def is_expected_rejection_reason(reason: str) -> bool:
         "unknown type",
         "invalid",
         "cannot decompile",
+        "failed to decompile",
         "no source emitted",
     )
     return any(fragment in text for fragment in expected_fragments)
