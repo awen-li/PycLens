@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 from collections import Counter
 import dis
 import importlib.util
@@ -2113,7 +2114,14 @@ def write_failure_reports(out_dir: Path, results: Sequence[ToolAnalysisResult]) 
         artifact_rows,
     )
 
+    failed_cases_dir = out_dir / "failed_cases"
+    failed_cases_manifest = copy_failed_cases(failed_cases_dir, failed_rows)
+
     metrics_path = out_dir / "rq2_failed_pycs_metrics.csv"
+    copied_cases = 0
+    if failed_cases_manifest.exists():
+        with failed_cases_manifest.open(newline="", encoding="utf-8") as handle:
+            copied_cases = sum(1 for row in csv.DictReader(handle) if row.get("status") == "copied")
     write_dict_rows(
         metrics_path,
         ["metric", "value"],
@@ -2122,10 +2130,150 @@ def write_failure_reports(out_dir: Path, results: Sequence[ToolAnalysisResult]) 
             {"metric": "failed_pyc_files", "value": len(failed_pyc_keys)},
             {"metric": "packages_with_failures", "value": len(package_groups)},
             {"metric": "artifacts_with_failures", "value": len(artifact_groups)},
+            {"metric": "copied_failed_cases", "value": copied_cases},
         ],
     )
 
-    return [failed_path, summary_path, version_path, package_path, artifact_path, metrics_path]
+    return [
+        failed_path,
+        summary_path,
+        version_path,
+        package_path,
+        artifact_path,
+        metrics_path,
+        failed_cases_manifest,
+    ]
+
+
+def copy_failed_cases(out_dir: Path, failed_rows: Sequence[dict[str, object]]) -> Path:
+    manifest_path = out_dir / "manifest.csv"
+    if out_dir.exists():
+        shutil.rmtree(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    grouped: dict[tuple[str, str], list[dict[str, object]]] = {}
+    for row in failed_rows:
+        key = (str(row.get("artifact_path", "")), str(row.get("pyc_path", "")))
+        grouped.setdefault(key, []).append(row)
+
+    manifest_rows: list[dict[str, object]] = []
+    for (artifact, pyc_path), rows in sorted(grouped.items()):
+        if not artifact or not pyc_path:
+            continue
+        first = rows[0]
+        package = str(first.get("package", "unknown"))
+        version = str(first.get("version", "unknown"))
+        python_tag = str(first.get("python_tag", "unknown"))
+        case_id = failed_case_id(artifact, pyc_path)
+        filename = failed_case_filename(package, version, python_tag, case_id)
+        copied_path = out_dir / filename
+        status = "copied"
+        reason = ""
+        try:
+            data = extract_artifact_entry(resolve_artifact_for_failed_case(Path(artifact), out_dir), pyc_path)
+            if data is None:
+                status = "missing_entry"
+                reason = f"entry not found: {pyc_path}"
+            else:
+                copied_path.write_bytes(data)
+        except Exception as exc:
+            status = "copy_failed"
+            reason = f"{type(exc).__name__}:{exc}"
+
+        manifest_rows.append(
+            {
+                "case_id": case_id,
+                "copied_pyc": copied_path.name if status == "copied" else "",
+                "status": status,
+                "reason": reason,
+                "artifact": str(first.get("artifact", "")),
+                "package": package,
+                "version": version,
+                "artifact_type": str(first.get("artifact_type", "")),
+                "pyc_path": pyc_path,
+                "python_tag": python_tag,
+                "magic_number": str(first.get("magic_number", "")),
+                "source_present": str(first.get("source_present", "")),
+                "overall_level": str(first.get("overall_level", "")),
+                "overall_label": str(first.get("overall_label", "")),
+                "tools": ";".join(sorted({str(row.get("tool", "")) for row in rows})),
+                "statuses": ";".join(sorted({str(row.get("status", "")) for row in rows})),
+                "reason_categories": ";".join(sorted({str(row.get("reason_category", "")) for row in rows})),
+                "reasons": " || ".join(
+                    f"{row.get('tool', '')}:{row.get('status', '')}:{row.get('reason', '')}"
+                    for row in rows
+                ),
+            }
+        )
+
+    write_dict_rows(
+        manifest_path,
+        [
+            "case_id",
+            "copied_pyc",
+            "status",
+            "reason",
+            "artifact",
+            "package",
+            "version",
+            "artifact_type",
+            "pyc_path",
+            "python_tag",
+            "magic_number",
+            "source_present",
+            "overall_level",
+            "overall_label",
+            "tools",
+            "statuses",
+            "reason_categories",
+            "reasons",
+        ],
+        manifest_rows,
+    )
+    return manifest_path
+
+
+def failed_case_id(artifact: str, pyc_path: str) -> str:
+    return hashlib.sha256(f"{artifact}\0{pyc_path}".encode("utf-8", errors="replace")).hexdigest()[:12]
+
+
+def failed_case_filename(package: str, version: str, python_tag: str, case_id: str) -> str:
+    prefix = "-".join(
+        sanitize_filename_part(part)
+        for part in (package, version, python_tag, case_id)
+        if part
+    )
+    return f"{prefix}.pyc"
+
+
+def sanitize_filename_part(value: str) -> str:
+    value = re.sub(r"[^A-Za-z0-9_.-]+", "-", value.strip())
+    value = value.strip(".-_")
+    return value[:80] or "unknown"
+
+
+def resolve_artifact_for_failed_case(artifact: Path, failed_cases_dir: Path) -> Path:
+    if artifact.exists() or artifact.is_absolute():
+        return artifact
+    candidates = [
+        Path.cwd() / artifact,
+        failed_cases_dir.parent.parent.parent / artifact,
+        failed_cases_dir.parent.parent / artifact,
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return artifact
+
+
+def extract_artifact_entry(artifact: Path, pyc_path: str) -> bytes | None:
+    wanted = scanner.normalize_path(pyc_path)
+    for entry in scanner.iter_entries(artifact):
+        if entry.is_dir:
+            continue
+        if scanner.normalize_path(entry.path) == wanted:
+            return entry.data
+    return None
 
 
 def failure_reason_category(status: str, reason: str) -> str:
@@ -2185,6 +2333,30 @@ def write_analysis_completeness_report(
     ]
     write_dict_rows(path, ["metric", "value"], rows)
     return {row["metric"]: row["value"] for row in rows}
+
+
+def read_csv(path: Path) -> list[ToolAnalysisResult]:
+    results: list[ToolAnalysisResult] = []
+    if not path.exists():
+        raise FileNotFoundError(f"tool analysis CSV not found: {path}")
+    with path.open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            values = {}
+            for field in TOOL_ANALYSIS_FIELDNAMES:
+                value = row.get(field, "")
+                if field in {"magic_matches_runtime", "source_present"}:
+                    values[field] = str(value).strip().lower() == "true"
+                elif field.endswith("_level") or field == "overall_level":
+                    values[field] = int(value or 0)
+                else:
+                    values[field] = value
+            results.append(ToolAnalysisResult(**values))
+    return results
+
+
+def collect_failed_cases_from_csv(csv_path: Path, out_dir: Path) -> list[Path]:
+    results = read_csv(csv_path)
+    return write_failure_reports(out_dir, results)
 
 
 def write_csv(path: Path, results: Sequence[ToolAnalysisResult]) -> None:

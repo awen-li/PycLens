@@ -40,10 +40,29 @@ UNIQUE_FIELDNAMES = [
     "stack_source",
     "signature",
     "findings",
+    "bug_type",
+    "bug_context",
+    "top_frame",
+    "fault_address",
+    "instruction",
     "example",
     "artifact_path",
 ]
 
+BUG_TYPE_FIELDNAMES = ["bug_type", "unique_bugs", "findings"]
+BUG_CONTEXT_FIELDNAMES = ["bug_context", "unique_bugs", "findings"]
+VALGRIND_FIELDNAMES = [
+    "unique_bug_id",
+    "python_tag",
+    "bug_type",
+    "bug_context",
+    "pyc",
+    "valgrind_status",
+    "valgrind_category",
+    "returncode",
+    "error_summary",
+    "detail",
+]
 SUMMARY_FIELDNAMES = ["metric", "value"]
 
 
@@ -74,8 +93,27 @@ class UniqueBug:
     stack_source: str
     signature: str
     findings: int
+    bug_type: str
+    bug_context: str
+    top_frame: str
+    fault_address: str
+    instruction: str
     example: str
     artifact_path: str
+
+
+@dataclass(frozen=True)
+class ValgrindReplay:
+    unique_bug_id: str
+    python_tag: str
+    bug_type: str
+    bug_context: str
+    pyc: str
+    valgrind_status: str
+    valgrind_category: str
+    returncode: int
+    error_summary: str
+    detail: str
 
 
 def analyze_crashes(
@@ -175,7 +213,7 @@ def analyze_crashes(
                 group_findings.append(row)
 
             unique_bugs.append(
-                UniqueBug(
+                make_unique_bug(
                     unique_bug_id=unique_bug_id,
                     python_tag=tag,
                     status=status,
@@ -183,7 +221,7 @@ def analyze_crashes(
                     stack_source=stack_source,
                     signature=signature,
                     findings=len(rows),
-                    example=str(representative[1]),
+                    example=representative[1],
                     artifact_path=artifact_path,
                 )
             )
@@ -219,6 +257,11 @@ def merge_unique_bug_rows(rows: Sequence[UniqueBug]) -> list[UniqueBug]:
                 stack_source=row.stack_source,
                 signature=row.signature,
                 findings=counts[bug_id_value],
+                bug_type=row.bug_type,
+                bug_context=row.bug_context,
+                top_frame=row.top_frame,
+                fault_address=row.fault_address,
+                instruction=row.instruction,
                 example=row.example,
                 artifact_path=row.artifact_path,
             )
@@ -232,6 +275,118 @@ def initial_bug_key(kind: str, path: Path, metadata: dict[str, str], digest: str
     if stack_hash:
         return f"{signal_name}:{stack_hash}"
     return f"{kind}:sha256:{digest[:16]}"
+
+
+def make_unique_bug(
+    unique_bug_id: str,
+    python_tag: str,
+    status: str,
+    signal: str,
+    stack_source: str,
+    signature: str,
+    findings: int,
+    example: Path,
+    artifact_path: str,
+) -> UniqueBug:
+    metadata = parse_honggfuzz_filename(example)
+    functions = signature_functions(signature)
+    top_frame = first_meaningful_frame(functions)
+    fault_address = metadata.get("fault_address", "")
+    instruction = metadata.get("instruction", "")
+    bug_type = classify_bug_type(signal, fault_address, instruction, functions)
+    bug_context = classify_bug_context(functions)
+    return UniqueBug(
+        unique_bug_id=unique_bug_id,
+        python_tag=python_tag,
+        status=status,
+        signal=signal,
+        stack_source=stack_source,
+        signature=signature,
+        findings=findings,
+        bug_type=bug_type,
+        bug_context=bug_context,
+        top_frame=top_frame,
+        fault_address=fault_address,
+        instruction=instruction,
+        example=str(example),
+        artifact_path=artifact_path,
+    )
+
+
+def signature_functions(signature: str) -> list[str]:
+    if ":" in signature:
+        signature = signature.split(":", 1)[1]
+    return [part.strip() for part in signature.split("|") if part.strip()]
+
+
+def first_meaningful_frame(functions: Sequence[str]) -> str:
+    wrappers = {"??", "pthread_kill", "raise", "abort", "fatal_error_exit", "fatal_error"}
+    for function in functions:
+        if function not in wrappers:
+            return function
+    return functions[0] if functions else ""
+
+
+def classify_bug_type(signal: str, fault_address: str, instruction: str, functions: Sequence[str]) -> str:
+    signal_upper = (signal or "").upper()
+    stack = "|".join(functions)
+    addr = parse_int_address(fault_address)
+    if "SIGABRT" in signal_upper:
+        if "FatalError" in stack or "fatal_error" in stack or "_Py_FatalErrorFunc" in stack:
+            return "abort_fatal_error"
+        if any(token in stack for token in ("malloc", "free", "realloc", "PyMem_", "PyObject_Free")):
+            return "abort_heap_allocator"
+        return "abort_signal"
+    if repeated_stack_frame(functions):
+        return "stack_recursion_pattern"
+    if "SIGSEGV" in signal_upper:
+        if addr is not None and addr <= 0x1000:
+            return "null_or_near_null_pointer_deref"
+        if "[NOT_MMAPED]" in instruction or "NOT_MMAPED" in stack:
+            return "invalid_unmapped_access"
+        if any(token in stack for token in ("malloc", "free", "realloc", "PyMem_", "PyObject_Free")):
+            return "heap_or_lifetime_corruption"
+        return "invalid_pointer_deref"
+    if "TIMEOUT" in signal_upper:
+        return "timeout"
+    return "unknown_abnormal_termination"
+
+
+def classify_bug_context(functions: Sequence[str]) -> str:
+    stack = "|".join(functions)
+    if any(token in stack for token in ("marshal_loads", "r_object", "read_object", "_PyCode_New", "_PyCode_Quicken", "_Py_GetBaseOpcode")):
+        return "code_object_loading"
+    if any(token in stack for token in ("marshal_dumps", "_PyMarshal_WriteObjectToString", "deopt_code", "_PyCode_GetCode")):
+        return "code_object_serialization"
+    if any(token in stack for token in ("get_tools_for_instruction", "call_instrumentation", "_Py_call_instrumentation")):
+        return "interpreter_instrumentation"
+    if any(token in stack for token in ("gc_collect", "visit_decref", "traverse", "_Py_Finalize", "Py_Finalize", "dealloc", "_Py_Dealloc")):
+        return "gc_or_finalization"
+    if any(token in stack for token in ("PyDict", "dict_", "setitem", "PySet", "list_", "tuple", "unicode", "PyObject_", "_PyObject")):
+        return "object_runtime"
+    if any(token in stack for token in ("_PyEval_EvalFrameDefault", "PyEval_EvalCode", "run_eval_code_obj")):
+        return "frame_evaluation"
+    return "unknown_context"
+
+
+def parse_int_address(value: str) -> int | None:
+    if not value:
+        return None
+    try:
+        return int(value, 16 if value.lower().startswith("0x") else 10)
+    except ValueError:
+        return None
+
+
+def repeated_stack_frame(functions: Sequence[str]) -> bool:
+    counts: dict[str, int] = {}
+    for function in functions[:32]:
+        if function in {"??", "_PyEval_EvalFrameDefault", "_PyEval_EvalFrame", "_PyEval_Vector"}:
+            continue
+        counts[function] = counts.get(function, 0) + 1
+        if counts[function] >= 6:
+            return True
+    return False
 
 
 def clean_unique_bug_artifacts(rq3_dir: Path, tags: Sequence[str]) -> None:
@@ -734,6 +889,9 @@ def build_unique_report_lines(
                     f"- Fault address: `{metadata.get('fault_address', 'unknown')}`",
                     f"- Instruction: `{metadata.get('instruction', 'unknown')}`",
                     f"- Findings: {bug.findings}",
+                    f"- Likely failure type: `{bug.bug_type}`",
+                    f"- Runtime context: `{bug.bug_context}`",
+                    f"- Top frame: `{bug.top_frame or 'unknown'}`",
                     f"- Representative pyc: `{bug.artifact_path or 'missing'}`",
                     f"- Representative original: `{bug.example}`",
                 ]
@@ -803,6 +961,236 @@ def manual_gdb_command(finding: CrashFinding | None) -> str:
     return f"PYTHONNOUSERSITE=1 gdb -q --args {interpreter} -S data/rq3/harness.py {finding.path}"
 
 
+def load_unique_bugs_csv(path: Path) -> list[UniqueBug]:
+    rows: list[UniqueBug] = []
+    if not path.exists():
+        return rows
+    with path.open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            example = Path(row.get("example", ""))
+            if "bug_type" in row and row.get("bug_type"):
+                rows.append(
+                    UniqueBug(
+                        unique_bug_id=row.get("unique_bug_id", ""),
+                        python_tag=row.get("python_tag", ""),
+                        status=row.get("status", ""),
+                        signal=row.get("signal", ""),
+                        stack_source=row.get("stack_source", ""),
+                        signature=row.get("signature", ""),
+                        findings=int(row.get("findings", "0") or 0),
+                        bug_type=row.get("bug_type", ""),
+                        bug_context=row.get("bug_context", ""),
+                        top_frame=row.get("top_frame", ""),
+                        fault_address=row.get("fault_address", ""),
+                        instruction=row.get("instruction", ""),
+                        example=row.get("example", ""),
+                        artifact_path=row.get("artifact_path", ""),
+                    )
+                )
+            else:
+                rows.append(
+                    make_unique_bug(
+                        unique_bug_id=row.get("unique_bug_id", ""),
+                        python_tag=row.get("python_tag", ""),
+                        status=row.get("status", ""),
+                        signal=row.get("signal", ""),
+                        stack_source=row.get("stack_source", ""),
+                        signature=row.get("signature", ""),
+                        findings=int(row.get("findings", "0") or 0),
+                        example=example,
+                        artifact_path=row.get("artifact_path", ""),
+                    )
+                )
+    return rows
+
+
+def replay_unique_bugs_with_valgrind(
+    data_dir: Path,
+    tags: Sequence[str],
+    timeout: int,
+) -> list[ValgrindReplay]:
+    rq3_dir = data_dir / "rq3"
+    unique_bugs = load_unique_bugs_csv(rq3_dir / "unique_bugs.csv")
+    if tags:
+        selected = {cpython_fuzz.version_to_tag(tag) for tag in tags}
+        unique_bugs = [bug for bug in unique_bugs if bug.python_tag in selected]
+    interpreters = load_rq3_interpreters(data_dir)
+    harness = rq3_dir / "harness.py"
+    cpython_fuzz.write_harness(harness)
+    results: list[ValgrindReplay] = []
+    for tag in sorted({bug.python_tag for bug in unique_bugs}):
+        version_bugs = [bug for bug in unique_bugs if bug.python_tag == tag]
+        interpreter = valid_interpreter_for_tag(interpreters.get(tag) or default_instrumented_interpreter(rq3_dir, tag), tag)
+        print(f"[rq3-valgrind] {tag}: unique_bugs={len(version_bugs)} interpreter={interpreter or 'missing'}")
+        for index, bug in enumerate(version_bugs, start=1):
+            pyc = Path(bug.artifact_path or bug.example)
+            result = run_valgrind_replay(bug, interpreter, harness, pyc, timeout)
+            results.append(result)
+            if index == 1 or index % 25 == 0 or index == len(version_bugs):
+                print(
+                    f"[rq3-valgrind {tag} {index}/{len(version_bugs)}] "
+                    f"status={result.valgrind_status} category={result.valgrind_category} bug={bug.unique_bug_id}"
+                )
+    return results
+
+
+def run_valgrind_replay(
+    bug: UniqueBug,
+    interpreter: str,
+    harness: Path,
+    pyc: Path,
+    timeout: int,
+) -> ValgrindReplay:
+    if not shutil.which("valgrind"):
+        return make_valgrind_row(bug, pyc, "valgrind_unavailable", "not_run", 0, "valgrind not found", "")
+    if not interpreter:
+        return make_valgrind_row(bug, pyc, "missing_interpreter", "not_run", 0, f"missing interpreter for {bug.python_tag}", "")
+    if not pyc.exists():
+        return make_valgrind_row(bug, pyc, "missing_input", "not_run", 0, f"missing pyc {pyc}", "")
+    interpreter_path = Path(interpreter).resolve()
+    command = [
+        "valgrind",
+        "--tool=memcheck",
+        "--track-origins=yes",
+        "--leak-check=no",
+        "--error-exitcode=99",
+        str(interpreter_path),
+        "-S",
+        str(harness.resolve()),
+        str(pyc.resolve()),
+    ]
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=str(interpreter_path.parent),
+            env=cpython_runtime_env(interpreter_path),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            timeout=timeout,
+            check=False,
+            text=True,
+            errors="replace",
+        )
+    except subprocess.TimeoutExpired as exc:
+        output = compact((exc.stdout or "") + (exc.stderr or ""), limit=12000)
+        return make_valgrind_row(bug, pyc, "timeout", "timeout", 0, f"timeout_after_{timeout}s", output)
+    except OSError as exc:
+        return make_valgrind_row(bug, pyc, "error", "tool_error", 0, f"{type(exc).__name__}:{exc}", "")
+    output = compact(completed.stdout, limit=12000)
+    category = classify_valgrind_output(output, completed.returncode)
+    status = "ok"
+    if completed.returncode == 99 or category != "no_memcheck_error_detected":
+        status = "memcheck_error"
+    elif completed.returncode < 0:
+        status = "crash"
+    elif completed.returncode != 0:
+        status = f"exit_{completed.returncode}"
+    summary = valgrind_error_summary(output) or category
+    return make_valgrind_row(bug, pyc, status, category, completed.returncode, summary, output)
+
+
+def make_valgrind_row(
+    bug: UniqueBug,
+    pyc: Path,
+    status: str,
+    category: str,
+    returncode: int,
+    summary: str,
+    detail: str,
+) -> ValgrindReplay:
+    return ValgrindReplay(
+        unique_bug_id=bug.unique_bug_id,
+        python_tag=bug.python_tag,
+        bug_type=bug.bug_type,
+        bug_context=bug.bug_context,
+        pyc=str(pyc),
+        valgrind_status=status,
+        valgrind_category=category,
+        returncode=returncode,
+        error_summary=summary,
+        detail=detail,
+    )
+
+
+def classify_valgrind_output(output: str, returncode: int) -> str:
+    lowered = output.lower()
+    if "stack overflow" in lowered:
+        return "stack_overflow"
+    if "invalid write" in lowered:
+        if "after a block of size" in lowered or "inside a block of size" in lowered:
+            return "heap_buffer_overflow_or_uaf_write"
+        return "invalid_write"
+    if "invalid read" in lowered:
+        if "0 bytes inside a block of size" in lowered and "free'd" in lowered:
+            return "use_after_free_read"
+        if "not stack'd, malloc'd or" in lowered:
+            return "invalid_pointer_read"
+        return "invalid_read"
+    if "jump to the invalid address" in lowered or "bad permissions for mapped region" in lowered:
+        return "invalid_control_flow"
+    if "use of uninitialised value" in lowered or "conditional jump or move depends on uninitialised" in lowered:
+        return "uninitialized_value"
+    if "invalid free" in lowered or "mismatched free" in lowered:
+        return "invalid_free"
+    if "error summary: 0 errors" in lowered:
+        return "no_memcheck_error_detected"
+    if returncode != 0:
+        return "abnormal_exit_without_memcheck_category"
+    return "no_memcheck_error_detected"
+
+
+def valgrind_error_summary(output: str) -> str:
+    for line in output.splitlines():
+        stripped = line.strip()
+        if "ERROR SUMMARY:" in stripped:
+            return stripped
+    for line in output.splitlines():
+        stripped = line.strip()
+        if any(token in stripped for token in ("Invalid read", "Invalid write", "Invalid free", "Use of uninitialised", "Jump to the invalid")):
+            return stripped
+    return ""
+
+
+def write_valgrind_csv(path: Path, rows: Sequence[ValgrindReplay]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=VALGRIND_FIELDNAMES)
+        writer.writeheader()
+        writer.writerows(row.__dict__ for row in rows)
+
+
+def write_benchmark_valgrind_csvs(rq3_dir: Path, rows: Sequence[ValgrindReplay]) -> list[Path]:
+    by_version: dict[str, list[ValgrindReplay]] = {}
+    for row in rows:
+        version_dir = cpython_fuzz.version_dir_name(row.python_tag)
+        by_version.setdefault(version_dir, []).append(row)
+    written: list[Path] = []
+    for version_dir, version_rows in sorted(by_version.items()):
+        out_path = rq3_dir / version_dir / "valgrind_report.csv"
+        write_valgrind_csv(out_path, version_rows)
+        written.append(out_path)
+    return written
+
+
+def write_valgrind_summary_csv(path: Path, rows: Sequence[ValgrindReplay]) -> None:
+    by_status: dict[str, int] = {}
+    by_category: dict[str, int] = {}
+    by_tag: dict[str, int] = {}
+    for row in rows:
+        by_status[row.valgrind_status] = by_status.get(row.valgrind_status, 0) + 1
+        by_category[row.valgrind_category] = by_category.get(row.valgrind_category, 0) + 1
+        by_tag[row.python_tag] = by_tag.get(row.python_tag, 0) + 1
+    out_rows = [{"metric": "replayed_unique_bugs", "value": str(len(rows))}]
+    out_rows.extend({"metric": f"status_{key}", "value": str(value)} for key, value in sorted(by_status.items()))
+    out_rows.extend({"metric": f"category_{key}", "value": str(value)} for key, value in sorted(by_category.items()))
+    out_rows.extend({"metric": f"version_{key}", "value": str(value)} for key, value in sorted(by_tag.items()))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=SUMMARY_FIELDNAMES)
+        writer.writeheader()
+        writer.writerows(out_rows)
+
+
 def write_finding_csv(path: Path, rows: Sequence[CrashFinding]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
@@ -817,6 +1205,33 @@ def write_unique_csv(path: Path, rows: Sequence[UniqueBug]) -> None:
         writer = csv.DictWriter(handle, fieldnames=UNIQUE_FIELDNAMES)
         writer.writeheader()
         writer.writerows(row.__dict__ for row in rows)
+
+
+def write_bug_type_summary_csv(path: Path, rows: Sequence[UniqueBug]) -> None:
+    write_grouped_bug_summary(path, rows, "bug_type", BUG_TYPE_FIELDNAMES)
+
+
+def write_bug_context_summary_csv(path: Path, rows: Sequence[UniqueBug]) -> None:
+    write_grouped_bug_summary(path, rows, "bug_context", BUG_CONTEXT_FIELDNAMES)
+
+
+def write_grouped_bug_summary(path: Path, rows: Sequence[UniqueBug], field: str, fieldnames: Sequence[str]) -> None:
+    grouped: dict[str, list[int]] = {}
+    for row in rows:
+        key = getattr(row, field)
+        if key not in grouped:
+            grouped[key] = [0, 0]
+        grouped[key][0] += 1
+        grouped[key][1] += row.findings
+    out_rows = [
+        {field: key, "unique_bugs": str(values[0]), "findings": str(values[1])}
+        for key, values in sorted(grouped.items(), key=lambda item: (-item[1][0], item[0]))
+    ]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(out_rows)
 
 
 def write_benchmark_unique_csvs(rq3_dir: Path, rows: Sequence[UniqueBug]) -> list[Path]:

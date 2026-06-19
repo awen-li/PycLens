@@ -168,6 +168,23 @@ RQ2 also writes reproducibility and paper-table outputs:
 ```text
 data/rq2/tool_versions.csv
 data/rq2/rq2_summary.csv
+data/rq2/rq2_failed_pycs.csv
+data/rq2/rq2_failed_pycs_summary.csv
+data/rq2/failed_cases/manifest.csv
+data/rq2/failed_cases/*.pyc
+```
+
+`data/rq2/failed_cases/` contains copied `.pyc` files for failed tool-analysis
+cases, so the failures can be replayed locally without reopening the original
+package artifact. The manifest records the package, version, artifact name,
+internal `.pyc` path, Python tag, failed tools, statuses, and reasons. It does
+not store the full local artifact path.
+
+If `data/rq2/tool_analysis.csv` already exists, rebuild only the failed-case
+reports and replay corpus without rerunning RQ2 tool analysis:
+
+```bash
+pybcSEC collect-failed-cases
 ```
 
 Run the RQ3 CPython fuzzing campaign:

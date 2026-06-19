@@ -509,7 +509,23 @@ def analyze_tools(args: argparse.Namespace) -> int:
     print("wrote RQ2 failed-PYC analysis reports:")
     for path in failure_reports:
         print(f"  {path}")
+    print(f"wrote RQ2 failed-case replay corpus to {args.data_dir / 'rq2' / 'failed_cases'}")
     return 0
+
+
+def collect_failed_cases(args: argparse.Namespace) -> int:
+    print("[RQ2] collecting failed .pyc cases from existing tool-analysis results")
+    csv_path = args.csv_in or args.data_dir / "rq2" / "tool_analysis.csv"
+    reports = tool_analysis.collect_failed_cases_from_csv(csv_path, args.data_dir / "rq2")
+    manifest = args.data_dir / "rq2" / "failed_cases" / "manifest.csv"
+    print(f"read RQ2 tool-analysis rows from {csv_path}")
+    print(f"wrote RQ2 failed-case replay corpus to {args.data_dir / 'rq2' / 'failed_cases'}")
+    print(f"wrote RQ2 failed-case manifest to {manifest}")
+    print("wrote RQ2 failed-PYC reports:")
+    for path in reports:
+        print(f"  {path}")
+    return 0
+
 
 
 def prepare_analysis_env(args: argparse.Namespace) -> int:
@@ -669,11 +685,15 @@ def analyze_crashes(args: argparse.Namespace) -> int:
     finding_csv = args.data_dir / "rq3" / "crash_findings.csv"
     unique_csv = args.data_dir / "rq3" / "unique_bugs.csv"
     summary_csv = args.data_dir / "rq3" / "crash_summary.csv"
+    bug_type_csv = args.data_dir / "rq3" / "bug_type_summary.csv"
+    bug_context_csv = args.data_dir / "rq3" / "bug_context_summary.csv"
     report_md = args.data_dir / "rq3" / "unique_bug_report.md"
     crash_analysis.write_finding_csv(finding_csv, findings)
     crash_analysis.write_unique_csv(unique_csv, unique_bugs)
     benchmark_unique_csvs = crash_analysis.write_benchmark_unique_csvs(args.data_dir / "rq3", unique_bugs)
     crash_analysis.write_summary_csv(summary_csv, findings, unique_bugs)
+    crash_analysis.write_bug_type_summary_csv(bug_type_csv, unique_bugs)
+    crash_analysis.write_bug_context_summary_csv(bug_context_csv, unique_bugs)
     crash_analysis.write_unique_report(report_md, findings, unique_bugs)
     benchmark_reports = crash_analysis.write_benchmark_unique_reports(args.data_dir / "rq3", findings, unique_bugs)
     print(
@@ -688,6 +708,8 @@ def analyze_crashes(args: argparse.Namespace) -> int:
     for path in benchmark_unique_csvs:
         print(f"  {path}")
     print(f"wrote RQ3 crash summary to {summary_csv}")
+    print(f"wrote RQ3 bug type summary to {bug_type_csv}")
+    print(f"wrote RQ3 bug context summary to {bug_context_csv}")
     print(f"wrote RQ3 unique bug report to {report_md}")
     print(f"wrote benchmark-level unique bug reports: {len(benchmark_reports)}")
     for path in benchmark_reports:
@@ -861,6 +883,17 @@ def add_analyze_tools_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.set_defaults(func=analyze_tools)
 
 
+def add_collect_failed_cases_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser(
+        "collect-failed-cases",
+        help="RQ2: rebuild failed .pyc replay corpus from an existing tool_analysis.csv without rerunning analysis.",
+    )
+    parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for study data")
+    parser.add_argument("--csv-in", type=Path, help="Existing RQ2 tool-analysis CSV; defaults to data/rq2/tool_analysis.csv")
+    parser.set_defaults(func=collect_failed_cases)
+
+
+
 def add_summarize_rq1_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser(
         "summarize-rq1",
@@ -922,6 +955,27 @@ def add_reproduce_source_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.set_defaults(func=reproduce_source)
 
 
+def replay_crashes(args: argparse.Namespace) -> int:
+    print("[RQ3] replaying unique crash representatives")
+    rows = crash_analysis.replay_unique_bugs_with_valgrind(
+        data_dir=args.data_dir,
+        tags=args.versions,
+        timeout=args.timeout,
+    )
+    report_csv = args.data_dir / "rq3" / "valgrind_report.csv"
+    summary_csv = args.data_dir / "rq3" / "valgrind_summary.csv"
+    crash_analysis.write_valgrind_csv(report_csv, rows)
+    benchmark_csvs = crash_analysis.write_benchmark_valgrind_csvs(args.data_dir / "rq3", rows)
+    crash_analysis.write_valgrind_summary_csv(summary_csv, rows)
+    print(f"RQ3 replay summary: unique_bugs={len(rows)}")
+    print(f"wrote RQ3 Valgrind replay report to {report_csv}")
+    print(f"wrote benchmark-level Valgrind replay CSVs: {len(benchmark_csvs)}")
+    for path in benchmark_csvs:
+        print(f"  {path}")
+    print(f"wrote RQ3 Valgrind replay summary to {summary_csv}")
+    return 0
+
+
 def add_analyze_crashes_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser(
         "analyze-crashes",
@@ -932,6 +986,18 @@ def add_analyze_crashes_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.add_argument("--timeout", type=int, default=10, help="Per-finding rerun timeout in seconds")
     parser.add_argument("--include-timeouts", action="store_true", help="Also deduplicate timeout findings, if timeout files were collected")
     parser.set_defaults(func=analyze_crashes)
+
+
+
+def add_replay_crashes_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser(
+        "replay-crashes",
+        help="RQ3: replay stack-deduplicated crash representatives with Valgrind.",
+    )
+    parser.add_argument("versions", nargs="*", help="Optional CPython versions to replay, such as 3.10 or cpython-310")
+    parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for study data")
+    parser.add_argument("--timeout", type=int, default=120, help="Per-representative replay timeout in seconds")
+    parser.set_defaults(func=replay_crashes)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -957,9 +1023,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     add_summarize_rq1_parser(subparsers)
     add_prepare_analysis_env_parser(subparsers)
     add_analyze_tools_parser(subparsers)
+    add_collect_failed_cases_parser(subparsers)
     add_fuzz_cpython_parser(subparsers)
     add_smoke_rq3_parser(subparsers)
     add_analyze_crashes_parser(subparsers)
+    add_replay_crashes_parser(subparsers)
     add_reproduce_source_parser(subparsers)
     args = parser.parse_args(argv)
     return args.func(args)
