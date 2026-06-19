@@ -466,6 +466,7 @@ def analyze_tools(args: argparse.Namespace) -> int:
     expected_pyc = tool_analysis.read_count_only_expected(args.data_dir / "rq2" / "rq2_denominator_summary.csv")
     completeness = tool_analysis.write_analysis_completeness_report(completeness_csv, results, expected_pyc)
     source_less_reports = tool_analysis.write_source_less_reports(args.data_dir / "rq2", results, scan_csv)
+    failure_reports = tool_analysis.write_failure_reports(args.data_dir / "rq2", results)
     summary = tool_analysis.summarize(results)
     print(
         "tool analysis summary: pyc_files={pyc}, source_present={src}, source_less={src_less}, "
@@ -504,6 +505,9 @@ def analyze_tools(args: argparse.Namespace) -> int:
         )
     print("wrote RQ2 source-less subset reports:")
     for path in source_less_reports:
+        print(f"  {path}")
+    print("wrote RQ2 failed-PYC analysis reports:")
+    for path in failure_reports:
         print(f"  {path}")
     return 0
 

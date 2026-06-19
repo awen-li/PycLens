@@ -1956,10 +1956,194 @@ def top_level_path(path: str) -> str:
     return parts[0]
 
 def write_dict_rows(path: Path, fieldnames: Sequence[str], rows: Sequence[dict[str, object]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
+
+
+TOOL_STATUS_FIELDS = (
+    ("marshal", "stdlib_marshal"),
+    ("dis", "stdlib_dis"),
+    ("decompyle3", "decompyle3"),
+    ("pylingual", "pylingual"),
+)
+
+
+def write_failure_reports(out_dir: Path, results: Sequence[ToolAnalysisResult]) -> list[Path]:
+    failed_rows: list[dict[str, object]] = []
+    status_counts: Counter[tuple[str, str, str]] = Counter()
+    version_counts: Counter[tuple[str, str, str, str]] = Counter()
+    package_groups: dict[tuple[str, str], list[dict[str, object]]] = {}
+    artifact_groups: dict[str, list[dict[str, object]]] = {}
+    failed_pyc_keys: set[tuple[str, str]] = set()
+
+    for item in results:
+        package, version = package_version_from_artifact(item.artifact)
+        pyc_key = (item.artifact, item.pyc_path)
+        for tool, field in TOOL_STATUS_FIELDS:
+            status = str(getattr(item, field))
+            if not tool_status_failed(status):
+                continue
+            reason = str(getattr(item, f"{field}_reason"))
+            reason_category = failure_reason_category(status, reason)
+            failed_pyc_keys.add(pyc_key)
+            status_counts[(tool, status, reason_category)] += 1
+            version_counts[(item.python_tag, tool, status, reason_category)] += 1
+            row = {
+                "tool": tool,
+                "status": status,
+                "reason_category": reason_category,
+                "reason": reason,
+                "artifact": artifact_name_from_path(item.artifact),
+                "package": package,
+                "version": version,
+                "artifact_type": item.artifact_type,
+                "pyc_path": item.pyc_path,
+                "python_tag": item.python_tag,
+                "magic_number": item.magic_number,
+                "source_present": item.source_present,
+                "overall_level": item.overall_level,
+                "overall_label": item.overall_label,
+                "artifact_path": item.artifact,
+            }
+            failed_rows.append(row)
+            package_groups.setdefault((package, version), []).append(row)
+            artifact_groups.setdefault(item.artifact, []).append(row)
+
+    failed_path = out_dir / "rq2_failed_pycs.csv"
+    failed_fields = [
+        "tool",
+        "status",
+        "reason_category",
+        "reason",
+        "artifact",
+        "package",
+        "version",
+        "artifact_type",
+        "pyc_path",
+        "python_tag",
+        "magic_number",
+        "source_present",
+        "overall_level",
+        "overall_label",
+        "artifact_path",
+    ]
+    write_dict_rows(failed_path, failed_fields, failed_rows)
+
+    summary_path = out_dir / "rq2_failed_pycs_summary.csv"
+    summary_rows = [
+        {"tool": tool, "status": status, "reason_category": category, "failed_tool_results": count}
+        for (tool, status, category), count in sorted(status_counts.items())
+    ]
+    write_dict_rows(summary_path, ["tool", "status", "reason_category", "failed_tool_results"], summary_rows)
+
+    version_path = out_dir / "rq2_failed_pycs_by_version.csv"
+    version_rows = [
+        {
+            "python_tag": tag,
+            "tool": tool,
+            "status": status,
+            "reason_category": category,
+            "failed_tool_results": count,
+        }
+        for (tag, tool, status, category), count in sorted(version_counts.items())
+    ]
+    write_dict_rows(
+        version_path,
+        ["python_tag", "tool", "status", "reason_category", "failed_tool_results"],
+        version_rows,
+    )
+
+    package_path = out_dir / "rq2_failed_pycs_by_package.csv"
+    package_rows = []
+    for (package, version), rows in sorted(package_groups.items(), key=lambda entry: (-len(entry[1]), entry[0])):
+        unique_pycs = {(str(row["artifact_path"]), str(row["pyc_path"])) for row in rows}
+        package_rows.append(
+            {
+                "package": package,
+                "version": version,
+                "failed_tool_results": len(rows),
+                "failed_pyc_files": len(unique_pycs),
+                "tools": ";".join(sorted({str(row["tool"]) for row in rows})),
+                "statuses": ";".join(sorted({str(row["status"]) for row in rows})),
+                "reason_categories": ";".join(sorted({str(row["reason_category"]) for row in rows})),
+            }
+        )
+    write_dict_rows(
+        package_path,
+        ["package", "version", "failed_tool_results", "failed_pyc_files", "tools", "statuses", "reason_categories"],
+        package_rows,
+    )
+
+    artifact_path = out_dir / "rq2_failed_pycs_by_artifact.csv"
+    artifact_rows = []
+    for artifact, rows in sorted(artifact_groups.items(), key=lambda entry: (-len(entry[1]), entry[0])):
+        unique_pycs = {str(row["pyc_path"]) for row in rows}
+        package, version = package_version_from_artifact(artifact)
+        artifact_rows.append(
+            {
+                "artifact": artifact_name_from_path(artifact),
+                "package": package,
+                "version": version,
+                "artifact_type": rows[0]["artifact_type"],
+                "failed_tool_results": len(rows),
+                "failed_pyc_files": len(unique_pycs),
+                "tools": ";".join(sorted({str(row["tool"]) for row in rows})),
+                "statuses": ";".join(sorted({str(row["status"]) for row in rows})),
+                "reason_categories": ";".join(sorted({str(row["reason_category"]) for row in rows})),
+                "artifact_path": artifact,
+            }
+        )
+    write_dict_rows(
+        artifact_path,
+        [
+            "artifact",
+            "package",
+            "version",
+            "artifact_type",
+            "failed_tool_results",
+            "failed_pyc_files",
+            "tools",
+            "statuses",
+            "reason_categories",
+            "artifact_path",
+        ],
+        artifact_rows,
+    )
+
+    metrics_path = out_dir / "rq2_failed_pycs_metrics.csv"
+    write_dict_rows(
+        metrics_path,
+        ["metric", "value"],
+        [
+            {"metric": "failed_tool_results", "value": len(failed_rows)},
+            {"metric": "failed_pyc_files", "value": len(failed_pyc_keys)},
+            {"metric": "packages_with_failures", "value": len(package_groups)},
+            {"metric": "artifacts_with_failures", "value": len(artifact_groups)},
+        ],
+    )
+
+    return [failed_path, summary_path, version_path, package_path, artifact_path, metrics_path]
+
+
+def failure_reason_category(status: str, reason: str) -> str:
+    if status == "timeout" or "timeout_after_" in reason:
+        return "timeout"
+    if status.startswith("exit_"):
+        return "tool_exit"
+    if reason.startswith("marshal_failed"):
+        return "marshal_parse_failure"
+    if reason.startswith("dis_failed"):
+        return "disassembly_failure"
+    if reason.startswith("json_decode_failed"):
+        return "analysis_output_parse_failure"
+    if "FileNotFoundError" in reason or "PermissionError" in reason or "OSError" in reason:
+        return "environment_error"
+    if "Traceback" in reason:
+        return "tool_exception"
+    return "other"
 
 
 def percent_value(numerator: int, denominator: int) -> str:
