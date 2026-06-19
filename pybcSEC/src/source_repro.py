@@ -54,6 +54,11 @@ TOOL_FAILURE_FIELDNAMES = [
     "compiled_pyc",
 ]
 DECOMPILERS = ("decompyle3", "pylingual")
+CSV_WRITE_KWARGS = {
+    "quoting": csv.QUOTE_MINIMAL,
+    "escapechar": "\\",
+    "lineterminator": "\n",
+}
 
 
 @dataclass(frozen=True)
@@ -419,7 +424,7 @@ def behavior_class(status: str) -> str:
 def write_csv(path: Path, rows: Sequence[ReproductionResult]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=REPRO_FIELDNAMES)
+        writer = csv.DictWriter(handle, fieldnames=REPRO_FIELDNAMES, **CSV_WRITE_KWARGS)
         writer.writeheader()
         writer.writerows(row.__dict__ for row in rows)
 
@@ -427,7 +432,7 @@ def write_csv(path: Path, rows: Sequence[ReproductionResult]) -> None:
 def write_finding_report_csv(path: Path, rows: Sequence[ReproductionResult]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=FINDING_FIELDNAMES)
+        writer = csv.DictWriter(handle, fieldnames=FINDING_FIELDNAMES, **CSV_WRITE_KWARGS)
         writer.writeheader()
         writer.writerows(finding_report_rows(rows))
 
@@ -462,7 +467,7 @@ def finding_report_rows(rows: Sequence[ReproductionResult]) -> list[dict[str, st
 def write_tool_failure_csv(path: Path, rows: Sequence[ReproductionResult]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=TOOL_FAILURE_FIELDNAMES)
+        writer = csv.DictWriter(handle, fieldnames=TOOL_FAILURE_FIELDNAMES, **CSV_WRITE_KWARGS)
         writer.writeheader()
         writer.writerows(tool_failure_rows(rows))
 
@@ -572,7 +577,7 @@ def write_summary_csv(path: Path, rows: Sequence[ReproductionResult]) -> None:
             summary.append({"metric": f"{tag}_{category}", "value": str(count)})
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=SUMMARY_FIELDNAMES)
+        writer = csv.DictWriter(handle, fieldnames=SUMMARY_FIELDNAMES, **CSV_WRITE_KWARGS)
         writer.writeheader()
         writer.writerows(summary)
 
