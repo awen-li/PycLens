@@ -284,6 +284,7 @@ def reproduce_finding(
             stdout_path,
             stderr_path,
         )
+        compile_status = "not_run"
         source_status = "not_run"
         source_reason = ""
         reproduced = False
