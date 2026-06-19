@@ -1,0 +1,6 @@
+metric,value
+failed_tool_results,1075
+failed_pyc_files,722
+packages_with_failures,86
+artifacts_with_failures,105
+copied_failed_cases,718
