@@ -270,6 +270,8 @@ def reproduce_finding(
     for decompiler, executable in available:
         source_path = out_dir / f"{decompiler}.py"
         compiled_pyc = out_dir / f"{decompiler}.pyc"
+        remove_stale_file(source_path)
+        remove_stale_file(compiled_pyc)
         trace_dir = data_dir / "rq4" / "tool_traces" / tag / finding.stem
         stdout_path = trace_dir / f"{decompiler}.stdout.txt"
         stderr_path = trace_dir / f"{decompiler}.stderr.txt"
@@ -305,8 +307,8 @@ def reproduce_finding(
                 decompile_reason=decompile_reason,
                 decompile_stdout=decompile_stdout,
                 decompile_stderr=decompile_stderr,
-                source_path=str(source_path) if source_path.exists() else "",
-                compiled_pyc=str(compiled_pyc) if compiled_pyc.exists() else "",
+                source_path=str(source_path) if decompile_status == "ok" and source_path.exists() else "",
+                compiled_pyc=str(compiled_pyc) if compile_status == "ok" and compiled_pyc.exists() else "",
                 source_status=source_status,
                 source_reason=source_reason,
                 reproduced=reproduced,
@@ -398,6 +400,13 @@ def process_output_text(value: str | bytes | None) -> str:
 def write_trace(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text or "", encoding="utf-8", errors="replace")
+
+
+def remove_stale_file(path: Path) -> None:
+    try:
+        path.unlink()
+    except FileNotFoundError:
+        pass
 
 
 def looks_like_python_source(text: str) -> bool:
