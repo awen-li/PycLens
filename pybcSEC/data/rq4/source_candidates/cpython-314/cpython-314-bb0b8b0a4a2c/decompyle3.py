@@ -1,7 +1,0 @@
-# decompyle3 version 3.9.3
-# Python bytecode version base 3.14 (3627)
-# Decompiled from: Python 3.14.5 (main, May 10 2026, 19:28:16) [Clang 22.1.3 ]
-# Embedded file name: data/rq3/cpython-3.14/unittest_seeds/raw/cpython_case_test_yield_from_TestPEP380Operation_test_delegating_generators_clamm_to_be_running_with_throw.py
-# Compiled at: 1970-01-27 13:09:20
-
-Unsupported Python version, 3.14, for decompilation
