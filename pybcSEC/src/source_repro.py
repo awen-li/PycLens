@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import subprocess
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import tempfile
 import textwrap
 from dataclasses import dataclass
@@ -30,7 +31,29 @@ REPRO_FIELDNAMES = [
     "reproduced",
 ]
 SUMMARY_FIELDNAMES = ["metric", "value"]
-DECOMPILERS = ("uncompyle6", "decompyle3", "pylingual")
+FINDING_FIELDNAMES = [
+    "python_tag",
+    "finding",
+    "category",
+    "reason",
+    "bytecode_status",
+    "bytecode_reason",
+    "reproduced_by",
+    "decompiler_statuses",
+    "source_statuses",
+]
+TOOL_FAILURE_FIELDNAMES = [
+    "python_tag",
+    "finding",
+    "decompiler",
+    "stage",
+    "status",
+    "reason",
+    "bytecode_status",
+    "source_path",
+    "compiled_pyc",
+]
+DECOMPILERS = ("decompyle3", "pylingual")
 
 
 @dataclass(frozen=True)
@@ -54,6 +77,7 @@ def analyze_reproducibility(
     tags: Sequence[str],
     data_dir: Path,
     timeout: int,
+    workers: int = 1,
 ) -> list[ReproductionResult]:
     versions_csv = data_dir / "scan" / "cpython_versions.csv"
     interpreters = tool_analysis.load_interpreter_environment(versions_csv, data_dir=data_dir)
@@ -95,35 +119,90 @@ def analyze_reproducibility(
             continue
 
         decompilers = tools_for_tag(tag, global_tools, tool_envs)
-        print(f"[rq4] {tag}: findings={len(findings)}")
-        for index, finding in enumerate(findings, start=1):
-            bytecode_status, bytecode_reason = run_harness(interpreter, harness, finding, timeout)
-            finding_results = reproduce_finding(
-                tag,
-                interpreter,
-                finding,
-                bytecode_status,
-                bytecode_reason,
-                decompilers,
-                data_dir,
-                harness,
-                timeout,
-            )
-            results.extend(finding_results)
-            reproduced = any(item.reproduced for item in finding_results)
-            print(f"[rq4 {tag} {index}/{len(findings)}] bytecode={bytecode_status} reproduced={reproduced} finding={finding.name}")
+        print(f"[rq4] {tag}: findings={len(findings)}, workers={max(1, workers)}")
+        if workers <= 1:
+            for index, finding in enumerate(findings, start=1):
+                finding_results = analyze_finding(
+                    tag,
+                    interpreter,
+                    finding,
+                    decompilers,
+                    data_dir,
+                    harness,
+                    timeout,
+                )
+                results.extend(finding_results)
+                print_progress(tag, index, len(findings), finding, finding_results)
+        else:
+            with ThreadPoolExecutor(max_workers=workers) as executor:
+                futures = [
+                    executor.submit(
+                        analyze_finding,
+                        tag,
+                        interpreter,
+                        finding,
+                        decompilers,
+                        data_dir,
+                        harness,
+                        timeout,
+                    )
+                    for finding in findings
+                ]
+                for index, future in enumerate(as_completed(futures), start=1):
+                    finding_results = future.result()
+                    results.extend(finding_results)
+                    finding = Path(finding_results[0].finding) if finding_results else Path("<unknown>")
+                    print_progress(tag, index, len(findings), finding, finding_results)
     return results
 
 
+def analyze_finding(
+    tag: str,
+    interpreter: str,
+    finding: Path,
+    decompilers: dict[str, str | None],
+    data_dir: Path,
+    harness: Path,
+    timeout: int,
+) -> list[ReproductionResult]:
+    bytecode_status, bytecode_reason = run_harness(interpreter, harness, finding, timeout)
+    return reproduce_finding(
+        tag,
+        interpreter,
+        finding,
+        bytecode_status,
+        bytecode_reason,
+        decompilers,
+        data_dir,
+        harness,
+        timeout,
+    )
+
+
+def print_progress(tag: str, index: int, total: int, finding: Path, rows: Sequence[ReproductionResult]) -> None:
+    bytecode_status = rows[0].bytecode_status if rows else "unknown"
+    reproduced = any(item.reproduced for item in rows)
+    failures = sum(1 for item in rows if tool_failure(item)[0])
+    print(
+        f"[rq4 {tag} {index}/{total}] bytecode={bytecode_status} reproduced={reproduced} "
+        f"tool_failures={failures} finding={finding.name}",
+        flush=True,
+    )
+
+
 def find_findings(data_dir: Path, tag: str) -> list[Path]:
-    findings_dir = cpython_fuzz.version_fuzz_dir(data_dir / "rq3", tag) / "crashes"
-    if not findings_dir.exists():
-        findings_dir = data_dir / "rq3" / "fuzz" / tag / "crashes"
-    if not findings_dir.exists():
-        findings_dir = data_dir / "rq3" / "fuzz" / tag / "findings"
-    if not findings_dir.exists():
-        return []
-    return sorted(item for item in findings_dir.iterdir() if item.is_file())
+    """Return deduplicated RQ3 finding representatives for source reproduction."""
+    version_dir = cpython_fuzz.version_dir(data_dir / "rq3", tag)
+    candidate_dirs = [
+        version_dir / "unique_bug_pyc",
+        cpython_fuzz.version_fuzz_dir(data_dir / "rq3", tag) / "crashes",
+        data_dir / "rq3" / "fuzz" / tag / "crashes",
+        data_dir / "rq3" / "fuzz" / tag / "findings",
+    ]
+    for findings_dir in candidate_dirs:
+        if findings_dir.exists():
+            return sorted(item for item in findings_dir.iterdir() if item.is_file() and item.suffix == ".pyc")
+    return []
 
 
 def tools_for_tag(
@@ -345,33 +424,182 @@ def write_csv(path: Path, rows: Sequence[ReproductionResult]) -> None:
         writer.writerows(row.__dict__ for row in rows)
 
 
+def write_finding_report_csv(path: Path, rows: Sequence[ReproductionResult]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=FINDING_FIELDNAMES)
+        writer.writeheader()
+        writer.writerows(finding_report_rows(rows))
+
+
+def finding_report_rows(rows: Sequence[ReproductionResult]) -> list[dict[str, str]]:
+    by_finding: dict[str, list[ReproductionResult]] = {}
+    for row in rows:
+        by_finding.setdefault(row.finding, []).append(row)
+    report = []
+    for finding, items in sorted(by_finding.items()):
+        category = classify_finding(items)
+        report.append(
+            {
+                "python_tag": items[0].python_tag,
+                "finding": finding,
+                "category": category,
+                "reason": failure_reason(category, items),
+                "bytecode_status": items[0].bytecode_status,
+                "bytecode_reason": items[0].bytecode_reason,
+                "reproduced_by": ";".join(sorted({row.decompiler for row in items if row.reproduced})),
+                "decompiler_statuses": ";".join(
+                    f"{row.decompiler or 'none'}:{row.decompile_status}:{row.decompile_reason}" for row in items
+                ),
+                "source_statuses": ";".join(
+                    f"{row.decompiler or 'none'}:{row.source_status}:{row.source_reason}" for row in items
+                ),
+            }
+        )
+    return report
+
+
+def write_tool_failure_csv(path: Path, rows: Sequence[ReproductionResult]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=TOOL_FAILURE_FIELDNAMES)
+        writer.writeheader()
+        writer.writerows(tool_failure_rows(rows))
+
+
+def tool_failure_rows(rows: Sequence[ReproductionResult]) -> list[dict[str, str]]:
+    failures: list[dict[str, str]] = []
+    for row in rows:
+        stage, status, reason = tool_failure(row)
+        if not stage:
+            continue
+        failures.append(
+            {
+                "python_tag": row.python_tag,
+                "finding": row.finding,
+                "decompiler": row.decompiler or "none",
+                "stage": stage,
+                "status": status,
+                "reason": reason,
+                "bytecode_status": row.bytecode_status,
+                "source_path": row.source_path,
+                "compiled_pyc": row.compiled_pyc,
+            }
+        )
+    return failures
+
+
+def tool_failure(row: ReproductionResult) -> tuple[str, str, str]:
+    if row.decompile_status not in {"ok", "not_run"}:
+        return "decompile", row.decompile_status, row.decompile_reason
+    if row.decompile_status == "ok" and row.source_status not in {"ok", "crash", "timeout"} and not row.source_status.startswith("exit_"):
+        return "compile", row.source_status, row.source_reason
+    if row.decompile_status == "ok" and is_executed_source_status(row.source_status) and not row.reproduced:
+        return "rerun", row.source_status, row.source_reason or "behavior diverged from original bytecode"
+    return "", "", ""
+
+
+def failure_reason(category: str, rows: Sequence[ReproductionResult]) -> str:
+    if category == "source_reproduced":
+        tools = sorted({row.decompiler for row in rows if row.reproduced})
+        return "reproduced by " + ";".join(tools)
+    if category == "unavailable_interpreter":
+        return first_nonempty(row.bytecode_reason for row in rows) or "missing interpreter"
+    if category == "unconfirmed":
+        status = rows[0].bytecode_status if rows else "unknown"
+        reason = rows[0].bytecode_reason if rows else ""
+        return compact_reason(f"original bytecode status {status}: {reason}")
+    if category == "no_source":
+        return first_nonempty(row.decompile_reason for row in rows) or "no selected decompiler emitted source"
+    if category == "compile_failure":
+        return first_nonempty(row.source_reason for row in rows if row.decompile_status == "ok") or "recovered source did not compile"
+    if category == "behavior_divergence":
+        statuses = sorted({row.source_status for row in rows if row.decompile_status == "ok"})
+        return "source-derived bytecode behavior diverged: " + ";".join(statuses)
+    return "not reproduced by selected tools"
+
+
+def first_nonempty(values) -> str:
+    for value in values:
+        if value:
+            return compact_reason(str(value))
+    return ""
+
+
 def write_summary_csv(path: Path, rows: Sequence[ReproductionResult]) -> None:
     findings = {row.finding for row in rows}
     reproduced_findings = {row.finding for row in rows if row.reproduced}
-    tool_not_reproduced_findings = findings - reproduced_findings
+    finding_categories = classify_findings(rows)
+    tool_failures = tool_failure_rows(rows)
     summary = [
         {"metric": "findings", "value": str(len(findings))},
         {"metric": "rows", "value": str(len(rows))},
-        {"metric": "tool_reproduced_findings", "value": str(len(reproduced_findings))},
-        {"metric": "not_reproduced_by_selected_tools", "value": str(len(tool_not_reproduced_findings))},
+        {"metric": "source_reproduced_findings", "value": str(len(reproduced_findings))},
+        {"metric": "not_reproduced_by_selected_tools", "value": str(len(findings - reproduced_findings))},
         {"metric": "decompile_ok_rows", "value": str(sum(1 for row in rows if row.decompile_status == "ok"))},
-        {"metric": "source_compile_ok_rows", "value": str(sum(1 for row in rows if row.source_status in {"ok", "crash", "timeout"} or row.source_status.startswith("exit_")))},
+        {"metric": "source_compile_ok_rows", "value": str(sum(1 for row in rows if is_executed_source_status(row.source_status)))},
+        {"metric": "tool_failure_rows", "value": str(len(tool_failures))},
+        {"metric": "tool_timeout_rows", "value": str(sum(1 for row in tool_failures if row["status"] == "timeout"))},
     ]
+    for stage in sorted({row["stage"] for row in tool_failures}):
+        stage_rows = [row for row in tool_failures if row["stage"] == stage]
+        summary.append({"metric": f"tool_failure_stage:{stage}", "value": str(len(stage_rows))})
+        summary.append({"metric": f"tool_timeout_stage:{stage}", "value": str(sum(1 for row in stage_rows if row["status"] == "timeout"))})
+    for category in [
+        "source_reproduced",
+        "unconfirmed",
+        "unavailable_interpreter",
+        "no_source",
+        "compile_failure",
+        "behavior_divergence",
+    ]:
+        summary.append({"metric": f"category:{category}", "value": str(sum(1 for value in finding_categories.values() if value == category))})
     for tool in sorted({row.decompiler for row in rows if row.decompiler}):
         tool_rows = [row for row in rows if row.decompiler == tool]
+        tool_failure_subset = [row for row in tool_failures if row["decompiler"] == tool]
         summary.append({"metric": f"{tool}_rows", "value": str(len(tool_rows))})
         summary.append({"metric": f"{tool}_decompile_ok", "value": str(sum(1 for row in tool_rows if row.decompile_status == "ok"))})
         summary.append({"metric": f"{tool}_reproduced", "value": str(sum(1 for row in tool_rows if row.reproduced))})
+        summary.append({"metric": f"{tool}_failure_rows", "value": str(len(tool_failure_subset))})
+        summary.append({"metric": f"{tool}_timeout_rows", "value": str(sum(1 for row in tool_failure_subset if row["status"] == "timeout"))})
     for tag in sorted({row.python_tag for row in rows}):
         tag_findings = {row.finding for row in rows if row.python_tag == tag}
         tag_reproduced = {row.finding for row in rows if row.python_tag == tag and row.reproduced}
         summary.append({"metric": f"{tag}_findings", "value": str(len(tag_findings))})
         summary.append({"metric": f"{tag}_reproduced", "value": str(len(tag_reproduced))})
+        for category in sorted(set(finding_categories.values())):
+            count = sum(1 for finding in tag_findings if finding_categories.get(finding) == category)
+            summary.append({"metric": f"{tag}_{category}", "value": str(count)})
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=SUMMARY_FIELDNAMES)
         writer.writeheader()
         writer.writerows(summary)
+
+
+def classify_findings(rows: Sequence[ReproductionResult]) -> dict[str, str]:
+    by_finding: dict[str, list[ReproductionResult]] = {}
+    for row in rows:
+        by_finding.setdefault(row.finding, []).append(row)
+    return {finding: classify_finding(items) for finding, items in by_finding.items()}
+
+
+def classify_finding(rows: Sequence[ReproductionResult]) -> str:
+    if any(row.reproduced for row in rows):
+        return "source_reproduced"
+    if all(row.bytecode_status == "unavailable_interpreter" for row in rows):
+        return "unavailable_interpreter"
+    if all(not behavior_class(row.bytecode_status) in {"crash", "timeout", "exception"} for row in rows):
+        return "unconfirmed"
+    if any(row.decompile_status == "ok" and row.source_status == "ok" for row in rows):
+        return "behavior_divergence"
+    if any(row.decompile_status == "ok" for row in rows):
+        return "compile_failure"
+    return "no_source"
+
+
+def is_executed_source_status(status: str) -> bool:
+    return status in {"ok", "crash", "timeout"} or status.startswith("exit_")
 
 
 def compact_reason(text: str, limit: int = 240) -> str:

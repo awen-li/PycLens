@@ -655,10 +655,15 @@ def reproduce_source(args: argparse.Namespace) -> int:
         tags,
         data_dir=args.data_dir,
         timeout=args.timeout,
+        workers=args.workers,
     )
     csv_out = args.data_dir / "rq4" / "source_reproduction.csv"
+    finding_csv = args.data_dir / "rq4" / "source_reproduction_findings.csv"
+    failure_csv = args.data_dir / "rq4" / "source_reproduction_tool_failures.csv"
     summary_csv = args.data_dir / "rq4" / "rq4_summary.csv"
     source_repro.write_csv(csv_out, rows)
+    source_repro.write_finding_report_csv(finding_csv, rows)
+    source_repro.write_tool_failure_csv(failure_csv, rows)
     source_repro.write_summary_csv(summary_csv, rows)
     findings = {row.finding for row in rows}
     reproduced = {row.finding for row in rows if row.reproduced}
@@ -670,6 +675,8 @@ def reproduce_source(args: argparse.Namespace) -> int:
         )
     )
     print(f"wrote RQ4 source reproduction report to {csv_out}")
+    print(f"wrote RQ4 finding report to {finding_csv}")
+    print(f"wrote RQ4 tool-failure report to {failure_csv}")
     print(f"wrote RQ4 summary to {summary_csv}")
     return 0
 
@@ -687,6 +694,8 @@ def analyze_crashes(args: argparse.Namespace) -> int:
     summary_csv = args.data_dir / "rq3" / "crash_summary.csv"
     bug_type_csv = args.data_dir / "rq3" / "bug_type_summary.csv"
     bug_context_csv = args.data_dir / "rq3" / "bug_context_summary.csv"
+    bug_type_by_version_csv = args.data_dir / "rq3" / "bug_type_by_version.csv"
+    bug_context_by_version_csv = args.data_dir / "rq3" / "bug_context_by_version.csv"
     report_md = args.data_dir / "rq3" / "unique_bug_report.md"
     crash_analysis.write_finding_csv(finding_csv, findings)
     crash_analysis.write_unique_csv(unique_csv, unique_bugs)
@@ -694,6 +703,8 @@ def analyze_crashes(args: argparse.Namespace) -> int:
     crash_analysis.write_summary_csv(summary_csv, findings, unique_bugs)
     crash_analysis.write_bug_type_summary_csv(bug_type_csv, unique_bugs)
     crash_analysis.write_bug_context_summary_csv(bug_context_csv, unique_bugs)
+    crash_analysis.write_bug_type_by_version_csv(bug_type_by_version_csv, unique_bugs)
+    crash_analysis.write_bug_context_by_version_csv(bug_context_by_version_csv, unique_bugs)
     crash_analysis.write_unique_report(report_md, findings, unique_bugs)
     benchmark_reports = crash_analysis.write_benchmark_unique_reports(args.data_dir / "rq3", findings, unique_bugs)
     print(
@@ -710,6 +721,8 @@ def analyze_crashes(args: argparse.Namespace) -> int:
     print(f"wrote RQ3 crash summary to {summary_csv}")
     print(f"wrote RQ3 bug type summary to {bug_type_csv}")
     print(f"wrote RQ3 bug context summary to {bug_context_csv}")
+    print(f"wrote RQ3 bug type by-version summary to {bug_type_by_version_csv}")
+    print(f"wrote RQ3 bug context by-version summary to {bug_context_by_version_csv}")
     print(f"wrote RQ3 unique bug report to {report_md}")
     print(f"wrote benchmark-level unique bug reports: {len(benchmark_reports)}")
     for path in benchmark_reports:
@@ -951,7 +964,8 @@ def add_reproduce_source_parser(subparsers: argparse._SubParsersAction) -> None:
     )
     parser.add_argument("versions", nargs="*", help="Optional CPython versions to analyze, such as 3.10 or cpython-310")
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for study data")
-    parser.add_argument("--timeout", type=int, default=30, help="Per-finding timeout in seconds")
+    parser.add_argument("--timeout", type=int, default=600, help="Per-finding timeout in seconds")
+    parser.add_argument("--workers", type=int, default=1, help="Number of findings to analyze concurrently")
     parser.set_defaults(func=reproduce_source)
 
 

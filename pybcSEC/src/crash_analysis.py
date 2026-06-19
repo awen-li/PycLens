@@ -51,6 +51,8 @@ UNIQUE_FIELDNAMES = [
 
 BUG_TYPE_FIELDNAMES = ["bug_type", "unique_bugs", "findings"]
 BUG_CONTEXT_FIELDNAMES = ["bug_context", "unique_bugs", "findings"]
+VERSION_BUG_TYPE_FIELDNAMES = ["python_tag", "bug_type", "unique_bugs", "findings"]
+VERSION_BUG_CONTEXT_FIELDNAMES = ["python_tag", "bug_context", "unique_bugs", "findings"]
 VALGRIND_FIELDNAMES = [
     "unique_bug_id",
     "python_tag",
@@ -1149,6 +1151,33 @@ def valgrind_error_summary(output: str) -> str:
         if any(token in stripped for token in ("Invalid read", "Invalid write", "Invalid free", "Use of uninitialised", "Jump to the invalid")):
             return stripped
     return ""
+
+
+def write_bug_type_by_version_csv(path: Path, rows: Sequence[UniqueBug]) -> None:
+    write_grouped_bug_by_version_summary(path, rows, "bug_type", VERSION_BUG_TYPE_FIELDNAMES)
+
+
+def write_bug_context_by_version_csv(path: Path, rows: Sequence[UniqueBug]) -> None:
+    write_grouped_bug_by_version_summary(path, rows, "bug_context", VERSION_BUG_CONTEXT_FIELDNAMES)
+
+
+def write_grouped_bug_by_version_summary(path: Path, rows: Sequence[UniqueBug], field: str, fieldnames: Sequence[str]) -> None:
+    grouped: dict[tuple[str, str], list[int]] = {}
+    for row in rows:
+        key = (row.python_tag, getattr(row, field))
+        if key not in grouped:
+            grouped[key] = [0, 0]
+        grouped[key][0] += 1
+        grouped[key][1] += row.findings
+    out_rows = [
+        {"python_tag": tag, field: key, "unique_bugs": str(values[0]), "findings": str(values[1])}
+        for (tag, key), values in sorted(grouped.items(), key=lambda item: (item[0][0], -item[1][0], item[0][1]))
+    ]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(out_rows)
 
 
 def write_valgrind_csv(path: Path, rows: Sequence[ValgrindReplay]) -> None:
