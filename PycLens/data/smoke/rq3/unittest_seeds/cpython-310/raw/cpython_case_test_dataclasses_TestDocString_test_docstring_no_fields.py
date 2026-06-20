@@ -1,0 +1,12 @@
+# pybcsec-seed-target: __pybcsec_seed__
+# source: data/smoke/rq3/cpython_sources/cpython-3.10.12/Lib/test/test_dataclasses.py
+# case: TestDocString_test_docstring_no_fields
+
+def __pybcsec_seed__():
+    self = __pybcsec_self__ = object()
+    __pybcsec_self__ = self
+
+    @dataclass
+    class C:
+        pass
+    self.assertDocStrEqual(C.__doc__, 'C()')

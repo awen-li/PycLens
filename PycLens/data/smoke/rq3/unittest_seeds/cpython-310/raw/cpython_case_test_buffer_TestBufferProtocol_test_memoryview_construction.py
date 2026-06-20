@@ -1,0 +1,62 @@
+# pybcsec-seed-target: __pybcsec_seed__
+# source: data/smoke/rq3/cpython_sources/cpython-3.10.12/Lib/test/test_buffer.py
+# case: TestBufferProtocol_test_memoryview_construction
+
+def __pybcsec_seed__():
+    self = __pybcsec_self__ = object()
+    __pybcsec_self__ = self
+    items_shape = [(9, []), ([1, 2, 3], [3]), (list(range(2 * 3 * 5)), [2, 3, 5])]
+    for (items, shape) in items_shape:
+        ex = ndarray(items, shape=shape)
+        m = memoryview(ex)
+        self.assertTrue(m.c_contiguous)
+        self.assertTrue(m.contiguous)
+        ndim = len(shape)
+        strides = strides_from_shape(ndim, shape, 1, 'C')
+        lst = carray(items, shape)
+        self.verify(m, obj=ex, itemsize=1, fmt='B', readonly=True, ndim=ndim, shape=shape, strides=strides, lst=lst)
+        m2 = memoryview(m)
+        self.verify(m2, obj=ex, itemsize=1, fmt='B', readonly=True, ndim=ndim, shape=shape, strides=strides, lst=lst)
+        nd = ndarray(ex, getbuf=PyBUF_CONTIG_RO | PyBUF_FORMAT)
+        self.assertEqual(nd.strides, ())
+        m = nd.memoryview_from_buffer()
+        self.verify(m, obj=None, itemsize=1, fmt='B', readonly=True, ndim=ndim, shape=shape, strides=strides, lst=lst)
+        nd = ndarray(ex, getbuf=PyBUF_SIMPLE)
+        self.assertEqual(nd.format, '')
+        self.assertEqual(nd.shape, ())
+        self.assertEqual(nd.strides, ())
+        m = nd.memoryview_from_buffer()
+        lst = [items] if ndim == 0 else items
+        self.verify(m, obj=None, itemsize=1, fmt='B', readonly=True, ndim=1, shape=[ex.nbytes], strides=(1,), lst=lst)
+    for (items, shape) in items_shape:
+        ex = ndarray(items, shape=shape, flags=ND_FORTRAN)
+        m = memoryview(ex)
+        self.assertTrue(m.f_contiguous)
+        self.assertTrue(m.contiguous)
+        ndim = len(shape)
+        strides = strides_from_shape(ndim, shape, 1, 'F')
+        lst = farray(items, shape)
+        self.verify(m, obj=ex, itemsize=1, fmt='B', readonly=True, ndim=ndim, shape=shape, strides=strides, lst=lst)
+        m2 = memoryview(m)
+        self.verify(m2, obj=ex, itemsize=1, fmt='B', readonly=True, ndim=ndim, shape=shape, strides=strides, lst=lst)
+    for (items, shape) in items_shape[1:]:
+        ex = ndarray(items, shape=shape, flags=ND_PIL)
+        m = memoryview(ex)
+        ndim = len(shape)
+        lst = carray(items, shape)
+        self.verify(m, obj=ex, itemsize=1, fmt='B', readonly=True, ndim=ndim, shape=shape, strides=ex.strides, lst=lst)
+        m2 = memoryview(m)
+        self.verify(m2, obj=ex, itemsize=1, fmt='B', readonly=True, ndim=ndim, shape=shape, strides=ex.strides, lst=lst)
+    self.assertRaises(TypeError, memoryview, b'9', 'x')
+    self.assertRaises(TypeError, memoryview, {})
+    ex = ndarray([1, 2, 3], shape=[3])
+    nd = ndarray(ex, getbuf=PyBUF_SIMPLE)
+    self.assertRaises(BufferError, memoryview, nd)
+    nd = ndarray(ex, getbuf=PyBUF_CONTIG_RO | PyBUF_FORMAT)
+    self.assertRaises(BufferError, memoryview, nd)
+    nd = ndarray([1] * 128, shape=[1] * 128, format='L')
+    self.assertRaises(ValueError, memoryview, nd)
+    self.assertRaises(ValueError, nd.memoryview_from_buffer)
+    self.assertRaises(ValueError, get_contiguous, nd, PyBUF_READ, 'C')
+    self.assertRaises(ValueError, get_contiguous, nd, PyBUF_READ, 'F')
+    self.assertRaises(ValueError, get_contiguous, nd[::-1], PyBUF_READ, 'C')

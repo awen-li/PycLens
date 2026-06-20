@@ -1,0 +1,9 @@
+# pybcsec-seed-target: __pybcsec_seed__
+# source: data/smoke/rq3/cpython_sources/cpython-3.10.12/Lib/test/test_codeccallbacks.py
+# case: CodecCallbackTest_test_badregistercall
+
+def __pybcsec_seed__():
+    self = __pybcsec_self__ = object()
+    __pybcsec_self__ = self
+    self.assertRaises(TypeError, codecs.register_error, 42)
+    self.assertRaises(TypeError, codecs.register_error, 'test.dummy', 42)

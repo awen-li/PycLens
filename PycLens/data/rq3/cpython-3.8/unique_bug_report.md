@@ -1,0 +1,5548 @@
+# RQ3 Unique Bug Report: cpython-3.8
+
+## Summary
+
+- Crash findings: 729
+- Unique bugs: 112
+- Representative pyc artifacts: 112
+
+## Unique Bugs
+
+### 1. cpython-38-b7dde4e5920e
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:??|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `1a146d68e8`
+- PC: `0x0`
+- Fault address: `0x0`
+- Instruction: `[NOT_MMAPED]`
+- Findings: 151
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-b7dde4e5920e.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.0.STACK.1a146d68e8.CODE.1.ADDR.0.INSTR.[NOT_MMAPED].pyc`
+- Normalized function stack:
+  - `??`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  0x0000000000000000 in ?? ()`
+  - `#1  0x00005fcf0f24d0da in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3202`
+  - `#2  0x00005fcf0f245196 in PyEval_EvalFrameEx (f=0x5fcf4fc60d40, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x00005fcf0f09d1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5fcf4fbf21d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#4  _PyFunction_Vectorcall (func=0x5fcf4fc1f170, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#5  0x00005fcf0f257d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffd4447f190, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x00005fcf0f246494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x00005fcf0f25a0a2 in PyEval_EvalFrameEx (f=0x5fcf4fb99e60, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x5fcf4fc16a80, globals=0x5fcf4fb39750, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x00005fcf0f245007 in PyEval_EvalCodeEx (_co=0x5fcf4fc16a80, globals=0x5fcf4fb39750, locals=0x5fcf4fb39750, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x5fcf4fc16a80, globals=0x5fcf4fb39750, locals=0x5fcf4fb39750) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x00005fcf0f2f382d in run_eval_code_obj (co=0x5fcf4fc16a80, globals=0x5fcf4fb39750, locals=0x5fcf4fb39750) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x5fcf4fbf5198, filename=0x5fcf4fbf0b30, globals=0x5fcf4fb39750, locals=0x5fcf4fb39750, flags=0x7ffd4447f5a0, arena=0x5fcf4fb98ca0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x5fcf4fbe4630, filename=0x5fcf4fbf0b30, start=257, globals=0x5fcf4fb39750, locals=0x5fcf4fb39750, closeit=1, flags=0x7ffd4447f5a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x5fcf4fbe4630, filename=0x5fcf4fbf0b30, closeit=1, flags=0x7ffd4447f5a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x5fcf4fbf0af0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.0.STACK.1a146d68e8.CODE.1.ADDR.0.INSTR.[NOT_MMAPED].pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.555c4eff31e8.STACK.1a146d68e8.CODE.1.ADDR.555c00000000.INSTR.mov____(%rbx),%r12.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.556df35feb8d.STACK.1a146d68e8.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.55aeef539c0e.STACK.1a146d68e8.CODE.128.ADDR.0.INSTR.mov____(%r12),%rbx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.55e40213a0be.STACK.1a146d68e8.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%rax.pyc`
+  - ... 146 more
+
+### 2. cpython-38-066caaa07121
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:??|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `1b8dd3abfa`
+- PC: `0x0`
+- Fault address: `0x0`
+- Instruction: `[NOT_MMAPED]`
+- Findings: 112
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-066caaa07121.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.0.STACK.1b8dd3abfa.CODE.1.ADDR.0.INSTR.[NOT_MMAPED].pyc`
+- Normalized function stack:
+  - `??`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  0x0000000000000000 in ?? ()`
+  - `#1  0x000064ea4f9030da in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3202`
+  - `#2  0x000064ea4f9100a2 in PyEval_EvalFrameEx (f=0x64ea8101a950, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x64ea81068c70, globals=0x64ea80fc0180, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x000064ea4f8fb007 in PyEval_EvalCodeEx (_co=0x64ea81068c70, globals=0x64ea80fc0180, locals=0x64ea80fc0180, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x64ea81068c70, globals=0x64ea80fc0180, locals=0x64ea80fc0180) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x000064ea4fb9a614 in builtin_exec_impl (source=0x64ea81068c70, globals=0x64ea80fc0180, locals=0x64ea80fc0180, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x000064ea4f7d48c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x000064ea4f90dd6f in call_function (tstate=<optimized out>, pp_stack=0x7ffd59eb61d0, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x000064ea4f8fc494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x000064ea4f9100a2 in PyEval_EvalFrameEx (f=0x64ea80f67e60, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x64ea80fe49e0, globals=0x64ea80f07750, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x000064ea4f8fb007 in PyEval_EvalCodeEx (_co=0x64ea80fe49e0, globals=0x64ea80f07750, locals=0x64ea80f07750, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x64ea80fe49e0, globals=0x64ea80f07750, locals=0x64ea80f07750) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x000064ea4f9a982d in run_eval_code_obj (co=0x64ea80fe49e0, globals=0x64ea80f07750, locals=0x64ea80f07750) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.0.STACK.1b8dd3abfa.CODE.1.ADDR.0.INSTR.[NOT_MMAPED].pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5558e69561e8.STACK.1b8dd3abfa.CODE.128.ADDR.0.INSTR.mov____(%rbx),%r12.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.55699d4fadac.STACK.1b8dd3abfa.CODE.128.ADDR.0.INSTR.mov____0x8(%rax),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.556ac074f13f.STACK.1b8dd3abfa.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.55a2c9b2531f.STACK.1b8dd3abfa.CODE.128.ADDR.0.INSTR.mov____(%r15),%r12.pyc`
+  - ... 107 more
+
+### 3. cpython-38-090d20812f42
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyTuple_Size|PyFunction_NewWithQualName|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode`
+- Honggfuzz stack hash: `1acbac7300`
+- PC: `0x556c6134e6b9`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%rax)`
+- Findings: 45
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-090d20812f42.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.556c6134e6b9.STACK.1acbac7300.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+- Normalized function stack:
+  - `PyTuple_Size`
+  - `PyFunction_NewWithQualName`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyTuple_Size (op=0x5f5f646565735f63) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/tupleobject.c:141`
+  - `#1  0x0000637bcda096e7 in PyFunction_NewWithQualName (code=<optimized out>, globals=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/funcobject.c:57`
+  - `#2  0x0000637bcd7d3533 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3575`
+  - `#3  0x0000637bcd7e70a2 in PyEval_EvalFrameEx (f=0x637c126d2b40, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#4  _PyEval_EvalCodeWithName (_co=0x637c1269f250, globals=0x637c126782a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#5  0x0000637bcd7d2007 in PyEval_EvalCodeEx (_co=0x637c1269f250, globals=0x637c126782a0, locals=0x637c126782a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#6  PyEval_EvalCode (co=0x637c1269f250, globals=0x637c126782a0, locals=0x637c126782a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#7  0x0000637bcda71614 in builtin_exec_impl (source=0x637c1269f250, globals=0x637c126782a0, locals=0x637c126782a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#8  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#9  0x0000637bcd6ab8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#10 0x0000637bcd7e4d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffe0a05b8e0, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#11 0x0000637bcd7d3494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#12 0x0000637bcd7e70a2 in PyEval_EvalFrameEx (f=0x637c1261ff30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#13 _PyEval_EvalCodeWithName (_co=0x637c1269cd20, globals=0x637c125bfaa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#14 0x0000637bcd7d2007 in PyEval_EvalCodeEx (_co=0x637c1269cd20, globals=0x637c125bfaa0, locals=0x637c125bfaa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#15 PyEval_EvalCode (co=0x637c1269cd20, globals=0x637c125bfaa0, locals=0x637c125bfaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.556c6134e6b9.STACK.1acbac7300.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.55bf581486a0.STACK.1acbac7300.CODE.128.ADDR.0.INSTR.addq___$0x1,(%r15).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.55e6533a66a0.STACK.1acbac7300.CODE.128.ADDR.0.INSTR.addq___$0x1,(%r15).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.562e18b7d6b9.STACK.1acbac7300.CODE.1.ADDR.5.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.56419dd046b9.STACK.1acbac7300.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+  - ... 40 more
+
+### 4. cpython-38-9556344e34d4
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `196943e7c9`
+- PC: `0x557dc8a81e6f`
+- Fault address: `0x0`
+- Instruction: `mov____(%r12),%rbx`
+- Findings: 43
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-9556344e34d4.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.557dc8a81e6f.STACK.196943e7c9.CODE.1.ADDR.0.INSTR.mov____(%r12),%rbx.pyc`
+- Normalized function stack:
+  - `call_function`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+  - `pymain_run_python`
+- Reproduced stack frames:
+  - `#0  call_function (tstate=<optimized out>, pp_stack=0x7ffde55a2520, oparg=47, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4971`
+  - `#1  0x00005d236f225494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#2  0x00005d236f224196 in PyEval_EvalFrameEx (f=0x5d238ea98d20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x00005d236f07c1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5d238ea2a240) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#4  _PyFunction_Vectorcall (func=0x5d238eab2bc0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#5  0x00005d236f236d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffde55a27e0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x00005d236f225494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x00005d236f2390a2 in PyEval_EvalFrameEx (f=0x5d238e9d1f20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x5d238ea4ed10, globals=0x5d238e971840, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x00005d236f224007 in PyEval_EvalCodeEx (_co=0x5d238ea4ed10, globals=0x5d238e971840, locals=0x5d238e971840, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x5d238ea4ed10, globals=0x5d238e971840, locals=0x5d238e971840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x00005d236f2d282d in run_eval_code_obj (co=0x5d238ea4ed10, globals=0x5d238e971840, locals=0x5d238e971840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x5d238ea2d208, filename=0x5d238ea28ba0, globals=0x5d238e971840, locals=0x5d238e971840, flags=0x7ffde55a2bf0, arena=0x5d238e9d21a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x5d238ea1c4b0, filename=0x5d238ea28ba0, start=257, globals=0x5d238e971840, locals=0x5d238e971840, closeit=1, flags=0x7ffde55a2bf0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x5d238ea1c4b0, filename=0x5d238ea28ba0, closeit=1, flags=0x7ffde55a2bf0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x5d238ea28b60 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.557dc8a81e6f.STACK.196943e7c9.CODE.1.ADDR.0.INSTR.mov____(%r12),%rbx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.55df41509ba1.STACK.196943e7c9.CODE.1.ADDR.59.INSTR.mov____0x8(%r13),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.55fca8911ba1.STACK.196943e7c9.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.56612519a2d0.STACK.196943e7c9.CODE.2.ADDR.56612519a2d0.INSTR.and____%dh,0x566125(%rcx,%rbx,1).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.56ba854baba1.STACK.196943e7c9.CODE.1.ADDR.e.INSTR.mov____0x8(%r13),%rax.pyc`
+  - ... 38 more
+
+### 5. cpython-38-20708f610337
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:visit_decref|func_traverse|subtract_refs|collect|collect_with_callback|PyGC_Collect|_PyGC_CollectIfEnabled|Py_FinalizeEx|Py_RunMain|pymain_main|Py_BytesMain|main`
+- Honggfuzz stack hash: `1a167cb26a`
+- PC: `0x558ec1050c0e`
+- Fault address: `0xffffffffffffffff`
+- Instruction: `mov____(%r12),%rbx`
+- Findings: 30
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-20708f610337.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.558ec1050c0e.STACK.1a167cb26a.CODE.1.ADDR.ffffffffffffffff.INSTR.mov____(%r12),%rbx.pyc`
+- Normalized function stack:
+  - `visit_decref`
+  - `func_traverse`
+  - `subtract_refs`
+  - `collect`
+  - `collect_with_callback`
+  - `PyGC_Collect`
+  - `_PyGC_CollectIfEnabled`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  0x000060b247c9759f in visit_decref (op=0x60b27dd82f50, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:380`
+  - `#1  0x000060b247dce88f in func_traverse (f=0x60b27ddf2fd0, visit=<optimized out>, arg=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/funcobject.c:614`
+  - `#2  0x000060b247c938d3 in subtract_refs (containers=0x60b248969668 <_PyRuntime+416>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:406`
+  - `#3  collect (state=<optimized out>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:1054`
+  - `#4  0x000060b247c93033 in collect_with_callback (state=<optimized out>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:1240`
+  - `#5  0x000060b247c9332d in PyGC_Collect () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:1844`
+  - `#6  _PyGC_CollectIfEnabled () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:1855`
+  - `#7  0x000060b247c3a777 in Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pylifecycle.c:1219`
+  - `#8  0x000060b2479cb498 in Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/main.c:695`
+  - `#9  0x000060b2479cc5f9 in pymain_main (args=0x7ffed7ae35e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/main.c:723`
+  - `#10 Py_BytesMain (argc=4, argv=0x7ffed7ae3768) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/main.c:747`
+  - `#11 0x000060b2479ca653 in main (argc=4, argv=0x7ffed7ae3768) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Programs/python.c:16`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.558ec1050c0e.STACK.1a167cb26a.CODE.1.ADDR.ffffffffffffffff.INSTR.mov____(%r12),%rbx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.55a31de8ddbb.STACK.1a167cb26a.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.561b94007666.STACK.1a167cb26a.CODE.1.ADDR.3.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57d965b9fc0e.STACK.1a167cb26a.CODE.128.ADDR.0.INSTR.mov____(%r12),%rbx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5851a30361e8.STACK.1a167cb26a.CODE.128.ADDR.0.INSTR.mov____(%rbx),%r12.pyc`
+  - ... 25 more
+
+### 6. cpython-38-44ba254511c5
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyDict_LoadGlobal|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `18ea165ef6`
+- PC: `0x5815b3586074`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r15),%rax`
+- Findings: 24
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-44ba254511c5.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5815b3586074.STACK.18ea165ef6.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+- Reproduced stack frames: `not available; rerun did not produce a native backtrace`
+- Manual gdb command: `PYTHONHOME=data/rq3/cpython-3.8/source/cpython-3.8.20 PYTHONPATH=data/rq3/cpython-3.8/source/cpython-3.8.20/Lib PYTHONNOUSERSITE=1 gdb -q --args data/rq3/cpython-3.8/instrumented/python -S data/rq3/harness.py data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.56ec9949b074.STACK.18ea165ef6.CODE.1.ADDR.15.INSTR.mov____0x8(%r15),%rax.pyc`
+- Rerun diagnostic excerpt:
+  - `grouped with representative rerun`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.56ec9949b074.STACK.18ea165ef6.CODE.1.ADDR.15.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5815b3586074.STACK.18ea165ef6.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.58afb6e6b074.STACK.18ea165ef6.CODE.1.ADDR.9.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.58db21b4c074.STACK.18ea165ef6.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5971ac9d5074.STACK.18ea165ef6.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - ... 19 more
+
+### 7. cpython-38-893af7e18376
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_RichCompare|cmp_outcome|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode`
+- Honggfuzz stack hash: `1a89c27595`
+- PC: `0x5561383aadaa`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r12),%rsi`
+- Findings: 18
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-893af7e18376.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5561383aadaa.STACK.1a89c27595.CODE.128.ADDR.0.INSTR.mov____0x8(%r12),%rsi.pyc`
+- Normalized function stack:
+  - `PyObject_RichCompare`
+  - `cmp_outcome`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyObject_RichCompare (v=0x184026414641764, w=<optimized out>, op=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:774`
+  - `#1  0x00005a01d9c04e97 in cmp_outcome (tstate=<optimized out>, op=2, v=<optimized out>, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:5110`
+  - `#2  0x00005a01d9bfbed0 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2977`
+  - `#3  0x00005a01d9c080a2 in PyEval_EvalFrameEx (f=0x5a0204421be0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#4  _PyEval_EvalCodeWithName (_co=0x5a02043ee610, globals=0x5a02043c72a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#5  0x00005a01d9bf3007 in PyEval_EvalCodeEx (_co=0x5a02043ee610, globals=0x5a02043c72a0, locals=0x5a02043c72a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#6  PyEval_EvalCode (co=0x5a02043ee610, globals=0x5a02043c72a0, locals=0x5a02043c72a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#7  0x00005a01d9e92614 in builtin_exec_impl (source=0x5a02043ee610, globals=0x5a02043c72a0, locals=0x5a02043c72a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#8  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#9  0x00005a01d9acc8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#10 0x00005a01d9c05d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffcdb7fe500, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#11 0x00005a01d9bf4494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#12 0x00005a01d9c080a2 in PyEval_EvalFrameEx (f=0x5a020436ef30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#13 _PyEval_EvalCodeWithName (_co=0x5a02043ebd70, globals=0x5a020430eaa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#14 0x00005a01d9bf3007 in PyEval_EvalCodeEx (_co=0x5a02043ebd70, globals=0x5a020430eaa0, locals=0x5a020430eaa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#15 PyEval_EvalCode (co=0x5a02043ebd70, globals=0x5a020430eaa0, locals=0x5a020430eaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5561383aadaa.STACK.1a89c27595.CODE.128.ADDR.0.INSTR.mov____0x8(%r12),%rsi.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5744909fbdaa.STACK.1a89c27595.CODE.128.ADDR.0.INSTR.mov____0x8(%r12),%rsi.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57aa088ffdaa.STACK.1a89c27595.CODE.128.ADDR.0.INSTR.mov____0x8(%r12),%rsi.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57ba813d4daa.STACK.1a89c27595.CODE.128.ADDR.0.INSTR.mov____0x8(%r12),%rsi.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57d3a10b5daa.STACK.1a89c27595.CODE.128.ADDR.0.INSTR.mov____0x8(%r12),%rsi.pyc`
+  - ... 13 more
+
+### 8. cpython-38-a6ca3295e09c
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_Py_XDECREF|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `18adf8646f`
+- PC: `0x5e744ed6d978`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 15
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-a6ca3295e09c.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5e744ed6d978.STACK.18adf8646f.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `_Py_XDECREF`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  _Py_XDECREF (op=0x50) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:541`
+  - `#1  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1357`
+  - `#2  0x000062bc5bfa3196 in PyEval_EvalFrameEx (f=0x62bc9a9f93c0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x000062bc5bdfb1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x62bc9a9cf2a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#4  _PyFunction_Vectorcall (func=0x62bc9a9fc460, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#5  0x000062bc5bfb5d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffe4f7dcb70, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x000062bc5bfa4494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x000062bc5bfb80a2 in PyEval_EvalFrameEx (f=0x62bc9a976f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x62bc9a9f3d70, globals=0x62bc9a916aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x000062bc5bfa3007 in PyEval_EvalCodeEx (_co=0x62bc9a9f3d70, globals=0x62bc9a916aa0, locals=0x62bc9a916aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x62bc9a9f3d70, globals=0x62bc9a916aa0, locals=0x62bc9a916aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x000062bc5c05182d in run_eval_code_obj (co=0x62bc9a9f3d70, globals=0x62bc9a916aa0, locals=0x62bc9a916aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x62bc9a9d2268, filename=0x62bc9a9cdc00, globals=0x62bc9a916aa0, locals=0x62bc9a916aa0, flags=0x7ffe4f7dcf80, arena=0x62bc9a9771b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x62bc9a9c1700, filename=0x62bc9a9cdc00, start=257, globals=0x62bc9a916aa0, locals=0x62bc9a916aa0, closeit=1, flags=0x7ffe4f7dcf80) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x62bc9a9c1700, filename=0x62bc9a9cdc00, closeit=1, flags=0x7ffe4f7dcf80) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x62bc9a9cdbc0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5e744ed6d978.STACK.18adf8646f.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.58b9ff2946b9.STACK.192ae334bd.CODE.1.ADDR.1.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5af0b30e16b9.STACK.192ae334bd.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5be0b3e3c6a0.STACK.192ae334bd.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r15).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d208b75c6a0.STACK.192ae334bd.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r15).pyc`
+  - ... 10 more
+
+### 9. cpython-38-53f6a7b34475
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error|Py_FatalError|PyFrame_BlockPop|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName`
+- Honggfuzz stack hash: `186c2ca620`
+- PC: `0x7dc7d474f9fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 14
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-53f6a7b34475.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7dc7d474f9fc.STACK.186c2ca620.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error`
+  - `Py_FatalError`
+  - `PyFrame_BlockPop`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+- Reproduced stack frames:
+  - `#0  0x000079bbbf62e9fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x000079bbbf5da476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x000079bbbf5c07f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x0000639c86c38e09 in fatal_error (prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pylifecycle.c:2183`
+  - `#4  0x0000639c86c341b3 in Py_FatalError (msg=0x137b6d <error: Cannot access memory at address 0x137b6d>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pylifecycle.c:2193`
+  - `#5  0x0000639c86a0c7af in PyFrame_BlockPop (f=0x79ba3d283020) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/frameobject.c:767`
+  - `#6  0x0000639c86b9a02d in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3401`
+  - `#7  0x0000639c86ba80a2 in PyEval_EvalFrameEx (f=0x79ba3d283020, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x639ca291f2c0, globals=0x639ca28f8290, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x0000639c86b93007 in PyEval_EvalCodeEx (_co=0x639ca291f2c0, globals=0x639ca28f8290, locals=0x639ca28f8290, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x639ca291f2c0, globals=0x639ca28f8290, locals=0x639ca28f8290) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x0000639c86e32614 in builtin_exec_impl (source=0x639ca291f2c0, globals=0x639ca28f8290, locals=0x639ca28f8290, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#12 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#13 0x0000639c86a6c8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#14 0x0000639c86ba5d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffc59794210, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#15 0x0000639c86b94494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7dc7d474f9fc.STACK.186c2ca620.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7218d07c79fc.STACK.1aeac463e0.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.759cc91fb9fc.STACK.1aeac463e0.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7b971e4499fc.STACK.1aeac463e0.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7e72ef3dd9fc.STACK.1aeac463e0.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - ... 9 more
+
+### 10. cpython-38-938f003d8af4
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_IsTrue|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `18e9c0e3dc`
+- PC: `0x5a65f5853978`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 14
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-938f003d8af4.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a65f5853978.STACK.18e9c0e3dc.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_IsTrue`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  PyObject_IsTrue (v=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:1457`
+  - `#1  0x00005f32bee7b20e in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3102`
+  - `#2  0x00005f32bee72196 in PyEval_EvalFrameEx (f=0x5f33074157c0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x00005f32becca1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5f33073dc2a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#4  _PyFunction_Vectorcall (func=0x5f3307409460, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#5  0x00005f32bee84d6f in call_function (tstate=<optimized out>, pp_stack=0x7fff03befdd0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x00005f32bee73494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x00005f32bee870a2 in PyEval_EvalFrameEx (f=0x5f3307383f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x5f3307400d70, globals=0x5f3307323aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x00005f32bee72007 in PyEval_EvalCodeEx (_co=0x5f3307400d70, globals=0x5f3307323aa0, locals=0x5f3307323aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x5f3307400d70, globals=0x5f3307323aa0, locals=0x5f3307323aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x00005f32bef2082d in run_eval_code_obj (co=0x5f3307400d70, globals=0x5f3307323aa0, locals=0x5f3307323aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x5f33073df268, filename=0x5f33073dac00, globals=0x5f3307323aa0, locals=0x5f3307323aa0, flags=0x7fff03bf01e0, arena=0x5f33073841b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x5f33073ce700, filename=0x5f33073dac00, start=257, globals=0x5f3307323aa0, locals=0x5f3307323aa0, closeit=1, flags=0x7fff03bf01e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x5f33073ce700, filename=0x5f33073dac00, closeit=1, flags=0x7fff03bf01e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x5f33073dabc0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a65f5853978.STACK.18e9c0e3dc.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b4f2b0f2978.STACK.192b1771af.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d1ea169e978.STACK.192b1771af.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d437da3d978.STACK.192b1771af.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5fe660c9f978.STACK.192b1771af.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - ... 9 more
+
+### 11. cpython-38-bdad017e586b
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags|PyRun_AnyFileExFlags`
+- Honggfuzz stack hash: `18e9b10f74`
+- PC: `0x62c5d212e56b`
+- Fault address: `0x101`
+- Instruction: `mov____0x30(%rax),%rbx`
+- Findings: 14
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-bdad017e586b.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.62c5d212e56b.STACK.18e9b10f74.CODE.1.ADDR.101.INSTR.mov____0x30(%rax),%rbx.pyc`
+- Normalized function stack:
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+  - `pymain_run_python`
+- Reproduced stack frames:
+  - `#0  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1349`
+  - `#1  0x0000633dea024196 in PyEval_EvalFrameEx (f=0x633dfba91860, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#2  0x0000633de9e7c1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x633dfba62530) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#3  _PyFunction_Vectorcall (func=0x633dfbaeb920, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#4  0x0000633dea036d6f in call_function (tstate=<optimized out>, pp_stack=0x7fff559d9ff0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#5  0x0000633dea025494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#6  0x0000633dea0390a2 in PyEval_EvalFrameEx (f=0x633dfba0a1c0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#7  _PyEval_EvalCodeWithName (_co=0x633dfba87000, globals=0x633dfb9a9ae0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#8  0x0000633dea024007 in PyEval_EvalCodeEx (_co=0x633dfba87000, globals=0x633dfb9a9ae0, locals=0x633dfb9a9ae0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#9  PyEval_EvalCode (co=0x633dfba87000, globals=0x633dfb9a9ae0, locals=0x633dfb9a9ae0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#10 0x0000633dea0d282d in run_eval_code_obj (co=0x633dfba87000, globals=0x633dfb9a9ae0, locals=0x633dfb9a9ae0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#11 run_mod (mod=0x633dfba654f8, filename=0x633dfba60e90, globals=0x633dfb9a9ae0, locals=0x633dfb9a9ae0, flags=0x7fff559da400, arena=0x633dfba0a440) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#12 pyrun_file (fp=0x633dfba54990, filename=0x633dfba60e90, start=257, globals=0x633dfb9a9ae0, locals=0x633dfb9a9ae0, closeit=1, flags=0x7fff559da400) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#13 pyrun_simple_file (fp=0x633dfba54990, filename=0x633dfba60e90, closeit=1, flags=0x7fff559da400) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#14 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x633dfba60e50 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+  - `#15 0x0000633dea0d1795 in PyRun_AnyFileExFlags (fp=0x633dfba54990, filename=0x633dfba60e50 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:90`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.62c5d212e56b.STACK.18e9b10f74.CODE.1.ADDR.101.INSTR.mov____0x30(%rax),%rbx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.1.STACK.192ad3d81f.CODE.1.ADDR.1.INSTR.[NOT_MMAPED].pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.55a8fabcc453.STACK.192ad3d81f.CODE.128.ADDR.0.INSTR.mov____0x90(%rax),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.56e0a2e6f44b.STACK.192ad3d81f.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57e27be4747b.STACK.192ad3d81f.CODE.1.ADDR.69.INSTR.mov____0x8(%r14),%rax.pyc`
+  - ... 9 more
+
+### 12. cpython-38-05df3261717a
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_Repr|unicode_fromformat_arg|PyUnicode_FromFormatV|_PyErr_FormatV|_PyErr_Format|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `182112741e`
+- PC: `0x774a27b0e9fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 13
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-05df3261717a.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.774a27b0e9fc.STACK.182112741e.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `PyObject_Repr`
+  - `unicode_fromformat_arg`
+  - `PyUnicode_FromFormatV`
+  - `_PyErr_FormatV`
+  - `_PyErr_Format`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+- Reproduced stack frames:
+  - `#0  PyObject_Repr (v=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:524`
+  - `#1  0x00005afb5b5a34e0 in unicode_fromformat_arg (writer=0x7ffe201e9b48, f=<optimized out>, vargs=0x7ffe201e9ba0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/unicodeobject.c:2894`
+  - `#2  PyUnicode_FromFormatV (format=0x5afb5b96adf4 "no locals when loading %R", vargs=0x7ffe201e9cb0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/unicodeobject.c:2958`
+  - `#3  0x00005afb5b6b5e7b in _PyErr_FormatV (tstate=0x5afb864c53f0, exception=0x5afb5ba23da8 <_PyExc_SystemError>, format=0x5afb5c474b00 <bbMapFb> "", vargs=0x7ffe201e9cb0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/errors.c:930`
+  - `#4  _PyErr_Format (tstate=0x5afb864c53f0, exception=<optimized out>, format=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/errors.c:956`
+  - `#5  0x00005afb5b66a2ca in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1985`
+  - `#6  0x00005afb5b65c196 in PyEval_EvalFrameEx (f=0x5afb8658f3a0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#7  0x00005afb5b4b41a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5afb86627290) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#8  _PyFunction_Vectorcall (func=0x5afb866afc60, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#9  0x00005afb5b66ed6f in call_function (tstate=<optimized out>, pp_stack=0x7ffe201ea020, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x00005afb5b65d494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x00005afb5b6710a2 in PyEval_EvalFrameEx (f=0x5afb865cef20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x5afb8664bd60, globals=0x5afb8656e840, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x00005afb5b65c007 in PyEval_EvalCodeEx (_co=0x5afb8664bd60, globals=0x5afb8656e840, locals=0x5afb8656e840, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x5afb8664bd60, globals=0x5afb8656e840, locals=0x5afb8656e840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x00005afb5b70a82d in run_eval_code_obj (co=0x5afb8664bd60, globals=0x5afb8656e840, locals=0x5afb8656e840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.774a27b0e9fc.STACK.182112741e.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7920d60459fc.STACK.182112741e.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.599bb5625b53.STACK.19ac628824.CODE.128.ADDR.0.INSTR.mov____(%r15),%r14.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5cb79a580ae5.STACK.19ac628824.CODE.128.ADDR.0.INSTR.mov____(%r15),%r13.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.600b6d3e8b53.STACK.19ac628824.CODE.128.ADDR.0.INSTR.mov____(%r15),%r14.pyc`
+  - ... 8 more
+
+### 13. cpython-38-c18f3ce00206
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyDict_SetItem|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `18ea16f46c`
+- PC: `0x5a932b42b214`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r12),%rax`
+- Findings: 11
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-c18f3ce00206.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a932b42b214.STACK.18ea16f46c.CODE.1.ADDR.8.INSTR.mov____0x8(%r12),%rax.pyc`
+- Normalized function stack:
+  - `PyDict_SetItem`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  PyDict_SetItem (op=0x0, key=<optimized out>, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:1526`
+  - `#1  0x00005629f9fba2f8 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2954`
+  - `#2  0x00005629f9fb8196 in PyEval_EvalFrameEx (f=0x562a28d82110, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x00005629f9e101a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x562a28dfe4a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#4  _PyFunction_Vectorcall (func=0x562a28c9a5b0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#5  0x00005629f9fcad6f in call_function (tstate=<optimized out>, pp_stack=0x7ffdf853cdc0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x00005629f9fb9494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x00005629f9fcd0a2 in PyEval_EvalFrameEx (f=0x562a28cfdf30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x562a28d7ad20, globals=0x562a28c9daa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x00005629f9fb8007 in PyEval_EvalCodeEx (_co=0x562a28d7ad20, globals=0x562a28c9daa0, locals=0x562a28c9daa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x562a28d7ad20, globals=0x562a28c9daa0, locals=0x562a28c9daa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x00005629fa06682d in run_eval_code_obj (co=0x562a28d7ad20, globals=0x562a28c9daa0, locals=0x562a28c9daa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x562a28d59268, filename=0x562a28d54c00, globals=0x562a28c9daa0, locals=0x562a28c9daa0, flags=0x7ffdf853d1d0, arena=0x562a28cfe1b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x562a28d486c0, filename=0x562a28d54c00, start=257, globals=0x562a28c9daa0, locals=0x562a28c9daa0, closeit=1, flags=0x7ffdf853d1d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x562a28d486c0, filename=0x562a28d54c00, closeit=1, flags=0x7ffdf853d1d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x562a28d54bc0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a932b42b214.STACK.18ea16f46c.CODE.1.ADDR.8.INSTR.mov____0x8(%r12),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.56b34a11d260.STACK.192afcdadf.CODE.1.ADDR.44.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5930f34d2260.STACK.192afcdadf.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d779ed8e260.STACK.192afcdadf.CODE.1.ADDR.2d9.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.63319d5b1260.STACK.192afcdadf.CODE.1.ADDR.3e00000009.INSTR.mov____0x8(%r15),%rax.pyc`
+  - ... 6 more
+
+### 14. cpython-38-7da5aa3e5f8d
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyDict_SetItem|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `1b283688ff`
+- PC: `0x58088aca659b`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 10
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-7da5aa3e5f8d.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.58088aca659b.STACK.1b283688ff.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `PyDict_SetItem`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyDict_SetItem (op=0x582bb69e2a10, key=<optimized out>, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:1533`
+  - `#1  0x0000582b7e036c36 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2793`
+  - `#2  0x0000582b7e0430a2 in PyEval_EvalFrameEx (f=0x582bb69a2be0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x582bb696fbb0, globals=0x582bb69482a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x0000582b7e02e007 in PyEval_EvalCodeEx (_co=0x582bb696fbb0, globals=0x582bb69482a0, locals=0x582bb69482a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x582bb696fbb0, globals=0x582bb69482a0, locals=0x582bb69482a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x0000582b7e2cd614 in builtin_exec_impl (source=0x582bb696fbb0, globals=0x582bb69482a0, locals=0x582bb69482a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x0000582b7df078c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x0000582b7e040d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffedd727b00, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x0000582b7e02f494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x0000582b7e0430a2 in PyEval_EvalFrameEx (f=0x582bb68eff30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x582bb696cd70, globals=0x582bb688faa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x0000582b7e02e007 in PyEval_EvalCodeEx (_co=0x582bb696cd70, globals=0x582bb688faa0, locals=0x582bb688faa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x582bb696cd70, globals=0x582bb688faa0, locals=0x582bb688faa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x0000582b7e0dc82d in run_eval_code_obj (co=0x582bb696cd70, globals=0x582bb688faa0, locals=0x582bb688faa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.58088aca659b.STACK.1b283688ff.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.55c655e30260.STACK.f03adb9e5.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.596a2bfbf260.STACK.f03adb9e5.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b324cd9c260.STACK.f03adb9e5.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b528382a260.STACK.f03adb9e5.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - ... 5 more
+
+### 15. cpython-38-09cf932ac7c9
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_Py_XDECREF|tupledealloc|_Py_Dealloc|_Py_DECREF|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName`
+- Honggfuzz stack hash: `1a497a5e9f`
+- PC: `0x571307546b53`
+- Fault address: `0x0`
+- Instruction: `mov____(%r15),%r14`
+- Findings: 9
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-09cf932ac7c9.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.571307546b53.STACK.1a497a5e9f.CODE.128.ADDR.0.INSTR.mov____(%r15),%r14.pyc`
+- Normalized function stack:
+  - `_Py_XDECREF`
+  - `tupledealloc`
+  - `_Py_Dealloc`
+  - `_Py_DECREF`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+- Reproduced stack frames:
+  - `#0  _Py_XDECREF (op=0x184026414641764) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:541`
+  - `#1  tupledealloc (op=0x6517df0217a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/tupleobject.c:247`
+  - `#2  0x00006517acfd457c in _Py_Dealloc (op=0x6517df0217a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:2215`
+  - `#3  0x00006517ad0f566c in _Py_DECREF (op=0x6517df0217a0, filename=<optimized out>, lineno=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:478`
+  - `#4  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3055`
+  - `#5  0x00006517ad1010a2 in PyEval_EvalFrameEx (f=0x6517deff2be0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#6  _PyEval_EvalCodeWithName (_co=0x6517df0409f0, globals=0x6517def982a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#7  0x00006517ad0ec007 in PyEval_EvalCodeEx (_co=0x6517df0409f0, globals=0x6517def982a0, locals=0x6517def982a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#8  PyEval_EvalCode (co=0x6517df0409f0, globals=0x6517def982a0, locals=0x6517def982a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#9  0x00006517ad38b614 in builtin_exec_impl (source=0x6517df0409f0, globals=0x6517def982a0, locals=0x6517def982a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#10 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#11 0x00006517acfc58c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#12 0x00006517ad0fed6f in call_function (tstate=<optimized out>, pp_stack=0x7ffd2adebf10, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#13 0x00006517ad0ed494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#14 0x00006517ad1010a2 in PyEval_EvalFrameEx (f=0x6517def3ff30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#15 _PyEval_EvalCodeWithName (_co=0x6517defbcd70, globals=0x6517deedfaa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.571307546b53.STACK.1a497a5e9f.CODE.128.ADDR.0.INSTR.mov____(%r15),%r14.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.579669a3e6d6.STACK.1a497a5e9f.CODE.128.ADDR.0.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5c12dbfab51e.STACK.1a497a5e9f.CODE.128.ADDR.0.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d6de63cbb53.STACK.1a497a5e9f.CODE.128.ADDR.0.INSTR.mov____(%r15),%r14.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5f3a5d0de51e.STACK.1a497a5e9f.CODE.128.ADDR.0.INSTR.mov____(%r15),%rbx.pyc`
+  - ... 4 more
+
+### 16. cpython-38-f0ab58015d3f
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_Py_XDECREF|tupledealloc|_Py_Dealloc|_Py_DECREF|_Py_XDECREF|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx`
+- Honggfuzz stack hash: `1b4be18da7`
+- PC: `0x5574cbf6bb53`
+- Fault address: `0x0`
+- Instruction: `mov____(%r15),%r14`
+- Findings: 9
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-f0ab58015d3f.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5574cbf6bb53.STACK.1b4be18da7.CODE.128.ADDR.0.INSTR.mov____(%r15),%r14.pyc`
+- Normalized function stack:
+  - `_Py_XDECREF`
+  - `tupledealloc`
+  - `_Py_Dealloc`
+  - `_Py_DECREF`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+- Reproduced stack frames:
+  - `#0  _Py_XDECREF (op=0x184026414641764) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:541`
+  - `#1  tupledealloc (op=0x58a23258f670) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/tupleobject.c:247`
+  - `#2  0x000058a2220fe57c in _Py_Dealloc (op=0x58a23258f670) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:2215`
+  - `#3  0x000058a222225234 in _Py_DECREF (op=0x58a23258f670, filename=<optimized out>, lineno=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:478`
+  - `#4  _Py_XDECREF (op=0x58a23258f670) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:541`
+  - `#5  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3790`
+  - `#6  0x000058a22222b0a2 in PyEval_EvalFrameEx (f=0x58a232560be0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#7  _PyEval_EvalCodeWithName (_co=0x58a2325ae970, globals=0x58a2325062a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#8  0x000058a222216007 in PyEval_EvalCodeEx (_co=0x58a2325ae970, globals=0x58a2325062a0, locals=0x58a2325062a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#9  PyEval_EvalCode (co=0x58a2325ae970, globals=0x58a2325062a0, locals=0x58a2325062a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#10 0x000058a2224b5614 in builtin_exec_impl (source=0x58a2325ae970, globals=0x58a2325062a0, locals=0x58a2325062a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#11 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#12 0x000058a2220ef8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#13 0x000058a222228d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffd8f6599f0, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#14 0x000058a222217494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#15 0x000058a22222b0a2 in PyEval_EvalFrameEx (f=0x58a2324adf30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5574cbf6bb53.STACK.1b4be18da7.CODE.128.ADDR.0.INSTR.mov____(%r15),%r14.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.557b88df151e.STACK.1b4be18da7.CODE.128.ADDR.0.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.581315f18b53.STACK.1b4be18da7.CODE.128.ADDR.0.INSTR.mov____(%r15),%r14.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.59e0f01a051e.STACK.1b4be18da7.CODE.128.ADDR.0.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b5781f88576.STACK.1b4be18da7.CODE.128.ADDR.0.INSTR.mov____(%r15),%rbx.pyc`
+  - ... 4 more
+
+### 17. cpython-38-454c478e6d71
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_Py_XDECREF|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `f4998f768`
+- PC: `0x57a2dce7eba1`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r13),%rax`
+- Findings: 7
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-454c478e6d71.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57a2dce7eba1.STACK.f4998f768.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+- Normalized function stack:
+  - `_Py_XDECREF`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  _Py_XDECREF (op=0x5b0100000000) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:541`
+  - `#1  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3790`
+  - `#2  0x00005ba96aef70a2 in PyEval_EvalFrameEx (f=0x5ba987efe8e0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5ba987e864a0, globals=0x5ba987e5f2a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x00005ba96aee2007 in PyEval_EvalCodeEx (_co=0x5ba987e864a0, globals=0x5ba987e5f2a0, locals=0x5ba987e5f2a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x5ba987e864a0, globals=0x5ba987e5f2a0, locals=0x5ba987e5f2a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x00005ba96b181614 in builtin_exec_impl (source=0x5ba987e864a0, globals=0x5ba987e5f2a0, locals=0x5ba987e5f2a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x00005ba96adbb8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x00005ba96aef4d6f in call_function (tstate=<optimized out>, pp_stack=0x7fffcff34620, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x00005ba96aee3494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x00005ba96aef70a2 in PyEval_EvalFrameEx (f=0x5ba987e06f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x5ba987e83d70, globals=0x5ba987da6aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x00005ba96aee2007 in PyEval_EvalCodeEx (_co=0x5ba987e83d70, globals=0x5ba987da6aa0, locals=0x5ba987da6aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x5ba987e83d70, globals=0x5ba987da6aa0, locals=0x5ba987da6aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x00005ba96af9082d in run_eval_code_obj (co=0x5ba987e83d70, globals=0x5ba987da6aa0, locals=0x5ba987da6aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57a2dce7eba1.STACK.f4998f768.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.58cc89ecfba1.STACK.f4998f768.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5ce6a661aba1.STACK.f4998f768.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61fda53e4ba1.STACK.f4998f768.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.639ad76f1ba1.STACK.f4998f768.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+  - ... 2 more
+
+### 18. cpython-38-46a59a1a86c9
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `196b523d4b`
+- PC: `0x566ec30efba1`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r13),%rax`
+- Findings: 7
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-46a59a1a86c9.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.566ec30efba1.STACK.196b523d4b.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%rax.pyc`
+- Normalized function stack:
+  - `call_function`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+- Reproduced stack frames:
+  - `#0  call_function (tstate=<optimized out>, pp_stack=0x7ffc74473730, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4963`
+  - `#1  0x000062429d958494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#2  0x000062429d96c0a2 in PyEval_EvalFrameEx (f=0x6242e2e93100, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x6242e2f14810, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x000062429d7af09f in _PyFunction_Vectorcall (func=0x6242e2e94400, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#5  0x000062429d969d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffc74473ad0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x000062429d958494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x000062429d96c0a2 in PyEval_EvalFrameEx (f=0x6242e2e0ef30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x6242e2e8bd10, globals=0x6242e2daeaa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x000062429d957007 in PyEval_EvalCodeEx (_co=0x6242e2e8bd10, globals=0x6242e2daeaa0, locals=0x6242e2daeaa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x6242e2e8bd10, globals=0x6242e2daeaa0, locals=0x6242e2daeaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x000062429da0582d in run_eval_code_obj (co=0x6242e2e8bd10, globals=0x6242e2daeaa0, locals=0x6242e2daeaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x6242e2e6a208, filename=0x6242e2e65ba0, globals=0x6242e2daeaa0, locals=0x6242e2daeaa0, flags=0x7ffc74473ee0, arena=0x6242e2e0f1b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x6242e2e596a0, filename=0x6242e2e65ba0, start=257, globals=0x6242e2daeaa0, locals=0x6242e2daeaa0, closeit=1, flags=0x7ffc74473ee0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x6242e2e596a0, filename=0x6242e2e65ba0, closeit=1, flags=0x7ffc74473ee0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x6242e2e65b60 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.566ec30efba1.STACK.196b523d4b.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.58b69ad07ba1.STACK.196b523d4b.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d02b64baba1.STACK.196b523d4b.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5f12bba14e6f.STACK.196b523d4b.CODE.1.ADDR.0.INSTR.mov____(%r12),%rbx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.608267887ba1.STACK.196b523d4b.CODE.1.ADDR.a.INSTR.mov____0x8(%r13),%rax.pyc`
+  - ... 2 more
+
+### 19. cpython-38-249214d51726
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_SetAttr|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `1a8aa7fcb2`
+- PC: `0x5b43a6aff5cc`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%rax`
+- Findings: 6
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-249214d51726.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b43a6aff5cc.STACK.1a8aa7fcb2.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%rax.pyc`
+- Normalized function stack:
+  - `PyObject_SetAttr`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyObject_SetAttr (v=0x184026414641764, name=0x64dcfa794360, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:1032`
+  - `#1  0x000064dcda560436 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2384`
+  - `#2  0x000064dcda56d0a2 in PyEval_EvalFrameEx (f=0x64dcfa7efbe0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x64dcfa83d800, globals=0x64dcfa7952a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x000064dcda558007 in PyEval_EvalCodeEx (_co=0x64dcfa83d800, globals=0x64dcfa7952a0, locals=0x64dcfa7952a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x64dcfa83d800, globals=0x64dcfa7952a0, locals=0x64dcfa7952a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x000064dcda7f7614 in builtin_exec_impl (source=0x64dcfa83d800, globals=0x64dcfa7952a0, locals=0x64dcfa7952a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x000064dcda4318c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x000064dcda56ad6f in call_function (tstate=<optimized out>, pp_stack=0x7ffd0118b0b0, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x000064dcda559494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x000064dcda56d0a2 in PyEval_EvalFrameEx (f=0x64dcfa73cf30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x64dcfa7b9d70, globals=0x64dcfa6dcaa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x000064dcda558007 in PyEval_EvalCodeEx (_co=0x64dcfa7b9d70, globals=0x64dcfa6dcaa0, locals=0x64dcfa6dcaa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x64dcfa7b9d70, globals=0x64dcfa6dcaa0, locals=0x64dcfa6dcaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x000064dcda60682d in run_eval_code_obj (co=0x64dcfa7b9d70, globals=0x64dcfa6dcaa0, locals=0x64dcfa6dcaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b43a6aff5cc.STACK.1a8aa7fcb2.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5de465b5b5cc.STACK.1a8aa7fcb2.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5eb03e5c75cc.STACK.1a8aa7fcb2.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.62b410fdc5cc.STACK.1a8aa7fcb2.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.641b40b235cc.STACK.1a8aa7fcb2.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%rax.pyc`
+  - ... 1 more
+
+### 20. cpython-38-7335358966d6
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_InPlaceRshift|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `19363e526e`
+- PC: `0x55b9e11f6054`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r15),%rax`
+- Findings: 6
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-7335358966d6.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.55b9e11f6054.STACK.19363e526e.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+- Normalized function stack:
+  - `PyNumber_InPlaceRshift`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyNumber_InPlaceRshift (v=0x175a018413641264, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:1090`
+  - `#1  0x0000636cf746f900 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1795`
+  - `#2  0x0000636cf747e0a2 in PyEval_EvalFrameEx (f=0x636d3ea07b40, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x636d3ea55470, globals=0x636d3ea550a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x0000636cf7469007 in PyEval_EvalCodeEx (_co=0x636d3ea55470, globals=0x636d3ea550a0, locals=0x636d3ea550a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x636d3ea55470, globals=0x636d3ea550a0, locals=0x636d3ea550a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x0000636cf7708614 in builtin_exec_impl (source=0x636d3ea55470, globals=0x636d3ea550a0, locals=0x636d3ea550a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x0000636cf73428c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x0000636cf747bd6f in call_function (tstate=<optimized out>, pp_stack=0x7ffdef42c1a0, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x0000636cf746a494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x0000636cf747e0a2 in PyEval_EvalFrameEx (f=0x636d3e954ed0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x636d3e9d1d10, globals=0x636d3e8f4aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x0000636cf7469007 in PyEval_EvalCodeEx (_co=0x636d3e9d1d10, globals=0x636d3e8f4aa0, locals=0x636d3e8f4aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x636d3e9d1d10, globals=0x636d3e8f4aa0, locals=0x636d3e8f4aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x0000636cf751782d in run_eval_code_obj (co=0x636d3e9d1d10, globals=0x636d3e8f4aa0, locals=0x636d3e8f4aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.55b9e11f6054.STACK.19363e526e.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b48f22de054.STACK.19363e526e.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d1c94676054.STACK.19363e526e.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5e10f592a054.STACK.19363e526e.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.602638a32054.STACK.19363e526e.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - ... 1 more
+
+### 21. cpython-38-b09b661e70f3
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyDict_LoadGlobal|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `18e8078474`
+- PC: `0x5a2b6313e074`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r15),%rax`
+- Findings: 6
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-b09b661e70f3.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a2b6313e074.STACK.18e8078474.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+- Reproduced stack frames: `not available; rerun did not produce a native backtrace`
+- Manual gdb command: `PYTHONHOME=data/rq3/cpython-3.8/source/cpython-3.8.20 PYTHONPATH=data/rq3/cpython-3.8/source/cpython-3.8.20/Lib PYTHONNOUSERSITE=1 gdb -q --args data/rq3/cpython-3.8/instrumented/python -S data/rq3/harness.py data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57471b698074.STACK.18e8078474.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+- Rerun diagnostic excerpt:
+  - `grouped with representative rerun`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57471b698074.STACK.18e8078474.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a2b6313e074.STACK.18e8078474.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5cb41115f074.STACK.18e8078474.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5cf7aa730074.STACK.18e8078474.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.62005bc82074.STACK.18e8078474.CODE.1.ADDR.b.INSTR.mov____0x8(%r15),%rax.pyc`
+  - ... 1 more
+
+### 22. cpython-38-c9f3a1b04eb9
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:update_refs|collect|collect_with_callback|PyGC_Collect|_PyGC_CollectIfEnabled|Py_FinalizeEx|Py_RunMain|pymain_main|Py_BytesMain|main`
+- Honggfuzz stack hash: `1821128bd9`
+- PC: `0x7c4176ff19fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 6
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-c9f3a1b04eb9.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7c4176ff19fc.STACK.1821128bd9.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `update_refs`
+  - `collect`
+  - `collect_with_callback`
+  - `PyGC_Collect`
+  - `_PyGC_CollectIfEnabled`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  update_refs (containers=0x563a7f4bf668 <_PyRuntime+416>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:351`
+  - `#1  collect (state=<optimized out>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:1053`
+  - `#2  0x0000563a7e7e9033 in collect_with_callback (state=<optimized out>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:1240`
+  - `#3  0x0000563a7e7e932d in PyGC_Collect () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:1844`
+  - `#4  _PyGC_CollectIfEnabled () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:1855`
+  - `#5  0x0000563a7e790777 in Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pylifecycle.c:1219`
+  - `#6  0x0000563a7e521498 in Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/main.c:695`
+  - `#7  0x0000563a7e5225f9 in pymain_main (args=0x7ffcbdbb1770) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/main.c:723`
+  - `#8  Py_BytesMain (argc=4, argv=0x7ffcbdbb18f8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/main.c:747`
+  - `#9  0x0000563a7e520653 in main (argc=4, argv=0x7ffcbdbb18f8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Programs/python.c:16`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7c4176ff19fc.STACK.1821128bd9.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7ee8575409fc.STACK.1821128bd9.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7ef79120e9fc.STACK.1821128bd9.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.74690fdbc9fc.STACK.19217e2f12.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.71d6ef7f19fc.STACK.c720497b9.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - ... 1 more
+
+### 23. cpython-38-cb140c504241
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_InPlaceXor|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `f454bf114`
+- PC: `0x5559598a4244`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r15),%rax`
+- Findings: 6
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-cb140c504241.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5559598a4244.STACK.f454bf114.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+- Normalized function stack:
+  - `PyNumber_InPlaceXor`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyNumber_InPlaceXor (v=0x175a018413641264, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:1087`
+  - `#1  0x000055704f54eb0c in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1819`
+  - `#2  0x000055704f55d0a2 in PyEval_EvalFrameEx (f=0x5570754afb90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x55707547c2a0, globals=0x5570754552a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x000055704f548007 in PyEval_EvalCodeEx (_co=0x55707547c2a0, globals=0x5570754552a0, locals=0x5570754552a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x55707547c2a0, globals=0x5570754552a0, locals=0x5570754552a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x000055704f7e7614 in builtin_exec_impl (source=0x55707547c2a0, globals=0x5570754552a0, locals=0x5570754552a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x000055704f4218c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x000055704f55ad6f in call_function (tstate=<optimized out>, pp_stack=0x7ffc61b60650, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x000055704f549494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x000055704f55d0a2 in PyEval_EvalFrameEx (f=0x5570753fcf30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x557075479d70, globals=0x55707539caa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x000055704f548007 in PyEval_EvalCodeEx (_co=0x557075479d70, globals=0x55707539caa0, locals=0x55707539caa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x557075479d70, globals=0x55707539caa0, locals=0x55707539caa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x000055704f5f682d in run_eval_code_obj (co=0x557075479d70, globals=0x55707539caa0, locals=0x55707539caa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5559598a4244.STACK.f454bf114.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.556c489a6244.STACK.f454bf114.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a9f4c460244.STACK.f454bf114.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5cbbebddd244.STACK.f454bf114.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5f6efd123244.STACK.f454bf114.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - ... 1 more
+
+### 24. cpython-38-44ebdca69235
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_Xor|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `ed9fdd198`
+- PC: `0x56731e94a408`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 5
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-44ebdca69235.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.56731e94a408.STACK.ed9fdd198.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyNumber_Xor`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyNumber_Xor (v=0x184026414641764, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:948`
+  - `#1  0x000061eeb36e9d82 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1632`
+  - `#2  0x000061eeb36f90a2 in PyEval_EvalFrameEx (f=0x61eee6b6fba0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x61eee6b3c470, globals=0x61eee6b152a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x000061eeb36e4007 in PyEval_EvalCodeEx (_co=0x61eee6b3c470, globals=0x61eee6b152a0, locals=0x61eee6b152a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x61eee6b3c470, globals=0x61eee6b152a0, locals=0x61eee6b152a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x000061eeb3983614 in builtin_exec_impl (source=0x61eee6b3c470, globals=0x61eee6b152a0, locals=0x61eee6b152a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x000061eeb35bd8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x000061eeb36f6d6f in call_function (tstate=<optimized out>, pp_stack=0x7fffe588a850, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x000061eeb36e5494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x000061eeb36f90a2 in PyEval_EvalFrameEx (f=0x61eee6abcf30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x61eee6b39d70, globals=0x61eee6a5caa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x000061eeb36e4007 in PyEval_EvalCodeEx (_co=0x61eee6b39d70, globals=0x61eee6a5caa0, locals=0x61eee6a5caa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x61eee6b39d70, globals=0x61eee6a5caa0, locals=0x61eee6a5caa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x000061eeb379282d in run_eval_code_obj (co=0x61eee6b39d70, globals=0x61eee6a5caa0, locals=0x61eee6a5caa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.56731e94a408.STACK.ed9fdd198.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5f7938c58408.STACK.ed9fdd198.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.606d8e212408.STACK.ed9fdd198.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.623f88bf5408.STACK.ed9fdd198.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.63956d94a408.STACK.ed9fdd198.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 25. cpython-38-4c86157e7344
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_Repr|PyObject_ASCII|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode`
+- Honggfuzz stack hash: `f0245645b`
+- PC: `0x59f9babf86d5`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r14),%rbx`
+- Findings: 5
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-4c86157e7344.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.59f9babf86d5.STACK.f0245645b.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rbx.pyc`
+- Normalized function stack:
+  - `PyObject_Repr`
+  - `PyObject_ASCII`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyObject_Repr (v=0x184026414641764) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:524`
+  - `#1  PyObject_ASCII (v=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:617`
+  - `#2  0x0000654c3cb2bc12 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3651`
+  - `#3  0x0000654c3cb3e0a2 in PyEval_EvalFrameEx (f=0x654c4fb25be0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#4  _PyEval_EvalCodeWithName (_co=0x654c4faf2e80, globals=0x654c4facb2a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#5  0x0000654c3cb29007 in PyEval_EvalCodeEx (_co=0x654c4faf2e80, globals=0x654c4facb2a0, locals=0x654c4facb2a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#6  PyEval_EvalCode (co=0x654c4faf2e80, globals=0x654c4facb2a0, locals=0x654c4facb2a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#7  0x0000654c3cdc8614 in builtin_exec_impl (source=0x654c4faf2e80, globals=0x654c4facb2a0, locals=0x654c4facb2a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#8  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#9  0x0000654c3ca028c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#10 0x0000654c3cb3bd6f in call_function (tstate=<optimized out>, pp_stack=0x7fffce531680, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#11 0x0000654c3cb2a494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#12 0x0000654c3cb3e0a2 in PyEval_EvalFrameEx (f=0x654c4fa72f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#13 _PyEval_EvalCodeWithName (_co=0x654c4faefd70, globals=0x654c4fa12aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#14 0x0000654c3cb29007 in PyEval_EvalCodeEx (_co=0x654c4faefd70, globals=0x654c4fa12aa0, locals=0x654c4fa12aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#15 PyEval_EvalCode (co=0x654c4faefd70, globals=0x654c4fa12aa0, locals=0x654c4fa12aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.59f9babf86d5.STACK.f0245645b.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rbx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5bca9c536d94.STACK.f0245645b.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5ee64c3826d5.STACK.f0245645b.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rbx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.635997ac5d94.STACK.f0245645b.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.65146224cd94.STACK.f0245645b.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+
+### 26. cpython-38-a3f6eddbacd6
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyCode_Type|visit_decref|dict_traverse|subtract_refs|collect|collect_with_callback|PyGC_Collect|_PyGC_CollectIfEnabled|Py_FinalizeEx|Py_RunMain|pymain_main|Py_BytesMain|main`
+- Honggfuzz stack hash: `1946317dd1`
+- PC: `0x577fdd0758d0`
+- Fault address: `0x0`
+- Instruction: `call___*%r15`
+- Findings: 5
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-a3f6eddbacd6.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.577fdd0758d0.STACK.1946317dd1.CODE.128.ADDR.0.INSTR.call___*%r15.pyc`
+- Normalized function stack:
+  - `PyCode_Type`
+  - `visit_decref`
+  - `dict_traverse`
+  - `subtract_refs`
+  - `collect`
+  - `collect_with_callback`
+  - `PyGC_Collect`
+  - `_PyGC_CollectIfEnabled`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  0x00005c6f31183da0 in PyCode_Type ()`
+  - `#1  0x00005c6f30e885e9 in visit_decref (op=0x5c6f669468d0, parent=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:380`
+  - `#2  0x00005c6f30c46860 in dict_traverse (op=0x5c6f66927ff0, visit=<optimized out>, arg=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:3122`
+  - `#3  0x00005c6f30e848d3 in subtract_refs (containers=0x5c6f31b5a668 <_PyRuntime+416>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:406`
+  - `#4  collect (state=<optimized out>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:1054`
+  - `#5  0x00005c6f30e84033 in collect_with_callback (state=<optimized out>, generation=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:1240`
+  - `#6  0x00005c6f30e8432d in PyGC_Collect () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:1844`
+  - `#7  _PyGC_CollectIfEnabled () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:1855`
+  - `#8  0x00005c6f30e2b777 in Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pylifecycle.c:1219`
+  - `#9  0x00005c6f30bbc498 in Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/main.c:695`
+  - `#10 0x00005c6f30bbd5f9 in pymain_main (args=0x7ffc6853a490) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/main.c:723`
+  - `#11 Py_BytesMain (argc=4, argv=0x7ffc6853a618) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/main.c:747`
+  - `#12 0x00005c6f30bbb653 in main (argc=4, argv=0x7ffc6853a618) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Programs/python.c:16`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.577fdd0758d0.STACK.1946317dd1.CODE.128.ADDR.0.INSTR.call___*%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d3adb445860.STACK.1946317dd1.CODE.1.ADDR.13.INSTR.mov____0x10(%rax),%rcx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5e8fe8b10860.STACK.1946317dd1.CODE.128.ADDR.0.INSTR.mov____0x10(%rax),%rcx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61d15c37c860.STACK.1946317dd1.CODE.1.ADDR.11.INSTR.mov____0x10(%rax),%rcx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.654f654e3860.STACK.1946317dd1.CODE.1.ADDR.11.INSTR.mov____0x10(%rax),%rcx.pyc`
+
+### 27. cpython-38-f21d09828e9a
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_IsTrue|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `1aca583612`
+- PC: `0x5f4b0104a978`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 5
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-f21d09828e9a.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5f4b0104a978.STACK.1aca583612.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_IsTrue`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyObject_IsTrue (v=0x184026414641764) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:1457`
+  - `#1  0x000060105bb145c0 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3054`
+  - `#2  0x000060105bb200a2 in PyEval_EvalFrameEx (f=0x60109bd61b80, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x60109bd2e610, globals=0x60109bd072a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x000060105bb0b007 in PyEval_EvalCodeEx (_co=0x60109bd2e610, globals=0x60109bd072a0, locals=0x60109bd072a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x60109bd2e610, globals=0x60109bd072a0, locals=0x60109bd072a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x000060105bdaa614 in builtin_exec_impl (source=0x60109bd2e610, globals=0x60109bd072a0, locals=0x60109bd072a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x000060105b9e48c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x000060105bb1dd6f in call_function (tstate=<optimized out>, pp_stack=0x7ffcc567cea0, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x000060105bb0c494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x000060105bb200a2 in PyEval_EvalFrameEx (f=0x60109bcaef30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x60109bd2bd70, globals=0x60109bc4eaa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x000060105bb0b007 in PyEval_EvalCodeEx (_co=0x60109bd2bd70, globals=0x60109bc4eaa0, locals=0x60109bc4eaa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x60109bd2bd70, globals=0x60109bc4eaa0, locals=0x60109bc4eaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x000060105bbb982d in run_eval_code_obj (co=0x60109bd2bd70, globals=0x60109bc4eaa0, locals=0x60109bc4eaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5f4b0104a978.STACK.1aca583612.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5bffd6636978.STACK.1b088fa461.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5fe6997cf978.STACK.e401ad331.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61b035b02978.STACK.e401ad331.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.62a5e6412978.STACK.e401ad331.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 28. cpython-38-3ab86658b6dc
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyLong_AsLongAndOverflow|_PyLong_AsInt|import_name|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx`
+- Honggfuzz stack hash: `1b9600a85f`
+- PC: `0x5a16dd446cf7`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r13),%r15`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-3ab86658b6dc.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a16dd446cf7.STACK.1b9600a85f.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%r15.pyc`
+- Normalized function stack:
+  - `PyLong_AsLongAndOverflow`
+  - `_PyLong_AsInt`
+  - `import_name`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+- Reproduced stack frames:
+  - `#0  PyLong_AsLongAndOverflow (vv=0x184026414641764, overflow=0x7fff8d11f49c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/longobject.c:492`
+  - `#1  0x000057c6f73fd457 in _PyLong_AsInt (obj=0x184026414641764) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/longobject.c:575`
+  - `#2  0x000057c6f7584267 in import_name (tstate=<optimized out>, f=0x57c72f56cbe0, name=<optimized out>, fromlist=<optimized out>, level=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:5135`
+  - `#3  0x000057c6f757aff4 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2993`
+  - `#4  0x000057c6f75870a2 in PyEval_EvalFrameEx (f=0x57c72f56cbe0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#5  _PyEval_EvalCodeWithName (_co=0x57c72f5392a0, globals=0x57c72f5122a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#6  0x000057c6f7572007 in PyEval_EvalCodeEx (_co=0x57c72f5392a0, globals=0x57c72f5122a0, locals=0x57c72f5122a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#7  PyEval_EvalCode (co=0x57c72f5392a0, globals=0x57c72f5122a0, locals=0x57c72f5122a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#8  0x000057c6f7811614 in builtin_exec_impl (source=0x57c72f5392a0, globals=0x57c72f5122a0, locals=0x57c72f5122a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#9  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#10 0x000057c6f744b8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#11 0x000057c6f7584d6f in call_function (tstate=<optimized out>, pp_stack=0x7fff8d11f950, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#12 0x000057c6f7573494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#13 0x000057c6f75870a2 in PyEval_EvalFrameEx (f=0x57c72f4b9f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#14 _PyEval_EvalCodeWithName (_co=0x57c72f536d70, globals=0x57c72f459aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#15 0x000057c6f7572007 in PyEval_EvalCodeEx (_co=0x57c72f536d70, globals=0x57c72f459aa0, locals=0x57c72f459aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a16dd446cf7.STACK.1b9600a85f.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b6a2a7fdcf7.STACK.1b9600a85f.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.6015f50c2cf7.STACK.1b9600a85f.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.62e739f54cf7.STACK.1b9600a85f.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%r15.pyc`
+
+### 29. cpython-38-6de77a88335e
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_GetAttr|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `d27e8bbb9`
+- PC: `0x5f74b735de29`
+- Fault address: `0xa`
+- Instruction: `mov____0x8(%r15),%r13`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-6de77a88335e.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5f74b735de29.STACK.d27e8bbb9.CODE.1.ADDR.a.INSTR.mov____0x8(%r15),%r13.pyc`
+- Normalized function stack:
+  - `PyObject_GetAttr`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  PyObject_GetAttr (v=0x581af1b14f70, name=0x19017c006a007c) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:934`
+  - `#1  0x0000581aab488dff in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2966`
+  - `#2  0x0000581aab480196 in PyEval_EvalFrameEx (f=0x581af1b46de0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x0000581aab2d81a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x581af1ad82a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#4  _PyFunction_Vectorcall (func=0x581af1b60d00, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#5  0x0000581aab492d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffd215cc760, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x0000581aab481494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x0000581aab4950a2 in PyEval_EvalFrameEx (f=0x581af1a7ff30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x581af1afcd70, globals=0x581af1a1faa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x0000581aab480007 in PyEval_EvalCodeEx (_co=0x581af1afcd70, globals=0x581af1a1faa0, locals=0x581af1a1faa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x581af1afcd70, globals=0x581af1a1faa0, locals=0x581af1a1faa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x0000581aab52e82d in run_eval_code_obj (co=0x581af1afcd70, globals=0x581af1a1faa0, locals=0x581af1a1faa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x581af1adb268, filename=0x581af1ad6c00, globals=0x581af1a1faa0, locals=0x581af1a1faa0, flags=0x7ffd215ccb70, arena=0x581af1a801b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x581af1aca700, filename=0x581af1ad6c00, start=257, globals=0x581af1a1faa0, locals=0x581af1a1faa0, closeit=1, flags=0x7ffd215ccb70) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x581af1aca700, filename=0x581af1ad6c00, closeit=1, flags=0x7ffd215ccb70) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x581af1ad6bc0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5f74b735de29.STACK.d27e8bbb9.CODE.1.ADDR.a.INSTR.mov____0x8(%r15),%r13.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.6423c12cde29.STACK.d27e8bbb9.CODE.1.ADDR.b.INSTR.mov____0x8(%r15),%r13.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.647d28194e29.STACK.d27e8bbb9.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%r13.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.6528c13e5e7a.STACK.d27e8bbb9.CODE.128.ADDR.0.INSTR.mov____0x90(%r12),%rbx.pyc`
+
+### 30. cpython-38-78d6803724f3
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:listiter_next|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `186caa1732`
+- PC: `0x562cbc9f2ef0`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%rax)`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-78d6803724f3.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.562cbc9f2ef0.STACK.186caa1732.CODE.1.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+- Normalized function stack:
+  - `listiter_next`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  listiter_next (it=0x64fdcb106640) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/listobject.c:3189`
+  - `#1  0x000064fda88110da in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3202`
+  - `#2  0x000064fda8809196 in PyEval_EvalFrameEx (f=0x64fdcb121710, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x000064fda86611a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x64fdcb0f9290) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#4  _PyFunction_Vectorcall (func=0x64fdcb181b40, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#5  0x000064fda881bd6f in call_function (tstate=<optimized out>, pp_stack=0x7ffec6e7bf30, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x000064fda880a494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x000064fda881e0a2 in PyEval_EvalFrameEx (f=0x64fdcb0a0f20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x64fdcb11dd60, globals=0x64fdcb040840, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x000064fda8809007 in PyEval_EvalCodeEx (_co=0x64fdcb11dd60, globals=0x64fdcb040840, locals=0x64fdcb040840, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x64fdcb11dd60, globals=0x64fdcb040840, locals=0x64fdcb040840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x000064fda88b782d in run_eval_code_obj (co=0x64fdcb11dd60, globals=0x64fdcb040840, locals=0x64fdcb040840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x64fdcb0fc258, filename=0x64fdcb0f7bf0, globals=0x64fdcb040840, locals=0x64fdcb040840, flags=0x7ffec6e7c340, arena=0x64fdcb0a11a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x64fdcb0eb6f0, filename=0x64fdcb0f7bf0, start=257, globals=0x64fdcb040840, locals=0x64fdcb040840, closeit=1, flags=0x7ffec6e7c340) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x64fdcb0eb6f0, filename=0x64fdcb0f7bf0, closeit=1, flags=0x7ffec6e7c340) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x64fdcb0f7bb0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.562cbc9f2ef0.STACK.186caa1732.CODE.1.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57896216268d.STACK.186caa1732.CODE.1.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57cb791ff68d.STACK.186caa1732.CODE.1.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5db99422cef0.STACK.186caa1732.CODE.1.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+
+### 31. cpython-38-d56ce6968a5c
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:insertdict|PyDict_SetItem|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode`
+- Honggfuzz stack hash: `1b48e68ad6`
+- PC: `0x5855b2405c3f`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%r15)`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-d56ce6968a5c.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5855b2405c3f.STACK.1b48e68ad6.CODE.128.ADDR.0.INSTR.addq___$0x1,(%r15).pyc`
+- Normalized function stack:
+  - `insertdict`
+  - `PyDict_SetItem`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+- Reproduced stack frames:
+  - `#0  insertdict (mp=<optimized out>, key=0x592c9a1292f0, hash=<optimized out>, value=0x184026414641764) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:1034`
+  - `#1  0x0000592c88b642f7 in PyDict_SetItem (op=0x592c9a12a230, key=<optimized out>, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:1545`
+  - `#2  0x0000592c88cb9513 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2395`
+  - `#3  0x0000592c88cc60a2 in PyEval_EvalFrameEx (f=0x592c9a184b90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#4  _PyEval_EvalCodeWithName (_co=0x592c9a1515c0, globals=0x592c9a12a230, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#5  0x0000592c88cb1007 in PyEval_EvalCodeEx (_co=0x592c9a1515c0, globals=0x592c9a12a230, locals=0x592c9a12a230, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#6  PyEval_EvalCode (co=0x592c9a1515c0, globals=0x592c9a12a230, locals=0x592c9a12a230) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#7  0x0000592c88f50614 in builtin_exec_impl (source=0x592c9a1515c0, globals=0x592c9a12a230, locals=0x592c9a12a230, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#8  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#9  0x0000592c88b8a8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#10 0x0000592c88cc3d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffd1fa91e40, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#11 0x0000592c88cb2494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#12 0x0000592c88cc60a2 in PyEval_EvalFrameEx (f=0x592c9a0d1f10, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#13 _PyEval_EvalCodeWithName (_co=0x592c9a14ed20, globals=0x592c9a071aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#14 0x0000592c88cb1007 in PyEval_EvalCodeEx (_co=0x592c9a14ed20, globals=0x592c9a071aa0, locals=0x592c9a071aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#15 PyEval_EvalCode (co=0x592c9a14ed20, globals=0x592c9a071aa0, locals=0x592c9a071aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5855b2405c3f.STACK.1b48e68ad6.CODE.128.ADDR.0.INSTR.addq___$0x1,(%r15).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.572070a53c3f.STACK.e805713c3.CODE.128.ADDR.0.INSTR.addq___$0x1,(%r15).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a165d156c3f.STACK.e805713c3.CODE.128.ADDR.0.INSTR.addq___$0x1,(%r15).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b18e7e17c3f.STACK.e805713c3.CODE.128.ADDR.0.INSTR.addq___$0x1,(%r15).pyc`
+
+### 32. cpython-38-f51fd04233d4
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:??|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|builtin___build_class__|cfunction_vectorcall_FASTCALL_KEYWORDS|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName`
+- Honggfuzz stack hash: `dff2da830`
+- PC: `0x0`
+- Fault address: `0x0`
+- Instruction: `[NOT_MMAPED]`
+- Findings: 4
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-f51fd04233d4.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.0.STACK.dff2da830.CODE.1.ADDR.0.INSTR.[NOT_MMAPED].pyc`
+- Normalized function stack:
+  - `??`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `builtin___build_class__`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `call_function`
+  - `_PyFunction_Vectorcall`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  0x0000000000000000 in ?? ()`
+  - `#1  0x000059a61f7e60da in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3202`
+  - `#2  0x000059a61f7f30a2 in PyEval_EvalFrameEx (f=0x59a62a67d450, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x59a62a62f4f0, globals=0x59a62a622180, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x000059a61f7de0c5 in PyEval_EvalCodeEx (_co=0x59a62a62f4f0, globals=0x59a62a622180, locals=0x59a62a648ec0, args=0x59a6295f6b40 <bbMapFb+150995008>, argcount=0, kws=0x0, kwcount=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  0x000059a61fa7b621 in builtin___build_class__ (self=<optimized out>, args=<optimized out>, nargs=3, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:213`
+  - `#6  0x000059a61f6b7a90 in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, nargsf=9223372036854775811, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:441`
+  - `#7  0x000059a61f7f0d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffe3ef41540, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#8  0x000059a61f7df494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#9  0x000059a61f7f30a2 in PyEval_EvalFrameEx (f=0x59a62a65b460, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#10 _PyEval_EvalCodeWithName (_co=0x59a62a62f640, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#11 0x000059a61f63609f in _PyFunction_Vectorcall (func=0x59a62a64f100, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#12 0x000059a61f7f0d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffe3ef418e0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#13 0x000059a61f7df494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#14 0x000059a61f7f30a2 in PyEval_EvalFrameEx (f=0x59a62a5c9e10, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#15 _PyEval_EvalCodeWithName (_co=0x59a62a646a10, globals=0x59a62a569750, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.0.STACK.dff2da830.CODE.1.ADDR.0.INSTR.[NOT_MMAPED].pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5ad1245531e8.STACK.dff2da830.CODE.1.ADDR.5a0100000000.INSTR.mov____(%rbx),%r12.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5c4ced06f666.STACK.dff2da830.CODE.1.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.642fafcb1666.STACK.dff2da830.CODE.1.ADDR.31.INSTR.addq___$0x1,(%rax).pyc`
+
+### 33. cpython-38-24c19c696e1b
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_InPlacePower|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `da134e3a6`
+- PC: `0x55f21fa45467`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%r14`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-24c19c696e1b.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.55f21fa45467.STACK.da134e3a6.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r14.pyc`
+- Normalized function stack:
+  - `PyNumber_InPlacePower`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  PyNumber_InPlacePower (v=0x0, w=<optimized out>, z=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:1175`
+  - `#1  0x00005582c59c3f95 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1680`
+  - `#2  0x00005582c59be196 in PyEval_EvalFrameEx (f=0x5582d125b650, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x00005582c58161a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5582d122c2b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#4  _PyFunction_Vectorcall (func=0x5582d11705b0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#5  0x00005582c59d0d6f in call_function (tstate=<optimized out>, pp_stack=0x7fff287615f0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x00005582c59bf494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x00005582c59d30a2 in PyEval_EvalFrameEx (f=0x5582d11d3f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x5582d1250d60, globals=0x5582d1173aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x00005582c59be007 in PyEval_EvalCodeEx (_co=0x5582d1250d60, globals=0x5582d1173aa0, locals=0x5582d1173aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x5582d1250d60, globals=0x5582d1173aa0, locals=0x5582d1173aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x00005582c5a6c82d in run_eval_code_obj (co=0x5582d1250d60, globals=0x5582d1173aa0, locals=0x5582d1173aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x5582d122f278, filename=0x5582d122ac10, globals=0x5582d1173aa0, locals=0x5582d1173aa0, flags=0x7fff28761a00, arena=0x5582d11d41b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x5582d121e6c0, filename=0x5582d122ac10, start=257, globals=0x5582d1173aa0, locals=0x5582d1173aa0, closeit=1, flags=0x7fff28761a00) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x5582d121e6c0, filename=0x5582d122ac10, closeit=1, flags=0x7fff28761a00) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x5582d122abd0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.55f21fa45467.STACK.da134e3a6.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r14.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.565d717e3467.STACK.da134e3a6.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r14.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61b4f85db467.STACK.da134e3a6.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r14.pyc`
+
+### 34. cpython-38-4938b2ed0078
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `1a880ca074`
+- PC: `0x57f0e00bbba1`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r13),%rax`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-4938b2ed0078.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57f0e00bbba1.STACK.1a880ca074.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+- Normalized function stack:
+  - `call_function`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  call_function (tstate=<optimized out>, pp_stack=0x7ffda6bf8be0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4963`
+  - `#1  0x00005f531b28f494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#2  0x00005f531b2a30a2 in PyEval_EvalFrameEx (f=0x5f5337008be0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5f533705b780, globals=0x5f5336fae2a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x00005f531b28e007 in PyEval_EvalCodeEx (_co=0x5f533705b780, globals=0x5f5336fae2a0, locals=0x5f5336fae2a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x5f533705b780, globals=0x5f5336fae2a0, locals=0x5f5336fae2a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x00005f531b52d614 in builtin_exec_impl (source=0x5f533705b780, globals=0x5f5336fae2a0, locals=0x5f5336fae2a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x00005f531b1678c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x00005f531b2a0d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffda6bf8fb0, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x00005f531b28f494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x00005f531b2a30a2 in PyEval_EvalFrameEx (f=0x5f5336f55f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x5f5336fd2d70, globals=0x5f5336ef5aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x00005f531b28e007 in PyEval_EvalCodeEx (_co=0x5f5336fd2d70, globals=0x5f5336ef5aa0, locals=0x5f5336ef5aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x5f5336fd2d70, globals=0x5f5336ef5aa0, locals=0x5f5336ef5aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x00005f531b33c82d in run_eval_code_obj (co=0x5f5336fd2d70, globals=0x5f5336ef5aa0, locals=0x5f5336ef5aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57f0e00bbba1.STACK.1a880ca074.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.597d02c30ba1.STACK.1a880ca074.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5cfba04bce6f.STACK.1a880ca074.CODE.128.ADDR.0.INSTR.mov____(%r12),%rbx.pyc`
+
+### 35. cpython-38-5fed7e6d958a
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_And|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `ce22c968d`
+- PC: `0x61e4ab7fd7a8`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-5fed7e6d958a.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61e4ab7fd7a8.STACK.ce22c968d.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyNumber_And`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  PyNumber_And (v=0x0, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:949`
+  - `#1  0x00005bffd9ffcc7c in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1620`
+  - `#2  0x00005bffd9ff7196 in PyEval_EvalFrameEx (f=0x5c000e6fcc20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x00005bffd9e4f1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5c000e7892a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#4  _PyFunction_Vectorcall (func=0x5c000e834fd0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#5  0x00005bffda009d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffe737238e0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x00005bffd9ff8494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x00005bffda00c0a2 in PyEval_EvalFrameEx (f=0x5c000e730f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x5c000e7add70, globals=0x5c000e6d0aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x00005bffd9ff7007 in PyEval_EvalCodeEx (_co=0x5c000e7add70, globals=0x5c000e6d0aa0, locals=0x5c000e6d0aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x5c000e7add70, globals=0x5c000e6d0aa0, locals=0x5c000e6d0aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x00005bffda0a582d in run_eval_code_obj (co=0x5c000e7add70, globals=0x5c000e6d0aa0, locals=0x5c000e6d0aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x5c000e78c268, filename=0x5c000e787c00, globals=0x5c000e6d0aa0, locals=0x5c000e6d0aa0, flags=0x7ffe73723cf0, arena=0x5c000e7311b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x5c000e77b700, filename=0x5c000e787c00, start=257, globals=0x5c000e6d0aa0, locals=0x5c000e6d0aa0, closeit=1, flags=0x7ffe73723cf0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x5c000e77b700, filename=0x5c000e787c00, closeit=1, flags=0x7ffe73723cf0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x5c000e787bc0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61e4ab7fd7a8.STACK.ce22c968d.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61ec712267a8.STACK.ce22c968d.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.6380fcfc57a8.STACK.ce22c968d.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 36. cpython-38-6273a738710f
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_LookupAttr|import_from|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file`
+- Honggfuzz stack hash: `192ac3a0ee`
+- PC: `0x5ae6d90c2230`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-6273a738710f.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5ae6d90c2230.STACK.192ac3a0ee.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `_PyObject_LookupAttr`
+  - `import_from`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  _PyObject_LookupAttr (v=0x609e11477f70, name=0x0, result=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:959`
+  - `#1  0x0000609e02706416 in import_from (tstate=<optimized out>, v=0x609e11477f70, name=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:5167`
+  - `#2  0x0000609e026fd103 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3029`
+  - `#3  0x0000609e026f4196 in PyEval_EvalFrameEx (f=0x609e114653c0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#4  0x0000609e0254c1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x609e1143b2a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#5  _PyFunction_Vectorcall (func=0x609e11468460, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#6  0x0000609e02706d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffc627c86a0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#7  0x0000609e026f5494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#8  0x0000609e027090a2 in PyEval_EvalFrameEx (f=0x609e113e2f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#9  _PyEval_EvalCodeWithName (_co=0x609e1145fd70, globals=0x609e11382aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#10 0x0000609e026f4007 in PyEval_EvalCodeEx (_co=0x609e1145fd70, globals=0x609e11382aa0, locals=0x609e11382aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#11 PyEval_EvalCode (co=0x609e1145fd70, globals=0x609e11382aa0, locals=0x609e11382aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#12 0x0000609e027a282d in run_eval_code_obj (co=0x609e1145fd70, globals=0x609e11382aa0, locals=0x609e11382aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#13 run_mod (mod=0x609e1143e268, filename=0x609e11439c00, globals=0x609e11382aa0, locals=0x609e11382aa0, flags=0x7ffc627c8ab0, arena=0x609e113e31b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#14 pyrun_file (fp=0x609e1142d700, filename=0x609e11439c00, start=257, globals=0x609e11382aa0, locals=0x609e11382aa0, closeit=1, flags=0x7ffc627c8ab0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#15 pyrun_simple_file (fp=0x609e1142d700, filename=0x609e11439c00, closeit=1, flags=0x7ffc627c8ab0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5ae6d90c2230.STACK.192ac3a0ee.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b1e9e107228.STACK.192ac3a0ee.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%r14.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.63e989948230.STACK.192ac3a0ee.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 37. cpython-38-6fb3d8ce888e
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:func_clear|func_dealloc|_Py_Dealloc|_Py_DECREF|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName`
+- Honggfuzz stack hash: `e9af26838`
+- PC: `0x5626ac6c7576`
+- Fault address: `0x0`
+- Instruction: `mov____(%r15),%rbx`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-6fb3d8ce888e.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5626ac6c7576.STACK.e9af26838.CODE.128.ADDR.0.INSTR.mov____(%r15),%rbx.pyc`
+- Normalized function stack:
+  - `func_clear`
+  - `func_dealloc`
+  - `_Py_Dealloc`
+  - `_Py_DECREF`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+- Reproduced stack frames:
+  - `#0  func_clear (op=0x61664745e350) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/funcobject.c:584`
+  - `#1  func_dealloc (op=0x61664745e350) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/funcobject.c:600`
+  - `#2  0x000061662a98457c in _Py_Dealloc (op=0x61664745e350) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:2215`
+  - `#3  0x000061662aaa5d91 in _Py_DECREF (op=0x61664745e350, filename=<optimized out>, lineno=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:478`
+  - `#4  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3105`
+  - `#5  0x000061662aab10a2 in PyEval_EvalFrameEx (f=0x616647574bc0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#6  _PyEval_EvalCodeWithName (_co=0x6166475c2700, globals=0x61664751a290, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#7  0x000061662aa9c007 in PyEval_EvalCodeEx (_co=0x6166475c2700, globals=0x61664751a290, locals=0x61664751a290, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#8  PyEval_EvalCode (co=0x6166475c2700, globals=0x61664751a290, locals=0x61664751a290) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#9  0x000061662ad3b614 in builtin_exec_impl (source=0x6166475c2700, globals=0x61664751a290, locals=0x61664751a290, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#10 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#11 0x000061662a9758c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#12 0x000061662aaaed6f in call_function (tstate=<optimized out>, pp_stack=0x7ffd57a2cfc0, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#13 0x000061662aa9d494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#14 0x000061662aab10a2 in PyEval_EvalFrameEx (f=0x6166474c1f20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#15 _PyEval_EvalCodeWithName (_co=0x61664753ed60, globals=0x616647461840, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5626ac6c7576.STACK.e9af26838.CODE.128.ADDR.0.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5c4814b4751e.STACK.e9af26838.CODE.128.ADDR.0.INSTR.mov____(%r15),%rbx.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.6472a89b3576.STACK.e9af26838.CODE.128.ADDR.0.INSTR.mov____(%r15),%rbx.pyc`
+
+### 38. cpython-38-73580b33c58d
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyErr_Restore|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `1b49d588d1`
+- PC: `0x565d045a904c`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r13),%rax`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-73580b33c58d.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.565d045a904c.STACK.1b49d588d1.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+- Normalized function stack:
+  - `_PyErr_Restore`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  0x0000600d23f7304c in _PyErr_Restore (tstate=<optimized out>, type=<optimized out>, value=<optimized out>, traceback=0x175a018413641264) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/errors.c:44`
+  - `#1  0x0000600d23f2830c in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2224`
+  - `#2  0x0000600d23f2f0a2 in PyEval_EvalFrameEx (f=0x600d56ac0b90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x600d56a8d5c0, globals=0x600d56a66250, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x0000600d23f1a007 in PyEval_EvalCodeEx (_co=0x600d56a8d5c0, globals=0x600d56a66250, locals=0x600d56a66250, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x600d56a8d5c0, globals=0x600d56a66250, locals=0x600d56a66250) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x0000600d241b9614 in builtin_exec_impl (source=0x600d56a8d5c0, globals=0x600d56a66250, locals=0x600d56a66250, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x0000600d23df38c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x0000600d23f2cd6f in call_function (tstate=<optimized out>, pp_stack=0x7ffdeb93b240, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x0000600d23f1b494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x0000600d23f2f0a2 in PyEval_EvalFrameEx (f=0x600d56a0df30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x600d56a8ad20, globals=0x600d569adaa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x0000600d23f1a007 in PyEval_EvalCodeEx (_co=0x600d56a8ad20, globals=0x600d569adaa0, locals=0x600d569adaa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x600d56a8ad20, globals=0x600d569adaa0, locals=0x600d569adaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x0000600d23fc882d in run_eval_code_obj (co=0x600d56a8ad20, globals=0x600d569adaa0, locals=0x600d569adaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.565d045a904c.STACK.1b49d588d1.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5bd0048a804c.STACK.1b49d588d1.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61e6c15c504c.STACK.1b49d588d1.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+
+### 39. cpython-38-770a9e21632b
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error|Py_FatalError|intern_strings|PyCode_NewWithPosOnlyArgs|r_object|r_object|r_object|read_object|marshal_loads_impl|marshal_loads|cfunction_vectorcall_O|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName`
+- Honggfuzz stack hash: `c334d6d93`
+- PC: `0x7552e54bb9fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-770a9e21632b.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7552e54bb9fc.STACK.c334d6d93.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error`
+  - `Py_FatalError`
+  - `intern_strings`
+  - `PyCode_NewWithPosOnlyArgs`
+  - `r_object`
+  - `read_object`
+  - `marshal_loads_impl`
+  - `marshal_loads`
+  - `cfunction_vectorcall_O`
+  - `call_function`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+- Reproduced stack frames:
+  - `#0  0x000072ed8a4539fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x000072ed8a3ff476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x000072ed8a3e57f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x000061a4ab13ae09 in fatal_error (prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pylifecycle.c:2183`
+  - `#4  0x000061a4ab1361b3 in Py_FatalError (msg=0x137c95 <error: Cannot access memory at address 0x137c95>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pylifecycle.c:2193`
+  - `#5  0x000061a4ab2b4299 in intern_strings (tuple=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/codeobject.c:49`
+  - `#6  0x000061a4ab2b3bfc in PyCode_NewWithPosOnlyArgs (argcount=0, posonlyargcount=0, kwonlyargcount=0, nlocals=4, stacksize=7, flags=67, code=<optimized out>, consts=<optimized out>, names=<optimized out>, varnames=<optimized out>, freevars=<optimized out>, cellvars=<optimized out>, filename=<optimized out>, name=<optimized out>, firstlineno=<optimized out>, lnotab=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/codeobject.c:143`
+  - `#7  0x000061a4ab11f76a in r_object (p=0x7ffde9ad1ca0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/marshal.c:1409`
+  - `#8  0x000061a4ab11da2d in r_object (p=0x7ffde9ad1ca0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/marshal.c:1199`
+  - `#9  0x000061a4ab11f5cd in r_object (p=0x7ffde9ad1ca0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/marshal.c:1375`
+  - `#10 0x000061a4ab127ec0 in read_object (p=0x7ffde9ad1ca0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/marshal.c:1467`
+  - `#11 marshal_loads_impl (bytes=0x7ffde9ad1ce0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/marshal.c:1779`
+  - `#12 marshal_loads (module=<optimized out>, arg=0x61a4e8b5db40) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/marshal.c.h:158`
+  - `#13 0x000061a4aaf6ef5a in cfunction_vectorcall_O (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:486`
+  - `#14 0x000061a4ab0a7d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffde9ad1ea8, oparg=1, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#15 0x000061a4ab098669 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3469`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7552e54bb9fc.STACK.c334d6d93.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7a54c3ef79fc.STACK.c334d6d93.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7e7bf7a199fc.STACK.c334d6d93.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 40. cpython-38-a4c49563c42f
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyFunction_NewWithQualName|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `1928f2ee3f`
+- PC: `0x59bd066426b9`
+- Fault address: `0x37`
+- Instruction: `addq___$0x1,(%rax)`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-a4c49563c42f.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.59bd066426b9.STACK.1928f2ee3f.CODE.1.ADDR.37.INSTR.addq___$0x1,(%rax).pyc`
+- Normalized function stack:
+  - `PyFunction_NewWithQualName`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+  - `pymain_run_python`
+- Reproduced stack frames:
+  - `#0  PyFunction_NewWithQualName (code=<optimized out>, globals=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/funcobject.c:49`
+  - `#1  0x00005f5d45d9c533 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3575`
+  - `#2  0x00005f5d45db00a2 in PyEval_EvalFrameEx (f=0x5f5d7e0409a0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5f5d7e156bf0, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x00005f5d45bf309f in _PyFunction_Vectorcall (func=0x5f5d7e011350, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#5  0x00005f5d45dadd6f in call_function (tstate=<optimized out>, pp_stack=0x7fff41ba7fc0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x00005f5d45d9c494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x00005f5d45db00a2 in PyEval_EvalFrameEx (f=0x5f5d7e074f20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x5f5d7e0f1d60, globals=0x5f5d7e014840, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x00005f5d45d9b007 in PyEval_EvalCodeEx (_co=0x5f5d7e0f1d60, globals=0x5f5d7e014840, locals=0x5f5d7e014840, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x5f5d7e0f1d60, globals=0x5f5d7e014840, locals=0x5f5d7e014840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x00005f5d45e4982d in run_eval_code_obj (co=0x5f5d7e0f1d60, globals=0x5f5d7e014840, locals=0x5f5d7e014840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x5f5d7e0d0258, filename=0x5f5d7e0cbbf0, globals=0x5f5d7e014840, locals=0x5f5d7e014840, flags=0x7fff41ba83d0, arena=0x5f5d7e0751a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x5f5d7e0bf6f0, filename=0x5f5d7e0cbbf0, start=257, globals=0x5f5d7e014840, locals=0x5f5d7e014840, closeit=1, flags=0x7fff41ba83d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x5f5d7e0bf6f0, filename=0x5f5d7e0cbbf0, closeit=1, flags=0x7fff41ba83d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x5f5d7e0cbbb0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.59bd066426b9.STACK.1928f2ee3f.CODE.1.ADDR.37.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b05abafb6b9.STACK.1928f2ee3f.CODE.1.ADDR.17.INSTR.addq___$0x1,(%rax).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5de16fb8c6b9.STACK.1928f2ee3f.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+
+### 41. cpython-38-ba15f27986b7
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_InPlacePower|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `e407ba41b`
+- PC: `0x5a4c1d41a467`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%r14`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-ba15f27986b7.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a4c1d41a467.STACK.e407ba41b.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r14.pyc`
+- Normalized function stack:
+  - `PyNumber_InPlacePower`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyNumber_InPlacePower (v=0x175a018413641264, w=<optimized out>, z=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:1175`
+  - `#1  0x0000652232837f95 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1680`
+  - `#2  0x00006522328470a2 in PyEval_EvalFrameEx (f=0x652254dc2ae0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x652254d8f120, globals=0x652254d68230, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x0000652232832007 in PyEval_EvalCodeEx (_co=0x652254d8f120, globals=0x652254d68230, locals=0x652254d68230, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x652254d8f120, globals=0x652254d68230, locals=0x652254d68230) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x0000652232ad1614 in builtin_exec_impl (source=0x652254d8f120, globals=0x652254d68230, locals=0x652254d68230, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x000065223270b8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x0000652232844d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffee4fe8a10, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x0000652232833494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x00006522328470a2 in PyEval_EvalFrameEx (f=0x652254d0fde0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x652254d8cd00, globals=0x652254cafaa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x0000652232832007 in PyEval_EvalCodeEx (_co=0x652254d8cd00, globals=0x652254cafaa0, locals=0x652254cafaa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x652254d8cd00, globals=0x652254cafaa0, locals=0x652254cafaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x00006522328e082d in run_eval_code_obj (co=0x652254d8cd00, globals=0x652254cafaa0, locals=0x652254cafaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a4c1d41a467.STACK.e407ba41b.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r14.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5e81a062e467.STACK.e407ba41b.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r14.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.63aeb06fd467.STACK.e407ba41b.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r14.pyc`
+
+### 42. cpython-38-d9e88510d3f6
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PySet_Add|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `1b089fb5d7`
+- PC: `0x59f2d185ff3d`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r14),%rdi`
+- Findings: 3
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-d9e88510d3f6.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.59f2d185ff3d.STACK.1b089fb5d7.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rdi.pyc`
+- Normalized function stack:
+  - `PySet_Add`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PySet_Add (anyset=0x5f5f73657373, key=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/setobject.c:2307`
+  - `#1  0x00005fda94bd521c in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1669`
+  - `#2  0x00005fda94be80a2 in PyEval_EvalFrameEx (f=0x5fdaddd3fb80, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5fdaddd0c560, globals=0x5fdaddce52b0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x00005fda94bd3007 in PyEval_EvalCodeEx (_co=0x5fdaddd0c560, globals=0x5fdaddce52b0, locals=0x5fdaddce52b0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x5fdaddd0c560, globals=0x5fdaddce52b0, locals=0x5fdaddce52b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x00005fda94e72614 in builtin_exec_impl (source=0x5fdaddd0c560, globals=0x5fdaddce52b0, locals=0x5fdaddce52b0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x00005fda94aac8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x00005fda94be5d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffc42dde600, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x00005fda94bd4494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x00005fda94be80a2 in PyEval_EvalFrameEx (f=0x5fdaddc8cf30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x5fdaddd09d60, globals=0x5fdaddc2caa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x00005fda94bd3007 in PyEval_EvalCodeEx (_co=0x5fdaddd09d60, globals=0x5fdaddc2caa0, locals=0x5fdaddc2caa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x5fdaddd09d60, globals=0x5fdaddc2caa0, locals=0x5fdaddc2caa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x00005fda94c8182d in run_eval_code_obj (co=0x5fdaddd09d60, globals=0x5fdaddc2caa0, locals=0x5fdaddc2caa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.59f2d185ff3d.STACK.1b089fb5d7.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rdi.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d9d7cd32ff3.STACK.f8a84140d.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.622abda74ff3.STACK.f8a84140d.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+
+### 43. cpython-38-0d8d30d8e4ff
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_Rshift|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `ca591af5f`
+- PC: `0x595582d75ee8`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-0d8d30d8e4ff.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.595582d75ee8.STACK.ca591af5f.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyNumber_Rshift`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  PyNumber_Rshift (v=0x0, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:951`
+  - `#1  0x00005debdededb76 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1608`
+  - `#2  0x00005debdede8196 in PyEval_EvalFrameEx (f=0x5debff450c20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x00005debdec401a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5debff4dd2a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#4  _PyFunction_Vectorcall (func=0x5debff4215b0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#5  0x00005debdedfad6f in call_function (tstate=<optimized out>, pp_stack=0x7fffcbab2410, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x00005debdede9494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x00005debdedfd0a2 in PyEval_EvalFrameEx (f=0x5debff484f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x5debff501d70, globals=0x5debff424aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x00005debdede8007 in PyEval_EvalCodeEx (_co=0x5debff501d70, globals=0x5debff424aa0, locals=0x5debff424aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x5debff501d70, globals=0x5debff424aa0, locals=0x5debff424aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x00005debdee9682d in run_eval_code_obj (co=0x5debff501d70, globals=0x5debff424aa0, locals=0x5debff424aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x5debff4e0268, filename=0x5debff4dbc00, globals=0x5debff424aa0, locals=0x5debff424aa0, flags=0x7fffcbab2820, arena=0x5debff4851b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x5debff4cf700, filename=0x5debff4dbc00, start=257, globals=0x5debff424aa0, locals=0x5debff424aa0, closeit=1, flags=0x7fffcbab2820) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x5debff4cf700, filename=0x5debff4dbc00, closeit=1, flags=0x7fffcbab2820) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x5debff4dbbc0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.595582d75ee8.STACK.ca591af5f.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5eedc4fb3ee8.STACK.ca591af5f.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 44. cpython-38-3f61d8bdc16f
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_GetIter|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `1b8e409a61`
+- PC: `0x5de8f336668b`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-3f61d8bdc16f.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5de8f336668b.STACK.1b8e409a61.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_GetIter`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyObject_GetIter (o=0x184026414641764) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:2570`
+  - `#1  0x00005b29db7bd08c in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3159`
+  - `#2  0x00005b29db7cc0a2 in PyEval_EvalFrameEx (f=0x5b2a1c67bbe0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5b2a1c649190, globals=0x5b2a1c6212a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x00005b29db7b7007 in PyEval_EvalCodeEx (_co=0x5b2a1c649190, globals=0x5b2a1c6212a0, locals=0x5b2a1c6212a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x5b2a1c649190, globals=0x5b2a1c6212a0, locals=0x5b2a1c6212a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x00005b29dba56614 in builtin_exec_impl (source=0x5b2a1c649190, globals=0x5b2a1c6212a0, locals=0x5b2a1c6212a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x00005b29db6908c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x00005b29db7c9d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffdd2d0ee60, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x00005b29db7b8494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x00005b29db7cc0a2 in PyEval_EvalFrameEx (f=0x5b2a1c5c8f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x5b2a1c645d70, globals=0x5b2a1c568aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x00005b29db7b7007 in PyEval_EvalCodeEx (_co=0x5b2a1c645d70, globals=0x5b2a1c568aa0, locals=0x5b2a1c568aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x5b2a1c645d70, globals=0x5b2a1c568aa0, locals=0x5b2a1c568aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x00005b29db86582d in run_eval_code_obj (co=0x5b2a1c645d70, globals=0x5b2a1c568aa0, locals=0x5b2a1c568aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5de8f336668b.STACK.1b8e409a61.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.63fcb6e0168b.STACK.1b8e409a61.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 45. cpython-38-55547475b2b6
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_And|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `f0363d130`
+- PC: `0x561a2096d7a8`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-55547475b2b6.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.561a2096d7a8.STACK.f0363d130.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyNumber_And`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyNumber_And (v=0x0, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:949`
+  - `#1  0x000063ec1a0f8c7c in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1620`
+  - `#2  0x000063ec1a1080a2 in PyEval_EvalFrameEx (f=0x7137f1ed6020, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x63ec570f9610, globals=0x63ec570d22a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x000063ec1a0f3007 in PyEval_EvalCodeEx (_co=0x63ec570f9610, globals=0x63ec570d22a0, locals=0x63ec570d22a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x63ec570f9610, globals=0x63ec570d22a0, locals=0x63ec570d22a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x000063ec1a392614 in builtin_exec_impl (source=0x63ec570f9610, globals=0x63ec570d22a0, locals=0x63ec570d22a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x000063ec19fcc8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x000063ec1a105d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffec31e45b0, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x000063ec1a0f4494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x000063ec1a1080a2 in PyEval_EvalFrameEx (f=0x63ec57079f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x63ec570f6d70, globals=0x63ec57019aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x000063ec1a0f3007 in PyEval_EvalCodeEx (_co=0x63ec570f6d70, globals=0x63ec57019aa0, locals=0x63ec57019aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x63ec570f6d70, globals=0x63ec57019aa0, locals=0x63ec57019aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x000063ec1a1a182d in run_eval_code_obj (co=0x63ec570f6d70, globals=0x63ec57019aa0, locals=0x63ec57019aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.561a2096d7a8.STACK.f0363d130.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b24784f17a8.STACK.f0363d130.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 46. cpython-38-5e5346c1cf8a
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyImport_ImportModuleLevelObject|import_name|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file`
+- Honggfuzz stack hash: `d64129371`
+- PC: `0x6285991e7799`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r12),%rax`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-5e5346c1cf8a.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.6285991e7799.STACK.d64129371.CODE.128.ADDR.0.INSTR.mov____0x8(%r12),%rax.pyc`
+- Reproduced stack frames: `not available; rerun did not produce a native backtrace`
+- Manual gdb command: `PYTHONHOME=data/rq3/cpython-3.8/source/cpython-3.8.20 PYTHONPATH=data/rq3/cpython-3.8/source/cpython-3.8.20/Lib PYTHONNOUSERSITE=1 gdb -q --args data/rq3/cpython-3.8/instrumented/python -S data/rq3/harness.py data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b6da067b799.STACK.d64129371.CODE.128.ADDR.0.INSTR.mov____0x8(%r12),%rax.pyc`
+- Rerun diagnostic excerpt:
+  - `grouped with representative rerun`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b6da067b799.STACK.d64129371.CODE.128.ADDR.0.INSTR.mov____0x8(%r12),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.6285991e7799.STACK.d64129371.CODE.128.ADDR.0.INSTR.mov____0x8(%r12),%rax.pyc`
+
+### 47. cpython-38-6b5e51e4cff1
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|??|??|??|free|_PyMem_RawFree|PyObject_Free|PyObject_GC_Del|func_dealloc|_Py_Dealloc|_Py_DECREF|_Py_XDECREF|free_keys_object|dictkeys_decref|PyDict_Clear|dict_tp_clear`
+- Honggfuzz stack hash: `1a07605f71`
+- PC: `0x759bdb8159fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-6b5e51e4cff1.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.759bdb8159fc.STACK.1a07605f71.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `??`
+  - `free`
+  - `_PyMem_RawFree`
+  - `PyObject_Free`
+  - `PyObject_GC_Del`
+  - `func_dealloc`
+  - `_Py_Dealloc`
+  - `_Py_DECREF`
+  - `_Py_XDECREF`
+  - `free_keys_object`
+  - `dictkeys_decref`
+  - `PyDict_Clear`
+  - `dict_tp_clear`
+- Reproduced stack frames:
+  - `#0  0x00007d2c732b39fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007d2c7325f476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007d2c732457f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00007d2c732a6677 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#4  0x00007d2c732bdcfc in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#5  0x00007d2c732bfe70 in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#6  0x00007d2c732c2453 in free () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#7  0x0000586ac779bf3e in _PyMem_RawFree (ctx=<optimized out>, ptr=0x586af37962c0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/obmalloc.c:127`
+  - `#8  0x0000586ac779e098 in PyObject_Free (ptr=0x586af37962c0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/obmalloc.c:709`
+  - `#9  0x0000586ac79b2e97 in PyObject_GC_Del (op=0x586af37962d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:2062`
+  - `#10 0x0000586ac7aeb77d in func_dealloc (op=0x586af37962d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/funcobject.c:601`
+  - `#11 0x0000586ac779b57c in _Py_Dealloc (op=0x586af37962d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:2215`
+  - `#12 0x0000586ac7772f54 in _Py_DECREF (op=0x586af37962d0, filename=<optimized out>, lineno=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:478`
+  - `#13 _Py_XDECREF (op=0x586af37962d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:541`
+  - `#14 free_keys_object (keys=0x586af3785190) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:584`
+  - `#15 dictkeys_decref (dk=0x586af3785190) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:324`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.759bdb8159fc.STACK.1a07605f71.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.79ad9fa2a9fc.STACK.1a07605f71.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 48. cpython-38-7566662ffbf6
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_SetAttr|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|_PyObject_Vectorcall|_PyObject_CallNoArg|calliter_iternext|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName`
+- Honggfuzz stack hash: `c38793669`
+- PC: `0x5766ef36c5d4`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r15),%r13`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-7566662ffbf6.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5766ef36c5d4.STACK.c38793669.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%r13.pyc`
+- Normalized function stack:
+  - `PyObject_SetAttr`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `_PyObject_Vectorcall`
+  - `_PyObject_CallNoArg`
+  - `calliter_iternext`
+  - `function_code_fastcall`
+  - `call_function`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+- Reproduced stack frames:
+  - `#0  PyObject_SetAttr (v=0x60b94d0cbc10, name=0x656c75646f6d, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:1035`
+  - `#1  0x000060b91dbda31c in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2372`
+  - `#2  0x000060b91dbe70a2 in PyEval_EvalFrameEx (f=0x60b94d06e040, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x60b94d0435c0, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x000060b91da2a09f in _PyFunction_Vectorcall (func=0x60b94d00e7a0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#5  0x000060b91de0e3f2 in _PyObject_Vectorcall (callable=0x60b94d00e7a0, args=0x0, nargsf=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  _PyObject_CallNoArg (func=0x60b94d00e7a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:153`
+  - `#7  calliter_iternext (it=0x60b94d02aee0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/iterobject.c:221`
+  - `#8  0x000060b91dbda0da in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3202`
+  - `#9  0x000060b91dbd2196 in PyEval_EvalFrameEx (f=0x60b94d04b610, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#10 0x000060b91da2a1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x60b94d01c250) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#11 _PyFunction_Vectorcall (func=0x60b94d0a4cb0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#12 0x000060b91dbe4d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffcea170e40, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#13 0x000060b91dbd3494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#14 0x000060b91dbe70a2 in PyEval_EvalFrameEx (f=0x60b94cfc3f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#15 _PyEval_EvalCodeWithName (_co=0x60b94d040d20, globals=0x60b94cf63aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5766ef36c5d4.STACK.c38793669.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%r13.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57d119d6f5d4.STACK.c38793669.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%r13.pyc`
+
+### 49. cpython-38-8300d10ad497
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_InPlaceMultiply|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `1a14da4468`
+- PC: `0x59ef94b62d74`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r13),%rax`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-8300d10ad497.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.59ef94b62d74.STACK.1a14da4468.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+- Normalized function stack:
+  - `PyNumber_InPlaceMultiply`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyNumber_InPlaceMultiply (v=0x175a018413641264, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:1132`
+  - `#1  0x00005a2331ba160f in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1692`
+  - `#2  0x00005a2331bb10a2 in PyEval_EvalFrameEx (f=0x5a2354bf0b30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5a2354bbd400, globals=0x5a2354b96250, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x00005a2331b9c007 in PyEval_EvalCodeEx (_co=0x5a2354bbd400, globals=0x5a2354b96250, locals=0x5a2354b96250, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x5a2354bbd400, globals=0x5a2354b96250, locals=0x5a2354b96250) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x00005a2331e3b614 in builtin_exec_impl (source=0x5a2354bbd400, globals=0x5a2354b96250, locals=0x5a2354b96250, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x00005a2331a758c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x00005a2331baed6f in call_function (tstate=<optimized out>, pp_stack=0x7ffe7d0b28e0, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x00005a2331b9d494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x00005a2331bb10a2 in PyEval_EvalFrameEx (f=0x5a2354b3dee0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x5a2354bbad00, globals=0x5a2354addaa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x00005a2331b9c007 in PyEval_EvalCodeEx (_co=0x5a2354bbad00, globals=0x5a2354addaa0, locals=0x5a2354addaa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x5a2354bbad00, globals=0x5a2354addaa0, locals=0x5a2354addaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x00005a2331c4a82d in run_eval_code_obj (co=0x5a2354bbad00, globals=0x5a2354addaa0, locals=0x5a2354addaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.59ef94b62d74.STACK.1a14da4468.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d5e8e0ffd74.STACK.1a14da4468.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+
+### 50. cpython-38-841855c41b4b
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyDict_SetItem|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|builtin___build_class__|cfunction_vectorcall_FASTCALL_KEYWORDS|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName`
+- Honggfuzz stack hash: `1971fc07bd`
+- PC: `0x5818d00fc260`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r15),%rax`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-841855c41b4b.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5818d00fc260.STACK.1971fc07bd.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+- Normalized function stack:
+  - `PyDict_SetItem`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `builtin___build_class__`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `call_function`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyDict_SetItem (op=0x5c19add53f00, key=<optimized out>, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:1533`
+  - `#1  0x00005c198f3acc5d in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2292`
+  - `#2  0x00005c198f3ba0a2 in PyEval_EvalFrameEx (f=0x5c19addb04c0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5c19add7c610, globals=0x5c19add552a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x00005c198f3a50c5 in PyEval_EvalCodeEx (_co=0x5c19add7c610, globals=0x5c19add552a0, locals=0x5c19add53f00, args=0x3f, argcount=0, kws=0x0, kwcount=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  0x00005c198f642621 in builtin___build_class__ (self=<optimized out>, args=<optimized out>, nargs=3, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:213`
+  - `#6  0x00005c198f27ea90 in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, nargsf=9223372036854775811, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:441`
+  - `#7  0x00005c198f3b7d6f in call_function (tstate=<optimized out>, pp_stack=0x7fff9ddc7670, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#8  0x00005c198f3a6494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#9  0x00005c198f3a5196 in PyEval_EvalFrameEx (f=0x5c19add7f3c0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#10 0x00005c198f1fd1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5c19add552a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#11 _PyFunction_Vectorcall (func=0x5c19addddc60, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#12 0x00005c198f3b7d6f in call_function (tstate=<optimized out>, pp_stack=0x7fff9ddc7930, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#13 0x00005c198f3a6494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#14 0x00005c198f3ba0a2 in PyEval_EvalFrameEx (f=0x5c19adcfcf30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#15 _PyEval_EvalCodeWithName (_co=0x5c19add79d70, globals=0x5c19adc9caa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5818d00fc260.STACK.1971fc07bd.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61ae5bdf0260.STACK.1971fc07bd.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+
+### 51. cpython-38-8c725bdab8e8
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyTuple_FromArray|_PyObject_MakeTpCall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file`
+- Honggfuzz stack hash: `c7e8a1a5f`
+- PC: `0x61566fa0f360`
+- Fault address: `0xe`
+- Instruction: `addq___$0x1,(%r14)`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-8c725bdab8e8.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61566fa0f360.STACK.c7e8a1a5f.CODE.1.ADDR.e.INSTR.addq___$0x1,(%r14).pyc`
+- Normalized function stack:
+  - `_PyTuple_FromArray`
+  - `_PyObject_MakeTpCall`
+  - `call_function`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  _PyTuple_FromArray (src=<optimized out>, n=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/tupleobject.c:432`
+  - `#1  0x000060b61d6680eb in _PyObject_MakeTpCall (callable=0x60b61dbdc910 <PyFrame_Type>, args=<optimized out>, nargs=<optimized out>, keywords=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:133`
+  - `#2  0x000060b61d824e28 in call_function (tstate=<optimized out>, pp_stack=0x7fff5e0ad2e0, oparg=53, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4935`
+  - `#3  0x000060b61d813494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#4  0x000060b61d812196 in PyEval_EvalFrameEx (f=0x60b6436b9650, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#5  0x000060b61d66a1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x60b64368a290) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#6  _PyFunction_Vectorcall (func=0x60b6435ce350, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#7  0x000060b61d824d6f in call_function (tstate=<optimized out>, pp_stack=0x7fff5e0ad5a0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#8  0x000060b61d813494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#9  0x000060b61d8270a2 in PyEval_EvalFrameEx (f=0x60b643631f20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#10 _PyEval_EvalCodeWithName (_co=0x60b6436aed60, globals=0x60b6435d1840, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#11 0x000060b61d812007 in PyEval_EvalCodeEx (_co=0x60b6436aed60, globals=0x60b6435d1840, locals=0x60b6435d1840, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#12 PyEval_EvalCode (co=0x60b6436aed60, globals=0x60b6435d1840, locals=0x60b6435d1840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#13 0x000060b61d8c082d in run_eval_code_obj (co=0x60b6436aed60, globals=0x60b6435d1840, locals=0x60b6435d1840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#14 run_mod (mod=0x60b64368d258, filename=0x60b643688bf0, globals=0x60b6435d1840, locals=0x60b6435d1840, flags=0x7fff5e0ad9b0, arena=0x60b6436321a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#15 pyrun_file (fp=0x60b64367c6f0, filename=0x60b643688bf0, start=257, globals=0x60b6435d1840, locals=0x60b6435d1840, closeit=1, flags=0x7fff5e0ad9b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61566fa0f360.STACK.c7e8a1a5f.CODE.1.ADDR.e.INSTR.addq___$0x1,(%r14).pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61ff3317e360.STACK.c7e8a1a5f.CODE.1.ADDR.c.INSTR.addq___$0x1,(%r14).pyc`
+
+### 52. cpython-38-c2fa264aa16f
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_IsTrue|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `19ab09ad06`
+- PC: `0x586499652978`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-c2fa264aa16f.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.586499652978.STACK.19ab09ad06.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_IsTrue`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+  - `pymain_run_python`
+- Reproduced stack frames:
+  - `#0  PyObject_IsTrue (v=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:1457`
+  - `#1  0x00005adef8e1a7a1 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3078`
+  - `#2  0x00005adef8e260a2 in PyEval_EvalFrameEx (f=0x5adf17c16660, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5adf17c822c0, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x00005adef8c6909f in _PyFunction_Vectorcall (func=0x5adf17b2b5b0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#5  0x00005adef8e23d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffe5c84bfc0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x00005adef8e12494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x00005adef8e260a2 in PyEval_EvalFrameEx (f=0x5adf17b8ef30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x5adf17c0bd70, globals=0x5adf17b2eaa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x00005adef8e11007 in PyEval_EvalCodeEx (_co=0x5adf17c0bd70, globals=0x5adf17b2eaa0, locals=0x5adf17b2eaa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x5adf17c0bd70, globals=0x5adf17b2eaa0, locals=0x5adf17b2eaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x00005adef8ebf82d in run_eval_code_obj (co=0x5adf17c0bd70, globals=0x5adf17b2eaa0, locals=0x5adf17b2eaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x5adf17bea268, filename=0x5adf17be5c00, globals=0x5adf17b2eaa0, locals=0x5adf17b2eaa0, flags=0x7ffe5c84c3d0, arena=0x5adf17b8f1b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x5adf17bd9700, filename=0x5adf17be5c00, start=257, globals=0x5adf17b2eaa0, locals=0x5adf17b2eaa0, closeit=1, flags=0x7ffe5c84c3d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x5adf17bd9700, filename=0x5adf17be5c00, closeit=1, flags=0x7ffe5c84c3d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x5adf17be5bc0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.586499652978.STACK.19ab09ad06.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.631e91b72978.STACK.19ab09ad06.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 53. cpython-38-c3f33ace70df
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_Py_XDECREF|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|gen_send_ex|gen_iternext|builtin_next|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName`
+- Honggfuzz stack hash: `c26a5b575`
+- PC: `0x5ba2df8f71e8`
+- Fault address: `0x0`
+- Instruction: `mov____(%rbx),%r12`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-c3f33ace70df.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5ba2df8f71e8.STACK.c26a5b575.CODE.128.ADDR.0.INSTR.mov____(%rbx),%r12.pyc`
+- Normalized function stack:
+  - `_Py_XDECREF`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `gen_send_ex`
+  - `gen_iternext`
+  - `builtin_next`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+- Reproduced stack frames:
+  - `#0  _Py_XDECREF (op=0x100000000) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:541`
+  - `#1  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3790`
+  - `#2  0x000058a6bda01196 in PyEval_EvalFrameEx (f=0x58a6d2133dc0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x000058a6bdc30998 in gen_send_ex (gen=0x58a6d214e760, arg=<optimized out>, exc=<optimized out>, closing=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/genobject.c:222`
+  - `#4  0x000058a6bdc31b24 in gen_iternext (gen=0x58a6d214e760) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/genobject.c:543`
+  - `#5  0x000058a6bdca20f4 in builtin_next (self=<optimized out>, args=<optimized out>, nargs=1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1381`
+  - `#6  0x000058a6bd8da8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#7  0x000058a6bda13d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffc5610a920, oparg=1, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#8  0x000058a6bda02494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#9  0x000058a6bda160a2 in PyEval_EvalFrameEx (f=0x58a6d20f4650, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#10 _PyEval_EvalCodeWithName (_co=0x58a6d20ec2c0, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#11 0x000058a6bd85909f in _PyFunction_Vectorcall (func=0x58a6d20b7790, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#12 0x000058a6bda13d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffc5610acc0, oparg=1, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#13 0x000058a6bda02494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#14 0x000058a6bda160a2 in PyEval_EvalFrameEx (f=0x58a6d20f55f0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#15 _PyEval_EvalCodeWithName (_co=0x58a6d21726f0, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5ba2df8f71e8.STACK.c26a5b575.CODE.128.ADDR.0.INSTR.mov____(%rbx),%r12.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5cc00f6b1666.STACK.c26a5b575.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+
+### 54. cpython-38-c465064c83d7
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_Py_XDECREF|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|gen_send_ex|_PyGen_Send|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|gen_send_ex|gen_iternext|builtin_next|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall`
+- Honggfuzz stack hash: `1801ad3d73`
+- PC: `0x5a1eb30971e8`
+- Fault address: `0x5a1effffffff`
+- Instruction: `mov____(%rbx),%r12`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-c465064c83d7.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a1eb30971e8.STACK.1801ad3d73.CODE.1.ADDR.5a1effffffff.INSTR.mov____(%rbx),%r12.pyc`
+- Normalized function stack:
+  - `_Py_XDECREF`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `gen_send_ex`
+  - `_PyGen_Send`
+  - `gen_iternext`
+  - `builtin_next`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+- Reproduced stack frames:
+  - `#0  _Py_XDECREF (op=0x60bcffffffff) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:541`
+  - `#1  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3790`
+  - `#2  0x000060bc3c5de196 in PyEval_EvalFrameEx (f=0x60bc84a8b680, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x000060bc3c80d998 in gen_send_ex (gen=0x60bc84a6ee80, arg=<optimized out>, exc=<optimized out>, closing=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/genobject.c:222`
+  - `#4  0x000060bc3c80d6e9 in _PyGen_Send (gen=0x60bc84a6ee80, arg=0x60bc3c9ad5e0 <_Py_NoneStruct>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/genobject.c:292`
+  - `#5  0x000060bc3c5e44b7 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2053`
+  - `#6  0x000060bc3c5de196 in PyEval_EvalFrameEx (f=0x60bc84ab3350, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#7  0x000060bc3c80d998 in gen_send_ex (gen=0x60bc84b10340, arg=<optimized out>, exc=<optimized out>, closing=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/genobject.c:222`
+  - `#8  0x000060bc3c80eb24 in gen_iternext (gen=0x60bc84b10340) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/genobject.c:543`
+  - `#9  0x000060bc3c87f0f4 in builtin_next (self=<optimized out>, args=<optimized out>, nargs=1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1381`
+  - `#10 0x000060bc3c4b78c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#11 0x000060bc3c5f0d6f in call_function (tstate=<optimized out>, pp_stack=0x7fff8b3d9690, oparg=1, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#12 0x000060bc3c5df494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#13 0x000060bc3c5f30a2 in PyEval_EvalFrameEx (f=0x60bc849d4eb0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#14 _PyEval_EvalCodeWithName (_co=0x60bc84a88560, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#15 0x000060bc3c43609f in _PyFunction_Vectorcall (func=0x60bc849a5630, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a1eb30971e8.STACK.1801ad3d73.CODE.1.ADDR.5a1effffffff.INSTR.mov____(%rbx),%r12.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.6495a13a21e8.STACK.1801ad3d73.CODE.1.ADDR.6495ffffffff.INSTR.mov____(%rbx),%r12.pyc`
+
+### 55. cpython-38-d9663bd0a74c
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_Xor|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `d38b29625`
+- PC: `0x58063d165408`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 2
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-d9663bd0a74c.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.58063d165408.STACK.d38b29625.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyNumber_Xor`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  PyNumber_Xor (v=0x0, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:948`
+  - `#1  0x00005560916edd82 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1632`
+  - `#2  0x00005560916e8196 in PyEval_EvalFrameEx (f=0x5560c4700760, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x00005560915401a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5560c46c7240) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#4  _PyFunction_Vectorcall (func=0x5560c474fc50, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#5  0x00005560916fad6f in call_function (tstate=<optimized out>, pp_stack=0x7fff1eb1d2e0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x00005560916e9494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x00005560916fd0a2 in PyEval_EvalFrameEx (f=0x5560c466eed0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x5560c46ebd10, globals=0x5560c460eaa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x00005560916e8007 in PyEval_EvalCodeEx (_co=0x5560c46ebd10, globals=0x5560c460eaa0, locals=0x5560c460eaa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x5560c46ebd10, globals=0x5560c460eaa0, locals=0x5560c460eaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x000055609179682d in run_eval_code_obj (co=0x5560c46ebd10, globals=0x5560c460eaa0, locals=0x5560c460eaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x5560c46ca208, filename=0x5560c46c5ba0, globals=0x5560c460eaa0, locals=0x5560c460eaa0, flags=0x7fff1eb1d6f0, arena=0x5560c466f150) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x5560c46b96a0, filename=0x5560c46c5ba0, start=257, globals=0x5560c460eaa0, locals=0x5560c460eaa0, closeit=1, flags=0x7fff1eb1d6f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x5560c46b96a0, filename=0x5560c46c5ba0, closeit=1, flags=0x7fff1eb1d6f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x5560c46c5b60 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.58063d165408.STACK.d38b29625.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.630ff81f5408.STACK.d38b29625.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 56. cpython-38-0854bfe32a3d
+
+- Status: crash
+- Signal: SIGSEGV
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV:_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|_PyObject_Vectorcall|_PyObject_FastCall|object_vacall|_PyObject_CallMethodIdObjArgs|import_find_and_load|PyImport_ImportModuleLevelObject|import_name|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName`
+- Honggfuzz stack hash: `1a10c5dd09`
+- PC: `0x59b4c6e84140`
+- Fault address: `0x59b4c6e84140`
+- Instruction: `nop`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-0854bfe32a3d.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.59b4c6e84140.STACK.1a10c5dd09.CODE.2.ADDR.59b4c6e84140.INSTR.nop.pyc`
+- Normalized function stack:
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyObject_Vectorcall`
+  - `_PyObject_FastCall`
+  - `object_vacall`
+  - `_PyObject_CallMethodIdObjArgs`
+  - `import_find_and_load`
+  - `PyImport_ImportModuleLevelObject`
+  - `import_name`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+- Reproduced stack frames:
+  - `#50 _PyFunction_Vectorcall (func=0x5d5434efd5e0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#51 0x00005d540c5cbd6f in call_function (tstate=<optimized out>, pp_stack=0x7ffcd0079c60, oparg=2, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#52 0x00005d540c5ba494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#53 0x00005d540c5b9196 in PyEval_EvalFrameEx (f=0x5d5435099680, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#54 0x00005d540c4111a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=2, globals=0x5d5434eefac0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#55 _PyFunction_Vectorcall (func=0x5d5434ef60c0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#56 0x00005d540c417cdf in _PyObject_Vectorcall (callable=0x5d5434ef60c0, args=0x7ffcd0079f00, nargsf=2, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#57 _PyObject_FastCall (func=0x5d5434ef60c0, args=0x7ffcd0079f00, nargs=2) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:147`
+  - `#58 object_vacall (base=<optimized out>, callable=0x5d5434ef60c0, vargs=0x7ffcd0079f50) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:1187`
+  - `#59 _PyObject_CallMethodIdObjArgs (obj=<optimized out>, name=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:1245`
+  - `#60 0x00005d540c62d252 in import_find_and_load (abs_name=0x5d5435098fc0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/import.c:1698`
+  - `#61 PyImport_ImportModuleLevelObject (name=0x5d5435098fc0, globals=<optimized out>, locals=<optimized out>, fromlist=<optimized out>, level=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/import.c:1798`
+  - `#62 0x00005d540c5cb3b5 in import_name (tstate=<optimized out>, f=0x5d54350993d0, name=<optimized out>, fromlist=<optimized out>, level=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:5139`
+  - `#63 0x00005d540c5c1ff4 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2993`
+  - `#64 0x00005d540c5ce0a2 in PyEval_EvalFrameEx (f=0x5d54350993d0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#65 _PyEval_EvalCodeWithName (_co=0x5d5435099300, globals=0x5d54350b5540, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.59b4c6e84140.STACK.1a10c5dd09.CODE.2.ADDR.59b4c6e84140.INSTR.nop.pyc`
+
+### 57. cpython-38-0e6ea9f74fdd
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_GetAttr|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `d25f9613b`
+- PC: `0x5a50d995be29`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r15),%r13`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-0e6ea9f74fdd.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a50d995be29.STACK.d25f9613b.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%r13.pyc`
+- Normalized function stack:
+  - `PyObject_GetAttr`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+  - `pymain_run_python`
+- Reproduced stack frames:
+  - `#0  PyObject_GetAttr (v=0x6500610fcf20, name=0x6500006f732e) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:934`
+  - `#1  0x0000650046e8cdff in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2966`
+  - `#2  0x0000650046e990a2 in PyEval_EvalFrameEx (f=0x6500610ecbf0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x6500610e75c0, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x0000650046cdc09f in _PyFunction_Vectorcall (func=0x6500610045b0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#5  0x0000650046e96d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffe5b9ef1d0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x0000650046e85494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x0000650046e990a2 in PyEval_EvalFrameEx (f=0x650061067f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x6500610e4d20, globals=0x650061007aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x0000650046e84007 in PyEval_EvalCodeEx (_co=0x6500610e4d20, globals=0x650061007aa0, locals=0x650061007aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x6500610e4d20, globals=0x650061007aa0, locals=0x650061007aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x0000650046f3282d in run_eval_code_obj (co=0x6500610e4d20, globals=0x650061007aa0, locals=0x650061007aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x6500610c3218, filename=0x6500610bebb0, globals=0x650061007aa0, locals=0x650061007aa0, flags=0x7ffe5b9ef5e0, arena=0x6500610681b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x6500610b2700, filename=0x6500610bebb0, start=257, globals=0x650061007aa0, locals=0x650061007aa0, closeit=1, flags=0x7ffe5b9ef5e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x6500610b2700, filename=0x6500610bebb0, closeit=1, flags=0x7ffe5b9ef5e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x6500610beb70 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a50d995be29.STACK.d25f9613b.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%r13.pyc`
+
+### 58. cpython-38-1023437964e6
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags|PyRun_AnyFileExFlags`
+- Honggfuzz stack hash: `19dace86bf`
+- PC: `0x5c1aeb755e25`
+- Fault address: `0x0`
+- Instruction: `mov____%rax,(%rcx)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-1023437964e6.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5c1aeb755e25.STACK.19dace86bf.CODE.128.ADDR.0.INSTR.mov____%rax,(%rcx).pyc`
+- Normalized function stack:
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+- Reproduced stack frames:
+  - `#0  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1349`
+  - `#1  0x00005ed2e32140a2 in PyEval_EvalFrameEx (f=0x5ed2ef067160, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#2  _PyEval_EvalCodeWithName (_co=0x5ed2ef062610, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#3  0x00005ed2e305709f in _PyFunction_Vectorcall (func=0x5ed2eef7f5b0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#4  0x00005ed2e3211d6f in call_function (tstate=<optimized out>, pp_stack=0x7fffaad59f00, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#5  0x00005ed2e3200494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#6  0x00005ed2e32140a2 in PyEval_EvalFrameEx (f=0x5ed2eefe2f50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#7  _PyEval_EvalCodeWithName (_co=0x5ed2ef05fd70, globals=0x5ed2eef82aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#8  0x00005ed2e31ff007 in PyEval_EvalCodeEx (_co=0x5ed2ef05fd70, globals=0x5ed2eef82aa0, locals=0x5ed2eef82aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#9  PyEval_EvalCode (co=0x5ed2ef05fd70, globals=0x5ed2eef82aa0, locals=0x5ed2eef82aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#10 0x00005ed2e32ad82d in run_eval_code_obj (co=0x5ed2ef05fd70, globals=0x5ed2eef82aa0, locals=0x5ed2eef82aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#11 run_mod (mod=0x5ed2ef03e288, filename=0x5ed2ef039c20, globals=0x5ed2eef82aa0, locals=0x5ed2eef82aa0, flags=0x7fffaad5a310, arena=0x5ed2eefe1d90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#12 pyrun_file (fp=0x5ed2ef02d720, filename=0x5ed2ef039c20, start=257, globals=0x5ed2eef82aa0, locals=0x5ed2eef82aa0, closeit=1, flags=0x7fffaad5a310) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#13 pyrun_simple_file (fp=0x5ed2ef02d720, filename=0x5ed2ef039c20, closeit=1, flags=0x7fffaad5a310) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#14 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x5ed2ef039be0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+  - `#15 0x00005ed2e32ac795 in PyRun_AnyFileExFlags (fp=0x5ed2ef02d720, filename=0x5ed2ef039be0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:90`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5c1aeb755e25.STACK.19dace86bf.CODE.128.ADDR.0.INSTR.mov____%rax,(%rcx).pyc`
+
+### 59. cpython-38-172b46bc6f63
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_Repr|unicode_fromformat_arg|PyUnicode_FromFormatV|_PyErr_FormatV|_PyErr_Format|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `c8cb3ad72`
+- PC: `0x5970f00b40c8`
+- Fault address: `0x5974995de89f`
+- Instruction: `mov____0x8(%r14),%rbx`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-172b46bc6f63.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5970f00b40c8.STACK.c8cb3ad72.CODE.1.ADDR.5974995de89f.INSTR.mov____0x8(%r14),%rbx.pyc`
+- Normalized function stack:
+  - `PyObject_Repr`
+  - `unicode_fromformat_arg`
+  - `PyUnicode_FromFormatV`
+  - `_PyErr_FormatV`
+  - `_PyErr_Format`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+- Reproduced stack frames:
+  - `#0  PyObject_Repr (v=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:524`
+  - `#1  0x000058fada0234e0 in unicode_fromformat_arg (writer=0x7ffd77e3dce8, f=<optimized out>, vargs=0x7ffd77e3dd40) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/unicodeobject.c:2894`
+  - `#2  PyUnicode_FromFormatV (format=0x58fada3eadf4 "no locals when loading %R", vargs=0x7ffd77e3de50) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/unicodeobject.c:2958`
+  - `#3  0x000058fada135e7b in _PyErr_FormatV (tstate=0x58faf320e270, exception=0x58fada4a3da8 <_PyExc_SystemError>, format=0x58fadaef4b00 <bbMapFb> "", vargs=0x7ffd77e3de50) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/errors.c:930`
+  - `#4  _PyErr_Format (tstate=0x58faf320e270, exception=<optimized out>, format=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/errors.c:956`
+  - `#5  0x000058fada0ea2ca in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1985`
+  - `#6  0x000058fada0f10a2 in PyEval_EvalFrameEx (f=0x58faf339f8f0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#7  _PyEval_EvalCodeWithName (_co=0x58faf337dae0, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#8  0x000058fad9f3409f in _PyFunction_Vectorcall (func=0x58faf32b4640, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#9  0x000058fada0eed6f in call_function (tstate=<optimized out>, pp_stack=0x7ffd77e3e2a0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x000058fada0dd494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x000058fada0f10a2 in PyEval_EvalFrameEx (f=0x58faf3318210, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x58faf3395000, globals=0x58faf32b7b30, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x000058fada0dc007 in PyEval_EvalCodeEx (_co=0x58faf3395000, globals=0x58faf32b7b30, locals=0x58faf32b7b30, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x58faf3395000, globals=0x58faf32b7b30, locals=0x58faf32b7b30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x000058fada18a82d in run_eval_code_obj (co=0x58faf3395000, globals=0x58faf32b7b30, locals=0x58faf32b7b30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5970f00b40c8.STACK.c8cb3ad72.CODE.1.ADDR.5974995de89f.INSTR.mov____0x8(%r14),%rbx.pyc`
+
+### 60. cpython-38-19240d2dd11b
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_Py_XDECREF|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `186feb0e4f`
+- PC: `0x616781133b53`
+- Fault address: `0x0`
+- Instruction: `mov____(%r15),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-19240d2dd11b.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.616781133b53.STACK.186feb0e4f.CODE.128.ADDR.0.INSTR.mov____(%r15),%r14.pyc`
+- Normalized function stack:
+  - `_Py_XDECREF`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+  - `pymain_run_python`
+- Reproduced stack frames:
+  - `#0  _Py_XDECREF (op=0xb8) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:541`
+  - `#1  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3790`
+  - `#2  0x00005f7c32dd10a2 in PyEval_EvalFrameEx (f=0x5f7c6aeb49c0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5f7c6aeb4190, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x00005f7c32c1409f in _PyFunction_Vectorcall (func=0x5f7c6af14d00, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#5  0x00005f7c32dced6f in call_function (tstate=<optimized out>, pp_stack=0x7fff3880ac00, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x00005f7c32dbd494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x00005f7c32dd10a2 in PyEval_EvalFrameEx (f=0x5f7c6ae33f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x5f7c6aeb0d70, globals=0x5f7c6add3aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x00005f7c32dbc007 in PyEval_EvalCodeEx (_co=0x5f7c6aeb0d70, globals=0x5f7c6add3aa0, locals=0x5f7c6add3aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x5f7c6aeb0d70, globals=0x5f7c6add3aa0, locals=0x5f7c6add3aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x00005f7c32e6a82d in run_eval_code_obj (co=0x5f7c6aeb0d70, globals=0x5f7c6add3aa0, locals=0x5f7c6add3aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x5f7c6ae8f268, filename=0x5f7c6ae8ac00, globals=0x5f7c6add3aa0, locals=0x5f7c6add3aa0, flags=0x7fff3880b010, arena=0x5f7c6ae341b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x5f7c6ae7e700, filename=0x5f7c6ae8ac00, start=257, globals=0x5f7c6add3aa0, locals=0x5f7c6add3aa0, closeit=1, flags=0x7fff3880b010) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x5f7c6ae7e700, filename=0x5f7c6ae8ac00, closeit=1, flags=0x7fff3880b010) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x5f7c6ae8abc0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.616781133b53.STACK.186feb0e4f.CODE.128.ADDR.0.INSTR.mov____(%r15),%r14.pyc`
+
+### 61. cpython-38-1f2a015a29bd
+
+- Status: crash
+- Signal: SIGABRT
+- Stack source: honggfuzz-filename
+- Stack signature: `SIGABRT:193d82d1ea`
+- Honggfuzz stack hash: `193d82d1ea`
+- PC: `0x74bc386249fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-1f2a015a29bd.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.74bc386249fc.STACK.193d82d1ea.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Reproduced stack frames: `not available; rerun did not produce a native backtrace`
+- Manual gdb command: `PYTHONHOME=data/rq3/cpython-3.8/source/cpython-3.8.20 PYTHONPATH=data/rq3/cpython-3.8/source/cpython-3.8.20/Lib PYTHONNOUSERSITE=1 gdb -q --args data/rq3/cpython-3.8/instrumented/python -S data/rq3/harness.py data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.74bc386249fc.STACK.193d82d1ea.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Rerun diagnostic excerpt:
+  - `"Auto-loading safe path" section in the GDB manual.  E.g., run from the shell:`
+  - `info "(gdb)Auto-loading safe path"`
+  - `warning: Error disabling address space randomization: Operation not permitted`
+  - `[Thread debugging using libthread_db enabled]`
+  - `Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".`
+  - `Traceback (most recent call last):`
+  - `File "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", line 29, in <module>`
+  - `result = target()`
+  - `File "data/rq3/cpython-3.8/unittest_seeds/raw/cpython_case_test_sys_settrace_JumpTestCase_test_large_function.py", line 9, in __pybcsec_seed__`
+  - `UnboundLocalError: local variable 'd' referenced before assignment`
+  - `[Inferior 1 (process 1276892) exited with code 01]`
+  - `No stack.`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.74bc386249fc.STACK.193d82d1ea.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 62. cpython-38-2b1955af2c5d
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_LookupAttr|_PyObject_LookupAttrId|import_all_from|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx`
+- Honggfuzz stack hash: `e85ac5f04`
+- PC: `0x56750da59228`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r13),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-2b1955af2c5d.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.56750da59228.STACK.e85ac5f04.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%r14.pyc`
+- Normalized function stack:
+  - `_PyObject_LookupAttr`
+  - `_PyObject_LookupAttrId`
+  - `import_all_from`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+- Reproduced stack frames:
+  - `#0  _PyObject_LookupAttr (v=0x184026414641764, name=<optimized out>, result=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:957`
+  - `#1  0x00005a5efa06bb5a in _PyObject_LookupAttrId (v=<optimized out>, name=<optimized out>, result=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:1011`
+  - `#2  0x00005a5efa18f305 in import_all_from (tstate=0x5a5f41007440, locals=0x5a5f411692a0, v=0x184026414641764) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:5245`
+  - `#3  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3017`
+  - `#4  0x00005a5efa19d0a2 in PyEval_EvalFrameEx (f=0x5a5f411c3be0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#5  _PyEval_EvalCodeWithName (_co=0x5a5f41211910, globals=0x5a5f411692a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#6  0x00005a5efa188007 in PyEval_EvalCodeEx (_co=0x5a5f41211910, globals=0x5a5f411692a0, locals=0x5a5f411692a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#7  PyEval_EvalCode (co=0x5a5f41211910, globals=0x5a5f411692a0, locals=0x5a5f411692a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#8  0x00005a5efa427614 in builtin_exec_impl (source=0x5a5f41211910, globals=0x5a5f411692a0, locals=0x5a5f411692a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#9  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#10 0x00005a5efa0618c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#11 0x00005a5efa19ad6f in call_function (tstate=<optimized out>, pp_stack=0x7ffeb15d8bb0, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#12 0x00005a5efa189494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#13 0x00005a5efa19d0a2 in PyEval_EvalFrameEx (f=0x5a5f41110f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#14 _PyEval_EvalCodeWithName (_co=0x5a5f4118dd70, globals=0x5a5f410b0aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#15 0x00005a5efa188007 in PyEval_EvalCodeEx (_co=0x5a5f4118dd70, globals=0x5a5f410b0aa0, locals=0x5a5f410b0aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.56750da59228.STACK.e85ac5f04.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%r14.pyc`
+
+### 63. cpython-38-2e8fd71ffa83
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_Positive|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `f0333dcc4`
+- PC: `0x6173f4de8d1f`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-2e8fd71ffa83.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.6173f4de8d1f.STACK.f0333dcc4.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyNumber_Positive`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyNumber_Positive (o=0x184026414641764) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:1212`
+  - `#1  0x00005ef8ced06c45 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1417`
+  - `#2  0x00005ef8ced180a2 in PyEval_EvalFrameEx (f=0x5ef8f9936be0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5ef8f9903610, globals=0x5ef8f98dc2a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x00005ef8ced03007 in PyEval_EvalCodeEx (_co=0x5ef8f9903610, globals=0x5ef8f98dc2a0, locals=0x5ef8f98dc2a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x5ef8f9903610, globals=0x5ef8f98dc2a0, locals=0x5ef8f98dc2a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x00005ef8cefa2614 in builtin_exec_impl (source=0x5ef8f9903610, globals=0x5ef8f98dc2a0, locals=0x5ef8f98dc2a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x00005ef8cebdc8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x00005ef8ced15d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffdccb0bb30, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x00005ef8ced04494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x00005ef8ced180a2 in PyEval_EvalFrameEx (f=0x5ef8f9883f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x5ef8f9900d70, globals=0x5ef8f9823aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x00005ef8ced03007 in PyEval_EvalCodeEx (_co=0x5ef8f9900d70, globals=0x5ef8f9823aa0, locals=0x5ef8f9823aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x5ef8f9900d70, globals=0x5ef8f9823aa0, locals=0x5ef8f9823aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x00005ef8cedb182d in run_eval_code_obj (co=0x5ef8f9900d70, globals=0x5ef8f9823aa0, locals=0x5ef8f9823aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.6173f4de8d1f.STACK.f0333dcc4.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 64. cpython-38-303ca82731f8
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|_PyObject_Vectorcall|_PyObject_CallNoArg|calliter_iternext|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName`
+- Honggfuzz stack hash: `183804e838`
+- PC: `0x5d5de710cba1`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r13),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-303ca82731f8.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d5de710cba1.STACK.183804e838.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+- Normalized function stack:
+  - `call_function`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `_PyObject_Vectorcall`
+  - `_PyObject_CallNoArg`
+  - `calliter_iternext`
+  - `function_code_fastcall`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+- Reproduced stack frames:
+  - `#0  call_function (tstate=<optimized out>, pp_stack=0x7ffd287087e8, oparg=703672224, kwnames=0x561729f12fa0 <_Py_FalseStruct>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4963`
+  - `#1  0x0000561729b19ba2 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3515`
+  - `#2  0x0000561729b2d0a2 in PyEval_EvalFrameEx (f=0x56174d312090, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x56174d36d820, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x000056172997009f in _PyFunction_Vectorcall (func=0x56174d2b27a0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#5  0x0000561729d543f2 in _PyObject_Vectorcall (callable=0x56174d2b27a0, args=0x0, nargsf=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  _PyObject_CallNoArg (func=0x56174d2b27a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:153`
+  - `#7  calliter_iternext (it=0x56174d2cef30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/iterobject.c:221`
+  - `#8  0x0000561729b200da in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3202`
+  - `#9  0x0000561729b18196 in PyEval_EvalFrameEx (f=0x56174d2ef660, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#10 0x00005617299701a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x56174d2c02a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#11 _PyFunction_Vectorcall (func=0x56174d2ed460, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#12 0x0000561729b2ad6f in call_function (tstate=<optimized out>, pp_stack=0x7ffd28708e00, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#13 0x0000561729b19494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#14 0x0000561729b2d0a2 in PyEval_EvalFrameEx (f=0x56174d267f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#15 _PyEval_EvalCodeWithName (_co=0x56174d2e4d70, globals=0x56174d207aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d5de710cba1.STACK.183804e838.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+
+### 65. cpython-38-3161b78f9aee
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_GetIter|unpack_iterable|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode`
+- Honggfuzz stack hash: `1a88e85d54`
+- PC: `0x64a66a53b68b`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-3161b78f9aee.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.64a66a53b68b.STACK.1a88e85d54.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%r15.pyc`
+- Normalized function stack:
+  - `PyObject_GetIter`
+  - `unpack_iterable`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyObject_GetIter (o=0x184026414641764) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:2570`
+  - `#1  0x00005b0443642295 in unpack_iterable (tstate=<optimized out>, v=0x184026414641764, argcnt=<optimized out>, argcntafter=<optimized out>, sp=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4466`
+  - `#2  0x00005b0443639231 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2355`
+  - `#3  0x00005b04436460a2 in PyEval_EvalFrameEx (f=0x5b0467272be0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#4  _PyEval_EvalCodeWithName (_co=0x5b046723f610, globals=0x5b04672182a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#5  0x00005b0443631007 in PyEval_EvalCodeEx (_co=0x5b046723f610, globals=0x5b04672182a0, locals=0x5b04672182a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#6  PyEval_EvalCode (co=0x5b046723f610, globals=0x5b04672182a0, locals=0x5b04672182a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#7  0x00005b04438d0614 in builtin_exec_impl (source=0x5b046723f610, globals=0x5b04672182a0, locals=0x5b04672182a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#8  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#9  0x00005b044350a8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#10 0x00005b0443643d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffc3d3c5210, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#11 0x00005b0443632494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#12 0x00005b04436460a2 in PyEval_EvalFrameEx (f=0x5b04671bff30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#13 _PyEval_EvalCodeWithName (_co=0x5b046723cd70, globals=0x5b046715faa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#14 0x00005b0443631007 in PyEval_EvalCodeEx (_co=0x5b046723cd70, globals=0x5b046715faa0, locals=0x5b046715faa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#15 PyEval_EvalCode (co=0x5b046723cd70, globals=0x5b046715faa0, locals=0x5b046715faa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.64a66a53b68b.STACK.1a88e85d54.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 66. cpython-38-3243125a336d
+
+- Status: crash
+- Signal: SIGSEGV
+- Stack source: honggfuzz-filename
+- Stack signature: `SIGSEGV:1b0bbaa1b3`
+- Honggfuzz stack hash: `1b0bbaa1b3`
+- PC: `0x5be3e3ad3e98`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%r13`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-3243125a336d.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5be3e3ad3e98.STACK.1b0bbaa1b3.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r13.pyc`
+- Reproduced stack frames: `not available; rerun did not produce a native backtrace`
+- Manual gdb command: `PYTHONHOME=data/rq3/cpython-3.8/source/cpython-3.8.20 PYTHONPATH=data/rq3/cpython-3.8/source/cpython-3.8.20/Lib PYTHONNOUSERSITE=1 gdb -q --args data/rq3/cpython-3.8/instrumented/python -S data/rq3/harness.py data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5be3e3ad3e98.STACK.1b0bbaa1b3.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r13.pyc`
+- Rerun diagnostic excerpt:
+  - `info "(gdb)Auto-loading safe path"`
+  - `warning: Error disabling address space randomization: Operation not permitted`
+  - `[Thread debugging using libthread_db enabled]`
+  - `Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".`
+  - `XXX lineno: 16, opcode: 0`
+  - `Traceback (most recent call last):`
+  - `File "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", line 26, in <module>`
+  - `exec(code, namespace, namespace)`
+  - `File "data/rq3/cpython-3.8/unittest_seeds/raw/cpython_case_test_tarfile_WriteTestBase_test_eof_marker.py", line 16, in <module>`
+  - `SystemError: unknown opcode`
+  - `[Inferior 1 (process 1279519) exited with code 01]`
+  - `No stack.`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5be3e3ad3e98.STACK.1b0bbaa1b3.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r13.pyc`
+
+### 67. cpython-38-3a9ae46839a6
+
+- Status: crash
+- Signal: SIGSEGV
+- Stack source: honggfuzz-filename
+- Stack signature: `SIGSEGV:1aca4f66ef`
+- Honggfuzz stack hash: `1aca4f66ef`
+- PC: `0x644ea607c874`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r15),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-3a9ae46839a6.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.644ea607c874.STACK.1aca4f66ef.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+- Reproduced stack frames: `not available; rerun did not produce a native backtrace`
+- Manual gdb command: `PYTHONHOME=data/rq3/cpython-3.8/source/cpython-3.8.20 PYTHONPATH=data/rq3/cpython-3.8/source/cpython-3.8.20/Lib PYTHONNOUSERSITE=1 gdb -q --args data/rq3/cpython-3.8/instrumented/python -S data/rq3/harness.py data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.644ea607c874.STACK.1aca4f66ef.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+- Rerun diagnostic excerpt:
+  - `info "(gdb)Auto-loading safe path"`
+  - `warning: Error disabling address space randomization: Operation not permitted`
+  - `[Thread debugging using libthread_db enabled]`
+  - `Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".`
+  - `XXX lineno: 11, opcode: 0`
+  - `Traceback (most recent call last):`
+  - `File "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", line 26, in <module>`
+  - `exec(code, namespace, namespace)`
+  - `File "data/rq3/cpython-3.8/unittest_seeds/raw/cpython_case_test_optparse_TestExtendAddActions_test_extend_add_action.py", line 11, in <module>`
+  - `SystemError: unknown opcode`
+  - `[Inferior 1 (process 1279297) exited with code 01]`
+  - `No stack.`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.644ea607c874.STACK.1aca4f66ef.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+
+### 68. cpython-38-3aadd7663e56
+
+- Status: crash
+- Signal: SIGSEGV
+- Stack source: honggfuzz-filename
+- Stack signature: `SIGSEGV:1947361fa6`
+- Honggfuzz stack hash: `1947361fa6`
+- PC: `0x61f4fd2c20c8`
+- Fault address: `0x28`
+- Instruction: `mov____0x8(%r14),%rbx`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-3aadd7663e56.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61f4fd2c20c8.STACK.1947361fa6.CODE.1.ADDR.28.INSTR.mov____0x8(%r14),%rbx.pyc`
+- Reproduced stack frames: `not available; rerun did not produce a native backtrace`
+- Manual gdb command: `PYTHONHOME=data/rq3/cpython-3.8/source/cpython-3.8.20 PYTHONPATH=data/rq3/cpython-3.8/source/cpython-3.8.20/Lib PYTHONNOUSERSITE=1 gdb -q --args data/rq3/cpython-3.8/instrumented/python -S data/rq3/harness.py data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61f4fd2c20c8.STACK.1947361fa6.CODE.1.ADDR.28.INSTR.mov____0x8(%r14),%rbx.pyc`
+- Rerun diagnostic excerpt:
+  - `"Auto-loading safe path" section in the GDB manual.  E.g., run from the shell:`
+  - `info "(gdb)Auto-loading safe path"`
+  - `warning: Error disabling address space randomization: Operation not permitted`
+  - `[Thread debugging using libthread_db enabled]`
+  - `Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".`
+  - `Traceback (most recent call last):`
+  - `File "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", line 29, in <module>`
+  - `result = target()`
+  - `File "data/rqflseython-3.8/unittest_seeds/raw/cpython_case_test_keywordonlyarg_KeywordOnlyArgTestCase_test_kwonly_methods.py", line 9, in __pybcsec_seed__`
+  - `SystemError: no locals found when storing <NULL>`
+  - `[Inferior 1 (process 1278335) exited with code 01]`
+  - `No stack.`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61f4fd2c20c8.STACK.1947361fa6.CODE.1.ADDR.28.INSTR.mov____0x8(%r14),%rbx.pyc`
+
+### 69. cpython-38-3cebf488677b
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:??|unicode_fromformat_write_cstr|unicode_fromformat_arg|PyUnicode_FromFormatV|_PyErr_FormatV|PyErr_Format|do_richcompare|PyObject_RichCompare|cmp_outcome|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx`
+- Honggfuzz stack hash: `e3c5078fd`
+- PC: `0x786bedefe8bd`
+- Fault address: `0x0`
+- Instruction: `vpcmpeqb_(%rdi),%ymm0,%ymm1`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-3cebf488677b.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.786bedefe8bd.STACK.e3c5078fd.CODE.1.ADDR.0.INSTR.vpcmpeqb_(%rdi),%ymm0,%ymm1.pyc`
+- Normalized function stack:
+  - `??`
+  - `unicode_fromformat_write_cstr`
+  - `unicode_fromformat_arg`
+  - `PyUnicode_FromFormatV`
+  - `_PyErr_FormatV`
+  - `PyErr_Format`
+  - `do_richcompare`
+  - `PyObject_RichCompare`
+  - `cmp_outcome`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+- Reproduced stack frames:
+  - `#0  0x000076c43eebc8bd in ?? () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00005a0bd10fd8f5 in unicode_fromformat_write_cstr (writer=0x7ffe20380468, str=0x0, width=-1, precision=-1) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/unicodeobject.c:2627`
+  - `#2  unicode_fromformat_arg (writer=0x7ffe20380468, f=<optimized out>, vargs=0x7ffe203804c0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/unicodeobject.c:2841`
+  - `#3  PyUnicode_FromFormatV (format=0x5a0bd14931f3 "'%s' not supported between instances of '%.100s' and '%.100s'", vargs=0x7ffe203805d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/unicodeobject.c:2958`
+  - `#4  0x00005a0bd121330d in _PyErr_FormatV (tstate=0x5a0c069d1230, exception=0x5a0bd1578fd0 <_PyExc_TypeError>, format=0x0, vargs=0x7ffe203805d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/errors.c:930`
+  - `#5  PyErr_Format (exception=<optimized out>, format=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/errors.c:972`
+  - `#6  0x00005a0bd1098119 in do_richcompare (v=0x5a0bd157e0f8 <_PyExc_MemoryError>, w=0x5a0bd157e0f8 <_PyExc_MemoryError>, op=61) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:747`
+  - `#7  PyObject_RichCompare (v=0x5a0bd157e0f8 <_PyExc_MemoryError>, w=<optimized out>, op=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:774`
+  - `#8  0x00005a0bd11c7e97 in cmp_outcome (tstate=<optimized out>, op=61, v=<optimized out>, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:5110`
+  - `#9  0x00005a0bd11beed0 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2977`
+  - `#10 0x00005a0bd11b6196 in PyEval_EvalFrameEx (f=0x5a0c06aa6ed0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#11 0x00005a0bd100e1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5a0c06b334e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#12 _PyFunction_Vectorcall (func=0x5a0c06bbbf30, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#13 0x00005a0bd11c8d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffe203809d0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#14 0x00005a0bd11b7494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#15 0x00005a0bd11cb0a2 in PyEval_EvalFrameEx (f=0x5a0c06adb1c0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.786bedefe8bd.STACK.e3c5078fd.CODE.1.ADDR.0.INSTR.vpcmpeqb_(%rdi),%ymm0,%ymm1.pyc`
+
+### 70. cpython-38-3e047c1c71a3
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error|Py_FatalError|PyFrame_BlockPop|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `c25a64119`
+- PC: `0x7457682b49fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-3e047c1c71a3.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7457682b49fc.STACK.c25a64119.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error`
+  - `Py_FatalError`
+  - `PyFrame_BlockPop`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+- Reproduced stack frames:
+  - `#0  0x0000750fbe24c9fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x0000750fbe1f8476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x0000750fbe1de7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00005a541601ee09 in fatal_error (prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pylifecycle.c:2183`
+  - `#4  0x00005a541601a1b3 in Py_FatalError (msg=0x137c70 <error: Cannot access memory at address 0x137c70>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pylifecycle.c:2193`
+  - `#5  0x00005a5415df27af in PyFrame_BlockPop (f=0x5a544e26e600) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/frameobject.c:767`
+  - `#6  0x00005a5415f80a41 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2102`
+  - `#7  0x00005a5415f79196 in PyEval_EvalFrameEx (f=0x5a544e26e600, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  0x00005a5415dd11a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5a544e23f220) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#9  _PyFunction_Vectorcall (func=0x5a544e2c8ad0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#10 0x00005a5415f8bd6f in call_function (tstate=<optimized out>, pp_stack=0x7fff1c73e3d0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#11 0x00005a5415f7a494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#12 0x00005a5415f8e0a2 in PyEval_EvalFrameEx (f=0x5a544e1e6f00, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#13 _PyEval_EvalCodeWithName (_co=0x5a544e263d10, globals=0x5a544e186840, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#14 0x00005a5415f79007 in PyEval_EvalCodeEx (_co=0x5a544e263d10, globals=0x5a544e186840, locals=0x5a544e186840, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#15 PyEval_EvalCode (co=0x5a544e263d10, globals=0x5a544e186840, locals=0x5a544e186840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7457682b49fc.STACK.c25a64119.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 71. cpython-38-428375de16b7
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|_PyObject_Vectorcall|method_vectorcall|_PyObject_Vectorcall|_PyObject_FastCall|object_vacall|PyObject_CallFunctionObjArgs|set_names|type_new|type_call|_PyObject_MakeTpCall|_PyObject_FastCallDict|builtin___build_class__`
+- Honggfuzz stack hash: `d3f40ce44`
+- PC: `0x6386bbc3b666`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%rax)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-428375de16b7.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.6386bbc3b666.STACK.d3f40ce44.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+- Normalized function stack:
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `_PyObject_Vectorcall`
+  - `method_vectorcall`
+  - `_PyObject_FastCall`
+  - `object_vacall`
+  - `PyObject_CallFunctionObjArgs`
+  - `set_names`
+  - `type_new`
+  - `type_call`
+  - `_PyObject_MakeTpCall`
+  - `_PyObject_FastCallDict`
+  - `builtin___build_class__`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+- Reproduced stack frames:
+  - `#0  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1349`
+  - `#1  0x0000567cd749b0a2 in PyEval_EvalFrameEx (f=0x567d0089a640, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#2  _PyEval_EvalCodeWithName (_co=0x567d009176b0, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#3  0x0000567cd72de09f in _PyFunction_Vectorcall (func=0x567d0088c400, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#4  0x0000567cd76a2f3d in _PyObject_Vectorcall (callable=0x567d0088c400, args=0x7ffd14c2b940, nargsf=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#5  method_vectorcall (method=0x567d00792b10, args=<optimized out>, nargsf=2, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/classobject.c:89`
+  - `#6  0x0000567cd72e5450 in _PyObject_Vectorcall (callable=0x567d00792b10, args=0x7ffd14c2ba80, nargsf=2, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#7  _PyObject_FastCall (func=0x567d00792b10, args=0x7ffd14c2ba80, nargs=2) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:147`
+  - `#8  object_vacall (base=0x0, callable=0x567d00792b10, vargs=0x7ffd14c2bad0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:1187`
+  - `#9  PyObject_CallFunctionObjArgs (callable=0x567d00792b10) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:1260`
+  - `#10 0x0000567cd73b3d0e in set_names (type=0x567cd7893310 <globalCovFeedback>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/typeobject.c:7457`
+  - `#11 0x0000567cd7398c48 in type_new (metatype=0x567cd7858730 <PyType_Type>, args=<optimized out>, kwds=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/typeobject.c:2816`
+  - `#12 0x0000567cd7394a56 in type_call (type=0x567cd7858730 <PyType_Type>, args=<optimized out>, kwds=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/typeobject.c:974`
+  - `#13 0x0000567cd72dc2d1 in _PyObject_MakeTpCall (callable=0x5, args=<optimized out>, nargs=<optimized out>, keywords=0x567d008972e0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:159`
+  - `#14 0x0000567cd72dbb82 in _PyObject_FastCallDict (callable=0x567cd7858730 <PyType_Type>, args=<optimized out>, nargsf=3, kwargs=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:91`
+  - `#15 0x0000567cd77238da in builtin___build_class__ (self=<optimized out>, args=<optimized out>, nargs=2, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:223`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.6386bbc3b666.STACK.d3f40ce44.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+
+### 72. cpython-38-5ae2b60981c2
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error|Py_FatalError|PyFrame_BlockSetup|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `c37da56f3`
+- PC: `0x78e2092f49fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-5ae2b60981c2.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.78e2092f49fc.STACK.c37da56f3.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error`
+  - `Py_FatalError`
+  - `PyFrame_BlockSetup`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+- Reproduced stack frames:
+  - `#0  0x00007ac3826059fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007ac3825b1476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007ac3825977f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x000057c425f57e09 in fatal_error (prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pylifecycle.c:2183`
+  - `#4  0x000057c425f531b3 in Py_FatalError (msg=0x137cba <error: Cannot access memory at address 0x137cba>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pylifecycle.c:2193`
+  - `#5  0x000057c425d2b728 in PyFrame_BlockSetup (f=0x57c43369e9a0, type=<optimized out>, handler=<optimized out>, level=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/frameobject.c:755`
+  - `#6  0x000057c425ebbaf9 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3232`
+  - `#7  0x000057c425eb2196 in PyEval_EvalFrameEx (f=0x57c43369e9a0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  0x000057c425d0a1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x57c4337d3320) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#9  _PyFunction_Vectorcall (func=0x57c43366f350, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#10 0x000057c425ec4d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffc1923d450, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#11 0x000057c425eb3494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#12 0x000057c425ec70a2 in PyEval_EvalFrameEx (f=0x57c4336d2f20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#13 _PyEval_EvalCodeWithName (_co=0x57c43374fd60, globals=0x57c433672840, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#14 0x000057c425eb2007 in PyEval_EvalCodeEx (_co=0x57c43374fd60, globals=0x57c433672840, locals=0x57c433672840, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#15 PyEval_EvalCode (co=0x57c43374fd60, globals=0x57c433672840, locals=0x57c433672840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.78e2092f49fc.STACK.c37da56f3.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 73. cpython-38-6551fb46f713
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags|PyRun_AnyFileExFlags|pymain_run_file`
+- Honggfuzz stack hash: `19b4b2172d`
+- PC: `0x59633f3ad643`
+- Fault address: `0x0`
+- Instruction: `mov____(%r14),%rbx`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-6551fb46f713.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.59633f3ad643.STACK.19b4b2172d.CODE.128.ADDR.0.INSTR.mov____(%r14),%rbx.pyc`
+- Normalized function stack:
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  builtin_exec_impl (source=0x5687a73a42e0, globals=<optimized out>, locals=<optimized out>, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1046`
+  - `#1  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#2  0x000056876cd258c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#3  0x000056876ce5ed6f in call_function (tstate=<optimized out>, pp_stack=0x7ffc0eae4580, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#4  0x000056876ce4d494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#5  0x000056876ce610a2 in PyEval_EvalFrameEx (f=0x5687a72b0f10, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#6  _PyEval_EvalCodeWithName (_co=0x5687a732dcf0, globals=0x5687a7250aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#7  0x000056876ce4c007 in PyEval_EvalCodeEx (_co=0x5687a732dcf0, globals=0x5687a7250aa0, locals=0x5687a7250aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#8  PyEval_EvalCode (co=0x5687a732dcf0, globals=0x5687a7250aa0, locals=0x5687a7250aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#9  0x000056876cefa82d in run_eval_code_obj (co=0x5687a732dcf0, globals=0x5687a7250aa0, locals=0x5687a7250aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#10 run_mod (mod=0x5687a730c278, filename=0x5687a7307be0, globals=0x5687a7250aa0, locals=0x5687a7250aa0, flags=0x7ffc0eae4990, arena=0x5687a72bd8d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#11 pyrun_file (fp=0x5687a72fb4b0, filename=0x5687a7307be0, start=257, globals=0x5687a7250aa0, locals=0x5687a7250aa0, closeit=1, flags=0x7ffc0eae4990) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#12 pyrun_simple_file (fp=0x5687a72fb4b0, filename=0x5687a7307be0, closeit=1, flags=0x7ffc0eae4990) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#13 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x5687a7307ba0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+  - `#14 0x000056876cef9795 in PyRun_AnyFileExFlags (fp=0x5687a72fb4b0, filename=0x5687a7307ba0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:90`
+  - `#15 0x000056876cc81c40 in pymain_run_file (config=0x5687a71a6600, cf=0x7ffc0eae4990) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/main.c:385`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.59633f3ad643.STACK.19b4b2172d.CODE.128.ADDR.0.INSTR.mov____(%r14),%rbx.pyc`
+
+### 74. cpython-38-66f0f4fe0b84
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:dictkeys_get_index|lookdict_unicode_nodummy|_PyDict_LoadGlobal|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file`
+- Honggfuzz stack hash: `18ab1a26c2`
+- PC: `0x62a0c0dbf030`
+- Fault address: `0x0`
+- Instruction: `mov____0x28(%r14,%r15,8),%r13`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-66f0f4fe0b84.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.62a0c0dbf030.STACK.18ab1a26c2.CODE.128.ADDR.0.INSTR.mov____0x28(%r14,%r15,8),%r13.pyc`
+- Normalized function stack:
+  - `dictkeys_get_index`
+  - `lookdict_unicode_nodummy`
+  - `_PyDict_LoadGlobal`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+- Reproduced stack frames:
+  - `#0  0x000056b4ec829030 in dictkeys_get_index (keys=0x56b4fbcb9300, i=77587242588811) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:346`
+  - `#1  lookdict_unicode_nodummy (mp=0x56b4fbc13580, key=0x56b4fbaed2d0, hash=<optimized out>, value_addr=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:870`
+  - `#2  0x000056b4ec824108 in _PyDict_LoadGlobal (globals=<optimized out>, builtins=<optimized out>, key=0x56b4fbaed2d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:1502`
+  - `#3  0x000056b4ec97c2fb in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2505`
+  - `#4  0x000056b4ec971196 in PyEval_EvalFrameEx (f=0x56b4fbc3f440, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#5  0x000056b4ec7c91a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x56b4fbc13580) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#6  _PyFunction_Vectorcall (func=0x56b4fbc40740, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#7  0x000056b4ec983d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffdbdeb74b0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#8  0x000056b4ec972494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#9  0x000056b4ec9860a2 in PyEval_EvalFrameEx (f=0x56b4fbbbb210, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#10 _PyEval_EvalCodeWithName (_co=0x56b4fbc38050, globals=0x56b4fbb5ab30, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#11 0x000056b4ec971007 in PyEval_EvalCodeEx (_co=0x56b4fbc38050, globals=0x56b4fbb5ab30, locals=0x56b4fbb5ab30, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#12 PyEval_EvalCode (co=0x56b4fbc38050, globals=0x56b4fbb5ab30, locals=0x56b4fbb5ab30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#13 0x000056b4eca1f82d in run_eval_code_obj (co=0x56b4fbc38050, globals=0x56b4fbb5ab30, locals=0x56b4fbb5ab30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#14 run_mod (mod=0x56b4fbc16548, filename=0x56b4fbc11ee0, globals=0x56b4fbb5ab30, locals=0x56b4fbb5ab30, flags=0x7ffdbdeb78c0, arena=0x56b4fbbbb490) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#15 pyrun_file (fp=0x56b4fbc059e0, filename=0x56b4fbc11ee0, start=257, globals=0x56b4fbb5ab30, locals=0x56b4fbb5ab30, closeit=1, flags=0x7ffdbdeb78c0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.62a0c0dbf030.STACK.18ab1a26c2.CODE.128.ADDR.0.INSTR.mov____0x28(%r14,%r15,8),%r13.pyc`
+
+### 75. cpython-38-6c06f9a11e31
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|builtin___build_class__|cfunction_vectorcall_FASTCALL_KEYWORDS|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx`
+- Honggfuzz stack hash: `dbda35823`
+- PC: `0x5b85b73c5fc2`
+- Fault address: `0x0`
+- Instruction: `mov____(%r14),%rbx`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-6c06f9a11e31.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b85b73c5fc2.STACK.dbda35823.CODE.1.ADDR.0.INSTR.mov____(%r14),%rbx.pyc`
+- Normalized function stack:
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `builtin___build_class__`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `call_function`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3391`
+  - `#1  0x000057b6fe6130a2 in PyEval_EvalFrameEx (f=0x57b73024c7b0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#2  _PyEval_EvalCodeWithName (_co=0x57b730247320, globals=0x57b7301ac240, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#3  0x000057b6fe5fe0c5 in PyEval_EvalCodeEx (_co=0x57b730247320, globals=0x57b7301ac240, locals=0x57b730259fd0, args=0x0, argcount=0, kws=0x0, kwcount=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#4  0x000057b6fe89b621 in builtin___build_class__ (self=<optimized out>, args=<optimized out>, nargs=2, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:213`
+  - `#5  0x000057b6fe4d7a90 in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, nargsf=9223372036854775810, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:441`
+  - `#6  0x000057b6fe610d6f in call_function (tstate=<optimized out>, pp_stack=0x7fff1a1444b0, oparg=2, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#7  0x000057b6fe5ff494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#8  0x000057b6fe5fe196 in PyEval_EvalFrameEx (f=0x57b730257f50, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#9  0x000057b6fe4561a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x57b7301ac240) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#10 _PyFunction_Vectorcall (func=0x57b7300f0350, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#11 0x000057b6fe610d6f in call_function (tstate=<optimized out>, pp_stack=0x7fff1a144770, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#12 0x000057b6fe5ff494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#13 0x000057b6fe6130a2 in PyEval_EvalFrameEx (f=0x57b730153f20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#14 _PyEval_EvalCodeWithName (_co=0x57b7301d0d10, globals=0x57b7300f3840, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#15 0x000057b6fe5fe007 in PyEval_EvalCodeEx (_co=0x57b7301d0d10, globals=0x57b7300f3840, locals=0x57b7300f3840, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b85b73c5fc2.STACK.dbda35823.CODE.1.ADDR.0.INSTR.mov____(%r14),%rbx.pyc`
+
+### 76. cpython-38-6fc7c4e73992
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyDict_GetItemWithError|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `e457b6dd9`
+- PC: `0x638d96168ae8`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-6fc7c4e73992.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.638d96168ae8.STACK.e457b6dd9.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyDict_GetItemWithError`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyDict_GetItemWithError (op=0x5e0080b002a0, key=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:1441`
+  - `#1  0x00005e003aba772b in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2426`
+  - `#2  0x00005e003abb40a2 in PyEval_EvalFrameEx (f=0x5e0080b5abe0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5e0080ba86b0, globals=0x5e0080b002a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x00005e003ab9f007 in PyEval_EvalCodeEx (_co=0x5e0080ba86b0, globals=0x5e0080b002a0, locals=0x5e0080b002a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x5e0080ba86b0, globals=0x5e0080b002a0, locals=0x5e0080b002a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x00005e003ae3e614 in builtin_exec_impl (source=0x5e0080ba86b0, globals=0x5e0080b002a0, locals=0x5e0080b002a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x00005e003aa788c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x00005e003abb1d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffd711b1150, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x00005e003aba0494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x00005e003abb40a2 in PyEval_EvalFrameEx (f=0x5e0080aa7f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x5e0080b24d70, globals=0x5e0080a47aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x00005e003ab9f007 in PyEval_EvalCodeEx (_co=0x5e0080b24d70, globals=0x5e0080a47aa0, locals=0x5e0080a47aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x5e0080b24d70, globals=0x5e0080a47aa0, locals=0x5e0080a47aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x00005e003ac4d82d in run_eval_code_obj (co=0x5e0080b24d70, globals=0x5e0080a47aa0, locals=0x5e0080a47aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.638d96168ae8.STACK.e457b6dd9.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 77. cpython-38-717ef7a927e1
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_Py_XDECREF|tupledealloc|_Py_Dealloc|_Py_DECREF|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `c7f60b739`
+- PC: `0x5858aff1cb53`
+- Fault address: `0x0`
+- Instruction: `mov____(%r15),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-717ef7a927e1.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5858aff1cb53.STACK.c7f60b739.CODE.128.ADDR.0.INSTR.mov____(%r15),%r14.pyc`
+- Normalized function stack:
+  - `_Py_XDECREF`
+  - `tupledealloc`
+  - `_Py_Dealloc`
+  - `_Py_DECREF`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+- Reproduced stack frames:
+  - `#0  _Py_XDECREF (op=0x100000000) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:541`
+  - `#1  tupledealloc (op=0x5dd8261cc5f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/tupleobject.c:247`
+  - `#2  0x00005dd81230f57c in _Py_Dealloc (op=0x5dd8261cc5f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:2215`
+  - `#3  0x00005dd812430d91 in _Py_DECREF (op=0x5dd8261cc5f0, filename=<optimized out>, lineno=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:478`
+  - `#4  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3105`
+  - `#5  0x00005dd81243c0a2 in PyEval_EvalFrameEx (f=0x5dd82620ad60, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#6  _PyEval_EvalCodeWithName (_co=0x5dd8261c32c0, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#7  0x00005dd81227f09f in _PyFunction_Vectorcall (func=0x5dd8260e0350, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#8  0x00005dd812439d6f in call_function (tstate=<optimized out>, pp_stack=0x7fffe3bebe80, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#9  0x00005dd812428494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#10 0x00005dd81243c0a2 in PyEval_EvalFrameEx (f=0x5dd826143f20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#11 _PyEval_EvalCodeWithName (_co=0x5dd8261c0d60, globals=0x5dd8260e3840, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#12 0x00005dd812427007 in PyEval_EvalCodeEx (_co=0x5dd8261c0d60, globals=0x5dd8260e3840, locals=0x5dd8260e3840, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#13 PyEval_EvalCode (co=0x5dd8261c0d60, globals=0x5dd8260e3840, locals=0x5dd8260e3840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#14 0x00005dd8124d582d in run_eval_code_obj (co=0x5dd8261c0d60, globals=0x5dd8260e3840, locals=0x5dd8260e3840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#15 run_mod (mod=0x5dd82619f258, filename=0x5dd82619abf0, globals=0x5dd8260e3840, locals=0x5dd8260e3840, flags=0x7fffe3bec290, arena=0x5dd8261441a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5858aff1cb53.STACK.c7f60b739.CODE.128.ADDR.0.INSTR.mov____(%r15),%r14.pyc`
+
+### 78. cpython-38-74d96dc3cf62
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:insertdict|PyDict_SetItem|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file`
+- Honggfuzz stack hash: `19af658f55`
+- PC: `0x57378a6abc3f`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%r15)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-74d96dc3cf62.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57378a6abc3f.STACK.19af658f55.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r15).pyc`
+- Normalized function stack:
+  - `insertdict`
+  - `PyDict_SetItem`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  insertdict (mp=<optimized out>, key=0x58b5eead9220, hash=<optimized out>, value=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:1034`
+  - `#1  0x000058b5cd1f62f7 in PyDict_SetItem (op=0x58b5eebff290, key=<optimized out>, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:1545`
+  - `#2  0x000058b5cd34b513 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2395`
+  - `#3  0x000058b5cd343196 in PyEval_EvalFrameEx (f=0x58b5eec29150, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#4  0x000058b5cd19b1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x58b5eebff290) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#5  _PyFunction_Vectorcall (func=0x58b5eec87c00, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#6  0x000058b5cd355d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffc4f822630, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#7  0x000058b5cd344494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#8  0x000058b5cd3580a2 in PyEval_EvalFrameEx (f=0x58b5eeba6f20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#9  _PyEval_EvalCodeWithName (_co=0x58b5eec23d60, globals=0x58b5eeb46840, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#10 0x000058b5cd343007 in PyEval_EvalCodeEx (_co=0x58b5eec23d60, globals=0x58b5eeb46840, locals=0x58b5eeb46840, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#11 PyEval_EvalCode (co=0x58b5eec23d60, globals=0x58b5eeb46840, locals=0x58b5eeb46840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#12 0x000058b5cd3f182d in run_eval_code_obj (co=0x58b5eec23d60, globals=0x58b5eeb46840, locals=0x58b5eeb46840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#13 run_mod (mod=0x58b5eec02258, filename=0x58b5eebfdbf0, globals=0x58b5eeb46840, locals=0x58b5eeb46840, flags=0x7ffc4f822a40, arena=0x58b5eeba71a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#14 pyrun_file (fp=0x58b5eebf16f0, filename=0x58b5eebfdbf0, start=257, globals=0x58b5eeb46840, locals=0x58b5eeb46840, closeit=1, flags=0x7ffc4f822a40) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#15 pyrun_simple_file (fp=0x58b5eebf16f0, filename=0x58b5eebfdbf0, closeit=1, flags=0x7ffc4f822a40) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57378a6abc3f.STACK.19af658f55.CODE.1.ADDR.0.INSTR.addq___$0x1,(%r15).pyc`
+
+### 79. cpython-38-793547593aaa
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_Or|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `e874efcd7`
+- PC: `0x5d0d4212c068`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-793547593aaa.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d0d4212c068.STACK.e874efcd7.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyNumber_Or`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyNumber_Or (v=0x175a018413641264, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:947`
+  - `#1  0x000059980273ee88 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1644`
+  - `#2  0x000059980274e0a2 in PyEval_EvalFrameEx (f=0x5998434efbd0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5998434bc600, globals=0x5998434952b0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x0000599802739007 in PyEval_EvalCodeEx (_co=0x5998434bc600, globals=0x5998434952b0, locals=0x5998434952b0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x5998434bc600, globals=0x5998434952b0, locals=0x5998434952b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x00005998029d8614 in builtin_exec_impl (source=0x5998434bc600, globals=0x5998434952b0, locals=0x5998434952b0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x00005998026128c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x000059980274bd6f in call_function (tstate=<optimized out>, pp_stack=0x7ffc5144d4e0, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x000059980273a494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x000059980274e0a2 in PyEval_EvalFrameEx (f=0x59984343cf30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x5998434b9d60, globals=0x5998433dcaa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x0000599802739007 in PyEval_EvalCodeEx (_co=0x5998434b9d60, globals=0x5998433dcaa0, locals=0x5998433dcaa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x5998434b9d60, globals=0x5998433dcaa0, locals=0x5998433dcaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x00005998027e782d in run_eval_code_obj (co=0x5998434b9d60, globals=0x5998433dcaa0, locals=0x5998433dcaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d0d4212c068.STACK.e874efcd7.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 80. cpython-38-7996683b49eb
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_GetMethod|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `1928c2029d`
+- PC: `0x5dd29208447b`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r14),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-7996683b49eb.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5dd29208447b.STACK.1928c2029d.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%rax.pyc`
+- Normalized function stack:
+  - `_PyObject_GetMethod`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+  - `pymain_run_python`
+- Reproduced stack frames:
+  - `#0  0x0000584f18cc147b in _PyObject_GetMethod (obj=0x584f5ebb2470, name=<optimized out>, method=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:1150`
+  - `#1  0x0000584f18ddf500 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3416`
+  - `#2  0x0000584f18df10a2 in PyEval_EvalFrameEx (f=0x584f5ebe9530, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x584f5eba9250, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x0000584f18c3409f in _PyFunction_Vectorcall (func=0x584f5ec0aa30, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#5  0x0000584f18deed6f in call_function (tstate=<optimized out>, pp_stack=0x7ffeb487be10, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x0000584f18ddd494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x0000584f18df10a2 in PyEval_EvalFrameEx (f=0x584f5eb29f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x584f5eba6d20, globals=0x584f5eac9aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x0000584f18ddc007 in PyEval_EvalCodeEx (_co=0x584f5eba6d20, globals=0x584f5eac9aa0, locals=0x584f5eac9aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x584f5eba6d20, globals=0x584f5eac9aa0, locals=0x584f5eac9aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x0000584f18e8a82d in run_eval_code_obj (co=0x584f5eba6d20, globals=0x584f5eac9aa0, locals=0x584f5eac9aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x584f5eb85218, filename=0x584f5eb80c00, globals=0x584f5eac9aa0, locals=0x584f5eac9aa0, flags=0x7ffeb487c220, arena=0x584f5eb2a1b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x584f5eb74700, filename=0x584f5eb80c00, start=257, globals=0x584f5eac9aa0, locals=0x584f5eac9aa0, closeit=1, flags=0x7ffeb487c220) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x584f5eb74700, filename=0x584f5eb80c00, closeit=1, flags=0x7ffeb487c220) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x584f5eb80bc0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5dd29208447b.STACK.1928c2029d.CODE.1.ADDR.8.INSTR.mov____0x8(%r14),%rax.pyc`
+
+### 81. cpython-38-7b90ad31f7e8
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyDict_SetItem|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `ce0f324da`
+- PC: `0x64b82a255260`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r15),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-7b90ad31f7e8.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.64b82a255260.STACK.ce0f324da.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+- Normalized function stack:
+  - `PyDict_SetItem`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+  - `pymain_run_python`
+- Reproduced stack frames:
+  - `#0  PyDict_SetItem (op=0x611a96fa0080, key=<optimized out>, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:1533`
+  - `#1  0x0000611a678b5c36 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2793`
+  - `#2  0x0000611a678c20a2 in PyEval_EvalFrameEx (f=0x611a96fa56d0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x611a96fa5600, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x0000611a6770509f in _PyFunction_Vectorcall (func=0x611a96f85c00, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#5  0x0000611a678bfd6f in call_function (tstate=<optimized out>, pp_stack=0x7ffe5770a430, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x0000611a678ae494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x0000611a678c20a2 in PyEval_EvalFrameEx (f=0x611a96ea4f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x611a96f21d70, globals=0x611a96e44aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x0000611a678ad007 in PyEval_EvalCodeEx (_co=0x611a96f21d70, globals=0x611a96e44aa0, locals=0x611a96e44aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x611a96f21d70, globals=0x611a96e44aa0, locals=0x611a96e44aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x0000611a6795b82d in run_eval_code_obj (co=0x611a96f21d70, globals=0x611a96e44aa0, locals=0x611a96e44aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x611a96f00268, filename=0x611a96efbc00, globals=0x611a96e44aa0, locals=0x611a96e44aa0, flags=0x7ffe5770a840, arena=0x611a96ea51b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x611a96eef700, filename=0x611a96efbc00, start=257, globals=0x611a96e44aa0, locals=0x611a96e44aa0, closeit=1, flags=0x7ffe5770a840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x611a96eef700, filename=0x611a96efbc00, closeit=1, flags=0x7ffe5770a840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x611a96efbbc0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.64b82a255260.STACK.ce0f324da.CODE.128.ADDR.0.INSTR.mov____0x8(%r15),%rax.pyc`
+
+### 82. cpython-38-80372b990fd5
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_GC_UNTRACK_impl|PyObject_GC_UnTrack|subtype_dealloc|_Py_Dealloc|_Py_DECREF|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode`
+- Honggfuzz stack hash: `d51cc4767`
+- PC: `0x5a0916a881d1`
+- Fault address: `0x0`
+- Instruction: `mov____%rax,(%rcx)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-80372b990fd5.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a0916a881d1.STACK.d51cc4767.CODE.128.ADDR.0.INSTR.mov____%rax,(%rcx).pyc`
+- Normalized function stack:
+  - `_PyObject_GC_UNTRACK_impl`
+  - `PyObject_GC_UnTrack`
+  - `subtype_dealloc`
+  - `_Py_Dealloc`
+  - `_Py_DECREF`
+  - `call_function`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+- Reproduced stack frames:
+  - `#0  _PyObject_GC_UNTRACK_impl (op=0x595ed7251c90, filename=<optimized out>, lineno=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/internal/pycore_object.h:69`
+  - `#1  PyObject_GC_UnTrack (op_raw=op_raw@entry=0x595ed7251c90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:1958`
+  - `#2  0x0000595e9c2624fb in subtype_dealloc (self=0x595ed7251c90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/typeobject.c:1207`
+  - `#3  0x0000595e9c24257c in _Py_Dealloc (op=0x595ed7251c90) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:2215`
+  - `#4  0x0000595e9c36ceb0 in _Py_DECREF (op=0x595ed7251c90, filename=<optimized out>, lineno=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:478`
+  - `#5  call_function (tstate=<optimized out>, pp_stack=0x7ffe4dbb2bd0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4971`
+  - `#6  0x0000595e9c35b494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x0000595e9c35a196 in PyEval_EvalFrameEx (f=0x595ed7210730, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  0x0000595e9c1b21a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x595ed71a9290) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#9  _PyFunction_Vectorcall (func=0x595ed7231b40, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#10 0x0000595e9c36cd6f in call_function (tstate=<optimized out>, pp_stack=0x7ffe4dbb2e90, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#11 0x0000595e9c35b494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#12 0x0000595e9c36f0a2 in PyEval_EvalFrameEx (f=0x595ed7150f20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#13 _PyEval_EvalCodeWithName (_co=0x595ed71cdd60, globals=0x595ed70f0840, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#14 0x0000595e9c35a007 in PyEval_EvalCodeEx (_co=0x595ed71cdd60, globals=0x595ed70f0840, locals=0x595ed70f0840, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#15 PyEval_EvalCode (co=0x595ed71cdd60, globals=0x595ed70f0840, locals=0x595ed70f0840) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5a0916a881d1.STACK.d51cc4767.CODE.128.ADDR.0.INSTR.mov____%rax,(%rcx).pyc`
+
+### 83. cpython-38-815e82a62d43
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_SetAttr|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `18a8aa6e84`
+- PC: `0x61daa24ec5d8`
+- Fault address: `0xc9`
+- Instruction: `mov____0xa8(%r13),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-815e82a62d43.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61daa24ec5d8.STACK.18a8aa6e84.CODE.1.ADDR.c9.INSTR.mov____0xa8(%r13),%r14.pyc`
+- Normalized function stack:
+  - `PyObject_SetAttr`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  PyObject_SetAttr (v=0x597499633328 <_PyExc_SyntaxError>, name=0x51, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:1035`
+  - `#1  0x000059749927531c in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2372`
+  - `#2  0x000059749926d196 in PyEval_EvalFrameEx (f=0x5974b67fe100, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x00005974990c51a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5974b67d2240) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#4  _PyFunction_Vectorcall (func=0x5974b67165b0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#5  0x000059749927fd6f in call_function (tstate=<optimized out>, pp_stack=0x7fff1f2c9410, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x000059749926e494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x00005974992820a2 in PyEval_EvalFrameEx (f=0x5974b6779ed0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x5974b67f6d10, globals=0x5974b6719aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x000059749926d007 in PyEval_EvalCodeEx (_co=0x5974b67f6d10, globals=0x5974b6719aa0, locals=0x5974b6719aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x5974b67f6d10, globals=0x5974b6719aa0, locals=0x5974b6719aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x000059749931b82d in run_eval_code_obj (co=0x5974b67f6d10, globals=0x5974b6719aa0, locals=0x5974b6719aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x5974b67d5208, filename=0x5974b67d0ba0, globals=0x5974b6719aa0, locals=0x5974b6719aa0, flags=0x7fff1f2c9820, arena=0x5974b677a150) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x5974b67c46a0, filename=0x5974b67d0ba0, start=257, globals=0x5974b6719aa0, locals=0x5974b6719aa0, closeit=1, flags=0x7fff1f2c9820) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x5974b67c46a0, filename=0x5974b67d0ba0, closeit=1, flags=0x7fff1f2c9820) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x5974b67d0b60 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61daa24ec5d8.STACK.18a8aa6e84.CODE.1.ADDR.c9.INSTR.mov____0xa8(%r13),%r14.pyc`
+
+### 84. cpython-38-81bcfd26a9f9
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyDict_GetItemWithError|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|builtin___build_class__|cfunction_vectorcall_FASTCALL_KEYWORDS|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName`
+- Honggfuzz stack hash: `c27f7959b`
+- PC: `0x5d0726409c38`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r14),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-81bcfd26a9f9.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d0726409c38.STACK.c27f7959b.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rax.pyc`
+- Normalized function stack:
+  - `PyDict_GetItemWithError`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `builtin___build_class__`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `call_function`
+  - `_PyFunction_Vectorcall`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyDict_GetItemWithError (op=0x5acad5e41390, key=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:1441`
+  - `#1  0x00005aca9ee4472b in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2426`
+  - `#2  0x00005aca9ee510a2 in PyEval_EvalFrameEx (f=0x5acad5e76300, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5acad5e41190, globals=0x5acad5ec15c0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x00005aca9ee3c0c5 in PyEval_EvalCodeEx (_co=0x5acad5e41190, globals=0x5acad5ec15c0, locals=0x5acad5e41390, args=0x3f, argcount=0, kws=0x0, kwcount=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  0x00005aca9f0d9621 in builtin___build_class__ (self=<optimized out>, args=<optimized out>, nargs=3, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:213`
+  - `#6  0x00005aca9ed15a90 in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, nargsf=9223372036854775811, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:441`
+  - `#7  0x00005aca9ee4ed6f in call_function (tstate=<optimized out>, pp_stack=0x7ffcd547a2c0, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#8  0x00005aca9ee3d494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#9  0x00005aca9ee510a2 in PyEval_EvalFrameEx (f=0x5acad5e433c0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#10 _PyEval_EvalCodeWithName (_co=0x5acad5eb9580, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#11 0x00005aca9ec9409f in _PyFunction_Vectorcall (func=0x5acad5d5d5b0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#12 0x00005aca9ee4ed6f in call_function (tstate=<optimized out>, pp_stack=0x7ffcd547a660, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#13 0x00005aca9ee3d494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#14 0x00005aca9ee510a2 in PyEval_EvalFrameEx (f=0x5acad5dc0f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#15 _PyEval_EvalCodeWithName (_co=0x5acad5e3dd70, globals=0x5acad5d60aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d0726409c38.STACK.c27f7959b.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rax.pyc`
+
+### 85. cpython-38-84fc1dfbcb1d
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|gen_send_ex|_gen_throw|gen_throw|method_vectorcall_VARARGS|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx`
+- Honggfuzz stack hash: `ca565b158`
+- PC: `0x5b8d5c304b8d`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%rax)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-84fc1dfbcb1d.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b8d5c304b8d.STACK.ca565b158.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+- Normalized function stack:
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `gen_send_ex`
+  - `_gen_throw`
+  - `gen_throw`
+  - `method_vectorcall_VARARGS`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+- Reproduced stack frames:
+  - `#0  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1341`
+  - `#1  0x00005a9767122196 in PyEval_EvalFrameEx (f=0x5a97ac3abdc0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#2  0x00005a9767351998 in gen_send_ex (gen=0x5a97ac365dc0, arg=<optimized out>, exc=<optimized out>, closing=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/genobject.c:222`
+  - `#3  0x00005a9767355673 in _gen_throw (gen=0x3, close_on_genexit=<optimized out>, typ=<optimized out>, val=<optimized out>, tb=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/genobject.c:457`
+  - `#4  0x00005a976735489d in gen_throw (gen=<optimized out>, args=0x5a97ac35b780) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/genobject.c:536`
+  - `#5  0x00005a976734bd37 in method_vectorcall_VARARGS (func=<optimized out>, args=<optimized out>, nargsf=9223372036854775810, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/descrobject.c:300`
+  - `#6  0x00005a9767134d6f in call_function (tstate=<optimized out>, pp_stack=0x7fff9dff95a8, oparg=2, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#7  0x00005a9767125640 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3486`
+  - `#8  0x00005a97671370a2 in PyEval_EvalFrameEx (f=0x5a97ac2b09a0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#9  _PyEval_EvalCodeWithName (_co=0x5a97ac3ea660, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#10 0x00005a9766f7a09f in _PyFunction_Vectorcall (func=0x5a97ac3c5d00, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#11 0x00005a9767134d6f in call_function (tstate=<optimized out>, pp_stack=0x7fff9dff9910, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#12 0x00005a9767123494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#13 0x00005a97671370a2 in PyEval_EvalFrameEx (f=0x5a97ac2e4f20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#14 _PyEval_EvalCodeWithName (_co=0x5a97ac361d60, globals=0x5a97ac284840, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#15 0x00005a9767122007 in PyEval_EvalCodeEx (_co=0x5a97ac361d60, globals=0x5a97ac284840, locals=0x5a97ac284840, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5b8d5c304b8d.STACK.ca565b158.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+
+### 86. cpython-38-8757a6d804b7
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:list_extend|_PyList_Extend|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file`
+- Honggfuzz stack hash: `19ac19e709`
+- PC: `0x5eb7baae454d`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-8757a6d804b7.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5eb7baae454d.STACK.19ac19e709.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%rax.pyc`
+- Normalized function stack:
+  - `list_extend`
+  - `_PyList_Extend`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  0x0000648a7bfe854d in list_extend (self=0x648a98a2cd00, iterable=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/listobject.c:897`
+  - `#1  0x0000648a7bfe8505 in _PyList_Extend (self=0x648a98a2cd00, iterable=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/listobject.c:1003`
+  - `#2  0x0000648a7c16d289 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2715`
+  - `#3  0x0000648a7c16a196 in PyEval_EvalFrameEx (f=0x648a989f2cc0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#4  0x0000648a7bfc21a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x648a98984250) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#5  _PyFunction_Vectorcall (func=0x648a989b13f0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#6  0x0000648a7c17cd6f in call_function (tstate=<optimized out>, pp_stack=0x7ffca1972d70, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#7  0x0000648a7c16b494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#8  0x0000648a7c17f0a2 in PyEval_EvalFrameEx (f=0x648a9892bed0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#9  _PyEval_EvalCodeWithName (_co=0x648a989a8d00, globals=0x648a988cbaa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#10 0x0000648a7c16a007 in PyEval_EvalCodeEx (_co=0x648a989a8d00, globals=0x648a988cbaa0, locals=0x648a988cbaa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#11 PyEval_EvalCode (co=0x648a989a8d00, globals=0x648a988cbaa0, locals=0x648a988cbaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#12 0x0000648a7c21882d in run_eval_code_obj (co=0x648a989a8d00, globals=0x648a988cbaa0, locals=0x648a988cbaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#13 run_mod (mod=0x648a98987218, filename=0x648a98982bb0, globals=0x648a988cbaa0, locals=0x648a988cbaa0, flags=0x7ffca1973180, arena=0x648a9892c150) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#14 pyrun_file (fp=0x648a989766a0, filename=0x648a98982bb0, start=257, globals=0x648a988cbaa0, locals=0x648a988cbaa0, closeit=1, flags=0x7ffca1973180) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#15 pyrun_simple_file (fp=0x648a989766a0, filename=0x648a98982bb0, closeit=1, flags=0x7ffca1973180) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5eb7baae454d.STACK.19ac19e709.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%rax.pyc`
+
+### 87. cpython-38-886323b36fb5
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_InPlaceAnd|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `c64d5d752`
+- PC: `0x5d972ff506f4`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r15),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-886323b36fb5.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d972ff506f4.STACK.c64d5d752.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+- Normalized function stack:
+  - `PyNumber_InPlaceAnd`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  PyNumber_InPlaceAnd (v=0x0, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:1088`
+  - `#1  0x0000636e38a51a06 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1807`
+  - `#2  0x0000636e38a4b196 in PyEval_EvalFrameEx (f=0x636e4af73660, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x0000636e388a31a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x636e4af442a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#4  _PyFunction_Vectorcall (func=0x636e4afccc60, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#5  0x0000636e38a5dd6f in call_function (tstate=<optimized out>, pp_stack=0x7ffce8a984c0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x0000636e38a4c494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x0000636e38a600a2 in PyEval_EvalFrameEx (f=0x636e4aeebf30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x636e4af68d70, globals=0x636e4ae8baa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x0000636e38a4b007 in PyEval_EvalCodeEx (_co=0x636e4af68d70, globals=0x636e4ae8baa0, locals=0x636e4ae8baa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x636e4af68d70, globals=0x636e4ae8baa0, locals=0x636e4ae8baa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x0000636e38af982d in run_eval_code_obj (co=0x636e4af68d70, globals=0x636e4ae8baa0, locals=0x636e4ae8baa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x636e4af47268, filename=0x636e4af42c00, globals=0x636e4ae8baa0, locals=0x636e4ae8baa0, flags=0x7ffce8a988d0, arena=0x636e4aeec1b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x636e4af36700, filename=0x636e4af42c00, start=257, globals=0x636e4ae8baa0, locals=0x636e4ae8baa0, closeit=1, flags=0x7ffce8a988d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x636e4af36700, filename=0x636e4af42c00, closeit=1, flags=0x7ffce8a988d0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x636e4af42bc0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d972ff506f4.STACK.c64d5d752.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+
+### 88. cpython-38-900ad152fb75
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PySlice_New|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `1a4ad5b850`
+- PC: `0x57a3580d03ad`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%r12)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-900ad152fb75.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57a3580d03ad.STACK.1a4ad5b850.CODE.128.ADDR.0.INSTR.addq___$0x1,(%r12).pyc`
+- Normalized function stack:
+  - `PySlice_New`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PySlice_New (start=0x175a018413641264, stop=<optimized out>, step=0x5b7b462f55e0 <_Py_NoneStruct>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/sliceobject.c:133`
+  - `#1  0x00005b7b45f27783 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3612`
+  - `#2  0x00005b7b45f3b0a2 in PyEval_EvalFrameEx (f=0x5b7b549d3b90, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5b7b549a05c0, globals=0x5b7b54979250, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x00005b7b45f26007 in PyEval_EvalCodeEx (_co=0x5b7b549a05c0, globals=0x5b7b54979250, locals=0x5b7b54979250, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x5b7b549a05c0, globals=0x5b7b54979250, locals=0x5b7b54979250) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x00005b7b461c5614 in builtin_exec_impl (source=0x5b7b549a05c0, globals=0x5b7b54979250, locals=0x5b7b54979250, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x00005b7b45dff8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x00005b7b45f38d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffdb1612480, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x00005b7b45f27494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x00005b7b45f3b0a2 in PyEval_EvalFrameEx (f=0x5b7b54920f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x5b7b5499dd20, globals=0x5b7b548c0aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x00005b7b45f26007 in PyEval_EvalCodeEx (_co=0x5b7b5499dd20, globals=0x5b7b548c0aa0, locals=0x5b7b548c0aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x5b7b5499dd20, globals=0x5b7b548c0aa0, locals=0x5b7b548c0aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x00005b7b45fd482d in run_eval_code_obj (co=0x5b7b5499dd20, globals=0x5b7b548c0aa0, locals=0x5b7b548c0aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57a3580d03ad.STACK.1a4ad5b850.CODE.128.ADDR.0.INSTR.addq___$0x1,(%r12).pyc`
+
+### 89. cpython-38-97ab55a08403
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyEval_GetFuncName|format_kwargs_error|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode`
+- Honggfuzz stack hash: `1a46c4b224`
+- PC: `0x5cc21d297197`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r14),%rbx`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-97ab55a08403.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5cc21d297197.STACK.1a46c4b224.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rbx.pyc`
+- Normalized function stack:
+  - `PyEval_GetFuncName`
+  - `format_kwargs_error`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyEval_GetFuncName (func=0x175a018413641264) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4859`
+  - `#1  0x00006050c927eae6 in format_kwargs_error (tstate=0x6050dea35440, func=<optimized out>, kwargs=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:5355`
+  - `#2  0x00006050c927cb34 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3536`
+  - `#3  0x00006050c92820a2 in PyEval_EvalFrameEx (f=0x6050debf1be0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#4  _PyEval_EvalCodeWithName (_co=0x6050debbf190, globals=0x6050deb972a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#5  0x00006050c926d007 in PyEval_EvalCodeEx (_co=0x6050debbf190, globals=0x6050deb972a0, locals=0x6050deb972a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#6  PyEval_EvalCode (co=0x6050debbf190, globals=0x6050deb972a0, locals=0x6050deb972a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#7  0x00006050c950c614 in builtin_exec_impl (source=0x6050debbf190, globals=0x6050deb972a0, locals=0x6050deb972a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#8  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#9  0x00006050c91468c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#10 0x00006050c927fd6f in call_function (tstate=<optimized out>, pp_stack=0x7ffd93340a80, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#11 0x00006050c926e494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#12 0x00006050c92820a2 in PyEval_EvalFrameEx (f=0x6050deb3ef30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#13 _PyEval_EvalCodeWithName (_co=0x6050debbbd70, globals=0x6050deadeaa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#14 0x00006050c926d007 in PyEval_EvalCodeEx (_co=0x6050debbbd70, globals=0x6050deadeaa0, locals=0x6050deadeaa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#15 PyEval_EvalCode (co=0x6050debbbd70, globals=0x6050deadeaa0, locals=0x6050deadeaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5cc21d297197.STACK.1a46c4b224.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%rbx.pyc`
+
+### 90. cpython-38-9a9fb65de558
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error|Py_FatalError|cell_richcompare|do_richcompare|PyObject_RichCompare|cmp_outcome|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx`
+- Honggfuzz stack hash: `18738ccb1c`
+- PC: `0x7437464709fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-9a9fb65de558.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7437464709fc.STACK.18738ccb1c.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error`
+  - `Py_FatalError`
+  - `cell_richcompare`
+  - `do_richcompare`
+  - `PyObject_RichCompare`
+  - `cmp_outcome`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+- Reproduced stack frames:
+  - `#0  0x00007a4aa4e6b9fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x00007a4aa4e17476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x00007a4aa4dfd7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x000063172bc83e09 in fatal_error (prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pylifecycle.c:2183`
+  - `#4  0x000063172bc7f1b3 in Py_FatalError (msg=0x137b92 <error: Cannot access memory at address 0x137b92>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pylifecycle.c:2193`
+  - `#5  0x000063172bdfa724 in cell_richcompare (a=0x0, b=0x63173c8bc880, op=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/cellobject.c:105`
+  - `#6  0x000063172babfedb in do_richcompare (v=0x63173c92a2e0, w=0x63173c94b7f0, op=115) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:726`
+  - `#7  PyObject_RichCompare (v=0x63173c92a2e0, w=<optimized out>, op=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:774`
+  - `#8  0x000063172bbefe97 in cmp_outcome (tstate=<optimized out>, op=115, v=<optimized out>, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:5110`
+  - `#9  0x000063172bbe6ed0 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2977`
+  - `#10 0x000063172bbf30a2 in PyEval_EvalFrameEx (f=0x63173c8d0670, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#11 _PyEval_EvalCodeWithName (_co=0x63173c8cf220, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#12 0x000063172ba3609f in _PyFunction_Vectorcall (func=0x63173c930c10, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#13 0x000063172bbf0d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffe27015560, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#14 0x000063172bbdf494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#15 0x000063172bbf30a2 in PyEval_EvalFrameEx (f=0x63173c84ff20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.7437464709fc.STACK.18738ccb1c.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+
+### 91. cpython-38-9f3469545052
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_SetItem|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `19f523e3a4`
+- PC: `0x64f742ab9546`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%r13`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-9f3469545052.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.64f742ab9546.STACK.19f523e3a4.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r13.pyc`
+- Normalized function stack:
+  - `PyObject_SetItem`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyObject_SetItem (o=0x554f530fda052972, key=<optimized out>, value=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:199`
+  - `#1  0x000064a18c58f822 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1847`
+  - `#2  0x000064a18c59f0a2 in PyEval_EvalFrameEx (f=0x64a1a7c9de60, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x64a1a7c15e80, globals=0x64a1a7bee2a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x000064a18c58a007 in PyEval_EvalCodeEx (_co=0x64a1a7c15e80, globals=0x64a1a7bee2a0, locals=0x64a1a7bee2a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x64a1a7c15e80, globals=0x64a1a7bee2a0, locals=0x64a1a7bee2a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x000064a18c829614 in builtin_exec_impl (source=0x64a1a7c15e80, globals=0x64a1a7bee2a0, locals=0x64a1a7bee2a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x000064a18c4638c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x000064a18c59cd6f in call_function (tstate=<optimized out>, pp_stack=0x7ffcf15a5690, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x000064a18c58b494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x000064a18c59f0a2 in PyEval_EvalFrameEx (f=0x64a1a7b95f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x64a1a7c12d70, globals=0x64a1a7b35aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x000064a18c58a007 in PyEval_EvalCodeEx (_co=0x64a1a7c12d70, globals=0x64a1a7b35aa0, locals=0x64a1a7b35aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x64a1a7c12d70, globals=0x64a1a7b35aa0, locals=0x64a1a7b35aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x000064a18c63882d in run_eval_code_obj (co=0x64a1a7c12d70, globals=0x64a1a7b35aa0, locals=0x64a1a7b35aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.64f742ab9546.STACK.19f523e3a4.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r13.pyc`
+
+### 92. cpython-38-ab31090f1182
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_GetMethod|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode`
+- Honggfuzz stack hash: `ce9c6d348`
+- PC: `0x5da105ac247b`
+- Fault address: `0x79`
+- Instruction: `mov____0x8(%r14),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-ab31090f1182.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5da105ac247b.STACK.ce9c6d348.CODE.1.ADDR.79.INSTR.mov____0x8(%r14),%rax.pyc`
+- Normalized function stack:
+  - `_PyObject_GetMethod`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+  - `pymain_run_python`
+- Reproduced stack frames:
+  - `#0  0x00005acaadb8947b in _PyObject_GetMethod (obj=0x5acad61042d0, name=<optimized out>, method=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:1150`
+  - `#1  0x00005acaadca7500 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3416`
+  - `#2  0x00005acaadcb90a2 in PyEval_EvalFrameEx (f=0x5acad61448a0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5acad61c9720, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x00005acaadafc09f in _PyFunction_Vectorcall (func=0x5acad610e710, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x5acad6104750) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#5  0x00005acaadcb6d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffed262d658, oparg=-703576240, kwnames=0x5acad6104750) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x00005acaadca5ba2 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3515`
+  - `#7  0x00005acaadcb90a2 in PyEval_EvalFrameEx (f=0x5acad614c600, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x5acad61434f0, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x00005acaadafc09f in _PyFunction_Vectorcall (func=0x5acad61c2710, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#10 0x00005acaadcb6d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffed262d9f0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#11 0x00005acaadca5494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#12 0x00005acaadcb90a2 in PyEval_EvalFrameEx (f=0x5acad60c3f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#13 _PyEval_EvalCodeWithName (_co=0x5acad6140d70, globals=0x5acad6063aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#14 0x00005acaadca4007 in PyEval_EvalCodeEx (_co=0x5acad6140d70, globals=0x5acad6063aa0, locals=0x5acad6063aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#15 PyEval_EvalCode (co=0x5acad6140d70, globals=0x5acad6063aa0, locals=0x5acad6063aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5da105ac247b.STACK.ce9c6d348.CODE.1.ADDR.79.INSTR.mov____0x8(%r14),%rax.pyc`
+
+### 93. cpython-38-ad04dd028214
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_GetAttr|_PyObject_GetAttrId|_PyObject_CallMethodId|method_output_as_list|PyMapping_Keys|dict_merge|_PyDict_MergeEx|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function`
+- Honggfuzz stack hash: `1b49e52939`
+- PC: `0x63507f0295cc`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-ad04dd028214.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.63507f0295cc.STACK.1b49e52939.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%rax.pyc`
+- Normalized function stack:
+  - `PyObject_GetAttr`
+  - `_PyObject_GetAttrId`
+  - `_PyObject_CallMethodId`
+  - `method_output_as_list`
+  - `PyMapping_Keys`
+  - `dict_merge`
+  - `_PyDict_MergeEx`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+- Reproduced stack frames:
+  - `#0  0x0000650da3ebbc53 in PyObject_GetAttr (v=0x650da43c8850 <_destroy_def>, name=0x650db7788c30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:941`
+  - `#1  _PyObject_GetAttrId (v=<optimized out>, name=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:903`
+  - `#2  0x0000650da3e35ced in _PyObject_CallMethodId (obj=0x650da43c8850 <_destroy_def>, name=<optimized out>, format=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:1075`
+  - `#3  0x0000650da41d239c in method_output_as_list (o=0x650da43c8850 <_destroy_def>, meth_id=0x650db7788c30) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:2223`
+  - `#4  PyMapping_Keys (o=0x650da43c8850 <_destroy_def>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:2256`
+  - `#5  0x0000650da3e92af1 in dict_merge (a=0x650db79801b0, b=<optimized out>, override=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:2540`
+  - `#6  0x0000650da3e937ee in _PyDict_MergeEx (a=0x650db79801b0, b=0x650da43c8850 <_destroy_def>, override=2) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/dictobject.c:2615`
+  - `#7  0x0000650da3fda7bd in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2933`
+  - `#8  0x0000650da3fed0a2 in PyEval_EvalFrameEx (f=0x650db792eb80, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#9  _PyEval_EvalCodeWithName (_co=0x650db797c7c0, globals=0x650db78d42a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#10 0x0000650da3fd8007 in PyEval_EvalCodeEx (_co=0x650db797c7c0, globals=0x650db78d42a0, locals=0x650db78d42a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#11 PyEval_EvalCode (co=0x650db797c7c0, globals=0x650db78d42a0, locals=0x650db78d42a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#12 0x0000650da4277614 in builtin_exec_impl (source=0x650db797c7c0, globals=0x650db78d42a0, locals=0x650db78d42a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#13 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#14 0x0000650da3eb18c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#15 0x0000650da3fead6f in call_function (tstate=<optimized out>, pp_stack=0x7fff2fd39280, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.63507f0295cc.STACK.1b49e52939.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%rax.pyc`
+
+### 94. cpython-38-ad4d26a34a5f
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:binary_op1|binary_op|PyNumber_Remainder|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx`
+- Honggfuzz stack hash: `1a8a52d3e4`
+- PC: `0x5c80d44d95fa`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r14),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-ad4d26a34a5f.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5c80d44d95fa.STACK.1a8a52d3e4.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%r14.pyc`
+- Normalized function stack:
+  - `binary_op1`
+  - `binary_op`
+  - `PyNumber_Remainder`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+- Reproduced stack frames:
+  - `#0  binary_op1 (v=0x64d66b03c460, w=0x184026414641764, op_slot=24) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:794`
+  - `#1  binary_op (v=0x64d66b03c460, w=0x184026414641764, op_slot=24, op_name=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:837`
+  - `#2  PyNumber_Remainder (v=0x64d66b03c460, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:1026`
+  - `#3  0x000064d6377d544e in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1533`
+  - `#4  0x000064d6377e60a2 in PyEval_EvalFrameEx (f=0x64d66b069be0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#5  _PyEval_EvalCodeWithName (_co=0x64d66b036610, globals=0x64d66b00f2a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#6  0x000064d6377d1007 in PyEval_EvalCodeEx (_co=0x64d66b036610, globals=0x64d66b00f2a0, locals=0x64d66b00f2a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#7  PyEval_EvalCode (co=0x64d66b036610, globals=0x64d66b00f2a0, locals=0x64d66b00f2a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#8  0x000064d637a70614 in builtin_exec_impl (source=0x64d66b036610, globals=0x64d66b00f2a0, locals=0x64d66b00f2a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#9  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#10 0x000064d6376aa8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#11 0x000064d6377e3d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffd3e147ba0, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#12 0x000064d6377d2494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#13 0x000064d6377e60a2 in PyEval_EvalFrameEx (f=0x64d66afb6f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#14 _PyEval_EvalCodeWithName (_co=0x64d66b033d70, globals=0x64d66af56aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#15 0x000064d6377d1007 in PyEval_EvalCodeEx (_co=0x64d66b033d70, globals=0x64d66af56aa0, locals=0x64d66af56aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5c80d44d95fa.STACK.1a8a52d3e4.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%r14.pyc`
+
+### 95. cpython-38-ad5da279dcbc
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_Py_XDECREF|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|gen_send_ex|gen_iternext|list_extend|_PyList_Extend|PySequence_List|PySequence_Fast|PyUnicode_Join|unicode_join|method_vectorcall_O|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall`
+- Honggfuzz stack hash: `e4c44d129`
+- PC: `0x61a512348c0e`
+- Fault address: `0x51`
+- Instruction: `mov____(%r12),%rbx`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-ad5da279dcbc.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61a512348c0e.STACK.e4c44d129.CODE.1.ADDR.51.INSTR.mov____(%r12),%rbx.pyc`
+- Normalized function stack:
+  - `_Py_XDECREF`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `gen_send_ex`
+  - `gen_iternext`
+  - `list_extend`
+  - `_PyList_Extend`
+  - `PySequence_List`
+  - `PySequence_Fast`
+  - `PyUnicode_Join`
+  - `unicode_join`
+  - `method_vectorcall_O`
+  - `call_function`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `_PyEval_EvalCodeWithName`
+- Reproduced stack frames:
+  - `#0  _Py_XDECREF (op=0x51) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:541`
+  - `#1  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1357`
+  - `#2  0x00005956ae552196 in PyEval_EvalFrameEx (f=0x5956e8118d60, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x00005956ae781998 in gen_send_ex (gen=0x5956e8156440, arg=<optimized out>, exc=<optimized out>, closing=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/genobject.c:222`
+  - `#4  0x00005956ae782b24 in gen_iternext (gen=0x5956e8156440) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/genobject.c:543`
+  - `#5  0x00005956ae3d0a01 in list_extend (self=0x5956e8152cf0, iterable=0x5956e8156440) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/listobject.c:963`
+  - `#6  0x00005956ae3d0505 in _PyList_Extend (self=0x5956e8152cf0, iterable=0x5956e8156440) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/listobject.c:1003`
+  - `#7  0x00005956ae74abf3 in PySequence_List (v=0x5956e8156440) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:1946`
+  - `#8  PySequence_Fast (v=0x5956e8156440, m=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:1976`
+  - `#9  0x00005956ae513fa0 in PyUnicode_Join (separator=0x5956e80cfb90, seq=0x5956e8156440) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/unicodeobject.c:9934`
+  - `#10 unicode_join (self=<optimized out>, iterable=0x5956e8156440) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/unicodeobject.c:12240`
+  - `#11 0x00005956ae77cc61 in method_vectorcall_O (func=<optimized out>, args=<optimized out>, nargsf=9223372036854775810, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/descrobject.c:416`
+  - `#12 0x00005956ae564d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffd5f1b3548, oparg=2, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#13 0x00005956ae555640 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3486`
+  - `#14 0x00005956ae552196 in PyEval_EvalFrameEx (f=0x5956e80d40f0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#15 0x00005956ae3aa1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5956e80aa230) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.61a512348c0e.STACK.e4c44d129.CODE.1.ADDR.51.INSTR.mov____(%r12),%rbx.pyc`
+
+### 96. cpython-38-b0c2992e0f7d
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_Py_XDECREF|tupledealloc|_Py_Dealloc|_Py_DECREF|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `c258ce160`
+- PC: `0x5df5a5a69cf7`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r13),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-b0c2992e0f7d.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5df5a5a69cf7.STACK.c258ce160.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%r15.pyc`
+- Normalized function stack:
+  - `_Py_XDECREF`
+  - `tupledealloc`
+  - `_Py_Dealloc`
+  - `_Py_DECREF`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+- Reproduced stack frames:
+  - `#0  _Py_XDECREF (op=0x620100000000) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:541`
+  - `#1  tupledealloc (op=0x622efabe2ab0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/tupleobject.c:247`
+  - `#2  0x0000622ec0bd057c in _Py_Dealloc (op=0x622efabe2ab0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:2215`
+  - `#3  0x0000622ec0cf1077 in _Py_DECREF (op=0x622efabe2ab0, filename=<optimized out>, lineno=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/object.h:478`
+  - `#4  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2995`
+  - `#5  0x0000622ec0ce8196 in PyEval_EvalFrameEx (f=0x622efac9a4c0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#6  0x0000622ec0b401a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x622efac332a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#7  _PyFunction_Vectorcall (func=0x622efacbba30, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#8  0x0000622ec0cfad6f in call_function (tstate=<optimized out>, pp_stack=0x7fffeccbdeb0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#9  0x0000622ec0ce9494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#10 0x0000622ec0cfd0a2 in PyEval_EvalFrameEx (f=0x622efabdaf30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#11 _PyEval_EvalCodeWithName (_co=0x622efac57d70, globals=0x622efab7aaa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#12 0x0000622ec0ce8007 in PyEval_EvalCodeEx (_co=0x622efac57d70, globals=0x622efab7aaa0, locals=0x622efab7aaa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#13 PyEval_EvalCode (co=0x622efac57d70, globals=0x622efab7aaa0, locals=0x622efab7aaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#14 0x0000622ec0d9682d in run_eval_code_obj (co=0x622efac57d70, globals=0x622efab7aaa0, locals=0x622efab7aaa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#15 run_mod (mod=0x622efac36268, filename=0x622efac31c00, globals=0x622efab7aaa0, locals=0x622efab7aaa0, flags=0x7fffeccbe2c0, arena=0x622efabdb1b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5df5a5a69cf7.STACK.c258ce160.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%r15.pyc`
+
+### 97. cpython-38-b2e0276d86d8
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyObject_LookupSpecial|special_lookup|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file`
+- Honggfuzz stack hash: `1ad6c11278`
+- PC: `0x5d59ccec3524`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r13),%r14`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-b2e0276d86d8.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d59ccec3524.STACK.1ad6c11278.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%r14.pyc`
+- Normalized function stack:
+  - `_PyObject_LookupSpecial`
+  - `special_lookup`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  _PyObject_LookupSpecial (self=0x0, attrid=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/typeobject.c:1401`
+  - `#1  0x00005e55e5b5994b in special_lookup (tstate=<optimized out>, o=0x0, id=0x5e55e5f26ee0 <_PyEval_EvalFrameDefault.PyId___enter__>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4340`
+  - `#2  0x00005e55e5b49074 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3275`
+  - `#3  0x00005e55e5b47196 in PyEval_EvalFrameEx (f=0x5e55f995cd40, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#4  0x00005e55e599f1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5e55f98ee2a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#5  _PyFunction_Vectorcall (func=0x5e55f991b460, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#6  0x00005e55e5b59d6f in call_function (tstate=<optimized out>, pp_stack=0x7fff94816040, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#7  0x00005e55e5b48494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#8  0x00005e55e5b5c0a2 in PyEval_EvalFrameEx (f=0x5e55f9895f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#9  _PyEval_EvalCodeWithName (_co=0x5e55f9912d70, globals=0x5e55f9835aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#10 0x00005e55e5b47007 in PyEval_EvalCodeEx (_co=0x5e55f9912d70, globals=0x5e55f9835aa0, locals=0x5e55f9835aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#11 PyEval_EvalCode (co=0x5e55f9912d70, globals=0x5e55f9835aa0, locals=0x5e55f9835aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#12 0x00005e55e5bf582d in run_eval_code_obj (co=0x5e55f9912d70, globals=0x5e55f9835aa0, locals=0x5e55f9835aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#13 run_mod (mod=0x5e55f98f1268, filename=0x5e55f98ecc00, globals=0x5e55f9835aa0, locals=0x5e55f9835aa0, flags=0x7fff94816450, arena=0x5e55f98961b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#14 pyrun_file (fp=0x5e55f98e0700, filename=0x5e55f98ecc00, start=257, globals=0x5e55f9835aa0, locals=0x5e55f9835aa0, closeit=1, flags=0x7fff94816450) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#15 pyrun_simple_file (fp=0x5e55f98e0700, filename=0x5e55f98ecc00, closeit=1, flags=0x7fff94816450) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d59ccec3524.STACK.1ad6c11278.CODE.1.ADDR.8.INSTR.mov____0x8(%r13),%r14.pyc`
+
+### 98. cpython-38-b7bd807aa2e6
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_Multiply|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|builtin___build_class__|cfunction_vectorcall_FASTCALL_KEYWORDS|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName`
+- Honggfuzz stack hash: `d7944a279`
+- PC: `0x612d0d53ee98`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%r13`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-b7bd807aa2e6.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.612d0d53ee98.STACK.d7944a279.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r13.pyc`
+- Normalized function stack:
+  - `PyNumber_Multiply`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `builtin___build_class__`
+  - `cfunction_vectorcall_FASTCALL_KEYWORDS`
+  - `call_function`
+  - `_PyFunction_Vectorcall`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyNumber_Multiply (v=0x0, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:989`
+  - `#1  0x0000578670fe12d4 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1478`
+  - `#2  0x0000578670ff20a2 in PyEval_EvalFrameEx (f=0x578694413380, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x578694464730, globals=0x57869445f400, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x0000578670fdd0c5 in PyEval_EvalCodeEx (_co=0x578694464730, globals=0x57869445f400, locals=0x578694465170, args=0x0, argcount=0, kws=0x0, kwcount=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  0x000057867127a621 in builtin___build_class__ (self=<optimized out>, args=<optimized out>, nargs=3, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:213`
+  - `#6  0x0000578670eb6a90 in cfunction_vectorcall_FASTCALL_KEYWORDS (func=<optimized out>, args=<optimized out>, nargsf=9223372036854775811, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:441`
+  - `#7  0x0000578670fefd6f in call_function (tstate=<optimized out>, pp_stack=0x7ffee5748ed0, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#8  0x0000578670fde494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#9  0x0000578670ff20a2 in PyEval_EvalFrameEx (f=0x5786943e6610, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#10 _PyEval_EvalCodeWithName (_co=0x5786944650a0, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#11 0x0000578670e3509f in _PyFunction_Vectorcall (func=0x5786942fb5b0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#12 0x0000578670fefd6f in call_function (tstate=<optimized out>, pp_stack=0x7ffee5749270, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#13 0x0000578670fde494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#14 0x0000578670ff20a2 in PyEval_EvalFrameEx (f=0x57869435ef30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#15 _PyEval_EvalCodeWithName (_co=0x5786943dbd20, globals=0x5786942feaa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.612d0d53ee98.STACK.d7944a279.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r13.pyc`
+
+### 99. cpython-38-c8d67b905643
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file`
+- Honggfuzz stack hash: `c3fcdf73e`
+- PC: `0x577a97441fac`
+- Fault address: `0x18`
+- Instruction: `mov____0x18(%rax,%rbx,8),%r12`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-c8d67b905643.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.577a97441fac.STACK.c3fcdf73e.CODE.1.ADDR.18.INSTR.mov____0x18(%rax,%rbx,8),%r12.pyc`
+- Normalized function stack:
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+  - `pymain_run_python`
+  - `Py_RunMain`
+- Reproduced stack frames:
+  - `#0  0x00005fad064f5fac in _PyEval_EvalCodeWithName (_co=0x5fad1e865090, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4266`
+  - `#1  0x00005fad0633909f in _PyFunction_Vectorcall (func=0x5fad1e83eb00, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#2  0x00005fad064f3d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffdba991a40, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#3  0x00005fad064e2494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#4  0x00005fad064f60a2 in PyEval_EvalFrameEx (f=0x5fad1e7e58e0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#5  _PyEval_EvalCodeWithName (_co=0x5fad1e7df230, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#6  0x00005fad0633909f in _PyFunction_Vectorcall (func=0x5fad1e83eed0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#7  0x00005fad064f3d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffdba991de0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#8  0x00005fad064e2494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#9  0x00005fad064f60a2 in PyEval_EvalFrameEx (f=0x5fad1e75e200, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#10 _PyEval_EvalCodeWithName (_co=0x5fad1e7db040, globals=0x5fad1e6fdb20, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#11 0x00005fad064e1007 in PyEval_EvalCodeEx (_co=0x5fad1e7db040, globals=0x5fad1e6fdb20, locals=0x5fad1e6fdb20, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#12 PyEval_EvalCode (co=0x5fad1e7db040, globals=0x5fad1e6fdb20, locals=0x5fad1e6fdb20) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#13 0x00005fad0658f82d in run_eval_code_obj (co=0x5fad1e7db040, globals=0x5fad1e6fdb20, locals=0x5fad1e6fdb20) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#14 run_mod (mod=0x5fad1e7b9538, filename=0x5fad1e7b4ed0, globals=0x5fad1e6fdb20, locals=0x5fad1e6fdb20, flags=0x7ffdba9921f0, arena=0x5fad1e75e480) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#15 pyrun_file (fp=0x5fad1e7a89d0, filename=0x5fad1e7b4ed0, start=257, globals=0x5fad1e6fdb20, locals=0x5fad1e6fdb20, closeit=1, flags=0x7ffdba9921f0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.577a97441fac.STACK.c3fcdf73e.CODE.1.ADDR.18.INSTR.mov____0x18(%rax,%rbx,8),%r12.pyc`
+
+### 100. cpython-38-c9a051e86287
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyList_Append|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `182ec38c49`
+- PC: `0x605ceb278e81`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r13),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-c9a051e86287.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.605ceb278e81.STACK.182ec38c49.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+- Normalized function stack:
+  - `PyList_Append`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  PyList_Append (op=0x350000001f, newitem=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/listobject.c:357`
+  - `#1  0x00005d76a0497145 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1657`
+  - `#2  0x00005d76a0495196 in PyEval_EvalFrameEx (f=0x5d76baed1600, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x00005d76a02ed1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5d76baea2240) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#4  _PyFunction_Vectorcall (func=0x5d76bade65b0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#5  0x00005d76a04a7d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffe49d53230, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x00005d76a0496494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x00005d76a04aa0a2 in PyEval_EvalFrameEx (f=0x5d76bae49ed0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x5d76baec6d10, globals=0x5d76bade9aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x00005d76a0495007 in PyEval_EvalCodeEx (_co=0x5d76baec6d10, globals=0x5d76bade9aa0, locals=0x5d76bade9aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x5d76baec6d10, globals=0x5d76bade9aa0, locals=0x5d76bade9aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x00005d76a054382d in run_eval_code_obj (co=0x5d76baec6d10, globals=0x5d76bade9aa0, locals=0x5d76bade9aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x5d76baea5208, filename=0x5d76baea0ba0, globals=0x5d76bade9aa0, locals=0x5d76bade9aa0, flags=0x7ffe49d53640, arena=0x5d76bae4a150) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x5d76bae946a0, filename=0x5d76baea0ba0, start=257, globals=0x5d76bade9aa0, locals=0x5d76bade9aa0, closeit=1, flags=0x7ffe49d53640) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x5d76bae946a0, filename=0x5d76baea0ba0, closeit=1, flags=0x7ffe49d53640) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x5d76baea0b60 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.605ceb278e81.STACK.182ec38c49.CODE.128.ADDR.0.INSTR.mov____0x8(%r13),%rax.pyc`
+
+### 101. cpython-38-ca2cdad59026
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_InPlaceOr|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `ce30a23e6`
+- PC: `0x57d797870d94`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r15),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-ca2cdad59026.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57d797870d94.STACK.ce30a23e6.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+- Normalized function stack:
+  - `PyNumber_InPlaceOr`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  PyNumber_InPlaceOr (v=0x0, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:1086`
+  - `#1  0x00005b0335b88c12 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1831`
+  - `#2  0x00005b0335b82196 in PyEval_EvalFrameEx (f=0x5b0371764160, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x00005b03359da1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5b03717382a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#4  _PyFunction_Vectorcall (func=0x5b0371765460, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#5  0x00005b0335b94d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffc7966f9e0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x00005b0335b83494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x00005b0335b970a2 in PyEval_EvalFrameEx (f=0x5b03716dff30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x5b037175cd70, globals=0x5b037167faa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x00005b0335b82007 in PyEval_EvalCodeEx (_co=0x5b037175cd70, globals=0x5b037167faa0, locals=0x5b037167faa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x5b037175cd70, globals=0x5b037167faa0, locals=0x5b037167faa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x00005b0335c3082d in run_eval_code_obj (co=0x5b037175cd70, globals=0x5b037167faa0, locals=0x5b037167faa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x5b037173b268, filename=0x5b0371736c00, globals=0x5b037167faa0, locals=0x5b037167faa0, flags=0x7ffc7966fdf0, arena=0x5b03716e01b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x5b037172a700, filename=0x5b0371736c00, start=257, globals=0x5b037167faa0, locals=0x5b037167faa0, closeit=1, flags=0x7ffc7966fdf0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x5b037172a700, filename=0x5b0371736c00, closeit=1, flags=0x7ffc7966fdf0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x5b0371736bc0 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.57d797870d94.STACK.ce30a23e6.CODE.1.ADDR.8.INSTR.mov____0x8(%r15),%rax.pyc`
+
+### 102. cpython-38-cd20523d07c1
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_GetAttr|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `ec6a7fc04`
+- PC: `0x5f76c7ab7e25`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%r12`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-cd20523d07c1.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5f76c7ab7e25.STACK.ec6a7fc04.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r12.pyc`
+- Normalized function stack:
+  - `PyObject_GetAttr`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyObject_GetAttr (v=0x184026414641764, name=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:932`
+  - `#1  0x0000627bd7dbbdff in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2966`
+  - `#2  0x0000627bd7dc80a2 in PyEval_EvalFrameEx (f=0x627c11adabe0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x627c11aa8190, globals=0x627c11a802a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x0000627bd7db3007 in PyEval_EvalCodeEx (_co=0x627c11aa8190, globals=0x627c11a802a0, locals=0x627c11a802a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x627c11aa8190, globals=0x627c11a802a0, locals=0x627c11a802a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x0000627bd8052614 in builtin_exec_impl (source=0x627c11aa8190, globals=0x627c11a802a0, locals=0x627c11a802a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x0000627bd7c8c8c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x0000627bd7dc5d6f in call_function (tstate=<optimized out>, pp_stack=0x7fffa47991f0, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x0000627bd7db4494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x0000627bd7dc80a2 in PyEval_EvalFrameEx (f=0x627c11a27f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x627c11aa4d70, globals=0x627c119c7aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x0000627bd7db3007 in PyEval_EvalCodeEx (_co=0x627c11aa4d70, globals=0x627c119c7aa0, locals=0x627c119c7aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x627c11aa4d70, globals=0x627c119c7aa0, locals=0x627c119c7aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x0000627bd7e6182d in run_eval_code_obj (co=0x627c11aa4d70, globals=0x627c119c7aa0, locals=0x627c119c7aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5f76c7ab7e25.STACK.ec6a7fc04.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r12.pyc`
+
+### 103. cpython-38-d7941a493f28
+
+- Status: crash
+- Signal: SIGSEGV
+- Stack source: honggfuzz-filename
+- Stack signature: `SIGSEGV:c3d9c75c3`
+- Honggfuzz stack hash: `c3d9c75c3`
+- PC: `0x5dbcf7828521`
+- Fault address: `0x0`
+- Instruction: `mov____0x0(%r13),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-d7941a493f28.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5dbcf7828521.STACK.c3d9c75c3.CODE.128.ADDR.0.INSTR.mov____0x0(%r13),%r15.pyc`
+- Reproduced stack frames: `not available; rerun did not produce a native backtrace`
+- Manual gdb command: `PYTHONHOME=data/rq3/cpython-3.8/source/cpython-3.8.20 PYTHONPATH=data/rq3/cpython-3.8/source/cpython-3.8.20/Lib PYTHONNOUSERSITE=1 gdb -q --args data/rq3/cpython-3.8/instrumented/python -S data/rq3/harness.py data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5dbcf7828521.STACK.c3d9c75c3.CODE.128.ADDR.0.INSTR.mov____0x0(%r13),%r15.pyc`
+- Rerun diagnostic excerpt:
+  - `"Auto-loading safe path" section in the GDB manual.  E.g., run from the shell:`
+  - `info "(gdb)Auto-loading safe path"`
+  - `warning: Error disabling address space randomization: Operation not permitted`
+  - `[Thread debugging using libthread_db enabled]`
+  - `Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".`
+  - `Traceback (most recent call last):`
+  - `File "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", line 29, in <module>`
+  - `result = target()`
+  - `File "data/rq3/cpython-3.8/unittest_seeds/raw/cpython_case_test_posix_PosixTester_test_putenv.py", line 6, in __pybcsec_seed__`
+  - `UnboundLocalError: local variable '__pybcsec_self__' referenced before assignment`
+  - `[Inferior 1 (process 1280074) exited with code 01]`
+  - `No stack.`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5dbcf7828521.STACK.c3d9c75c3.CODE.128.ADDR.0.INSTR.mov____0x0(%r13),%r15.pyc`
+
+### 104. cpython-38-d9c4a89dd230
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyObject_DelItem|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `1937dbba46`
+- PC: `0x556c59d39d5e`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%r12`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-d9c4a89dd230.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.556c59d39d5e.STACK.1937dbba46.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r12.pyc`
+- Normalized function stack:
+  - `PyObject_DelItem`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyObject_DelItem (o=0x175a018413641264, key=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:231`
+  - `#1  0x00005c427608e968 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1862`
+  - `#2  0x00005c427609e0a2 in PyEval_EvalFrameEx (f=0x5c4283b56ba0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5c4283ba4620, globals=0x5c4283afc2a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x00005c4276089007 in PyEval_EvalCodeEx (_co=0x5c4283ba4620, globals=0x5c4283afc2a0, locals=0x5c4283afc2a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x5c4283ba4620, globals=0x5c4283afc2a0, locals=0x5c4283afc2a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x00005c4276328614 in builtin_exec_impl (source=0x5c4283ba4620, globals=0x5c4283afc2a0, locals=0x5c4283afc2a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x00005c4275f628c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x00005c427609bd6f in call_function (tstate=<optimized out>, pp_stack=0x7fff0cba4320, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x00005c427608a494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x00005c427609e0a2 in PyEval_EvalFrameEx (f=0x5c4283aa3f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x5c4283b20d70, globals=0x5c4283a43aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x00005c4276089007 in PyEval_EvalCodeEx (_co=0x5c4283b20d70, globals=0x5c4283a43aa0, locals=0x5c4283a43aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x5c4283b20d70, globals=0x5c4283a43aa0, locals=0x5c4283a43aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x00005c427613782d in run_eval_code_obj (co=0x5c4283b20d70, globals=0x5c4283a43aa0, locals=0x5c4283a43aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.556c59d39d5e.STACK.1937dbba46.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r12.pyc`
+
+### 105. cpython-38-db7c5002a77c
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|gen_send_ex|gen_iternext|list_extend|method_vectorcall_O|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx`
+- Honggfuzz stack hash: `e5bf13278`
+- PC: `0x63c49315f666`
+- Fault address: `0x0`
+- Instruction: `addq___$0x1,(%rax)`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-db7c5002a77c.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.63c49315f666.STACK.e5bf13278.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+- Normalized function stack:
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `gen_send_ex`
+  - `gen_iternext`
+  - `list_extend`
+  - `method_vectorcall_O`
+  - `call_function`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+- Reproduced stack frames:
+  - `#0  _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1349`
+  - `#1  0x000061cf51a1f196 in PyEval_EvalFrameEx (f=0x61cf6c66c540, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#2  0x000061cf51c4e998 in gen_send_ex (gen=0x61cf6c6bd340, arg=<optimized out>, exc=<optimized out>, closing=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/genobject.c:222`
+  - `#3  0x000061cf51c4fb24 in gen_iternext (gen=0x61cf6c6bd340) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/genobject.c:543`
+  - `#4  0x000061cf5189da01 in list_extend (self=0x61cf6c6b50b0, iterable=0x61cf6c6bd340) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/listobject.c:963`
+  - `#5  0x000061cf51c49c61 in method_vectorcall_O (func=<optimized out>, args=<optimized out>, nargsf=9223372036854775810, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/descrobject.c:416`
+  - `#6  0x000061cf51a31d6f in call_function (tstate=<optimized out>, pp_stack=0x7fffb118e868, oparg=2, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#7  0x000061cf51a22640 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3486`
+  - `#8  0x000061cf51a1f196 in PyEval_EvalFrameEx (f=0x61cf6c63b150, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#9  0x000061cf518771a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x61cf6c611290) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#10 _PyFunction_Vectorcall (func=0x61cf6c555350, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#11 0x000061cf51a31d6f in call_function (tstate=<optimized out>, pp_stack=0x7fffb118eaf0, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#12 0x000061cf51a20494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#13 0x000061cf51a340a2 in PyEval_EvalFrameEx (f=0x61cf6c5b8f20, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#14 _PyEval_EvalCodeWithName (_co=0x61cf6c635d60, globals=0x61cf6c558840, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#15 0x000061cf51a1f007 in PyEval_EvalCodeEx (_co=0x61cf6c635d60, globals=0x61cf6c558840, locals=0x61cf6c558840, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.63c49315f666.STACK.e5bf13278.CODE.128.ADDR.0.INSTR.addq___$0x1,(%rax).pyc`
+
+### 106. cpython-38-dc7186b132f7
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:??|do_richcompare|PyObject_RichCompare|cmp_outcome|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod`
+- Honggfuzz stack hash: `186e417016`
+- PC: `0x600b5eab5eb8`
+- Fault address: `0xe9`
+- Instruction: `mov____0xc8(%rax),%rbx`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-dc7186b132f7.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.600b5eab5eb8.STACK.186e417016.CODE.1.ADDR.e9.INSTR.mov____0xc8(%rax),%rbx.pyc`
+- Normalized function stack:
+  - `??`
+  - `do_richcompare`
+  - `PyObject_RichCompare`
+  - `cmp_outcome`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+- Reproduced stack frames:
+  - `#0  0x000000002e737265 in ?? ()`
+  - `#1  0x000057f7fc8abedb in do_richcompare (v=0x57f810ef5530, w=0x57f7fd782150 <small_ints+192>, op=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:726`
+  - `#2  PyObject_RichCompare (v=0x57f810ef5530, w=<optimized out>, op=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:774`
+  - `#3  0x000057f7fc9dbe97 in cmp_outcome (tstate=<optimized out>, op=3, v=<optimized out>, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:5110`
+  - `#4  0x000057f7fc9d2ed0 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2977`
+  - `#5  0x000057f7fc9ca196 in PyEval_EvalFrameEx (f=0x57f810f284d0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#6  0x000057f7fc8221a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x57f810ecd2a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#7  _PyFunction_Vectorcall (func=0x57f810f55990, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#8  0x000057f7fc9dcd6f in call_function (tstate=<optimized out>, pp_stack=0x7ffc44c03680, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#9  0x000057f7fc9cb494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#10 0x000057f7fc9df0a2 in PyEval_EvalFrameEx (f=0x57f810e74f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#11 _PyEval_EvalCodeWithName (_co=0x57f810ef1d70, globals=0x57f810e14aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#12 0x000057f7fc9ca007 in PyEval_EvalCodeEx (_co=0x57f810ef1d70, globals=0x57f810e14aa0, locals=0x57f810e14aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#13 PyEval_EvalCode (co=0x57f810ef1d70, globals=0x57f810e14aa0, locals=0x57f810e14aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#14 0x000057f7fca7882d in run_eval_code_obj (co=0x57f810ef1d70, globals=0x57f810e14aa0, locals=0x57f810e14aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#15 run_mod (mod=0x57f810ed0268, filename=0x57f810ecbc00, globals=0x57f810e14aa0, locals=0x57f810e14aa0, flags=0x7ffc44c03a90, arena=0x57f810e751b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.600b5eab5eb8.STACK.186e417016.CODE.1.ADDR.e9.INSTR.mov____0xc8(%rax),%rbx.pyc`
+
+### 107. cpython-38-e36fb497365a
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_Multiply|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file|pyrun_simple_file|PyRun_SimpleFileExFlags`
+- Honggfuzz stack hash: `18eaf5e60e`
+- PC: `0x5d1b0031ce98`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%rbx),%r13`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-e36fb497365a.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d1b0031ce98.STACK.18eaf5e60e.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r13.pyc`
+- Normalized function stack:
+  - `PyNumber_Multiply`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+  - `pymain_run_file`
+- Reproduced stack frames:
+  - `#0  PyNumber_Multiply (v=0x0, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:989`
+  - `#1  0x00005f8c0466c2d4 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1478`
+  - `#2  0x00005f8c04668196 in PyEval_EvalFrameEx (f=0x5f8c31404760, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  0x00005f8c044c01a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5f8c313cb240) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#4  _PyFunction_Vectorcall (func=0x5f8c313f8400, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#5  0x00005f8c0467ad6f in call_function (tstate=<optimized out>, pp_stack=0x7ffff432fe30, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#6  0x00005f8c04669494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#7  0x00005f8c0467d0a2 in PyEval_EvalFrameEx (f=0x5f8c31372ed0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x5f8c313efd10, globals=0x5f8c31312aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x00005f8c04668007 in PyEval_EvalCodeEx (_co=0x5f8c313efd10, globals=0x5f8c31312aa0, locals=0x5f8c31312aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#10 PyEval_EvalCode (co=0x5f8c313efd10, globals=0x5f8c31312aa0, locals=0x5f8c31312aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#11 0x00005f8c0471682d in run_eval_code_obj (co=0x5f8c313efd10, globals=0x5f8c31312aa0, locals=0x5f8c31312aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#12 run_mod (mod=0x5f8c313ce208, filename=0x5f8c313c9ba0, globals=0x5f8c31312aa0, locals=0x5f8c31312aa0, flags=0x7ffff4330240, arena=0x5f8c31373150) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#13 pyrun_file (fp=0x5f8c313bd6a0, filename=0x5f8c313c9ba0, start=257, globals=0x5f8c31312aa0, locals=0x5f8c31312aa0, closeit=1, flags=0x7ffff4330240) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+  - `#14 pyrun_simple_file (fp=0x5f8c313bd6a0, filename=0x5f8c313c9ba0, closeit=1, flags=0x7ffff4330240) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:439`
+  - `#15 PyRun_SimpleFileExFlags (fp=<optimized out>, filename=0x5f8c313c9b60 "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", closeit=<optimized out>, flags=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:472`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5d1b0031ce98.STACK.18eaf5e60e.CODE.1.ADDR.8.INSTR.mov____0x8(%rbx),%r13.pyc`
+
+### 108. cpython-38-ee3258669fff
+
+- Status: crash
+- Signal: SIGSEGV
+- Stack source: honggfuzz-filename
+- Stack signature: `SIGSEGV:1b25921318`
+- Honggfuzz stack hash: `1b25921318`
+- PC: `0x602426cdf59b`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%r14),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-ee3258669fff.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.602426cdf59b.STACK.1b25921318.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%r15.pyc`
+- Reproduced stack frames: `not available; rerun did not produce a native backtrace`
+- Manual gdb command: `PYTHONHOME=data/rq3/cpython-3.8/source/cpython-3.8.20 PYTHONPATH=data/rq3/cpython-3.8/source/cpython-3.8.20/Lib PYTHONNOUSERSITE=1 gdb -q --args data/rq3/cpython-3.8/instrumented/python -S data/rq3/harness.py data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.602426cdf59b.STACK.1b25921318.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%r15.pyc`
+- Rerun diagnostic excerpt:
+  - `info "(gdb)Auto-loading safe path"`
+  - `warning: Error disabling address space randomization: Operation not permitted`
+  - `[Thread debugging using libthread_db enabled]`
+  - `Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".`
+  - `XXX lineno: 6, opcode: 0`
+  - `Traceback (most recent call last):`
+  - `File "/root/PyBC-Sec/pybcSEC/data/rq3/harness.py", line 29, in <module>`
+  - `result = target()`
+  - `File "data/rq3/cpython-3.8/unittest_seds/raw/cpython_case_test_posix_PosixTester_test_chdir.py", line 6, in __pybcsec_seed__`
+  - `SystemError: unknown opcode`
+  - `[Inferior 1 (process 1279556) exited with code 01]`
+  - `No stack.`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.602426cdf59b.STACK.1b25921318.CODE.128.ADDR.0.INSTR.mov____0x8(%r14),%r15.pyc`
+
+### 109. cpython-38-f59ebda0e043
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:cfunction_enter_call|cfunction_vectorcall_FASTCALL|PyObject_GetAttr|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|function_code_fastcall|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj|run_mod|pyrun_file`
+- Honggfuzz stack hash: `182f040f21`
+- PC: `0x6432231e785f`
+- Fault address: `0xc`
+- Instruction: `mov____0x8(%rax),%r13`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-f59ebda0e043.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.6432231e785f.STACK.182f040f21.CODE.1.ADDR.c.INSTR.mov____0x8(%rax),%r13.pyc`
+- Normalized function stack:
+  - `cfunction_enter_call`
+  - `cfunction_vectorcall_FASTCALL`
+  - `PyObject_GetAttr`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `function_code_fastcall`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+- Reproduced stack frames:
+  - `#0  0x00005b54a41fd85f in cfunction_enter_call (func=0x5b54bbe28250) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:409`
+  - `#1  cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:422`
+  - `#2  0x00005b54a4206ea4 in PyObject_GetAttr (v=0x5b54a473fedc, name=0x5b54bbde0dd0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/object.c:941`
+  - `#3  0x00005b54a432cdff in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2966`
+  - `#4  0x00005b54a4324196 in PyEval_EvalFrameEx (f=0x5b54bbe27d40, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#5  0x00005b54a417c1a9 in function_code_fastcall (co=<optimized out>, args=<optimized out>, nargs=0, globals=0x5b54bbdb92a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:284`
+  - `#6  _PyFunction_Vectorcall (func=0x5b54bbe41c60, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:411`
+  - `#7  0x00005b54a4336d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffe22a48660, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#8  0x00005b54a4325494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#9  0x00005b54a43390a2 in PyEval_EvalFrameEx (f=0x5b54bbd60f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#10 _PyEval_EvalCodeWithName (_co=0x5b54bbdddd70, globals=0x5b54bbd00aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#11 0x00005b54a4324007 in PyEval_EvalCodeEx (_co=0x5b54bbdddd70, globals=0x5b54bbd00aa0, locals=0x5b54bbd00aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#12 PyEval_EvalCode (co=0x5b54bbdddd70, globals=0x5b54bbd00aa0, locals=0x5b54bbd00aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#13 0x00005b54a43d282d in run_eval_code_obj (co=0x5b54bbdddd70, globals=0x5b54bbd00aa0, locals=0x5b54bbd00aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+  - `#14 run_mod (mod=0x5b54bbdbc268, filename=0x5b54bbdb7c00, globals=0x5b54bbd00aa0, locals=0x5b54bbd00aa0, flags=0x7ffe22a48a70, arena=0x5b54bbd611b0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1188`
+  - `#15 pyrun_file (fp=0x5b54bbdab700, filename=0x5b54bbdb7c00, start=257, globals=0x5b54bbd00aa0, locals=0x5b54bbd00aa0, closeit=1, flags=0x7ffe22a48a70) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1085`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.6432231e785f.STACK.182f040f21.CODE.1.ADDR.c.INSTR.mov____0x8(%rax),%r13.pyc`
+
+### 110. cpython-38-fd66ae236b22
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:PyNumber_Lshift|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|builtin_exec_impl|builtin_exec|cfunction_vectorcall_FASTCALL|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|PyEval_EvalCodeEx|PyEval_EvalCode|run_eval_code_obj`
+- Honggfuzz stack hash: `f85957e45`
+- PC: `0x5897915f8b48`
+- Fault address: `0x0`
+- Instruction: `mov____0x8(%rbx),%r15`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-fd66ae236b22.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5897915f8b48.STACK.f85957e45.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+- Normalized function stack:
+  - `PyNumber_Lshift`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `builtin_exec_impl`
+  - `builtin_exec`
+  - `cfunction_vectorcall_FASTCALL`
+  - `call_function`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+  - `pyrun_simple_file`
+  - `PyRun_SimpleFileExFlags`
+  - `PyRun_AnyFileExFlags`
+- Reproduced stack frames:
+  - `#0  PyNumber_Lshift (v=0x184026414641764, w=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/abstract.c:950`
+  - `#1  0x00005cec45a81a70 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:1596`
+  - `#2  0x00005cec45a910a2 in PyEval_EvalFrameEx (f=0x5cec885aba80, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#3  _PyEval_EvalCodeWithName (_co=0x5cec885783a0, globals=0x5cec885512a0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#4  0x00005cec45a7c007 in PyEval_EvalCodeEx (_co=0x5cec885783a0, globals=0x5cec885512a0, locals=0x5cec885512a0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#5  PyEval_EvalCode (co=0x5cec885783a0, globals=0x5cec885512a0, locals=0x5cec885512a0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#6  0x00005cec45d1b614 in builtin_exec_impl (source=0x5cec885783a0, globals=0x5cec885512a0, locals=0x5cec885512a0, module=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/bltinmodule.c:1025`
+  - `#7  builtin_exec (module=<optimized out>, args=<optimized out>, nargs=3) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/clinic/bltinmodule.c.h:396`
+  - `#8  0x00005cec459558c4 in cfunction_vectorcall_FASTCALL (func=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/methodobject.c:426`
+  - `#9  0x00005cec45a8ed6f in call_function (tstate=<optimized out>, pp_stack=0x7fff14377b80, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#10 0x00005cec45a7d494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#11 0x00005cec45a910a2 in PyEval_EvalFrameEx (f=0x5cec884f8f30, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#12 _PyEval_EvalCodeWithName (_co=0x5cec88575d70, globals=0x5cec88498aa0, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#13 0x00005cec45a7c007 in PyEval_EvalCodeEx (_co=0x5cec88575d70, globals=0x5cec88498aa0, locals=0x5cec88498aa0, args=0x0, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4327`
+  - `#14 PyEval_EvalCode (co=0x5cec88575d70, globals=0x5cec88498aa0, locals=0x5cec88498aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:718`
+  - `#15 0x00005cec45b2a82d in run_eval_code_obj (co=0x5cec88575d70, globals=0x5cec88498aa0, locals=0x5cec88498aa0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pythonrun.c:1166`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.5897915f8b48.STACK.f85957e45.CODE.128.ADDR.0.INSTR.mov____0x8(%rbx),%r15.pyc`
+
+### 111. cpython-38-fdc053fadd3e
+
+- Status: crash
+- Signal: SIGSEGV, Segmentation fault
+- Stack source: gdb-rerun
+- Stack signature: `SIGSEGV, Segmentation fault:clear_weakref|_PyWeakref_ClearRef|handle_weakrefs|collect|_PyGC_CollectNoFail|PyImport_Cleanup|Py_FinalizeEx|Py_RunMain|pymain_main|Py_BytesMain|main`
+- Honggfuzz stack hash: `199f257035`
+- PC: `0x632ece6941a3`
+- Fault address: `0x8`
+- Instruction: `mov____0x8(%r12),%rax`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-fdc053fadd3e.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.632ece6941a3.STACK.199f257035.CODE.1.ADDR.8.INSTR.mov____0x8(%r12),%rax.pyc`
+- Normalized function stack:
+  - `clear_weakref`
+  - `_PyWeakref_ClearRef`
+  - `handle_weakrefs`
+  - `collect`
+  - `_PyGC_CollectNoFail`
+  - `PyImport_Cleanup`
+  - `Py_FinalizeEx`
+  - `Py_RunMain`
+  - `pymain_main`
+  - `Py_BytesMain`
+  - `main`
+- Reproduced stack frames:
+  - `#0  clear_weakref (self=0x5704d3135f70) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/weakrefobject.c:58`
+  - `#1  _PyWeakref_ClearRef (self=0x5704d3135f70) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/weakrefobject.c:100`
+  - `#2  0x00005704b2988fa8 in handle_weakrefs (unreachable=0x7ffde5314aa0, old=0x5704b365e668 <_PyRuntime+416>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:715`
+  - `#3  collect (state=<optimized out>, generation=<optimized out>, n_collected=<optimized out>, n_uncollectable=<optimized out>, nofail=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:1106`
+  - `#4  0x00005704b29883e9 in _PyGC_CollectNoFail () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/gcmodule.c:1877`
+  - `#5  0x00005704b28fb1c2 in PyImport_Cleanup () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/import.c:542`
+  - `#6  0x00005704b292f77c in Py_FinalizeEx () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pylifecycle.c:1229`
+  - `#7  0x00005704b26c0498 in Py_RunMain () at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/main.c:695`
+  - `#8  0x00005704b26c15f9 in pymain_main (args=0x7ffde5314ea0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/main.c:723`
+  - `#9  Py_BytesMain (argc=4, argv=0x7ffde5315028) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Modules/main.c:747`
+  - `#10 0x00005704b26bf653 in main (argc=4, argv=0x7ffde5315028) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Programs/python.c:16`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGSEGV.PC.632ece6941a3.STACK.199f257035.CODE.1.ADDR.8.INSTR.mov____0x8(%r12),%rax.pyc`
+
+### 112. cpython-38-ff2ecbcde1ad
+
+- Status: crash
+- Signal: SIGABRT, Aborted
+- Stack source: gdb-rerun
+- Stack signature: `SIGABRT, Aborted:pthread_kill|fatal_error|Py_FatalError|PyFrame_BlockPop|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx|_PyEval_EvalCodeWithName|_PyFunction_Vectorcall|call_function|_PyEval_EvalFrameDefault|PyEval_EvalFrameEx`
+- Honggfuzz stack hash: `1aeac4531c`
+- PC: `0x75f49d47d9fc`
+- Fault address: `0x0`
+- Instruction: `mov____%eax,%r13d`
+- Findings: 1
+- Representative pyc: `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-ff2ecbcde1ad.pyc`
+- Representative original: `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.75f49d47d9fc.STACK.1aeac4531c.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`
+- Normalized function stack:
+  - `pthread_kill`
+  - `raise`
+  - `abort`
+  - `fatal_error`
+  - `Py_FatalError`
+  - `PyFrame_BlockPop`
+  - `_PyEval_EvalFrameDefault`
+  - `PyEval_EvalFrameEx`
+  - `_PyEval_EvalCodeWithName`
+  - `_PyFunction_Vectorcall`
+  - `call_function`
+  - `PyEval_EvalCodeEx`
+  - `PyEval_EvalCode`
+  - `run_eval_code_obj`
+  - `run_mod`
+  - `pyrun_file`
+- Reproduced stack frames:
+  - `#0  0x0000753d0cfeb9fc in pthread_kill () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#1  0x0000753d0cf97476 in raise () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#2  0x0000753d0cf7d7f3 in abort () from /lib/x86_64-linux-gnu/libc.so.6`
+  - `#3  0x00005b280bc2ce09 in fatal_error (prefix=<optimized out>, msg=<optimized out>, status=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pylifecycle.c:2183`
+  - `#4  0x00005b280bc281b3 in Py_FatalError (msg=0x137c26 <error: Cannot access memory at address 0x137c26>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/pylifecycle.c:2193`
+  - `#5  0x00005b280ba007af in PyFrame_BlockPop (f=0x5b281e3c7150) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/frameobject.c:767`
+  - `#6  0x00005b280bb8a8ee in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:2155`
+  - `#7  0x00005b280bb9c0a2 in PyEval_EvalFrameEx (f=0x5b281e3c7150, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#8  _PyEval_EvalCodeWithName (_co=0x5b281e3c22c0, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#9  0x00005b280b9df09f in _PyFunction_Vectorcall (func=0x5b281e38d790, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#10 0x00005b280bb99d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffff01ca290, oparg=3, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+  - `#11 0x00005b280bb88494 in _PyEval_EvalFrameDefault (f=<optimized out>, throwflag=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:3500`
+  - `#12 0x00005b280bb9c0a2 in PyEval_EvalFrameEx (f=0x5b281e3d46e0, throwflag=0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:741`
+  - `#13 _PyEval_EvalCodeWithName (_co=0x5b281e4484b0, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=<optimized out>, kwnames=<optimized out>, kwargs=<optimized out>, kwcount=<optimized out>, kwstep=<optimized out>, defs=<optimized out>, defcount=<optimized out>, kwdefs=<optimized out>, closure=<optimized out>, name=<optimized out>, qualname=<optimized out>) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Python/ceval.c:4298`
+  - `#14 0x00005b280b9df09f in _PyFunction_Vectorcall (func=0x5b281e423b50, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Objects/call.c:436`
+  - `#15 0x00005b280bb99d6f in call_function (tstate=<optimized out>, pp_stack=0x7ffff01ca630, oparg=0, kwnames=0x0) at /root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.8/source/cpython-3.8.20/Include/cpython/abstract.h:127`
+- Example finding inputs:
+  - `data/rq3/cpython-3.8/fuzz/crashes/SIGABRT.PC.75f49d47d9fc.STACK.1aeac4531c.CODE.-6.ADDR.0.INSTR.mov____%eax,%r13d.pyc`

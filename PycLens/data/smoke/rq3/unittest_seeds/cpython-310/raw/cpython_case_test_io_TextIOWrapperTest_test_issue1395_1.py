@@ -1,0 +1,15 @@
+# pybcsec-seed-target: __pybcsec_seed__
+# source: data/smoke/rq3/cpython_sources/cpython-3.10.12/Lib/test/test_io.py
+# case: TextIOWrapperTest_test_issue1395_1
+
+def __pybcsec_seed__():
+    self = __pybcsec_self__ = object()
+    __pybcsec_self__ = self
+    txt = self.TextIOWrapper(self.BytesIO(self.testdata), encoding='ascii')
+    reads = ''
+    while True:
+        c = txt.read(1)
+        if not c:
+            break
+        reads += c
+    self.assertEqual(reads, self.normalized)

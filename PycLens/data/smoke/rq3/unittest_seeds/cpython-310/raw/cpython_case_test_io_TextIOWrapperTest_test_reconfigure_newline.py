@@ -1,0 +1,40 @@
+# pybcsec-seed-target: __pybcsec_seed__
+# source: data/smoke/rq3/cpython_sources/cpython-3.10.12/Lib/test/test_io.py
+# case: TextIOWrapperTest_test_reconfigure_newline
+
+def __pybcsec_seed__():
+    self = __pybcsec_self__ = object()
+    __pybcsec_self__ = self
+    raw = self.BytesIO(b'CR\rEOF')
+    txt = self.TextIOWrapper(raw, 'ascii', newline='\n')
+    txt.reconfigure(newline=None)
+    self.assertEqual(txt.readline(), 'CR\n')
+    raw = self.BytesIO(b'CR\rEOF')
+    txt = self.TextIOWrapper(raw, 'ascii', newline='\n')
+    txt.reconfigure(newline='')
+    self.assertEqual(txt.readline(), 'CR\r')
+    raw = self.BytesIO(b'CR\rLF\nEOF')
+    txt = self.TextIOWrapper(raw, 'ascii', newline='\r')
+    txt.reconfigure(newline='\n')
+    self.assertEqual(txt.readline(), 'CR\rLF\n')
+    raw = self.BytesIO(b'LF\nCR\rEOF')
+    txt = self.TextIOWrapper(raw, 'ascii', newline='\n')
+    txt.reconfigure(newline='\r')
+    self.assertEqual(txt.readline(), 'LF\nCR\r')
+    raw = self.BytesIO(b'CR\rCRLF\r\nEOF')
+    txt = self.TextIOWrapper(raw, 'ascii', newline='\r')
+    txt.reconfigure(newline='\r\n')
+    self.assertEqual(txt.readline(), 'CR\rCRLF\r\n')
+    txt = self.TextIOWrapper(self.BytesIO(), 'ascii', newline='\r')
+    txt.reconfigure(newline=None)
+    txt.write('linesep\n')
+    txt.reconfigure(newline='')
+    txt.write('LF\n')
+    txt.reconfigure(newline='\n')
+    txt.write('LF\n')
+    txt.reconfigure(newline='\r')
+    txt.write('CR\n')
+    txt.reconfigure(newline='\r\n')
+    txt.write('CRLF\n')
+    expected = 'linesep' + os.linesep + 'LF\nLF\nCR\rCRLF\r\n'
+    self.assertEqual(txt.detach().getvalue().decode('ascii'), expected)

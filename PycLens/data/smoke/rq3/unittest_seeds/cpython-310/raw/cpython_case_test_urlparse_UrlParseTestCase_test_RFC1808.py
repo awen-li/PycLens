@@ -1,0 +1,38 @@
+# pybcsec-seed-target: __pybcsec_seed__
+# source: data/smoke/rq3/cpython_sources/cpython-3.10.12/Lib/test/test_urlparse.py
+# case: UrlParseTestCase_test_RFC1808
+
+def __pybcsec_seed__():
+    self = __pybcsec_self__ = object()
+    __pybcsec_self__ = self
+    self.checkJoin(RFC1808_BASE, 'g:h', 'g:h')
+    self.checkJoin(RFC1808_BASE, 'g', 'http://a/b/c/g')
+    self.checkJoin(RFC1808_BASE, './g', 'http://a/b/c/g')
+    self.checkJoin(RFC1808_BASE, 'g/', 'http://a/b/c/g/')
+    self.checkJoin(RFC1808_BASE, '/g', 'http://a/g')
+    self.checkJoin(RFC1808_BASE, '//g', 'http://g')
+    self.checkJoin(RFC1808_BASE, 'g?y', 'http://a/b/c/g?y')
+    self.checkJoin(RFC1808_BASE, 'g?y/./x', 'http://a/b/c/g?y/./x')
+    self.checkJoin(RFC1808_BASE, '#s', 'http://a/b/c/d;p?q#s')
+    self.checkJoin(RFC1808_BASE, 'g#s', 'http://a/b/c/g#s')
+    self.checkJoin(RFC1808_BASE, 'g#s/./x', 'http://a/b/c/g#s/./x')
+    self.checkJoin(RFC1808_BASE, 'g?y#s', 'http://a/b/c/g?y#s')
+    self.checkJoin(RFC1808_BASE, 'g;x', 'http://a/b/c/g;x')
+    self.checkJoin(RFC1808_BASE, 'g;x?y#s', 'http://a/b/c/g;x?y#s')
+    self.checkJoin(RFC1808_BASE, '.', 'http://a/b/c/')
+    self.checkJoin(RFC1808_BASE, './', 'http://a/b/c/')
+    self.checkJoin(RFC1808_BASE, '..', 'http://a/b/')
+    self.checkJoin(RFC1808_BASE, '../', 'http://a/b/')
+    self.checkJoin(RFC1808_BASE, '../g', 'http://a/b/g')
+    self.checkJoin(RFC1808_BASE, '../..', 'http://a/')
+    self.checkJoin(RFC1808_BASE, '../../', 'http://a/')
+    self.checkJoin(RFC1808_BASE, '../../g', 'http://a/g')
+    self.checkJoin(RFC1808_BASE, '', 'http://a/b/c/d;p?q#f')
+    self.checkJoin(RFC1808_BASE, 'g.', 'http://a/b/c/g.')
+    self.checkJoin(RFC1808_BASE, '.g', 'http://a/b/c/.g')
+    self.checkJoin(RFC1808_BASE, 'g..', 'http://a/b/c/g..')
+    self.checkJoin(RFC1808_BASE, '..g', 'http://a/b/c/..g')
+    self.checkJoin(RFC1808_BASE, './../g', 'http://a/b/g')
+    self.checkJoin(RFC1808_BASE, './g/.', 'http://a/b/c/g/')
+    self.checkJoin(RFC1808_BASE, 'g/./h', 'http://a/b/c/g/h')
+    self.checkJoin(RFC1808_BASE, 'g/../h', 'http://a/b/c/h')

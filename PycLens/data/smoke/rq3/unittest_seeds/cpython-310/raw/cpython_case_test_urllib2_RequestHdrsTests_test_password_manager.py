@@ -1,0 +1,45 @@
+# pybcsec-seed-target: __pybcsec_seed__
+# source: data/smoke/rq3/cpython_sources/cpython-3.10.12/Lib/test/test_urllib2.py
+# case: RequestHdrsTests_test_password_manager
+
+def __pybcsec_seed__():
+    self = __pybcsec_self__ = object()
+    __pybcsec_self__ = self
+    mgr = urllib.request.HTTPPasswordMgr()
+    add = mgr.add_password
+    find_user_pass = mgr.find_user_password
+    add('Some Realm', 'http://example.com/', 'joe', 'password')
+    add('Some Realm', 'http://example.com/ni', 'ni', 'ni')
+    add('Some Realm', 'http://c.example.com:3128', '3', 'c')
+    add('Some Realm', 'd.example.com', '4', 'd')
+    add('Some Realm', 'e.example.com:3128', '5', 'e')
+    self.assertEqual(find_user_pass('Some Realm', 'example.com'), ('joe', 'password'))
+    self.assertEqual(find_user_pass('Some Realm', 'http://example.com/ni'), ('joe', 'password'))
+    self.assertEqual(find_user_pass('Some Realm', 'http://example.com'), ('joe', 'password'))
+    self.assertEqual(find_user_pass('Some Realm', 'http://example.com/'), ('joe', 'password'))
+    self.assertEqual(find_user_pass('Some Realm', 'http://example.com/spam'), ('joe', 'password'))
+    self.assertEqual(find_user_pass('Some Realm', 'http://example.com/spam/spam'), ('joe', 'password'))
+    add('c', 'http://example.com/foo', 'foo', 'ni')
+    add('c', 'http://example.com/bar', 'bar', 'nini')
+    add('c', 'http://example.com/foo/bar', 'foobar', 'nibar')
+    self.assertEqual(find_user_pass('c', 'http://example.com/foo'), ('foo', 'ni'))
+    self.assertEqual(find_user_pass('c', 'http://example.com/bar'), ('bar', 'nini'))
+    self.assertEqual(find_user_pass('c', 'http://example.com/foo/'), ('foo', 'ni'))
+    self.assertEqual(find_user_pass('c', 'http://example.com/foo/bar'), ('foo', 'ni'))
+    self.assertEqual(find_user_pass('c', 'http://example.com/foo/baz'), ('foo', 'ni'))
+    self.assertEqual(find_user_pass('c', 'http://example.com/foobar'), (None, None))
+    add('c', 'http://example.com/baz/', 'baz', 'ninini')
+    self.assertEqual(find_user_pass('c', 'http://example.com/baz'), (None, None))
+    self.assertEqual(find_user_pass('c', 'http://example.com/baz/'), ('baz', 'ninini'))
+    self.assertEqual(find_user_pass('c', 'http://example.com/baz/bar'), ('baz', 'ninini'))
+    add('b', 'http://example.com/', 'first', 'blah')
+    add('b', 'http://example.com/', 'second', 'spam')
+    self.assertEqual(find_user_pass('b', 'http://example.com/'), ('second', 'spam'))
+    add('a', 'http://example.com', '1', 'a')
+    self.assertEqual(find_user_pass('a', 'http://example.com/'), ('1', 'a'))
+    self.assertEqual(find_user_pass('a', 'http://a.example.com/'), (None, None))
+    self.assertEqual(find_user_pass('Some Realm', 'c.example.com'), (None, None))
+    self.assertEqual(find_user_pass('Some Realm', 'c.example.com:3128'), ('3', 'c'))
+    self.assertEqual(find_user_pass('Some Realm', 'http://c.example.com:3128'), ('3', 'c'))
+    self.assertEqual(find_user_pass('Some Realm', 'd.example.com'), ('4', 'd'))
+    self.assertEqual(find_user_pass('Some Realm', 'e.example.com:3128'), ('5', 'e'))

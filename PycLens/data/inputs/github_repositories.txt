@@ -1,0 +1,5 @@
+pyinstaller/pyinstaller
+mitmproxy/mitmproxy
+ansible/ansible
+psf/black
+pypa/pip

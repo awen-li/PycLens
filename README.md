@@ -1,8 +1,8 @@
-# pybcSEC Study Tool
+# PycLens Study Tool
 
-This directory contains `pybcSEC`, a small Python package for quickly testing
+This directory contains `PycLens`, a Python package for quickly testing
 whether Python package artifacts contain bytecode. The package lives under
-`tools/pybcSEC`.
+`PycLens/`.
 
 ## Components
 
@@ -21,7 +21,7 @@ whether Python package artifacts contain bytecode. The package lives under
 Install the tool in editable mode:
 
 ```bash
-python3 -m pip install -e tools/pybcSEC
+python3 -m pip install -e PycLens
 ```
 
 Create a package list:
@@ -33,7 +33,7 @@ printf "requests\nnumpy\n" > /tmp/packages.txt
 Run the full default pipeline:
 
 ```bash
-pybcSEC
+pyclens
 ```
 
 By default, the PyPI input list contains all package names from the PyPI simple
@@ -41,22 +41,22 @@ index, and collection downloads only artifacts uploaded within the latest 5
 years. For a smaller smoke test:
 
 ```bash
-pybcSEC run --pypi-size 1000
+pyclens run --pypi-size 1000
 ```
 
 To change the recency window:
 
 ```bash
-pybcSEC run --max-age-years 3
-pybcSEC run --max-age-years 0   # disable the age filter
+pyclens run --max-age-years 3
+pyclens run --max-age-years 0   # disable the age filter
 ```
 
 You can also run phases manually:
 
 ```bash
-pybcSEC prepare-inputs
-pybcSEC collect
-pybcSEC scan
+pyclens prepare-inputs
+pyclens collect
+pyclens scan
 ```
 
 By default, PyPI data is saved under:
@@ -76,20 +76,20 @@ data/sources/<source>/manifest.csv
 Collect a study package list:
 
 ```bash
-pybcSEC collect --package-file /tmp/packages.txt
+pyclens collect --package-file /tmp/packages.txt
 ```
 
 Collect other study sources:
 
 ```bash
-pybcSEC collect-suspicious-pypi --package-file data/suspicious_packages.txt
-pybcSEC collect-github-release --repo owner/project
+pyclens collect-suspicious-pypi --package-file data/suspicious_packages.txt
+pyclens collect-github-release --repo owner/project
 ```
 
 Scan collected artifacts:
 
 ```bash
-pybcSEC scan
+pyclens scan
 ```
 
 By default, scan results are saved under:

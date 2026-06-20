@@ -1,0 +1,36 @@
+# pybcsec-seed-target: __pybcsec_seed__
+# source: data/smoke/rq3/cpython_sources/cpython-3.10.12/Lib/test/test_array.py
+# case: BaseTest_test_cmp
+
+def __pybcsec_seed__():
+    self = __pybcsec_self__ = object()
+    __pybcsec_self__ = self
+    a = array.array(self.typecode, self.example)
+    self.assertIs(a == 42, False)
+    self.assertIs(a != 42, True)
+    self.assertIs(a == a, True)
+    self.assertIs(a != a, False)
+    self.assertIs(a < a, False)
+    self.assertIs(a <= a, True)
+    self.assertIs(a > a, False)
+    self.assertIs(a >= a, True)
+    al = array.array(self.typecode, self.smallerexample)
+    ab = array.array(self.typecode, self.biggerexample)
+    self.assertIs(a == 2 * a, False)
+    self.assertIs(a != 2 * a, True)
+    self.assertIs(a < 2 * a, True)
+    self.assertIs(a <= 2 * a, True)
+    self.assertIs(a > 2 * a, False)
+    self.assertIs(a >= 2 * a, False)
+    self.assertIs(a == al, False)
+    self.assertIs(a != al, True)
+    self.assertIs(a < al, False)
+    self.assertIs(a <= al, False)
+    self.assertIs(a > al, True)
+    self.assertIs(a >= al, True)
+    self.assertIs(a == ab, False)
+    self.assertIs(a != ab, True)
+    self.assertIs(a < ab, True)
+    self.assertIs(a <= ab, True)
+    self.assertIs(a > ab, False)
+    self.assertIs(a >= ab, False)

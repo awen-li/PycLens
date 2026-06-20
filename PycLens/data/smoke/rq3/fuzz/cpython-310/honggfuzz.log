@@ -1,0 +1,8 @@
+Start time:'2026-06-03.21.35.42' bin:'/usr/bin/python3.10', input:'data/smoke/rq3/seeds/cpython-310', output:'data/smoke/rq3/fuzz/cpython-310/corpus', persistent:false, stdin:false, mutation_rate:5, timeout:5, max_runs:0, threads:1, minimize:false, git_commit:01713bdad7307acea887517f2468b4a9961f9806
+[2J[500BParsed /usr/bin/python3.10: found 30307 32-bit and 77419 64-bit interesting values
+Entering phase 1/3: Dry Run
+Launched new fuzzing thread, no. #0
+Maximum run time reached, terminating
+Terminating thread no. #0, left: 0
+Summary iterations:1471 time:61 speed:24 crashes_count:0 timeout_count:0 new_units_added:0 slowest_unit_ms:305 guard_nb:0 branch_coverage_percent:0 peak_rss_mb:352
+[r[500B

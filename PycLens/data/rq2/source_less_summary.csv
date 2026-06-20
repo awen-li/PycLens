@@ -1,0 +1,13 @@
+metric,value
+pyc_files,21541
+share_of_rq2_pyc,10.51
+artifacts,1387
+artifacts_with_dynamic_loading_indicators,562
+artifacts_with_security_keywords,64
+runtime_magic,4350
+marshal_ok,21447
+dis_ok,21405
+decompyle3_ok,21416
+pylingual_ok,21541
+source_recoverable,21541
+not_source_recoverable,0

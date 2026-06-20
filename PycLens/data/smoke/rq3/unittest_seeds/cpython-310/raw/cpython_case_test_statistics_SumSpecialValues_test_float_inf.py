@@ -1,0 +1,10 @@
+# pybcsec-seed-target: __pybcsec_seed__
+# source: data/smoke/rq3/cpython_sources/cpython-3.10.12/Lib/test/test_statistics.py
+# case: SumSpecialValues_test_float_inf
+
+def __pybcsec_seed__():
+    self = __pybcsec_self__ = object()
+    __pybcsec_self__ = self
+    inf = float('inf')
+    for sign in (+1, -1):
+        self.do_test_inf(sign * inf)

@@ -1,0 +1,43 @@
+# pybcsec-seed-target: __pybcsec_seed__
+# source: data/smoke/rq3/cpython_sources/cpython-3.10.12/Lib/test/test_logging.py
+# case: LoggerTest_test_caching
+
+def __pybcsec_seed__():
+    self = __pybcsec_self__ = object()
+    __pybcsec_self__ = self
+    root = self.root_logger
+    logger1 = logging.getLogger('abc')
+    logger2 = logging.getLogger('abc.def')
+    root.setLevel(logging.ERROR)
+    self.assertEqual(logger2.getEffectiveLevel(), logging.ERROR)
+    self.assertEqual(logger2._cache, {})
+    self.assertTrue(logger2.isEnabledFor(logging.ERROR))
+    self.assertFalse(logger2.isEnabledFor(logging.DEBUG))
+    self.assertEqual(logger2._cache, {logging.ERROR: True, logging.DEBUG: False})
+    self.assertEqual(root._cache, {})
+    self.assertTrue(logger2.isEnabledFor(logging.ERROR))
+    self.assertEqual(root._cache, {})
+    self.assertTrue(root.isEnabledFor(logging.ERROR))
+    self.assertEqual(root._cache, {logging.ERROR: True})
+    logger1.setLevel(logging.CRITICAL)
+    self.assertEqual(logger2.getEffectiveLevel(), logging.CRITICAL)
+    self.assertEqual(logger2._cache, {})
+    self.assertFalse(logger2.isEnabledFor(logging.ERROR))
+    logger2.setLevel(logging.NOTSET)
+    self.assertEqual(logger2.getEffectiveLevel(), logging.CRITICAL)
+    self.assertEqual(logger2._cache, {})
+    self.assertEqual(logger1._cache, {})
+    self.assertEqual(root._cache, {})
+    self.assertFalse(logger2.isEnabledFor(logging.ERROR))
+    self.assertTrue(logger2.isEnabledFor(logging.CRITICAL))
+    self.assertFalse(logger1.isEnabledFor(logging.ERROR))
+    self.assertTrue(logger1.isEnabledFor(logging.CRITICAL))
+    self.assertTrue(root.isEnabledFor(logging.ERROR))
+    logging.disable()
+    self.assertEqual(logger2.getEffectiveLevel(), logging.CRITICAL)
+    self.assertEqual(logger2._cache, {})
+    self.assertEqual(logger1._cache, {})
+    self.assertEqual(root._cache, {})
+    self.assertFalse(logger1.isEnabledFor(logging.CRITICAL))
+    self.assertFalse(logger2.isEnabledFor(logging.CRITICAL))
+    self.assertFalse(root.isEnabledFor(logging.CRITICAL))

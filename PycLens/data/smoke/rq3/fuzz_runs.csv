@@ -1,0 +1,2 @@
+python_tag,interpreter,honggfuzz,input_dir,corpus_dir,findings_dir,report,log,duration,workers,status,reason,crashes,timeouts
+cpython-310,/usr/bin/python3.10,/home/awen/git/PyBC-Sec/tools/pybcSEC/tools/honggfuzz,data/smoke/rq3/seeds/cpython-310,data/smoke/rq3/fuzz/cpython-310/corpus,data/smoke/rq3/fuzz/cpython-310/findings,data/smoke/rq3/fuzz/cpython-310/HONGGFUZZ.REPORT.TXT,data/smoke/rq3/fuzz/cpython-310/honggfuzz.log,60,1,ok,,0,0

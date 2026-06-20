@@ -1,0 +1,9 @@
+# pybcsec-seed-target: __pybcsec_seed__
+# source: data/smoke/rq3/cpython_sources/cpython-3.10.12/Lib/test/test_tokenize.py
+# case: TestTokenizerAdheresToPep0263_test_utf8_coding_cookie_and_no_utf8_bom
+
+def __pybcsec_seed__():
+    self = __pybcsec_self__ = object()
+    __pybcsec_self__ = self
+    f = 'tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt'
+    self._testFile(f)

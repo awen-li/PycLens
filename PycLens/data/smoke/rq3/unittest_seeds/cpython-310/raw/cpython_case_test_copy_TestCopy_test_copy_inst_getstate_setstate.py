@@ -1,0 +1,25 @@
+# pybcsec-seed-target: __pybcsec_seed__
+# source: data/smoke/rq3/cpython_sources/cpython-3.10.12/Lib/test/test_copy.py
+# case: TestCopy_test_copy_inst_getstate_setstate
+
+def __pybcsec_seed__():
+    self = __pybcsec_self__ = object()
+    __pybcsec_self__ = self
+
+    class C:
+
+        def __init__(self, foo):
+            self.foo = foo
+
+        def __getstate__(self):
+            return self.foo
+
+        def __setstate__(self, state):
+            self.foo = state
+
+        def __eq__(self, other):
+            return self.foo == other.foo
+    x = C(42)
+    self.assertEqual(copy.copy(x), x)
+    x = C(0.0)
+    self.assertEqual(copy.copy(x), x)

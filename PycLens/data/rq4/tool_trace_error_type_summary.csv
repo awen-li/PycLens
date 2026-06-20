@@ -1,0 +1,8 @@
+tool,python_version,exception_type,error_detail,location,count
+decompyle3,cpython-38,AssertionError,collection-bound invariant violation,decompyle3.scanner37base.bound_collection_from_tokens,2
+decompyle3,cpython-38,AssertionError,invalid EXTENDED_ARG sequence,decompyle3.scanner.get_inst,2
+decompyle3,cpython-38,IndexError,compare-op index out of range,xdis.bytecode cmp_op lookup,2
+decompyle3,cpython-38,IndexError,constant index out of range,xdis.bytecode.get_const_info,8
+decompyle3,cpython-38,IndexError,jump target or bytecode offset out of range,decompyle3.scanner.get_inst,3
+decompyle3,cpython-38,Timeout,decompiler did not terminate within 600s,timeout_after_600s,1
+decompyle3,cpython-38,TypeError,unexpected integer operand where iterable value expected,decompyle3.scanner37base inst.argval,2

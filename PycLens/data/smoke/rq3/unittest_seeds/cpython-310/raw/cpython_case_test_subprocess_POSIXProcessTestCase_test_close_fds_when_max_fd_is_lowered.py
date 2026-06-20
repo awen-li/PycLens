@@ -1,0 +1,15 @@
+# pybcsec-seed-target: __pybcsec_seed__
+# source: data/smoke/rq3/cpython_sources/cpython-3.10.12/Lib/test/test_subprocess.py
+# case: POSIXProcessTestCase_test_close_fds_when_max_fd_is_lowered
+
+def __pybcsec_seed__():
+    self = __pybcsec_self__ = object()
+    __pybcsec_self__ = self
+    fd_status = support.findfile('fd_status.py', subdir='subprocessdata')
+    p = subprocess.Popen([sys.executable, '-c', textwrap.dedent('\n        import os, resource, subprocess, sys, textwrap\n        open_fds = set()\n        # Add a bunch more fds to pass down.\n        for _ in range(40):\n            fd = os.open(os.devnull, os.O_RDONLY)\n            open_fds.add(fd)\n\n        # Leave a two pairs of low ones available for use by the\n        # internal child error pipe and the stdout pipe.\n        # We also leave 10 more open as some Python buildbots run into\n        # "too many open files" errors during the test if we do not.\n        for fd in sorted(open_fds)[:14]:\n            os.close(fd)\n            open_fds.remove(fd)\n\n        for fd in open_fds:\n            #self.addCleanup(os.close, fd)\n            os.set_inheritable(fd, True)\n\n        max_fd_open = max(open_fds)\n\n        # Communicate the open_fds to the parent unittest.TestCase process.\n        print(\',\'.join(map(str, sorted(open_fds))))\n        sys.stdout.flush()\n\n        rlim_cur, rlim_max = resource.getrlimit(resource.RLIMIT_NOFILE)\n        try:\n            # 29 is lower than the highest fds we are leaving open.\n            resource.setrlimit(resource.RLIMIT_NOFILE, (29, rlim_max))\n            # Launch a new Python interpreter with our low fd rlim_cur that\n            # inherits open fds above that limit.  It then uses subprocess\n            # with close_fds=True to get a report of open fds in the child.\n            # An explicit list of fds to check is passed to fd_status.py as\n            # letting fd_status rely on its default logic would miss the\n            # fds above rlim_cur as it normally only checks up to that limit.\n            subprocess.Popen(\n                [sys.executable, \'-c\',\n                 textwrap.dedent("""\n                     import subprocess, sys\n                     subprocess.Popen([sys.executable, %r] +\n                                      [str(x) for x in range({max_fd})],\n                                      close_fds=True).wait()\n                     """.format(max_fd=max_fd_open+1))],\n                close_fds=False).wait()\n        finally:\n            resource.setrlimit(resource.RLIMIT_NOFILE, (rlim_cur, rlim_max))\n        ' % fd_status)], stdout=subprocess.PIPE)
+    (output, unused_stderr) = p.communicate()
+    output_lines = output.splitlines()
+    self.assertEqual(len(output_lines), 2, msg='expected exactly two lines of output:\n%r' % output)
+    opened_fds = set(map(int, output_lines[0].strip().split(b',')))
+    remaining_fds = set(map(int, output_lines[1].strip().split(b',')))
+    self.assertFalse(remaining_fds & opened_fds, msg='Some fds were left open.')
