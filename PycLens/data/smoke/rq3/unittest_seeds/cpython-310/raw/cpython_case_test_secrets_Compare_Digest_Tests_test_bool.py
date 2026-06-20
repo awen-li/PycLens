@@ -1,9 +1,0 @@
-# pybcsec-seed-target: __pybcsec_seed__
-# source: data/smoke/rq3/cpython_sources/cpython-3.10.12/Lib/test/test_secrets.py
-# case: Compare_Digest_Tests_test_bool
-
-def __pybcsec_seed__():
-    self = __pybcsec_self__ = object()
-    __pybcsec_self__ = self
-    self.assertIsInstance(secrets.compare_digest('abc', 'abc'), bool)
-    self.assertIsInstance(secrets.compare_digest('abc', 'xyz'), bool)

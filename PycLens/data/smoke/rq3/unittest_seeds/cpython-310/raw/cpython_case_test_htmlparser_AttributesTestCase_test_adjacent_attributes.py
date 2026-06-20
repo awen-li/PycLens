@@ -1,9 +1,0 @@
-# pybcsec-seed-target: __pybcsec_seed__
-# source: data/smoke/rq3/cpython_sources/cpython-3.10.12/Lib/test/test_htmlparser.py
-# case: AttributesTestCase_test_adjacent_attributes
-
-def __pybcsec_seed__():
-    self = __pybcsec_self__ = object()
-    __pybcsec_self__ = self
-    self._run_check('<a width="100%"cellspacing=0>', [('starttag', 'a', [('width', '100%'), ('cellspacing', '0')])])
-    self._run_check('<a id="foo"class="bar">', [('starttag', 'a', [('id', 'foo'), ('class', 'bar')])])
