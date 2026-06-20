@@ -1,7 +1,0 @@
-tool,status,reason_category,failed_tool_results
-decompyle3,exit_1,tool_exit,22
-decompyle3,exit_2,tool_exit,610
-decompyle3,timeout,timeout,42
-dis,error,disassembly_failure,45
-marshal,error,marshal_parse_failure,353
-pylingual,timeout,timeout,3

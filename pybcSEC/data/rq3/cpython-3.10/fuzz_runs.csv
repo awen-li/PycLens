@@ -1,2 +1,0 @@
-python_tag,interpreter,honggfuzz,input_dir,corpus_dir,coverage_stats,crash_dir,timeout_dir,report,log,duration,workers,status,reason,crashes,timeouts
-cpython-310,/root/PyBC-Sec/tools/pybcSEC/data/rq3/cpython-3.10/instrumented/python,/root/PyBC-Sec/tools/honggfuzz/honggfuzz,data/rq3/cpython-3.10/seeds,data/rq3/cpython-3.10/fuzz/corpus,data/rq3/cpython-3.10/fuzz/coverage_stats.csv,data/rq3/cpython-3.10/fuzz/crashes,data/rq3/cpython-3.10/fuzz/timeouts,data/rq3/cpython-3.10/fuzz/HONGGFUZZ.REPORT.TXT,data/rq3/cpython-3.10/fuzz/honggfuzz.log,86400,1,ok,,897,0

@@ -1,5 +1,0 @@
-group,artifacts,with_bytecode,with_bytecode_pct,pyc_files,source_less_pyc,source_less_pyc_pct,with_dynamic_loading,with_dynamic_loading_pct
-All,1034843,7388,0.71%,228578,28193,12.33%,242586,23.44%
-tar,517077,4702,0.91%,151472,19301,12.74%,128407,24.83%
-wheel,517076,2646,0.51%,76058,8818,11.59%,114043,22.06%
-zip,690,40,5.80%,1048,74,7.06%,136,19.71%

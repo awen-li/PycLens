@@ -1,8 +1,0 @@
-metric,value
-expected_pyc,204904
-analyzed_rows,204904
-complete,True
-missing_rows,0
-extra_rows,0
-error_rows,398
-worker_failed_rows,0
