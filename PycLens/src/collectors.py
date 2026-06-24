@@ -414,11 +414,34 @@ def append_download_records(path: Path, records: Sequence[DownloadRecord]) -> No
 
 
 def completed_package_names(records: Sequence[DownloadRecord]) -> set[str]:
-    return {
-        record.package
-        for record in records
-        if record.package and record.status not in {"error", "sha256_mismatch"}
-    }
+    package_records: dict[str, list[DownloadRecord]] = {}
+    for record in records:
+        if record.package:
+            package_records.setdefault(record.package, []).append(record)
+
+    completed: set[str] = set()
+    for package, items in package_records.items():
+        terminal_missing = [
+            record for record in items
+            if record.status in {"package_not_found", "no_recent_release_files"}
+        ]
+        if terminal_missing:
+            completed.add(package)
+            continue
+
+        successful = [
+            record for record in items
+            if record.status not in {"error", "sha256_mismatch"}
+            and record.filename
+            and record.local_path
+        ]
+        if successful and all(local_record_available(record) for record in successful):
+            completed.add(package)
+    return completed
+
+
+def local_record_available(record: DownloadRecord) -> bool:
+    return bool(record.local_path) and file_is_complete(Path(record.local_path), record.sha256, record.size)
 
 
 def distribution_kind(file_info: dict) -> str:
