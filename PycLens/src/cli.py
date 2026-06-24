@@ -34,6 +34,7 @@ import crash_analysis
 from rq1_analysis import RQ1Analyzer
 import source_repro
 import tool_analysis
+import rq2_roundtrip
 
 
 DEFAULT_DATA_DIR = Path("data")
@@ -513,6 +514,26 @@ def analyze_tools(args: argparse.Namespace) -> int:
     return 0
 
 
+def validate_roundtrip(args: argparse.Namespace) -> int:
+    print("[RQ2] validating decompiler source round-trip faithfulness")
+    sample_csv = args.sample_csv or args.data_dir / "rq2" / "rq2_roundtrip_sample.csv"
+    csv_out = args.csv_out or args.data_dir / "rq2" / "roundtrip_validation.csv"
+    summary_csv = args.summary_csv or args.data_dir / "rq2" / "roundtrip_validation_summary.csv"
+    rows = rq2_roundtrip.validate_sample(
+        sample_csv=sample_csv,
+        data_dir=args.data_dir,
+        timeout=args.timeout,
+        workers=args.workers,
+        include_secondary=args.include_secondary,
+        limit=args.limit,
+    )
+    rq2_roundtrip.write_csv(csv_out, rows)
+    rq2_roundtrip.write_summary_csv(summary_csv, rows)
+    print(f"wrote RQ2 round-trip validation rows to {csv_out}")
+    print(f"wrote RQ2 round-trip validation summary to {summary_csv}")
+    return 0
+
+
 def collect_failed_cases(args: argparse.Namespace) -> int:
     print("[RQ2] collecting failed .pyc cases from existing tool-analysis results")
     csv_path = args.csv_in or args.data_dir / "rq2" / "tool_analysis.csv"
@@ -928,6 +949,22 @@ def add_prepare_analysis_env_parser(subparsers: argparse._SubParsersAction) -> N
     parser.set_defaults(func=prepare_analysis_env)
 
 
+def add_validate_roundtrip_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser(
+        "validate-roundtrip",
+        help="RQ2: round-trip decompiler output and compare normalized bytecode.",
+    )
+    parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for study data")
+    parser.add_argument("--sample-csv", type=Path, help="Round-trip sample manifest CSV")
+    parser.add_argument("--csv-out", type=Path, help="Output row-level validation CSV")
+    parser.add_argument("--summary-csv", type=Path, help="Output summary CSV")
+    parser.add_argument("--timeout", type=int, default=600, help="Per decompiler/compile comparison timeout in seconds")
+    parser.add_argument("--workers", type=int, default=1, help="Number of round-trip tasks to run concurrently")
+    parser.add_argument("--limit", type=int, default=0, help="Limit sample rows for smoke testing")
+    parser.add_argument("--include-secondary", action="store_true", help="Also validate secondary decompiler output when available")
+    parser.set_defaults(func=validate_roundtrip)
+
+
 def add_fuzz_cpython_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser(
         "fuzz-cpython",
@@ -1038,6 +1075,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     add_prepare_analysis_env_parser(subparsers)
     add_analyze_tools_parser(subparsers)
     add_collect_failed_cases_parser(subparsers)
+    add_validate_roundtrip_parser(subparsers)
     add_fuzz_cpython_parser(subparsers)
     add_smoke_rq3_parser(subparsers)
     add_analyze_crashes_parser(subparsers)
