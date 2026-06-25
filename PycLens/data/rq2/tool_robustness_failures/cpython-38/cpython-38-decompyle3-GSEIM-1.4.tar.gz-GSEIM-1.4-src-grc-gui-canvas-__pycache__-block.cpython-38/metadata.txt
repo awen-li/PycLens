@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-GSEIM-1.4.tar.gz-GSEIM-1.4-src-grc-gui-canvas-__pycache__-block.cpython-38
+tool: decompyle3
+status: timeout
+exception_type: Timeout
+exception_message: timeout_after_600s
+package: gseim
+version: 1.4
+artifact: GSEIM-1.4.tar.gz
+artifact_type: tar
+pyc_path: GSEIM-1.4/src/grc/gui/canvas/__pycache__/block.cpython-38.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/gseim/1.4/GSEIM-1.4.tar.gz

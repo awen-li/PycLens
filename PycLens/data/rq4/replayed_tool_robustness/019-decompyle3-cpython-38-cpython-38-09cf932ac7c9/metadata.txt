@@ -1,0 +1,11 @@
+case_id: 019-decompyle3-cpython-38-cpython-38-09cf932ac7c9
+tool: decompyle3
+python_tag: cpython-38
+finding: data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-09cf932ac7c9.pyc
+original_status: exit_2
+original_reason: Unknown type 64 (hex 40) @ Unknown type 0 (hex 0) \\\\0 Unknown type 0 (hex 0) \\\\0 Unknown type 0 (hex 0) \\\\0 Traceback (most recent call last): File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/xdis/load.py", lin...
+replay_returncode: 2
+replay_signal: 
+replay_status: TypeError
+replay_reason: 'NoneType' object is not iterable
+case_dir: /home/awen/git/PybcSEC/PycLens/data/rq4/replayed_tool_robustness/019-decompyle3-cpython-38-cpython-38-09cf932ac7c9

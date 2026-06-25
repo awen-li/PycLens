@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-transformerslocal-0.0.4.tar.gz-transformerslocal-0.0.4-transformerslocal-s
+tool: decompyle3
+status: timeout
+exception_type: Timeout
+exception_message: timeout_after_600s
+package: transformerslocal
+version: 0.0.4
+artifact: transformerslocal-0.0.4.tar.gz
+artifact_type: tar
+pyc_path: transformerslocal-0.0.4/transformerslocal/src/transformers/generation/__pycache__/utils.cpython-38.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/transformerslocal/0.0.4/transformerslocal-0.0.4.tar.gz

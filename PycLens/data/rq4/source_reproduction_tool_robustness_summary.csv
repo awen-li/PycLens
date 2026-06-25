@@ -1,0 +1,19 @@
+tool,python_tag,failure_type,specific_cause,count
+decompyle3,cpython-312,SIGABRT,allocator/heap abort,1
+decompyle3,cpython-312,SIGSEGV,process crashed with signal 11,4
+decompyle3,cpython-313,SIGSEGV,process crashed with signal 11,6
+decompyle3,cpython-38,AssertionError,empty message,4
+decompyle3,cpython-38,IndexError,constant index out of range,10
+decompyle3,cpython-38,IndexError,jump target or bytecode offset out of range,3
+decompyle3,cpython-38,SIGABRT,fatal Python runtime error,1
+decompyle3,cpython-38,Timeout,did not terminate within 600s,1
+decompyle3,cpython-38,TypeError,argument of type 'int' is not iterable,2
+decompyle3,cpython-38,TypeError,malformed marshal loader state,1
+pylingual,cpython-310,SIGILL,process crashed with illegal instruction,3
+pylingual,cpython-310,Timeout,did not terminate within 600s,1
+pylingual,cpython-312,SIGABRT,allocator/heap abort,3
+pylingual,cpython-312,SIGSEGV,process crashed with signal 11,4
+pylingual,cpython-38,SIGILL,process crashed with illegal instruction,1
+pylingual,cpython-38,Timeout,did not terminate within 600s,3
+pylingual,cpython-39,SIGILL,process crashed with illegal instruction,2
+pylingual,cpython-39,Timeout,did not terminate within 600s,2

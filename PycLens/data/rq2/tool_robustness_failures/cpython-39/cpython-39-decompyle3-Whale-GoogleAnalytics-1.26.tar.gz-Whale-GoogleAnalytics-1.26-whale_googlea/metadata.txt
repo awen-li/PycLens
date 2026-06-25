@@ -1,0 +1,16 @@
+failure_id: cpython-39-decompyle3-Whale-GoogleAnalytics-1.26.tar.gz-Whale-GoogleAnalytics-1.26-whale_googlea
+tool: decompyle3
+status: exit_2
+exception_type: ValueError
+exception_message: bad marshal data (unkn...
+package: whale-googleanalytics
+version: 1.26
+artifact: Whale-GoogleAnalytics-1.26.tar.gz
+artifact_type: tar
+pyc_path: Whale-GoogleAnalytics-1.26/whale_googleanalytics/server/__pycache__/test_api.cpython-39-pytest-5.4.3.pyc
+python_tag: cpython-39
+magic_number: 3425
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/whale-googleanalytics/1.26/Whale-GoogleAnalytics-1.26.tar.gz

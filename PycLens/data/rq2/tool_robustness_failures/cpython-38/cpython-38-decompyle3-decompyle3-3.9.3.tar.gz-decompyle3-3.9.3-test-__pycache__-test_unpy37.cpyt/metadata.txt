@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-decompyle3-3.9.3.tar.gz-decompyle3-3.9.3-test-__pycache__-test_unpy37.cpyt
+tool: decompyle3
+status: exit_2
+exception_type: ValueError
+exception_message: bad marshal data (unkn...
+package: decompyle3
+version: 3.9.3
+artifact: decompyle3-3.9.3.tar.gz
+artifact_type: tar
+pyc_path: decompyle3-3.9.3/test/__pycache__/test_unpy37.cpython-38-PYTEST.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/decompyle3/3.9.3/decompyle3-3.9.3.tar.gz

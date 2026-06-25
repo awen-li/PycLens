@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-ROSSpy-0.1.7.tar.gz-ROSSpy-0.1.7-rosspy-test-__pycache__-test_ro.cpython-3
+tool: decompyle3
+status: exit_2
+exception_type: ValueError
+exception_message: bad marshal data (unkn...
+package: rosspy
+version: 0.1.7
+artifact: ROSSpy-0.1.7.tar.gz
+artifact_type: tar
+pyc_path: ROSSpy-0.1.7/rosspy/test/__pycache__/test_ro.cpython-38-pytest-6.0.1.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/rosspy/0.1.7/ROSSpy-0.1.7.tar.gz

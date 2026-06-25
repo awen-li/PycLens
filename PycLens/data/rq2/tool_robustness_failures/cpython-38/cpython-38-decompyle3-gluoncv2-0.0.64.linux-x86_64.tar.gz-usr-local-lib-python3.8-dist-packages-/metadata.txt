@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-gluoncv2-0.0.64.linux-x86_64.tar.gz-usr-local-lib-python3.8-dist-packages-
+tool: decompyle3
+status: timeout
+exception_type: Timeout
+exception_message: timeout_after_600s
+package: gluoncv2
+version: 0.0.64
+artifact: gluoncv2-0.0.64.linux-x86_64.tar.gz
+artifact_type: tar
+pyc_path: usr/local/lib/python3.8/dist-packages/gluoncv2/models/__pycache__/resnext_cifar.cpython-38.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/gluoncv2/0.0.64/gluoncv2-0.0.64.linux-x86_64.tar.gz

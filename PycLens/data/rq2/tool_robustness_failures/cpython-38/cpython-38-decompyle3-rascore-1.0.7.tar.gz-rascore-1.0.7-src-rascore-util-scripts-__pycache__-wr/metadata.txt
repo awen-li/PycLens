@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-rascore-1.0.7.tar.gz-rascore-1.0.7-src-rascore-util-scripts-__pycache__-wr
+tool: decompyle3
+status: timeout
+exception_type: Timeout
+exception_message: timeout_after_600s
+package: rascore
+version: 1.0.7
+artifact: rascore-1.0.7.tar.gz
+artifact_type: tar
+pyc_path: rascore-1.0.7/src/rascore/util/scripts/__pycache__/write_pymol_script.cpython-38.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/rascore/1.0.7/rascore-1.0.7.tar.gz

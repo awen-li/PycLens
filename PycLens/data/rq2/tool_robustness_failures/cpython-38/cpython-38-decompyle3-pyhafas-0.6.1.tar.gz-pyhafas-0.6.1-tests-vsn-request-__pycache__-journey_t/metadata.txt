@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-pyhafas-0.6.1.tar.gz-pyhafas-0.6.1-tests-vsn-request-__pycache__-journey_t
+tool: decompyle3
+status: exit_2
+exception_type: ValueError
+exception_message: bad marshal data (unkn...
+package: pyhafas
+version: 0.6.1
+artifact: pyhafas-0.6.1.tar.gz
+artifact_type: tar
+pyc_path: pyhafas-0.6.1/tests/vsn/request/__pycache__/journey_test.cpython-38-pytest-6.0.1.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/pyhafas/0.6.1/pyhafas-0.6.1.tar.gz

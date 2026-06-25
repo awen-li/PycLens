@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-django_connectwise-1.20.0-py3-none-any.whl-djconnectwise-__pycache__-api.c
+tool: decompyle3
+status: exit_1
+exception_type: Traceback
+exception_message: Traceback (most recent call last): File "data/rq2/envs/cpython-38/bin/decompyle3", line 8, in <module> sys.exit(main_bin()) File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/click/core.py", line 1161, in _...
+package: django-connectwise
+version: 1.20.0
+artifact: django_connectwise-1.20.0-py3-none-any.whl
+artifact_type: wheel
+pyc_path: djconnectwise/__pycache__/api.cpython-38.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/django-connectwise/1.20.0/django_connectwise-1.20.0-py3-none-any.whl

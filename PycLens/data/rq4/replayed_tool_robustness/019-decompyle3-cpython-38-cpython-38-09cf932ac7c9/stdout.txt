@@ -1,0 +1,2 @@
+Ill-formed bytecode file data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-09cf932ac7c9.pyc
+<class 'TypeError'>; 'NoneType' object is not iterable

@@ -1,0 +1,16 @@
+failure_id: cpython-39-decompyle3-pytest_exploratory-0.9.1.tar.gz-pytest_exploratory-0.9.1-tests-__pycache__
+tool: decompyle3
+status: exit_2
+exception_type: ValueError
+exception_message: bad marshal data (unkn...
+package: pytest-exploratory
+version: 0.9.1
+artifact: pytest_exploratory-0.9.1.tar.gz
+artifact_type: tar
+pyc_path: pytest_exploratory-0.9.1/tests/__pycache__/test_interactive.cpython-39-pytest-6.1.2.pyc
+python_tag: cpython-39
+magic_number: 3425
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/pytest-exploratory/0.9.1/pytest_exploratory-0.9.1.tar.gz

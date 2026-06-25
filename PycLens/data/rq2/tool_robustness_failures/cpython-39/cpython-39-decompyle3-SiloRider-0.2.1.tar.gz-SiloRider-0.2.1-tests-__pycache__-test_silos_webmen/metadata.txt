@@ -1,0 +1,16 @@
+failure_id: cpython-39-decompyle3-SiloRider-0.2.1.tar.gz-SiloRider-0.2.1-tests-__pycache__-test_silos_webmen
+tool: decompyle3
+status: exit_2
+exception_type: ValueError
+exception_message: bad marshal data (unkn...
+package: silorider
+version: 0.2.1
+artifact: SiloRider-0.2.1.tar.gz
+artifact_type: tar
+pyc_path: SiloRider-0.2.1/tests/__pycache__/test_silos_webmention.cpython-39-PYTEST.pyc
+python_tag: cpython-39
+magic_number: 3425
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/silorider/0.2.1/SiloRider-0.2.1.tar.gz

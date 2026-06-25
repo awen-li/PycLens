@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-qt_pyqt_pyside_custom_widgets-2.1.9-py3-none-any.whl-Custom_Widgets-JSonSt
+tool: decompyle3
+status: timeout
+exception_type: Timeout
+exception_message: timeout_after_600s
+package: qt-pyqt-pyside-custom-widgets
+version: 2.1.9
+artifact: qt_pyqt_pyside_custom_widgets-2.1.9-py3-none-any.whl
+artifact_type: wheel
+pyc_path: Custom_Widgets/JSonStyles/__pycache__/__init__.cpython-38.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/qt-pyqt-pyside-custom-widgets/2.1.9/qt_pyqt_pyside_custom_widgets-2.1.9-py3-none-any.whl

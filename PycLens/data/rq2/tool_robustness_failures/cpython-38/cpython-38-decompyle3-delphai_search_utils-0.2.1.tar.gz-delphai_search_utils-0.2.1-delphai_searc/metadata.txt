@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-delphai_search_utils-0.2.1.tar.gz-delphai_search_utils-0.2.1-delphai_searc
+tool: decompyle3
+status: exit_2
+exception_type: ValueError
+exception_message: bad marshal data (unkn...
+package: delphai-search-utils
+version: 0.2.1
+artifact: delphai_search_utils-0.2.1.tar.gz
+artifact_type: tar
+pyc_path: delphai_search_utils-0.2.1/delphai_search_utils/tests/__pycache__/test_utils.cpython-38-pytest-5.4.3.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/delphai-search-utils/0.2.1/delphai_search_utils-0.2.1.tar.gz

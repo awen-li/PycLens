@@ -1,0 +1,16 @@
+failure_id: cpython-39-decompyle3-clustcrdist-0.1.5-py2.py3-none-any.whl-clustcrdist-constants-modules-olga-
+tool: decompyle3
+status: exit_2
+exception_type: ValueError
+exception_message: bad marshal data (digi...
+package: clustcrdist
+version: 0.1.5
+artifact: clustcrdist-0.1.5-py2.py3-none-any.whl
+artifact_type: wheel
+pyc_path: clustcrdist/constants/modules/olga/__pycache__/utils.cpython-39.pyc
+python_tag: cpython-39
+magic_number: 3425
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/clustcrdist/0.1.5/clustcrdist-0.1.5-py2.py3-none-any.whl

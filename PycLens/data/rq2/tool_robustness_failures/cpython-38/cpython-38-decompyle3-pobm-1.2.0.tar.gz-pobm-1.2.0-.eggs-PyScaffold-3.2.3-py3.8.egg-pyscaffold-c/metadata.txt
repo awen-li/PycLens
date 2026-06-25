@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-pobm-1.2.0.tar.gz-pobm-1.2.0-.eggs-PyScaffold-3.2.3-py3.8.egg-pyscaffold-c
+tool: decompyle3
+status: exit_1
+exception_type: Traceback
+exception_message: Traceback (most recent call last): File "data/rq2/envs/cpython-38/bin/decompyle3", line 8, in <module> sys.exit(main_bin()) File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/click/core.py", line 1161, in _...
+package: pobm
+version: 1.2.0
+artifact: pobm-1.2.0.tar.gz
+artifact_type: tar
+pyc_path: pobm-1.2.0/.eggs/PyScaffold-3.2.3-py3.8.egg/pyscaffold/contrib/__pycache__/ptr.cpython-38.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/pobm/1.2.0/pobm-1.2.0.tar.gz

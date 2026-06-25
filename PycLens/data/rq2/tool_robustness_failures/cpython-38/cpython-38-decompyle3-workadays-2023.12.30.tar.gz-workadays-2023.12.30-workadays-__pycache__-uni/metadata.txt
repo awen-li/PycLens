@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-workadays-2023.12.30.tar.gz-workadays-2023.12.30-workadays-__pycache__-uni
+tool: decompyle3
+status: timeout
+exception_type: Timeout
+exception_message: timeout_after_600s
+package: workadays
+version: 2023.12.30
+artifact: workadays-2023.12.30.tar.gz
+artifact_type: tar
+pyc_path: workadays-2023.12.30/workadays/__pycache__/united_states.cpython-38.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/workadays/2023.12.30/workadays-2023.12.30.tar.gz

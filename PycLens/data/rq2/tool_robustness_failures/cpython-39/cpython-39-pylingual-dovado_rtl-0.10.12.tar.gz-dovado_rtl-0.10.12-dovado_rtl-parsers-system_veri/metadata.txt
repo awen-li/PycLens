@@ -1,0 +1,16 @@
+failure_id: cpython-39-pylingual-dovado_rtl-0.10.12.tar.gz-dovado_rtl-0.10.12-dovado_rtl-parsers-system_veri
+tool: pylingual
+status: timeout
+exception_type: Timeout
+exception_message: timeout_after_600s
+package: dovado-rtl
+version: 0.10.12
+artifact: dovado_rtl-0.10.12.tar.gz
+artifact_type: tar
+pyc_path: dovado_rtl-0.10.12/dovado_rtl/parsers/system_verilog/generated/__pycache__/SystemVerilogParser.cpython-39.pyc
+python_tag: cpython-39
+magic_number: 3425
+source_present: True
+overall_level: 3
+overall_label: decompyle3_decompilable
+artifact_path: data/artifacts/pypi/dovado-rtl/0.10.12/dovado_rtl-0.10.12.tar.gz

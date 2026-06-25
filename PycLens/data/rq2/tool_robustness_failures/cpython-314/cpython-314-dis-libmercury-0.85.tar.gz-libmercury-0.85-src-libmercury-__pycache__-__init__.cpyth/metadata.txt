@@ -1,0 +1,16 @@
+failure_id: cpython-314-dis-libmercury-0.85.tar.gz-libmercury-0.85-src-libmercury-__pycache__-__init__.cpyth
+tool: dis
+status: error
+exception_type: IndexError
+exception_message: tuple index out of range
+package: libmercury
+version: 0.85
+artifact: libmercury-0.85.tar.gz
+artifact_type: tar
+pyc_path: libmercury-0.85/src/libmercury/__pycache__/__init__.cpython-314.pyc
+python_tag: cpython-314
+magic_number: 3606
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/libmercury/0.85/libmercury-0.85.tar.gz

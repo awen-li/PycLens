@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-GSEIMIITB-1.1.tar.gz-GSEIMIITB-1.1-src-grc-gui-canvas-__pycache__-block.cp
+tool: decompyle3
+status: timeout
+exception_type: Timeout
+exception_message: timeout_after_600s
+package: gseimiitb
+version: 1.1
+artifact: GSEIMIITB-1.1.tar.gz
+artifact_type: tar
+pyc_path: GSEIMIITB-1.1/src/grc/gui/canvas/__pycache__/block.cpython-38.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/gseimiitb/1.1/GSEIMIITB-1.1.tar.gz

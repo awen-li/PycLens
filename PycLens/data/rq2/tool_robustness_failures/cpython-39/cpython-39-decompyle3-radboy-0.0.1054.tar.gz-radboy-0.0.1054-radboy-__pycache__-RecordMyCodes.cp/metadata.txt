@@ -1,0 +1,16 @@
+failure_id: cpython-39-decompyle3-radboy-0.0.1054.tar.gz-radboy-0.0.1054-radboy-__pycache__-RecordMyCodes.cp
+tool: decompyle3
+status: exit_2
+exception_type: EOFError
+exception_message: marshal data too short
+package: radboy
+version: 0.0.1054
+artifact: radboy-0.0.1054.tar.gz
+artifact_type: tar
+pyc_path: radboy-0.0.1054/radboy/__pycache__/RecordMyCodes.cpython-39.pyc
+python_tag: cpython-39
+magic_number: 3425
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/radboy/0.0.1054/radboy-0.0.1054.tar.gz

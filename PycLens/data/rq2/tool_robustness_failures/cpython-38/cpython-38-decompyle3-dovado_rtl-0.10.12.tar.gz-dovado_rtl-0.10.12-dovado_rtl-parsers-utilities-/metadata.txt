@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-dovado_rtl-0.10.12.tar.gz-dovado_rtl-0.10.12-dovado_rtl-parsers-utilities-
+tool: decompyle3
+status: timeout
+exception_type: Timeout
+exception_message: timeout_after_600s
+package: dovado-rtl
+version: 0.10.12
+artifact: dovado_rtl-0.10.12.tar.gz
+artifact_type: tar
+pyc_path: dovado_rtl-0.10.12/dovado_rtl/parsers/utilities/antlr/__pycache__/vhdlParser.cpython-38.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: False
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/dovado-rtl/0.10.12/dovado_rtl-0.10.12.tar.gz

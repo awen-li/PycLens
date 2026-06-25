@@ -1,0 +1,16 @@
+failure_id: cpython-39-decompyle3-refex-0.1.1.tar.gz-refex-0.1.1-refex-fix-__pycache__-test_generate_example
+tool: decompyle3
+status: exit_2
+exception_type: ValueError
+exception_message: bad marshal data (unkn...
+package: refex
+version: 0.1.1
+artifact: refex-0.1.1.tar.gz
+artifact_type: tar
+pyc_path: refex-0.1.1/refex/fix/__pycache__/test_generate_example.cpython-39-pytest-6.0.1.pyc
+python_tag: cpython-39
+magic_number: 3425
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/refex/0.1.1/refex-0.1.1.tar.gz

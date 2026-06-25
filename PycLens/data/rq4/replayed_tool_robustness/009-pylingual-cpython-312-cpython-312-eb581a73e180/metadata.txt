@@ -1,0 +1,11 @@
+case_id: 009-pylingual-cpython-312-cpython-312-eb581a73e180
+tool: pylingual
+python_tag: cpython-312
+finding: data/rq3/cpython-3.12/unique_bug_pyc/cpython-312-eb581a73e180.pyc
+original_status: exit_-6
+original_reason: malloc(): invalid size (unsorted)
+replay_returncode: -6
+replay_signal: SIGABRT
+replay_status: Process abort
+replay_reason: SIGABRT
+case_dir: /home/awen/git/PybcSEC/PycLens/data/rq4/replayed_tool_robustness/009-pylingual-cpython-312-cpython-312-eb581a73e180

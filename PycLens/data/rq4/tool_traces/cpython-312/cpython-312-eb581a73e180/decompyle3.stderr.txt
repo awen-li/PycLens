@@ -1,0 +1,5 @@
+/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-312/lib/python3.12/site-packages/click/core.py:1307: UserWarning: The parameter --version is used more than once. Remove its duplicate as parameters should be unique.
+  parser = self.make_parser(ctx)
+/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-312/lib/python3.12/site-packages/click/core.py:1300: UserWarning: The parameter --version is used more than once. Remove its duplicate as parameters should be unique.
+  self.parse_args(ctx, args)
+malloc(): invalid size (unsorted)

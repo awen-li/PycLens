@@ -1,58 +1,58 @@
 Traceback (most recent call last):
   File "data/rq2/envs/cpython-38/bin/decompyle3", line 8, in <module>
     sys.exit(main_bin())
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/click/core.py", line 1161, in __call__
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/click/core.py", line 1161, in __call__
     return self.main(*args, **kwargs)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/click/core.py", line 1082, in main
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/click/core.py", line 1082, in main
     rv = self.invoke(ctx)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/click/core.py", line 1443, in invoke
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/click/core.py", line 1443, in invoke
     return ctx.invoke(self.callback, **ctx.params)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/click/core.py", line 788, in invoke
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/click/core.py", line 788, in invoke
     return __callback(*args, **kwargs)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/bin/decompile.py", line 175, in main_bin
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/bin/decompile.py", line 175, in main_bin
     result = main(
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/main.py", line 336, in main
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/main.py", line 336, in main
     deparsed_objects = decompile_file(
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/main.py", line 239, in decompile_file
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/main.py", line 239, in decompile_file
     decompile(
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/main.py", line 159, in decompile
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/main.py", line 159, in decompile
     deparsed = deparse_fn(
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/pysource.py", line 1214, in code_deparse
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/pysource.py", line 1214, in code_deparse
     deparsed.gen_source(
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/pysource.py", line 984, in gen_source
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/pysource.py", line 984, in gen_source
     self.text = self.traverse(tree, is_lambda=is_lambda)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/pysource.py", line 434, in traverse
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/pysource.py", line 434, in traverse
     self.preorder(node)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/pysource.py", line 412, in preorder
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/pysource.py", line 412, in preorder
     super(SourceWalker, self).preorder(node)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/spark_parser/ast.py", line 117, in preorder
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/spark_parser/ast.py", line 117, in preorder
     self.preorder(kid)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/pysource.py", line 412, in preorder
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/pysource.py", line 412, in preorder
     super(SourceWalker, self).preorder(node)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/spark_parser/ast.py", line 110, in preorder
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/spark_parser/ast.py", line 110, in preorder
     func(node)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/customize37.py", line 999, in n_function_def
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/customize37.py", line 999, in n_function_def
     self.default(node)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/pysource.py", line 803, in default
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/pysource.py", line 803, in default
     self.template_engine(table[key.kind], node)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/pysource.py", line 697, in template_engine
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/pysource.py", line 697, in template_engine
     self.preorder(node[index])
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/pysource.py", line 412, in preorder
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/pysource.py", line 412, in preorder
     super(SourceWalker, self).preorder(node)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/spark_parser/ast.py", line 110, in preorder
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/spark_parser/ast.py", line 110, in preorder
     func(node)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/n_actions.py", line 984, in n_mkfunc
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/n_actions.py", line 984, in n_mkfunc
     make_function36(self, node, is_lambda=False, code_node=code_node)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/make_function36.py", line 141, in make_function36
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/semantics/make_function36.py", line 141, in make_function36
     scanner_code = Code(code, self.scanner, self.currentclass, debug_asm_opts)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/scanner.py", line 76, in __init__
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/scanner.py", line 76, in __init__
     self._tokens, self._customize = scanner.ingest(co, classname, show_asm=show_asm)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/scanners/scanner38.py", line 67, in ingest
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/scanners/scanner38.py", line 67, in ingest
     tokens, customize = super(Scanner38, self).ingest(
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/scanners/scanner37.py", line 68, in ingest
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/scanners/scanner37.py", line 68, in ingest
     tokens, customize = Scanner37Base.ingest(
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/scanners/scanner37base.py", line 373, in ingest
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/scanners/scanner37base.py", line 373, in ingest
     jump_inst = self.get_inst(inst.argval)
-  File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/scanner.py", line 217, in get_inst
+  File "/home/awen/git/PybcSEC/PycLens/data/rq2/envs/cpython-38/lib/python3.8/site-packages/decompyle3/scanner.py", line 217, in get_inst
     if self.code[offset] != self.opc.EXTENDED_ARG:
 IndexError: array index out of range

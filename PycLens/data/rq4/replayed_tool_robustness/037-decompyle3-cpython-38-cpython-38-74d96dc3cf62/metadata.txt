@@ -1,0 +1,11 @@
+case_id: 037-decompyle3-cpython-38-cpython-38-74d96dc3cf62
+tool: decompyle3
+python_tag: cpython-38
+finding: data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-74d96dc3cf62.pyc
+original_status: timeout
+original_reason: timeout_after_600s
+replay_returncode: -15
+replay_signal: SIGTERM
+replay_status: Signal termination
+replay_reason: SIGTERM
+case_dir: /home/awen/git/PybcSEC/PycLens/data/rq4/replayed_tool_robustness/037-decompyle3-cpython-38-cpython-38-74d96dc3cf62

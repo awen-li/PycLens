@@ -1,7 +1,7 @@
 # decompyle3 version 3.9.3
 # Python bytecode version base 3.8.0 (3413)
-# Decompiled from: Python 3.8.20 (default, Oct  2 2024, 16:34:12) 
-# [Clang 18.1.8 ]
+# Decompiled from: Python 3.8.20 (default, Sep  7 2024, 18:35:08) 
+# [GCC 11.4.0]
 # Embedded file name: data/rq3/cpython-3.8/unittest_seeds/raw/cpython_case_test_copy_TestCopy_test_deepcopy_weakvaluedict.py
                expr ::= LOAD_CODE (1)
                return_expr ::= expr (1)

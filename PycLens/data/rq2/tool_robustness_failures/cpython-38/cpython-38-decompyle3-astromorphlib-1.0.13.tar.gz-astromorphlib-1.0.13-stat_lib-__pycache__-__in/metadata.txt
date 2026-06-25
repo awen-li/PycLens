@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-astromorphlib-1.0.13.tar.gz-astromorphlib-1.0.13-stat_lib-__pycache__-__in
+tool: decompyle3
+status: timeout
+exception_type: Timeout
+exception_message: timeout_after_600s
+package: astromorphlib
+version: 1.0.13
+artifact: astromorphlib-1.0.13.tar.gz
+artifact_type: tar
+pyc_path: astromorphlib-1.0.13/stat_lib/__pycache__/__init__.cpython-38.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/astromorphlib/1.0.13/astromorphlib-1.0.13.tar.gz

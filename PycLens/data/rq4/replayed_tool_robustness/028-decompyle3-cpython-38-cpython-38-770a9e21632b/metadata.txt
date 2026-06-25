@@ -1,0 +1,11 @@
+case_id: 028-decompyle3-cpython-38-cpython-38-770a9e21632b
+tool: decompyle3
+python_tag: cpython-38
+finding: data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-770a9e21632b.pyc
+original_status: exit_-6
+original_reason: Fatal Python error: non-string found in code slot Python runtime state: initialized Current thread 0x00007ecd57136740 (most recent call first): File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/xdis/load.p...
+replay_returncode: -6
+replay_signal: SIGABRT
+replay_status: Process abort
+replay_reason: SIGABRT
+case_dir: /home/awen/git/PybcSEC/PycLens/data/rq4/replayed_tool_robustness/028-decompyle3-cpython-38-cpython-38-770a9e21632b

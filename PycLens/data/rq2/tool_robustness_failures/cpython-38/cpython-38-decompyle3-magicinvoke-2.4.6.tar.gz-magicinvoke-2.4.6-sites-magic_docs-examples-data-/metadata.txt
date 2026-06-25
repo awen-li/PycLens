@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-magicinvoke-2.4.6.tar.gz-magicinvoke-2.4.6-sites-magic_docs-examples-data-
+tool: decompyle3
+status: exit_2
+exception_type: ValueError
+exception_message: bad marshal data (unkn...
+package: magicinvoke
+version: 2.4.6
+artifact: magicinvoke-2.4.6.tar.gz
+artifact_type: tar
+pyc_path: magicinvoke-2.4.6/sites/magic_docs/examples/data-pipeline/__pycache__/tests.cpython-38-PYTEST.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/magicinvoke/2.4.6/magicinvoke-2.4.6.tar.gz

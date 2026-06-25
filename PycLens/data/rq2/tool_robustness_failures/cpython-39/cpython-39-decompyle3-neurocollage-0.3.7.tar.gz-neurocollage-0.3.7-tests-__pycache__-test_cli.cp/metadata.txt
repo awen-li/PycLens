@@ -1,0 +1,16 @@
+failure_id: cpython-39-decompyle3-neurocollage-0.3.7.tar.gz-neurocollage-0.3.7-tests-__pycache__-test_cli.cp
+tool: decompyle3
+status: exit_2
+exception_type: ValueError
+exception_message: bad marshal data (unkn...
+package: neurocollage
+version: 0.3.7
+artifact: neurocollage-0.3.7.tar.gz
+artifact_type: tar
+pyc_path: neurocollage-0.3.7/tests/__pycache__/test_cli.cpython-39-pytest-6.1.0.pyc
+python_tag: cpython-39
+magic_number: 3425
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/neurocollage/0.3.7/neurocollage-0.3.7.tar.gz

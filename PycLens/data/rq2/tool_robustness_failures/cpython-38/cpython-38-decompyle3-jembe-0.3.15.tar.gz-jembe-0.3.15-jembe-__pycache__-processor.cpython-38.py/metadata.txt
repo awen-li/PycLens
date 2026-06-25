@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-jembe-0.3.15.tar.gz-jembe-0.3.15-jembe-__pycache__-processor.cpython-38.py
+tool: decompyle3
+status: exit_1
+exception_type: Traceback
+exception_message: Traceback (most recent call last): File "data/rq2/envs/cpython-38/bin/decompyle3", line 8, in <module> sys.exit(main_bin()) File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/click/core.py", line 1161, in _...
+package: jembe
+version: 0.3.15
+artifact: jembe-0.3.15.tar.gz
+artifact_type: tar
+pyc_path: jembe-0.3.15/jembe/__pycache__/processor.cpython-38.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/jembe/0.3.15/jembe-0.3.15.tar.gz

@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-vitis-quantizer-0.1.3.tar.gz-vitis-quantizer-0.1.3-vitis_quantizer-graph_t
+tool: decompyle3
+status: exit_2
+exception_type: ValueError
+exception_message: bad marshal data (unkn...
+package: vitis-quantizer
+version: 0.1.3
+artifact: vitis-quantizer-0.1.3.tar.gz
+artifact_type: tar
+pyc_path: vitis-quantizer-0.1.3/vitis_quantizer/graph_transformations/__pycache__/transforms_test.cpython-38-PYTEST.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: False
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/vitis-quantizer/0.1.3/vitis-quantizer-0.1.3.tar.gz

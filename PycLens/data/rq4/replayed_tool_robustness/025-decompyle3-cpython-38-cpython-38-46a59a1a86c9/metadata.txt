@@ -1,0 +1,11 @@
+case_id: 025-decompyle3-cpython-38-cpython-38-46a59a1a86c9
+tool: decompyle3
+python_tag: cpython-38
+finding: data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-46a59a1a86c9.pyc
+original_status: exit_1
+original_reason: Traceback (most recent call last): File "data/rq2/envs/cpython-38/bin/decompyle3", line 8, in <module> sys.exit(main_bin()) File "/root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-38/lib/python3.8/site-packages/click/core.py", line 1161, in _...
+replay_returncode: 1
+replay_signal: 
+replay_status: Traceback
+replay_reason: 
+case_dir: /home/awen/git/PybcSEC/PycLens/data/rq4/replayed_tool_robustness/025-decompyle3-cpython-38-cpython-38-46a59a1a86c9

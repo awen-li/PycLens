@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-restless_dj_utils-0.2b5-py3-none-any.whl-restless_dj_utils-tests-rest_sess
+tool: decompyle3
+status: exit_2
+exception_type: ValueError
+exception_message: bad marshal data (unkn...
+package: restless-dj-utils
+version: 0.2b5
+artifact: restless_dj_utils-0.2b5-py3-none-any.whl
+artifact_type: wheel
+pyc_path: restless_dj_utils/tests/rest_sessions/__pycache__/test_logout_user.cpython-38-pytest-6.0.1.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/restless-dj-utils/0.2b5/restless_dj_utils-0.2b5-py3-none-any.whl

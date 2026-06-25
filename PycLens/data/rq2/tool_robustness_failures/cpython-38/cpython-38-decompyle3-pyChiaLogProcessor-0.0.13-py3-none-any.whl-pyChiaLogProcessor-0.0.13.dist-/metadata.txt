@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-pyChiaLogProcessor-0.0.13-py3-none-any.whl-pyChiaLogProcessor-0.0.13.dist-
+tool: decompyle3
+status: exit_2
+exception_type: ValueError
+exception_message: bad marshal data (unkn...
+package: pychialogprocessor
+version: 0.0.13
+artifact: pyChiaLogProcessor-0.0.13-py3-none-any.whl
+artifact_type: wheel
+pyc_path: pyChiaLogProcessor-0.0.13.dist-info/__pycache__/test_log.cpython-38-pytest-5.4.3.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: False
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/pychialogprocessor/0.0.13/pyChiaLogProcessor-0.0.13-py3-none-any.whl

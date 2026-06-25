@@ -1,0 +1,11 @@
+case_id: 008-pylingual-cpython-312-cpython-312-a121b010b70b
+tool: pylingual
+python_tag: cpython-312
+finding: data/rq3/cpython-3.12/unique_bug_pyc/cpython-312-a121b010b70b.pyc
+original_status: exit_-11
+original_reason: ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ,ggggggggggg, ,gggg, dP"""88""""""Y8, d8" "8I ,dPYb, Yb, 88 `8b 88 ,dP...
+replay_returncode: -11
+replay_signal: SIGSEGV
+replay_status: Process crash
+replay_reason: SIGSEGV
+case_dir: /home/awen/git/PybcSEC/PycLens/data/rq4/replayed_tool_robustness/008-pylingual-cpython-312-cpython-312-a121b010b70b

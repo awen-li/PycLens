@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-lifedata-0.1.1.tar.gz-lifedata-0.1.1-lifedata-cli-__pycache__-init_test.cp
+tool: decompyle3
+status: exit_2
+exception_type: ValueError
+exception_message: bad marshal data (unkn...
+package: lifedata
+version: 0.1.1
+artifact: lifedata-0.1.1.tar.gz
+artifact_type: tar
+pyc_path: lifedata-0.1.1/lifedata/cli/__pycache__/init_test.cpython-38-pytest-6.0.1.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/lifedata/0.1.1/lifedata-0.1.1.tar.gz

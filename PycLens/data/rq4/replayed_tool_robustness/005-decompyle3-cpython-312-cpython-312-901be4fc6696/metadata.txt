@@ -1,0 +1,11 @@
+case_id: 005-decompyle3-cpython-312-cpython-312-901be4fc6696
+tool: decompyle3
+python_tag: cpython-312
+finding: data/rq3/cpython-3.12/unique_bug_pyc/cpython-312-901be4fc6696.pyc
+original_status: exit_-11
+original_reason: /root/PyBC-Sec/pybcSEC/data/rq2/envs/cpython-312/lib/python3.12/site-packages/click/core.py:1262: UserWarning: The parameter --version is used more than once. Remove its duplicate as parameters should be unique. parser = self.make_parser...
+replay_returncode: -11
+replay_signal: SIGSEGV
+replay_status: Process crash
+replay_reason: SIGSEGV
+case_dir: /home/awen/git/PybcSEC/PycLens/data/rq4/replayed_tool_robustness/005-decompyle3-cpython-312-cpython-312-901be4fc6696

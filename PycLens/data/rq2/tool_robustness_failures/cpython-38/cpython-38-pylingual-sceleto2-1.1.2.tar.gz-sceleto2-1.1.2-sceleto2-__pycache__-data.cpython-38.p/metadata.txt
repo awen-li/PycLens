@@ -1,0 +1,16 @@
+failure_id: cpython-38-pylingual-sceleto2-1.1.2.tar.gz-sceleto2-1.1.2-sceleto2-__pycache__-data.cpython-38.p
+tool: pylingual
+status: timeout
+exception_type: Timeout
+exception_message: timeout_after_600s
+package: sceleto2
+version: 1.1.2
+artifact: sceleto2-1.1.2.tar.gz
+artifact_type: tar
+pyc_path: sceleto2-1.1.2/sceleto2/__pycache__/data.cpython-38.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 3
+overall_label: decompyle3_decompilable
+artifact_path: data/artifacts/pypi/sceleto2/1.1.2/sceleto2-1.1.2.tar.gz

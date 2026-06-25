@@ -1,0 +1,16 @@
+failure_id: cpython-38-decompyle3-myfitnesspal-2.1.2.tar.gz-myfitnesspal-2.1.2-tests-__pycache__-test_integr
+tool: decompyle3
+status: exit_2
+exception_type: ValueError
+exception_message: bad marshal data (unkn...
+package: myfitnesspal
+version: 2.1.2
+artifact: myfitnesspal-2.1.2.tar.gz
+artifact_type: tar
+pyc_path: myfitnesspal-2.1.2/tests/__pycache__/test_integration.cpython-38-pytest-5.4.3.pyc
+python_tag: cpython-38
+magic_number: 3413
+source_present: True
+overall_level: 4
+overall_label: pylingual_decompilable
+artifact_path: data/artifacts/pypi/myfitnesspal/2.1.2/myfitnesspal-2.1.2.tar.gz
