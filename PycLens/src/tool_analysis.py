@@ -1293,11 +1293,14 @@ def analyze_pyc_entry(
 
         entry_tools = tools_for_tag(entry.python_tag, selected_tools, tool_envs)
         if any(entry_tools.values()):
+            result.tool_traces = {}
             for tool, executable in entry_tools.items():
-                status, reason = run_optional_tool(tool, executable, tmp_pyc, external_timeout)
+                status, reason, trace = run_optional_tool_with_trace(tool, executable, tmp_pyc, external_timeout)
                 setattr(result, tool, status)
                 setattr(result, f"{tool}_reason", reason)
                 setattr(result, f"{tool}_level", 3 if status == "ok" else 0)
+                if tool_status_failed(status):
+                    result.tool_traces[tool] = trace
 
     result.overall_level, result.overall_label = classify_overall_level(result, tools_for_tag(entry.python_tag, selected_tools, tool_envs))
 
@@ -1512,6 +1515,48 @@ def run_optional_tool(tool: str, executable: str | None, pyc_path: Path, timeout
         return "ok", ""
     reason = compact_reason(completed.stderr) or compact_reason(completed.stdout)
     return f"exit_{completed.returncode}", reason
+
+
+def run_optional_tool_with_trace(tool: str, executable: str | None, pyc_path: Path, timeout: int) -> tuple[str, str, dict[str, str]]:
+    if executable is None:
+        reason = "not installed on PATH"
+        return "unavailable", reason, {"command": "", "stdout": "", "stderr": reason, "reason": reason}
+    command = [executable, str(pyc_path)]
+    trace = {"command": " ".join(shlex.quote(part) for part in command), "stdout": "", "stderr": "", "reason": ""}
+    try:
+        completed = subprocess.run(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=timeout,
+            check=False,
+            text=True,
+            errors="replace",
+        )
+    except subprocess.TimeoutExpired as exc:
+        stdout = decode_timeout_output(exc.stdout)
+        stderr = decode_timeout_output(exc.stderr)
+        reason = f"timeout_after_{timeout}s"
+        trace.update({"stdout": stdout, "stderr": stderr, "reason": reason})
+        return "timeout", reason, trace
+    except OSError as exc:
+        reason = f"{type(exc).__name__}:{exc}"
+        trace.update({"stderr": reason, "reason": reason})
+        return "error", reason, trace
+    trace.update({"stdout": completed.stdout or "", "stderr": completed.stderr or ""})
+    if completed.returncode == 0:
+        return "ok", "", trace
+    reason = compact_reason(completed.stderr) or compact_reason(completed.stdout)
+    trace["reason"] = reason
+    return f"exit_{completed.returncode}", reason, trace
+
+
+def decode_timeout_output(value: object) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return str(value)
 
 
 def compact_reason(text: str, limit: int = 240) -> str:
@@ -2122,6 +2167,7 @@ def write_failure_reports(out_dir: Path, results: Sequence[ToolAnalysisResult]) 
 
     failed_cases_dir = out_dir / "failed_cases"
     failed_cases_manifest = copy_failed_cases(failed_cases_dir, failed_rows)
+    robustness_reports, robustness_count = write_tool_robustness_failure_reports(out_dir, results)
 
     metrics_path = out_dir / "rq2_failed_pycs_metrics.csv"
     copied_cases = 0
@@ -2137,6 +2183,7 @@ def write_failure_reports(out_dir: Path, results: Sequence[ToolAnalysisResult]) 
             {"metric": "packages_with_failures", "value": len(package_groups)},
             {"metric": "artifacts_with_failures", "value": len(artifact_groups)},
             {"metric": "copied_failed_cases", "value": copied_cases},
+            {"metric": "tool_robustness_failures", "value": robustness_count},
         ],
     )
 
@@ -2148,7 +2195,154 @@ def write_failure_reports(out_dir: Path, results: Sequence[ToolAnalysisResult]) 
         artifact_path,
         metrics_path,
         failed_cases_manifest,
+        *robustness_reports,
     ]
+
+
+def write_tool_robustness_failure_reports(out_dir: Path, results: Sequence[ToolAnalysisResult]) -> tuple[list[Path], int]:
+    root = out_dir / "tool_robustness_failures"
+    if root.exists():
+        shutil.rmtree(root)
+    root.mkdir(parents=True, exist_ok=True)
+
+    rows: list[dict[str, object]] = []
+    for item in results:
+        package, version = package_version_from_artifact(item.artifact)
+        traces = getattr(item, "tool_traces", {}) or {}
+        for tool, field in TOOL_STATUS_FIELDS:
+            status = str(getattr(item, field))
+            reason = str(getattr(item, f"{field}_reason"))
+            if not is_tool_robustness_failure(tool, status, reason):
+                continue
+            case_id = failed_case_id(item.artifact, item.pyc_path)
+            failure_id = sanitize_filename_part(f"{item.python_tag}-{tool}-{case_id}")
+            failure_dir = root / item.python_tag / failure_id
+            failure_dir.mkdir(parents=True, exist_ok=True)
+            trace = traces.get(tool, {})
+            command = str(trace.get("command", ""))
+            stdout = str(trace.get("stdout", ""))
+            stderr = str(trace.get("stderr", ""))
+            full_text = "\n".join(part for part in (stderr, stdout, reason) if part)
+            exception_type, exception_message = classify_tool_exception(status, full_text, reason)
+
+            command_path = failure_dir / "command.txt"
+            stdout_path = failure_dir / "stdout.txt"
+            stderr_path = failure_dir / "stderr.txt"
+            metadata_path = failure_dir / "metadata.txt"
+            command_path.write_text(command + ("\n" if command else ""), encoding="utf-8")
+            stdout_path.write_text(stdout, encoding="utf-8")
+            stderr_path.write_text(stderr, encoding="utf-8")
+            metadata = {
+                "failure_id": failure_id,
+                "tool": tool,
+                "status": status,
+                "exception_type": exception_type,
+                "exception_message": exception_message,
+                "package": package,
+                "version": version,
+                "artifact": artifact_name_from_path(item.artifact),
+                "artifact_type": item.artifact_type,
+                "pyc_path": item.pyc_path,
+                "python_tag": item.python_tag,
+                "magic_number": item.magic_number,
+                "source_present": str(item.source_present),
+                "overall_level": str(item.overall_level),
+                "overall_label": item.overall_label,
+                "artifact_path": item.artifact,
+            }
+            metadata_path.write_text("".join(f"{key}: {value}\n" for key, value in metadata.items()), encoding="utf-8")
+            rows.append({
+                **metadata,
+                "reason": reason,
+                "command_file": str(command_path),
+                "stdout_file": str(stdout_path),
+                "stderr_file": str(stderr_path),
+                "metadata_file": str(metadata_path),
+                "trace_available": bool(command or stdout or stderr),
+            })
+
+    manifest = out_dir / "rq2_tool_robustness_failures.csv"
+    fields = [
+        "failure_id",
+        "tool",
+        "status",
+        "exception_type",
+        "exception_message",
+        "reason",
+        "package",
+        "version",
+        "artifact",
+        "artifact_type",
+        "pyc_path",
+        "python_tag",
+        "magic_number",
+        "source_present",
+        "overall_level",
+        "overall_label",
+        "artifact_path",
+        "command_file",
+        "stdout_file",
+        "stderr_file",
+        "metadata_file",
+        "trace_available",
+    ]
+    write_dict_rows(manifest, fields, rows)
+
+    summary = out_dir / "rq2_tool_robustness_failure_summary.csv"
+    counters: list[tuple[str, Counter[str]]] = [
+        ("tool", Counter(str(row["tool"]) for row in rows)),
+        ("status", Counter(str(row["status"]) for row in rows)),
+        ("exception_type", Counter(str(row["exception_type"]) for row in rows)),
+        ("python_tag", Counter(str(row["python_tag"]) for row in rows)),
+        ("source_present", Counter(str(row["source_present"]) for row in rows)),
+        ("overall_level", Counter(str(row["overall_level"]) for row in rows)),
+    ]
+    summary_rows: list[dict[str, object]] = [
+        {"metric": "tool_robustness_failure_rows", "value": len(rows)},
+        {"metric": "unique_pyc_files", "value": len({(row["artifact_path"], row["pyc_path"]) for row in rows})},
+        {"metric": "packages", "value": len({(row["package"], row["version"]) for row in rows})},
+        {"metric": "artifacts", "value": len({row["artifact_path"] for row in rows})},
+    ]
+    for prefix, counter in counters:
+        for name, count in sorted(counter.items()):
+            summary_rows.append({"metric": f"{prefix}:{name}", "value": count})
+    write_dict_rows(summary, ["metric", "value"], summary_rows)
+    return [manifest, summary], len(rows)
+
+
+def is_tool_robustness_failure(tool: str, status: str, reason: str) -> bool:
+    if status == "timeout" or "timeout_after_" in reason:
+        return True
+    if reason.startswith("dis_failed:"):
+        return True
+    if "Traceback" in reason:
+        return True
+    if "SystemError" in reason:
+        return True
+    return False
+
+
+def classify_tool_exception(status: str, text: str, reason: str) -> tuple[str, str]:
+    if status == "timeout" or "timeout_after_" in reason:
+        return "Timeout", reason
+    if reason.startswith("dis_failed:"):
+        parts = reason.split(":", 2)
+        if len(parts) == 3:
+            return parts[1], parts[2]
+        if len(parts) == 2:
+            return parts[1], ""
+        return "dis_failed", reason
+    match = re.search(r"\b([A-Za-z_][A-Za-z0-9_]*(?:Error|Exception|Warning)):\s*([^\n]*)", text)
+    if match:
+        return match.group(1), match.group(2)
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    for line in reversed(lines):
+        match = re.match(r"^([A-Za-z_][A-Za-z0-9_]*(?:Error|Exception|Warning))(?::\s*(.*))?$", line)
+        if match:
+            return match.group(1), match.group(2) or ""
+    if "Traceback" in text:
+        return "Traceback", compact_reason(text, 500)
+    return "Unknown", reason
 
 
 def copy_failed_cases(out_dir: Path, failed_rows: Sequence[dict[str, object]]) -> Path:
@@ -2285,18 +2479,20 @@ def extract_artifact_entry(artifact: Path, pyc_path: str) -> bytes | None:
 def failure_reason_category(status: str, reason: str) -> str:
     if status == "timeout" or "timeout_after_" in reason:
         return "timeout"
+    if reason.startswith("dis_failed"):
+        return "tool_robustness_failure"
+    if "Traceback" in reason:
+        return "tool_robustness_failure"
+    if "SystemError" in reason:
+        return "tool_robustness_failure"
     if status.startswith("exit_"):
         return "tool_exit"
     if reason.startswith("marshal_failed"):
         return "marshal_parse_failure"
-    if reason.startswith("dis_failed"):
-        return "disassembly_failure"
     if reason.startswith("json_decode_failed"):
         return "analysis_output_parse_failure"
     if "FileNotFoundError" in reason or "PermissionError" in reason or "OSError" in reason:
         return "environment_error"
-    if "Traceback" in reason:
-        return "tool_exception"
     return "other"
 
 

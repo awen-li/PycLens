@@ -612,11 +612,25 @@ def is_decompiler_robustness_failure(status: str, reason: str) -> bool:
     reason_text = (reason or "").lower()
     if status == "timeout" or status == "crash" or status.startswith("signal_"):
         return True
-    if "segmentation fault" in reason_text or "core dumped" in reason_text:
+    if status.startswith("exit_-"):
         return True
-    if is_expected_rejection_reason(reason):
-        return False
-    return "traceback (most recent call last)" in reason_text
+    crash_fragments = (
+        "segmentation fault",
+        "core dumped",
+        "fatal python error",
+        "malloc():",
+        "free():",
+        "realloc():",
+        "double free",
+        "corrupted",
+        "invalid pointer",
+        "allocator abort",
+    )
+    if any(fragment in reason_text for fragment in crash_fragments):
+        return True
+    if "traceback (most recent call last)" in reason_text:
+        return True
+    return False
 
 
 def is_expected_rejection_reason(reason: str) -> bool:
