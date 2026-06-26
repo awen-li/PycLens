@@ -1,0 +1,9 @@
+keyword_category,artifacts,pct_of_keyword_artifacts
+security,64,100.00
+network,25,39.06
+data,16,25.00
+testing,16,25.00
+cli,9,14.06
+build,8,12.50
+ml,8,12.50
+plugin,5,7.81

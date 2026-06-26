@@ -141,18 +141,20 @@ issues.
 `prepare-analysis-env` reads `data/rq1/rq1_versions.csv`, keeps the RQ2
 CPython scope to versions 3.8--3.14, checks for the required `pythonX.Y`
 interpreters, creates per-version virtual environments under `data/rq2/envs/`,
-and installs `decompyle3` in those environments. It also
-checks PyLingual as a globally scoped tool and attempts to install it when it is
-missing. PyLingual is prepared in a
-Python 3.12 environment under `data/rq2/envs/global-pylingual/`. By default,
-the tool installs PyLingual from the public `syssec-utd/pylingual` GitHub
-repository at a pinned commit. To override the source, set
-`PYCLENS_PYLINGUAL_PACKAGE` to a Git URL, wheel, or local checkout before
-running `prepare-analysis-env`. For custom installation workflows, set
-`PYCLENS_PYLINGUAL_INSTALL_CMD`; the command is executed inside the Python 3.12
-environment and may use `{python}`, `{pip}`, `{env_dir}`, and `{package}`
-placeholders. These tools are not installed per interpreter because they are
-used as global executables by the analysis runner.
+and installs `decompyle3` in those per-version environments. Decompyle++ is
+added as a separate tool through the native `pycdc` executable and is prepared
+globally rather than as a per-interpreter Python package. The preparation step
+first looks for `PYCLENS_DECOMPYLEPP_EXECUTABLE` or
+`PYCLENS_PYCDC_EXECUTABLE`, then for `pycdc` on `PATH`, and otherwise builds the
+`zrsx/pycdc` fork under `data/rq2/envs/global-decompylepp/`. PyLingual is also
+checked as a globally scoped tool and is prepared in a Python 3.12 environment
+under `data/rq2/envs/global-pylingual/` when missing. By default, PyLingual is
+installed from the public `syssec-utd/pylingual` GitHub repository at a pinned
+commit. To override the source, set `PYCLENS_PYLINGUAL_PACKAGE` to a Git URL,
+wheel, or local checkout before running `prepare-analysis-env`. For custom
+installation workflows, set `PYCLENS_PYLINGUAL_INSTALL_CMD` or
+`PYCLENS_DECOMPYLEPP_INSTALL_CMD`; commands may use `{python}`, `{pip}`,
+`{env_dir}`, and `{package}` placeholders where applicable.
 
 Interpreter handling is automatic. The tool checks existing prepared
 environments, `PATH`, common system locations, pyenv/asdf locations, and
@@ -161,6 +163,18 @@ interpreter is missing, it first ensures `uv` is available, installs `uv` with
 pip when necessary, and then runs `uv python install X.Y`. If that path fails,
 it falls back to `apt-get` or `pyenv` when available; otherwise the missing
 interpreter is reported in `data/rq2/analysis_environment.csv`.
+
+
+External decompilers can be restricted for targeted reruns. For example:
+
+```bash
+pyclens analyze-tools --tool decompylepp --limit 100
+pyclens analyze-tools --tool decompyle3 --tool pylingual
+pyclens reproduce-source 3.10 --tool pycdc
+```
+
+`pycdc` is accepted as an alias for Decompyle++ (`decompylepp`). Without
+`--tool`, RQ2/RQ4 run all configured decompilers.
 
 RQ2 also writes reproducibility and paper-table outputs:
 

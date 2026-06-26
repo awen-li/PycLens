@@ -1,0 +1,7 @@
+plausible_cause,source_less_pyc_files,pct
+accidental_import_pycache,7925,36.79
+bare_compiled_only_module,6455,29.97
+bundled_environment_cache,5208,24.18
+accidental_test_pycache,1053,4.89
+bundled_environment_or_application,538,2.50
+generated_or_build_artifact,362,1.68

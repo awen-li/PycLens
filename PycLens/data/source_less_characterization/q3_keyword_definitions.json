@@ -1,0 +1,95 @@
+{
+  "build": [
+    "build",
+    "dist",
+    "setup",
+    "wheel",
+    "package",
+    "deploy",
+    "install",
+    "compile",
+    "generated"
+  ],
+  "cli": [
+    "cli",
+    "command",
+    "argparse",
+    "click",
+    "terminal",
+    "shell"
+  ],
+  "data": [
+    "data",
+    "dataset",
+    "json",
+    "csv",
+    "parquet",
+    "sql",
+    "database",
+    "model"
+  ],
+  "ml": [
+    "ml",
+    "ai",
+    "model",
+    "torch",
+    "tensorflow",
+    "keras",
+    "sklearn",
+    "numpy",
+    "pandas"
+  ],
+  "network": [
+    "socket",
+    "http",
+    "https",
+    "url",
+    "urllib",
+    "requests",
+    "aiohttp",
+    "websocket",
+    "api",
+    "client",
+    "server",
+    "remote",
+    "download",
+    "upload"
+  ],
+  "plugin": [
+    "plugin",
+    "extension",
+    "hook",
+    "loader",
+    "entrypoint",
+    "module",
+    "importlib"
+  ],
+  "security": [
+    "auth",
+    "token",
+    "secret",
+    "password",
+    "credential",
+    "crypto",
+    "encrypt",
+    "decrypt",
+    "signature",
+    "certificate",
+    "key",
+    "jwt",
+    "oauth",
+    "permission",
+    "security",
+    "secure",
+    "vulnerability",
+    "exploit"
+  ],
+  "testing": [
+    "test",
+    "tests",
+    "pytest",
+    "unittest",
+    "mock",
+    "fixture"
+  ]
+}
