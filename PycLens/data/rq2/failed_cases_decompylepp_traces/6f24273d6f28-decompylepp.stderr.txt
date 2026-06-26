@@ -1,0 +1,2 @@
+Bad MAGIC!
+Could not load file PycLens/data/rq2/failed_cases/datadashr-0.2.5-cpython-312-6f24273d6f28.pyc

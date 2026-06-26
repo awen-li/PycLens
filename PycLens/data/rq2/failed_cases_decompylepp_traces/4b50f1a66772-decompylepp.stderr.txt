@@ -1,0 +1,3 @@
+Unsupported Node type: 28
+Unsupported Node type: 28
+Error decompyling PycLens/data/rq2/failed_cases/aioinstagrapi-1.1.21-cpython-38-4b50f1a66772.pyc: std::bad_cast

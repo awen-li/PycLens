@@ -1,0 +1,2 @@
+CreateObject: Got unsupported type 0x0
+Error loading file PycLens/data/rq2/failed_cases/rrlfe-1.0-cpython-38-8af937b81877.pyc: std::bad_cast

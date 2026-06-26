@@ -1,0 +1,103 @@
+# Source Generated with Decompyle++
+# File: bestfit-0.3-cpython-38-ac9951918345.pyc (Python 3.8)
+
+'''
+The rrule module offers a small, complete, and very fast, implementation of
+the recurrence rules documented in the
+`iCalendar RFC <https://tools.ietf.org/html/rfc5545>`_,
+including support for caching of results.
+'''
+import calendar
+import datetime
+import heapq
+import itertools
+import re
+import sys
+from functools import wraps
+from warnings import warn
+from six import advance_iterator, integer_types
+from six.moves import _thread, range
+from _common import weekday as weekdaybase
+
+try:
+    from math import gcd
+finally:
+    pass
+except ImportError:
+    from fractions import gcd
+
+
+__all__ = [
+    'rrule',
+    'rruleset',
+    'rrulestr',
+    'YEARLY',
+    'MONTHLY',
+    'WEEKLY',
+    'DAILY',
+    'HOURLY',
+    'MINUTELY',
+    'SECONDLY',
+    'MO',
+    'TU',
+    'WE',
+    'TH',
+    'FR',
+    'SA',
+    'SU']
+M366MASK = tuple([
+    1] * 31 + [
+    2] * 29 + [
+    3] * 31 + [
+    4] * 30 + [
+    5] * 31 + [
+    6] * 30 + [
+    7] * 31 + [
+    8] * 31 + [
+    9] * 30 + [
+    10] * 31 + [
+    11] * 30 + [
+    12] * 31 + [
+    1] * 7)
+M365MASK = list(M366MASK)
+M29 = list(range(1, 30))
+M30 = list(range(1, 31))
+M31 = list(range(1, 32))
+MDAY366MASK = tuple(M31 + M29 + M31 + M30 + M31 + M30 + M31 + M31 + M30 + M31 + M30 + M31 + M31[:7])
+MDAY365MASK = list(MDAY366MASK)
+M29 = list(range(-29, 0))
+M30 = list(range(-30, 0))
+M31 = list(range(-31, 0))
+NMDAY366MASK = tuple(M31 + M29 + M31 + M30 + M31 + M30 + M31 + M31 + M30 + M31 + M30 + M31 + M31[:7])
+NMDAY365MASK = list(NMDAY366MASK)
+M366RANGE = (0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366)
+M365RANGE = (0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365)
+WDAYMASK = [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6] * 55
+del M29
+del M30
+del M31
+del M365MASK[59]
+del MDAY365MASK[59]
+del NMDAY365MASK[31]
+MDAY365MASK = tuple(MDAY365MASK)
+M365MASK = tuple(M365MASK)
+FREQNAMES = [
+    'YEARLY',
+    'MONTHLY',
+    'WEEKLY',
+    'DAILY',
+    'HOURLY',
+    'MINUTELY',
+    'SECONDLY']
+(YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY) = list(range(7))
+easter = None
+parser = None
+
+class weekday(weekdaybase):

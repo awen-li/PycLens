@@ -1,0 +1,8 @@
+# Source Generated with Decompyle++
+# File: cbapi-patched-1.7.5-cpython-38-2e2b6e295b6e.pyc (Python 3.8)
+
+from cbapi.six import iteritems, add_metaclass
+
+class ErrorMetaClass(type):
+    
+    def __new__(mcs, name, bases, clsdict):

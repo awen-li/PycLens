@@ -1,0 +1,228 @@
+# Source Generated with Decompyle++
+# File: bestfit-0.3-cpython-38-3a9ba5b97610.pyc (Python 3.8)
+
+"""UnwrappedLine primitive for formatting.
+
+An unwrapped line is the containing data structure produced by the parser. It
+collects all nodes (stored in FormatToken objects) that could appear on a
+single line if there were no line length restrictions. It's then used by the
+parser to perform the wrapping required to comply with the style guide.
+"""
+from yapf.yapflib import format_token
+from yapf.yapflib import py3compat
+from yapf.yapflib import pytree_utils
+from yapf.yapflib import split_penalty
+from yapf.yapflib import style
+from lib2to3.fixer_util import syms as python_symbols
+
+class UnwrappedLine(object):
+    '''Represents a single unwrapped line in the output.
+
+  Attributes:
+    depth: indentation depth of this line. This is just a numeric value used to
+      distinguish lines that are more deeply nested than others. It is not the
+      actual amount of spaces, which is style-dependent.
+  '''
+    
+    def __init__(self, depth, tokens = None):
+        '''Constructor.
+
+    Creates a new unwrapped line with the given depth an initial list of tokens.
+    Constructs the doubly-linked lists for format tokens using their built-in
+    next_token and previous_token attributes.
+
+    Arguments:
+      depth: indentation depth of this line
+      tokens: initial list of tokens
+    '''
+        self.depth = depth
+        if not tokens:
+            pass
+        self._tokens = []
+        self.disable = False
+        if self._tokens:
+            for index, tok in enumerate(self._tokens[1:]):
+                tok.previous_token = self._tokens[index]
+                self._tokens[index].next_token = tok
+
+    
+    def CalculateFormattingInformation(self):
+        '''Calculate the split penalty and total length for the tokens.'''
+        self.first.spaces_required_before = 1
+        self.first.total_length = len(self.first.value)
+        prev_token = self.first
+        prev_length = self.first.total_length
+        for token in self._tokens[1:]:
+            if token.spaces_required_before == 0 and _SpaceRequiredBetween(prev_token, token, self.disable):
+                token.spaces_required_before = 1
+            tok_len = len(token.value) if not token.is_pseudo_paren else 0
+            spaces_required_before = token.spaces_required_before
+            if isinstance(spaces_required_before, list):
+                if not token.is_comment:
+                    raise AssertionError(token)
+                spaces_required_before = 0
+            token.total_length = prev_length + tok_len + spaces_required_before
+            token.split_penalty += _SplitPenalty(prev_token, token)
+            token.must_break_before = _MustBreakBefore(prev_token, token)
+            if not token.must_break_before:
+                pass
+            token.can_break_before = _CanBreakBefore(prev_token, token)
+            prev_length = token.total_length
+            prev_token = token
+
+    
+    def Split(self):
+        '''Split the line at semicolons.'''
+        if self.has_semicolon or self.disable:
+            return [
+                self]
+        uwlines = None
+        uwline = UnwrappedLine(self.depth)
+        for tok in self._tokens:
+            if tok.value == ';':
+                uwlines.append(uwline)
+                uwline = UnwrappedLine(self.depth)
+                continue
+            uwline.AppendToken(tok)
+        if uwline.tokens:
+            uwlines.append(uwline)
+        for uwline in uwlines:
+            pytree_utils.SetNodeAnnotation(uwline.first.node, pytree_utils.Annotation.MUST_SPLIT, True)
+            uwline.first.previous_token = None
+            uwline.last.next_token = None
+        return uwlines
+
+    
+    def AppendToken(self, token):
+        '''Append a new FormatToken to the tokens contained in this line.'''
+        if self._tokens:
+            token.previous_token = self.last
+            self.last.next_token = token
+        self._tokens.append(token)
+
+    
+    def AppendNode(self, node):
+        '''Convenience method to append a pytree node directly.
+
+    Wraps the node with a FormatToken.
+
+    Arguments:
+      node: the node to append
+    '''
+        self.AppendToken(format_token.FormatToken(node))
+
+    
+    def first(self):
+        '''Returns the first non-whitespace token.'''
+        return self._tokens[0]
+
+    first = property(first)
+    
+    def last(self):
+        '''Returns the last non-whitespace token.'''
+        return self._tokens[-1]
+
+    last = property(last)
+    
+    def AsCode(self, indent_per_depth = 2):
+        '''Return a "code" representation of this line.
+
+    The code representation shows how the line would be printed out as code.
+
+    TODO(eliben): for now this is rudimentary for debugging - once we add
+    formatting capabilities, this method will have other uses (not all tokens
+    have spaces around them, for example).
+
+    Arguments:
+      indent_per_depth: how much spaces to indend per depth level.
+
+    Returns:
+      A string representing the line as code.
+    '''
+        indent = ' ' * indent_per_depth * self.depth
+        tokens_str = ' '.join((lambda .0: for tok in .0:
+tok.value)(self._tokens))
+        return indent + tokens_str
+
+    
+    def __str__(self):
+        return self.AsCode()
+
+    
+    def __repr__(self):
+        tokens_repr = ','.join((lambda .0: [ '{0}({1!r})'.format(tok.name, tok.value) for tok in .0 ])(self._tokens))
+        return 'UnwrappedLine(depth={0}, tokens=[{1}])'.format(self.depth, tokens_repr)
+
+    
+    def tokens(self):
+        '''Access the tokens contained within this line.
+
+    The caller must not modify the tokens list returned by this method.
+
+    Returns:
+      List of tokens in this line.
+    '''
+        return self._tokens
+
+    tokens = property(tokens)
+    
+    def lineno(self):
+        '''Return the line number of this unwrapped line.
+
+    Returns:
+      The line number of the first token in this unwrapped line.
+    '''
+        return self.first.lineno
+
+    lineno = property(lineno)
+    
+    def is_comment(self):
+        return self.first.is_comment
+
+    is_comment = property(is_comment)
+    
+    def has_semicolon(self):
+        return any((lambda .0: for tok in .0:
+tok.value == ';')(self._tokens))
+
+    has_semicolon = property(has_semicolon)
+
+
+def _IsIdNumberStringToken(tok):
+    if not tok.is_keyword and tok.is_name and tok.is_number:
+        pass
+    return tok.is_string
+
+
+def _IsUnaryOperator(tok):
+    return format_token.Subtype.UNARY_OPERATOR in tok.subtypes
+
+
+def _HasPrecedence(tok):
+    '''Whether a binary operation has precedence within its context.'''
+    node = tok.node
+    ancestor = node.parent.parent
+    if ancestor is not None:
+        predecessor_type = pytree_utils.NodeName(ancestor)
+        if predecessor_type in ('arith_expr', 'term'):
+            return True
+        if None != 'atom':
+            return False
+        ancestor = None.parent
+        continue
+
+
+def _PriorityIndicatingNoSpace(tok):
+    '''Whether to remove spaces around an operator due to precedence.'''
+    if not tok.is_arithmetic_op or tok.is_simple_expr:
+        return False
+    return None(tok)
+
+
+def _IsSubscriptColonAndValuePair(token1, token2):
+    if token1.is_number or token1.is_name:
+        pass
+    return token2.is_subscript_colon
+
+
+def _SpaceRequiredBetween(left, right, is_line_disabled):

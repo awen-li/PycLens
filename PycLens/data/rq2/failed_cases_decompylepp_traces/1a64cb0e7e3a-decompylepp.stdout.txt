@@ -1,0 +1,28 @@
+# Source Generated with Decompyle++
+# File: moto-improved-cognitoidentity-1.3-cpython-38-1a64cb0e7e3a.pyc (Python 3.8)
+
+import builtins as @py_builtins
+import _pytest.assertion.rewrite
+@pytest_ar = rewrite
+assertion
+import json
+import boto3
+import csv
+import sure
+from botocore.exceptions import ClientError
+from moto import mock_config, mock_iam, settings
+from moto.core import DEFAULT_ACCOUNT_ID as ACCOUNT_ID
+from moto.iam import iam_backends
+from moto.backends import get_backend
+from tests import DEFAULT_ACCOUNT_ID
+import pytest
+from datetime import datetime
+from uuid import uuid4
+from urllib import parse
+from moto.s3.responses import DEFAULT_REGION_NAME
+MOCK_CERT = '-----BEGIN CERTIFICATE-----\nMIIBpzCCARACCQCY5yOdxCTrGjANBgkqhkiG9w0BAQsFADAXMRUwEwYDVQQKDAxt\nb3RvIHRlc3RpbmcwIBcNMTgxMTA1MTkwNTIwWhgPMjI5MjA4MTkxOTA1MjBaMBcx\nFTATBgNVBAoMDG1vdG8gdGVzdGluZzCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkC\ngYEA1Jn3g2h7LD3FLqdpcYNbFXCS4V4eDpuTCje9vKFcC3pi/01147X3zdfPy8Mt\nZhKxcREOwm4NXykh23P9KW7fBovpNwnbYsbPqj8Hf1ZaClrgku1arTVhEnKjx8zO\nvaR/bVLCss4uE0E0VM1tJn/QGQsfthFsjuHtwx8uIWz35tUCAwEAATANBgkqhkiG\n9w0BAQsFAAOBgQBWdOQ7bDc2nWkUhFjZoNIZrqjyNdjlMUndpwREVD7FQ/DuxJMj\nFyDHrtlrS80dPUQWNYHw++oACDpWO01LGLPPrGmuO/7cOdojPEd852q5gd+7W9xt\n8vUH+pBa6IBLbvBp+szli51V3TLSWcoyy4ceJNQU2vCkTLoFdS0RLd/7tQ==\n-----END CERTIFICATE-----'
+MOCK_POLICY = '\n{\n  "Version": "2012-10-17",\n  "Statement":\n    {\n      "Effect": "Allow",\n      "Action": "s3:ListBucket",\n      "Resource": "arn:aws:s3:::example_bucket"\n    }\n}\n'
+MOCK_POLICY_2 = '\n{\n  "Version": "2012-10-17",\n  "Id": "2",\n  "Statement":\n    {\n      "Effect": "Allow",\n      "Action": "s3:ListBucket",\n      "Resource": "arn:aws:s3:::example_bucket"\n    }\n}\n'
+MOCK_POLICY_3 = '\n{\n  "Version": "2012-10-17",\n  "Id": "3",\n  "Statement":\n    {\n      "Effect": "Allow",\n      "Action": "s3:ListBucket",\n      "Resource": "arn:aws:s3:::example_bucket"\n    }\n}\n'
+
+def test_get_role__should_throw__when_role_does_not_exist():

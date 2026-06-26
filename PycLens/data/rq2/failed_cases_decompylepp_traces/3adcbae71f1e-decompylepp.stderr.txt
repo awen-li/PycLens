@@ -1,0 +1,4 @@
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Unsupported Node type: 0
+PycBuffer::getByte(): Unexpected end of stream

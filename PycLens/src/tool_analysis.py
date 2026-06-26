@@ -42,6 +42,9 @@ TOOL_ANALYSIS_FIELDNAMES = [
     "decompyle3",
     "decompyle3_reason",
     "decompyle3_level",
+    "decompylepp",
+    "decompylepp_reason",
+    "decompylepp_level",
     "pylingual",
     "pylingual_reason",
     "pylingual_level",
@@ -49,10 +52,15 @@ TOOL_ANALYSIS_FIELDNAMES = [
     "overall_label",
     "error",
 ]
-OPTIONAL_TOOLS = ("decompyle3", "pylingual")
+OPTIONAL_TOOLS = ("decompyle3", "decompylepp", "pylingual")
 DECOMPILER_TOOLS = OPTIONAL_TOOLS
 PER_INTERPRETER_TOOLS = ("decompyle3",)
-GLOBAL_TOOLS = ("pylingual",)
+GLOBAL_TOOLS = ("decompylepp", "pylingual")
+DECOMPYLEPP_GIT_URL = "https://github.com/zrsx/pycdc.git"
+TOOL_EXECUTABLE_NAMES = {
+    "decompylepp": "pycdc",
+    "pylingual": "pylingual",
+}
 PYLINGUAL_GIT_URL = "https://github.com/syssec-utd/pylingual.git"
 PYLINGUAL_COMMIT = "99c74eeff5262c0200a3d378298af1f736e20b01"
 
@@ -63,7 +71,15 @@ GLOBAL_TOOL_PACKAGE_ENVS = {
     "pylingual": ("PYCLENS_PYLINGUAL_PACKAGE",),
 }
 GLOBAL_TOOL_INSTALL_CMD_ENVS = {
+    "decompylepp": ("PYCLENS_DECOMPYLEPP_INSTALL_CMD", "PYCLENS_PYCDC_INSTALL_CMD"),
     "pylingual": ("PYCLENS_PYLINGUAL_INSTALL_CMD",),
+}
+GLOBAL_TOOL_EXECUTABLE_ENVS = {
+    "decompylepp": ("PYCLENS_DECOMPYLEPP_EXECUTABLE", "PYCLENS_PYCDC_EXECUTABLE"),
+    "pylingual": ("PYCLENS_PYLINGUAL_EXECUTABLE",),
+}
+GLOBAL_TOOL_HOME_ENVS = {
+    "decompylepp": ("PYCLENS_DECOMPYLEPP_HOME", "PYCLENS_PYCDC_HOME"),
 }
 GLOBAL_TOOL_PYTHON_TAGS = {
     "pylingual": "cpython-312",
@@ -90,6 +106,9 @@ class ToolAnalysisResult:
     decompyle3: str = "unavailable"
     decompyle3_reason: str = ""
     decompyle3_level: int = 0
+    decompylepp: str = "unavailable"
+    decompylepp_reason: str = ""
+    decompylepp_level: int = 0
     pylingual: str = "unavailable"
     pylingual_reason: str = ""
     pylingual_level: int = 0
@@ -369,8 +388,9 @@ def analyze_artifacts(
     data_dir: Path | None = None,
     magic_tags: dict[str, str] | None = None,
     run_tools: bool = True,
+    requested_tools: Sequence[str] | None = None,
 ) -> list[ToolAnalysisResult]:
-    selected_tools = available_tools(data_dir)
+    selected_tools = select_optional_tools(available_tools(data_dir), requested_tools)
     magic_tags = magic_tags if magic_tags is not None else load_magic_tag_map(interpreters, external_timeout)
     print_rq2_scope(interpreters)
     if not run_tools:
@@ -467,12 +487,16 @@ def print_progress(
     marshal_failed = sum(1 for item in artifact_results if tool_status_failed(item.stdlib_marshal))
     dis_ok = sum(1 for item in artifact_results if item.stdlib_dis == "ok")
     dis_failed = sum(1 for item in artifact_results if tool_status_failed(item.stdlib_dis))
+    decompyle3_ok = sum(1 for item in artifact_results if item.decompyle3 == "ok")
+    decompyle3_failed = sum(1 for item in artifact_results if tool_status_failed(item.decompyle3))
+    decompylepp_ok = sum(1 for item in artifact_results if item.decompylepp == "ok")
+    decompylepp_failed = sum(1 for item in artifact_results if tool_status_failed(item.decompylepp))
     pylingual_ok = sum(1 for item in artifact_results if item.pylingual == "ok")
     pylingual_failed = sum(1 for item in artifact_results if tool_status_failed(item.pylingual))
     tool_timeouts = sum(
         1
         for item in artifact_results
-        for status in (item.stdlib_marshal, item.stdlib_dis, item.decompyle3, item.pylingual)
+        for status in (item.stdlib_marshal, item.stdlib_dis, item.decompyle3, item.decompylepp, item.pylingual)
         if status == "timeout"
     )
     failed = sum(1 for item in artifact_results if item.overall_level == 0)
@@ -484,6 +508,8 @@ def print_progress(
         f"[tool-analysis {completed}/{total}] pyc_files={pyc_count} "
         f"marshal={marshal_ok}+{marshal_failed}/{pyc_count} "
         f"dis={dis_ok}+{dis_failed}/{pyc_count} "
+        f"decompyle3={decompyle3_ok}+{decompyle3_failed}/{pyc_count} "
+        f"decompylepp={decompylepp_ok}+{decompylepp_failed}/{pyc_count} "
         f"pylingual={pylingual_ok}+{pylingual_failed}/{pyc_count} "
         f"tool_timeouts={tool_timeouts} failed={failed} {levels} latest={artifact}"
     )
@@ -493,11 +519,50 @@ def available_tools(data_dir: Path | None = None) -> dict[str, str | None]:
     return {tool: find_global_tool(tool, data_dir) for tool in OPTIONAL_TOOLS}
 
 
+def select_optional_tools(
+    tools: dict[str, str | None],
+    requested_tools: Sequence[str] | None = None,
+) -> dict[str, str | None]:
+    requested = normalize_requested_tools(requested_tools)
+    if not requested:
+        return dict(tools)
+    return {tool: tools.get(tool) for tool in requested}
+
+
+def normalize_requested_tools(requested_tools: Sequence[str] | None) -> tuple[str, ...]:
+    if not requested_tools:
+        return ()
+    aliases = {
+        "all": "all",
+        "decompyle3": "decompyle3",
+        "decompylepp": "decompylepp",
+        "decompyle++": "decompylepp",
+        "pycdc": "decompylepp",
+        "pylingual": "pylingual",
+    }
+    normalized: list[str] = []
+    for raw in requested_tools:
+        for part in str(raw).split(","):
+            name = part.strip().lower()
+            if not name:
+                continue
+            tool = aliases.get(name)
+            if tool is None:
+                raise ValueError(f"unknown tool {part!r}; expected one of: {', '.join(OPTIONAL_TOOLS)}")
+            if tool == "all":
+                return ()
+            if tool not in normalized:
+                normalized.append(tool)
+    return tuple(normalized)
+
+
 def analysis_tool_available(
     tool: str,
     global_tools: dict[str, str | None],
     tool_envs: dict[str, dict[str, str | None]],
 ) -> bool:
+    if tool not in global_tools:
+        return False
     return bool(global_tools.get(tool)) or any(bool(env.get(tool)) for env in tool_envs.values())
 
 
@@ -508,7 +573,7 @@ def tools_for_tag(
 ) -> dict[str, str | None]:
     tools = dict(global_tools)
     for tool, executable in tool_envs.get(tag, {}).items():
-        if executable:
+        if tool in tools and executable:
             tools[tool] = executable
     return tools
 
@@ -802,22 +867,41 @@ def tool_version(tool: str, executable: str | None) -> str:
         if help_text.startswith("Usage: pylingual"):
             return "installed (version unavailable)"
         return help_text
+    if tool == "decompylepp":
+        help_text = command_version([executable, "--help"])
+        if "pycdc" in help_text.lower() or "usage" in help_text.lower() or help_text:
+            return help_text if not help_text.startswith("exit_") else "installed (version unavailable)"
+        return "installed (version unavailable)"
     return command_version([executable, "--version"])
 
 
+def tool_executable_name(tool: str) -> str:
+    return TOOL_EXECUTABLE_NAMES.get(tool, tool)
+
+
 def find_global_tool(tool: str, data_dir: Path | None = None) -> str | None:
+    executable_name = tool_executable_name(tool)
     candidates: list[Path | str | None] = []
+    explicit = first_env_value(GLOBAL_TOOL_EXECUTABLE_ENVS.get(tool))
+    if explicit:
+        candidates.append(explicit)
+    home = first_env_value(GLOBAL_TOOL_HOME_ENVS.get(tool))
+    if home:
+        home_path = Path(home)
+        candidates.extend([home_path / executable_name, home_path / "bin" / executable_name])
     if data_dir:
-        candidates.append(global_tool_env_dir(data_dir, tool) / "bin" / tool)
+        env_dir = global_tool_env_dir(data_dir, tool)
+        candidates.extend([env_dir / "bin" / executable_name, env_dir / executable_name])
     candidates.extend(
         [
+            shutil.which(executable_name),
             shutil.which(tool),
-            Path(sys.executable).resolve().parent / tool,
-            Path(sys.prefix) / "bin" / tool,
-            Path.home() / ".local" / "bin" / tool,
-            Path("/root/.local/bin") / tool,
-            Path("/usr/local/bin") / tool,
-            Path("/usr/bin") / tool,
+            Path(sys.executable).resolve().parent / executable_name,
+            Path(sys.prefix) / "bin" / executable_name,
+            Path.home() / ".local" / "bin" / executable_name,
+            Path("/root/.local/bin") / executable_name,
+            Path("/usr/local/bin") / executable_name,
+            Path("/usr/bin") / executable_name,
         ]
     )
     for candidate in candidates:
@@ -827,19 +911,25 @@ def find_global_tool(tool: str, data_dir: Path | None = None) -> str | None:
         if path.exists():
             return str(path)
         if isinstance(candidate, str):
-            return candidate
+            resolved = shutil.which(candidate)
+            if resolved:
+                return resolved
     return None
 
 
 def install_global_tool(tool: str, timeout: int, data_dir: Path | None = None) -> tuple[str, str, str | None]:
-    if tool in GLOBAL_TOOL_PYTHON_TAGS and data_dir is not None:
-        managed_executable = global_tool_env_dir(data_dir, tool) / "bin" / tool
-        if managed_executable.exists():
-            return "ok", "exists", str(managed_executable)
-        return install_global_tool_env(tool, data_dir, timeout)
     executable = find_global_tool(tool, data_dir)
     if executable:
         return "ok", "exists", executable
+    if tool == "decompylepp":
+        if data_dir is None:
+            return "installer_unavailable", "data_dir is required to build Decompyle++", None
+        return install_decompylepp(data_dir, timeout)
+    if tool in GLOBAL_TOOL_PYTHON_TAGS and data_dir is not None:
+        managed_executable = global_tool_env_dir(data_dir, tool) / "bin" / tool_executable_name(tool)
+        if managed_executable.exists():
+            return "ok", "exists", str(managed_executable)
+        return install_global_tool_env(tool, data_dir, timeout)
     package = global_tool_package(tool)
     commands = [
         [sys.executable, "-m", "pip", "install", "--user", package],
@@ -856,8 +946,67 @@ def install_global_tool(tool: str, timeout: int, data_dir: Path | None = None) -
         if executable:
             return "ok", reason, executable
         last_status = "installer_unavailable"
-        last_reason = f"installed {package}, but {tool} executable was not found"
+        last_reason = f"installed {package}, but {tool_executable_name(tool)} executable was not found"
     return last_status, last_reason, None
+
+
+def install_decompylepp(data_dir: Path, timeout: int) -> tuple[str, str, str | None]:
+    env_dir = global_tool_env_dir(data_dir, "decompylepp")
+    bin_dir = env_dir / "bin"
+    managed = bin_dir / "pycdc"
+    if managed.exists():
+        return "ok", "exists", str(managed)
+    command = global_tool_install_command(env_dir, "decompylepp", DECOMPYLEPP_GIT_URL)
+    if command:
+        env_dir.mkdir(parents=True, exist_ok=True)
+        status, reason = run_shell_installer(command, env_dir, timeout)
+        executable = find_global_tool("decompylepp", data_dir)
+        if status == "ok" and executable:
+            return "ok", reason, executable
+        return status, reason, executable
+    git = shutil.which("git")
+    cmake = shutil.which("cmake")
+    make = shutil.which("make")
+    missing = [name for name, value in (("git", git), ("cmake", cmake), ("make", make)) if not value]
+    if missing:
+        return "installer_unavailable", "missing build tools: " + ",".join(missing), None
+    source_dir = env_dir / "src"
+    build_dir = env_dir / "build"
+    bin_dir.mkdir(parents=True, exist_ok=True)
+    repo_url = os.environ.get("PYCLENS_DECOMPYLEPP_GIT_URL") or os.environ.get("PYCLENS_PYCDC_GIT_URL") or DECOMPYLEPP_GIT_URL
+    if not source_dir.exists():
+        status, reason = run_installer([git, "clone", repo_url, str(source_dir)], timeout)
+        if status != "ok":
+            return status, reason, None
+    status, reason = run_installer([cmake, "-S", str(source_dir), "-B", str(build_dir)], timeout)
+    if status != "ok":
+        return status, reason, None
+    jobs = os.environ.get("PYCLENS_DECOMPYLEPP_BUILD_JOBS", "2")
+    status, reason = run_installer([cmake, "--build", str(build_dir), "-j", jobs], timeout)
+    if status != "ok":
+        return status, reason, None
+    built = find_built_decompylepp(env_dir)
+    if not built:
+        return "installer_unavailable", "built Decompyle++, but pycdc executable was not found", None
+    try:
+        shutil.copy2(built, managed)
+        managed.chmod(managed.stat().st_mode | 0o111)
+    except OSError as exc:
+        return "error", f"{type(exc).__name__}:{exc}", None
+    return "ok", f"built from {repo_url}", str(managed)
+
+
+def find_built_decompylepp(env_dir: Path) -> Path | None:
+    candidates = [
+        env_dir / "build" / "pycdc",
+        env_dir / "src" / "pycdc",
+    ]
+    candidates.extend(sorted((env_dir / "build").glob("**/pycdc")) if (env_dir / "build").exists() else [])
+    candidates.extend(sorted((env_dir / "src").glob("**/pycdc")) if (env_dir / "src").exists() else [])
+    for candidate in candidates:
+        if candidate.exists() and candidate.is_file():
+            return candidate
+    return None
 
 
 def first_env_value(names: Sequence[str] | None) -> str:
@@ -1604,12 +1753,14 @@ def decompiler_level(
 ) -> tuple[int, str]:
     if "pylingual" in successful_decompilers:
         return 4, "pylingual_decompilable"
+    if "decompylepp" in successful_decompilers:
+        return 3, "decompylepp_decompilable"
     if "decompyle3" in successful_decompilers:
         return 3, "decompyle3_decompilable"
     return 2, "disassemblable"
 
 
-SOURCE_LESS_TOOLS = ("stdlib_marshal", "stdlib_dis", "decompyle3", "pylingual")
+SOURCE_LESS_TOOLS = ("stdlib_marshal", "stdlib_dis", "decompyle3", "decompylepp", "pylingual")
 
 
 def write_source_less_reports(
@@ -1662,6 +1813,7 @@ def write_source_less_summary(
         ("marshal_ok", sum(1 for item in source_less if item.stdlib_marshal == "ok")),
         ("dis_ok", sum(1 for item in source_less if item.stdlib_dis == "ok")),
         ("decompyle3_ok", sum(1 for item in source_less if item.decompyle3 == "ok")),
+        ("decompylepp_ok", sum(1 for item in source_less if item.decompylepp == "ok")),
         ("pylingual_ok", sum(1 for item in source_less if item.pylingual == "ok")),
         ("source_recoverable", sum(1 for item in source_less if item.overall_level == 4)),
         ("not_source_recoverable", sum(1 for item in source_less if item.overall_level != 4)),
@@ -2019,6 +2171,7 @@ TOOL_STATUS_FIELDS = (
     ("marshal", "stdlib_marshal"),
     ("dis", "stdlib_dis"),
     ("decompyle3", "decompyle3"),
+    ("decompylepp", "decompylepp"),
     ("pylingual", "pylingual"),
 )
 
@@ -2561,6 +2714,145 @@ def collect_failed_cases_from_csv(csv_path: Path, out_dir: Path) -> list[Path]:
     return write_failure_reports(out_dir, results)
 
 
+def analyze_failed_cases_with_tool(
+    data_dir: Path,
+    tool: str = "decompylepp",
+    timeout: int = 600,
+) -> list[Path]:
+    requested = normalize_requested_tools([tool])
+    if len(requested) != 1:
+        raise ValueError("failed-case analysis requires exactly one external tool")
+    selected_tool = requested[0]
+    rq2_dir = data_dir / "rq2"
+    failed_cases_dir = rq2_dir / "failed_cases"
+    manifest_csv = failed_cases_dir / "manifest.csv"
+    if not manifest_csv.exists():
+        raise FileNotFoundError(
+            f"failed-case manifest not found: {manifest_csv}; run collect-failed-cases first"
+        )
+
+    executable = select_optional_tools(available_tools(data_dir), [selected_tool]).get(selected_tool)
+    report_csv = rq2_dir / f"failed_cases_{selected_tool}.csv"
+    summary_csv = rq2_dir / f"failed_cases_{selected_tool}_summary.csv"
+    traces_dir = rq2_dir / f"failed_cases_{selected_tool}_traces"
+    if traces_dir.exists():
+        shutil.rmtree(traces_dir)
+    traces_dir.mkdir(parents=True, exist_ok=True)
+
+    with manifest_csv.open(newline="", encoding="utf-8") as handle:
+        manifest_rows = list(csv.DictReader(handle))
+
+    rows: list[dict[str, object]] = []
+    total = len(manifest_rows)
+    for index, manifest_row in enumerate(manifest_rows, start=1):
+        copied = manifest_row.get("copied_pyc", "")
+        case_status = manifest_row.get("status", "")
+        case_id = manifest_row.get("case_id", "") or failed_case_id(
+            manifest_row.get("artifact", ""), manifest_row.get("pyc_path", "")
+        )
+        copied_path = failed_cases_dir / copied if copied else Path("")
+        status = "not_run"
+        reason = ""
+        trace = {"command": "", "stdout": "", "stderr": ""}
+        if not executable:
+            status = "unavailable"
+            reason = f"{selected_tool} executable not found"
+        elif case_status != "copied":
+            status = "missing_case"
+            reason = manifest_row.get("reason", "") or f"failed-case status is {case_status}"
+        elif not copied_path.exists():
+            status = "missing_case"
+            reason = f"copied pyc not found: {copied_path}"
+        else:
+            status, reason, trace = run_optional_tool_with_trace(selected_tool, executable, copied_path, timeout)
+
+        trace_prefix = traces_dir / sanitize_filename_part(f"{case_id}-{selected_tool}")
+        command_file = ""
+        stdout_file = ""
+        stderr_file = ""
+        if tool_status_failed(status):
+            command_path = trace_prefix.with_suffix(".command.txt")
+            stdout_path = trace_prefix.with_suffix(".stdout.txt")
+            stderr_path = trace_prefix.with_suffix(".stderr.txt")
+            command_path.write_text(str(trace.get("command", "")), encoding="utf-8", errors="replace")
+            stdout_path.write_text(str(trace.get("stdout", "")), encoding="utf-8", errors="replace")
+            stderr_path.write_text(str(trace.get("stderr", "")), encoding="utf-8", errors="replace")
+            command_file = str(command_path)
+            stdout_file = str(stdout_path)
+            stderr_file = str(stderr_path)
+
+        if index == 1 or index == total or index % 100 == 0:
+            print(
+                f"[rq2-failed-tool {index}/{total}] tool={selected_tool} status={status} "
+                f"case={case_id} pyc={copied or manifest_row.get('pyc_path', '')}",
+                flush=True,
+            )
+
+        rows.append(
+            {
+                "case_id": case_id,
+                "tool": selected_tool,
+                "status": status,
+                "reason": reason,
+                "package": manifest_row.get("package", ""),
+                "version": manifest_row.get("version", ""),
+                "artifact": manifest_row.get("artifact", ""),
+                "artifact_type": manifest_row.get("artifact_type", ""),
+                "pyc_path": manifest_row.get("pyc_path", ""),
+                "copied_pyc": copied,
+                "python_tag": manifest_row.get("python_tag", ""),
+                "magic_number": manifest_row.get("magic_number", ""),
+                "source_present": manifest_row.get("source_present", ""),
+                "overall_level": manifest_row.get("overall_level", ""),
+                "overall_label": manifest_row.get("overall_label", ""),
+                "original_failed_tools": manifest_row.get("tools", ""),
+                "original_statuses": manifest_row.get("statuses", ""),
+                "original_reason_categories": manifest_row.get("reason_categories", ""),
+                "original_reasons": manifest_row.get("reasons", ""),
+                "command_file": command_file,
+                "stdout_file": stdout_file,
+                "stderr_file": stderr_file,
+            }
+        )
+
+    fields = [
+        "case_id",
+        "tool",
+        "status",
+        "reason",
+        "package",
+        "version",
+        "artifact",
+        "artifact_type",
+        "pyc_path",
+        "copied_pyc",
+        "python_tag",
+        "magic_number",
+        "source_present",
+        "overall_level",
+        "overall_label",
+        "original_failed_tools",
+        "original_statuses",
+        "original_reason_categories",
+        "original_reasons",
+        "command_file",
+        "stdout_file",
+        "stderr_file",
+    ]
+    write_dict_rows(report_csv, fields, rows)
+
+    status_counts = Counter(str(row["status"]) for row in rows)
+    summary_rows: list[dict[str, object]] = [
+        {"metric": "tool", "value": selected_tool},
+        {"metric": "executable", "value": executable or ""},
+        {"metric": "cases", "value": len(rows)},
+    ]
+    for status, count in sorted(status_counts.items()):
+        summary_rows.append({"metric": f"status:{status}", "value": count})
+    write_dict_rows(summary_csv, ["metric", "value"], summary_rows)
+    return [report_csv, summary_csv]
+
+
 def write_csv(path: Path, results: Sequence[ToolAnalysisResult]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
@@ -2588,6 +2880,10 @@ def write_summary_csv(path: Path, results: Sequence[ToolAnalysisResult]) -> None
         ("decompyle3_ok", summary["decompyle3_ok"]),
         ("decompyle3_failed", summary["decompyle3_failed"]),
         ("decompyle3_timeout", summary["decompyle3_timeout"]),
+        ("decompylepp_total", summary["decompylepp_total"]),
+        ("decompylepp_ok", summary["decompylepp_ok"]),
+        ("decompylepp_failed", summary["decompylepp_failed"]),
+        ("decompylepp_timeout", summary["decompylepp_timeout"]),
         ("pylingual_total", summary["pylingual_total"]),
         ("pylingual_ok", summary["pylingual_ok"]),
         ("pylingual_failed", summary["pylingual_failed"]),
@@ -2624,6 +2920,10 @@ def summarize(results: Sequence[ToolAnalysisResult]) -> dict[str, int]:
         "decompyle3_failed": count_tool_failed(results, "decompyle3"),
         "decompyle3_timeout": count_tool_status(results, "decompyle3", "timeout"),
         "decompyle3_total": count_tool_total(results, "decompyle3"),
+        "decompylepp_ok": count_tool_status(results, "decompylepp", "ok"),
+        "decompylepp_failed": count_tool_failed(results, "decompylepp"),
+        "decompylepp_timeout": count_tool_status(results, "decompylepp", "timeout"),
+        "decompylepp_total": count_tool_total(results, "decompylepp"),
         "pylingual_ok": count_tool_status(results, "pylingual", "ok"),
         "pylingual_failed": count_tool_failed(results, "pylingual"),
         "pylingual_timeout": count_tool_status(results, "pylingual", "timeout"),

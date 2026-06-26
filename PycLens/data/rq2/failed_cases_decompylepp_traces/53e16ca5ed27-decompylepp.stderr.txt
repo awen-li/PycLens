@@ -1,0 +1,4 @@
+CreateObject: Got unsupported type 0x0
+CreateObject: Got unsupported type 0x0
+CreateObject: Got unsupported type 0x0
+Error loading file PycLens/data/rq2/failed_cases/radboy-0.0.1054-cpython-311-53e16ca5ed27.pyc: Ref index out of range

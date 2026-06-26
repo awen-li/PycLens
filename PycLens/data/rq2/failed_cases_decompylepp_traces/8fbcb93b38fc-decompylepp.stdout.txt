@@ -1,0 +1,15 @@
+# Source Generated with Decompyle++
+# File: flask-admin-plus-1.6.22-cpython-38-8fbcb93b38fc.pyc (Python 3.8)
+
+import builtins as @py_builtins
+import _pytest.assertion.rewrite
+@pytest_ar = rewrite
+assertion
+from wtforms import fields, validators
+from flask_admin import form
+from flask_admin._compat import as_unicode
+from flask_admin.contrib.mongoengine import ModelView
+from  import setup
+from datetime import datetime
+
+class CustomModelView(ModelView):

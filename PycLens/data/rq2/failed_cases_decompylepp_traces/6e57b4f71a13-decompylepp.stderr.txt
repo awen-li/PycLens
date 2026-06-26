@@ -1,0 +1,2 @@
+Bad MAGIC!
+Could not load file PycLens/data/rq2/failed_cases/monies-0.0.2-cpython-311-6e57b4f71a13.pyc

@@ -1,0 +1,6 @@
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+Something TERRIBLE happened! No matching with block found for WITH_CLEANUP at 108
+Something TERRIBLE happened! No matching with block found for WITH_CLEANUP at 420
+PycBuffer::getByte(): Unexpected end of stream

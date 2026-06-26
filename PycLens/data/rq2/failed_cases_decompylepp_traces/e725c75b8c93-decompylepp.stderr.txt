@@ -1,0 +1,8 @@
+Warning: block stack is not empty!
+Unsupported Node type: 12
+Warning: Stack history is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+Unsupported node type 9 in NODE_JOINEDSTR
+PycBuffer::getByte(): Unexpected end of stream

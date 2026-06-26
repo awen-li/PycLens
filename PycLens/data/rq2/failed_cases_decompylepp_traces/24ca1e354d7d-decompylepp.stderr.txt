@@ -1,0 +1,2 @@
+CreateObject: Got unsupported type 0x0
+Error loading file PycLens/data/rq2/failed_cases/pyhafas-0.6.1-cpython-38-24ca1e354d7d.pyc: std::bad_cast

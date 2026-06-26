@@ -1,0 +1,2 @@
+CreateObject: Got unsupported type 0x0
+Error loading file PycLens/data/rq2/failed_cases/silorider-0.2.1-cpython-39-2b7036e427d0.pyc: std::bad_cast

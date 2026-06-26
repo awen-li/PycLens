@@ -1,0 +1,2 @@
+Bad MAGIC!
+Could not load file PycLens/data/rq2/failed_cases/libmercury-0.85-cpython-314-d0df7fb092cc.pyc

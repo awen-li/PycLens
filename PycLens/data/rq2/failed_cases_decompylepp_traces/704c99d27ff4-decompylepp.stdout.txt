@@ -1,0 +1,50 @@
+# Source Generated with Decompyle++
+# File: aioinstagrapi-1.1.21-cpython-38-704c99d27ff4.pyc (Python 3.8)
+
+import json
+import base64
+from typing import List, Tuple
+from aioinstagrapi.utils import dumps
+from aioinstagrapi.exceptions import ClientUnauthorizedError, ClientLoginRequired
+from aioinstagrapi.exceptions import ClientError, HashtagNotFound, WrongCursorError
+from aioinstagrapi.extractors import extract_hashtag_gql, extract_hashtag_v1, extract_media_v1
+from aioinstagrapi.models import Hashtag, Media
+
+class HashtagMixin:
+    '''
+    Helpers for managing Hashtag
+    '''
+    
+    async def hashtag_info_a1(self, name, max_id = None):
+        '''
+        Get information about a hashtag by Public Web API
+
+        Parameters
+        ----------
+        name: str
+            Name of the hashtag
+
+        max_id: str
+            Max ID, default value is None
+
+        Returns
+        -------
+        Hashtag
+            An object of Hashtag
+        '''
+        params = {
+            'max_id': max_id } if max_id else None
+        
+        try:
+            await self.public_a1_request(f'''/explore/tags/{name}/''', params, **('params',))
+            data = <NODE:28>
+        finally:
+            pass
+        except ClientUnauthorizedError:
+            self.inject_sessionid_to_public()
+            await self.public_a1_request(f'''/explore/tags/{name}/''', params, **('params',))
+            data = <NODE:28>
+        
+
+        if not data.get('hashtag'):
+            raise HashtagNotFound((), 

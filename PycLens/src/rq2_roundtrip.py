@@ -105,6 +105,8 @@ def selected_decompilers(row: dict[str, str], include_secondary: bool) -> list[t
     primary = ""
     if row.get("overall_level") == "4" and row.get("pylingual") == "ok":
         primary = "pylingual"
+    elif row.get("decompylepp") == "ok":
+        primary = "decompylepp"
     elif row.get("decompyle3") == "ok":
         primary = "decompyle3"
     elif row.get("pylingual") == "ok":
@@ -113,7 +115,7 @@ def selected_decompilers(row: dict[str, str], include_secondary: bool) -> list[t
     if primary:
         items.append((primary, "primary"))
     if include_secondary:
-        for tool in ("pylingual", "decompyle3"):
+        for tool in ("pylingual", "decompylepp", "decompyle3"):
             if tool != primary and row.get(tool) == "ok":
                 items.append((tool, "secondary"))
     return items
@@ -180,8 +182,8 @@ def replace_result(result: RoundTripResult, status: str, reason: str, source_pat
 
 
 def tool_executable(decompiler: str, tag: str, tool_envs: dict[str, dict[str, str | None]], global_tools: dict[str, str | None]) -> str | None:
-    if decompiler == "pylingual":
-        return global_tools.get("pylingual")
+    if decompiler in tool_analysis.GLOBAL_TOOLS:
+        return global_tools.get(decompiler)
     return tool_envs.get(tag, {}).get(decompiler)
 
 

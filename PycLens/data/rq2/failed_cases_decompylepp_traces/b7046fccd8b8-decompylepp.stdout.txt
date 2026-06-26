@@ -1,0 +1,24 @@
+# Source Generated with Decompyle++
+# File: uniqgift-custom-1.0.7-cpython-38-b7046fccd8b8.pyc (Python 3.8)
+
+import bisect
+import copy
+import inspect
+from collections import defaultdict
+from django.apps import apps
+from django.conf import settings
+from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured
+from django.db import connections
+from django.db.models import AutoField, Manager, OrderWrt, UniqueConstraint
+from django.db.models.query_utils import PathInfo
+from django.utils.datastructures import ImmutableList, OrderedSet
+from django.utils.functional import cached_property
+from django.utils.module_loading import import_string
+from django.utils.text import camel_case_to_spaces, format_lazy
+from django.utils.translation import override
+PROXY_PARENTS = object()
+EMPTY_RELATION_TREE = ()
+IMMUTABLE_WARNING = "The return type of '%s' should never be mutated. If you want to manipulate this list for your own use, make a copy first."
+DEFAULT_NAMES = ('verbose_name', 'verbose_name_plural', 'db_table', 'ordering', 'unique_together', 'permissions', 'get_latest_by', 'order_with_respect_to', 'app_label', 'db_tablespace', 'abstract', 'managed', 'proxy', 'swappable', 'auto_created', 'index_together', 'apps', 'default_permissions', 'select_on_save', 'default_related_name', 'required_db_features', 'required_db_vendor', 'base_manager_name', 'default_manager_name', 'indexes', 'constraints')
+
+def normalize_together(option_together):

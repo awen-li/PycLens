@@ -1,0 +1,63 @@
+# Source Generated with Decompyle++
+# File: mqc-2.0.2-cpython-38-103e9114ef7c.pyc (Python 3.8)
+
+from mqc.config import Config
+from mqc.utils import *
+from mqc.control.rules_control import Rules
+from mqc.control.rules_control2 import Rules2
+from mqc.control.biomass_control import Biomasses
+
+class Atps:
+    
+    def __init__(self, cfg):
+        ''
+        self.cfg = cfg
+
+    
+    def modify_nadh(self, model_info, model, need_fluxes, grate_delete_rxn):
+        ''
+        if model.slim_optimize() > 0:
+            pfba_solution = pfba(model)
+            need_fluxes = pfba_solution.fluxes[abs(pfba_solution.fluxes) > 1e-06]
+        else:
+            need_fluxes = { }
+        for ids, v in need_fluxes.items():
+            for rxn in model_info['reactions']:
+                if ids == rxn['id']:
+                    rxns = model.reactions.get_by_id(ids)
+                    rxn_bounds = rxns.bounds
+                    if len(set(NADH_NAME) & set(rxn['reactants_mets'])) != 0 and v < 0:
+                        rxns.bounds = (0, 1000)
+                        rxn['bounds'] = [
+                            0,
+                            1000]
+                        rules2 = Rules2(ids, self.cfg, v)
+                        rules2.get_all_rules(model_info, model)
+                        if 'rule_conflict' in rxn.keys():
+                            rxns.bounds = rxn_bounds
+                            rxn['bounds'] = rxn_bounds
+                        else:
+                            rxn['rules']['modify_nadh_rxn'] = 'true'
+                            grate_delete_rxn.append(ids)
+                            print(ids, ' ', ' ', v, ' ', model.reactions.get_by_id(ids).build_reaction_string(True, **('use_metabolite_names',)))
+                            rxn['atps_modify'] = 'true'
+                            return None
+                        if None(set(NADH_NAME) & set(rxn['products_mets'])) != 0 and v > 0:
+                            rxns.bounds = (-1000, 0)
+                            rxn['bounds'] = [
+                                -1000,
+                                0]
+                            rules2 = Rules2(ids, self.cfg, v)
+                            rules2.get_all_rules(model_info, model)
+                            if 'rule_conflict' in rxn.keys():
+                                rxns.bounds = rxn_bounds
+                                rxn['bounds'] = rxn_bounds
+                                continue
+                rxn['rules']['modify_nadh_rxn'] = 'true'
+                grate_delete_rxn.append(ids)
+                print(ids, ' ', ' ', v, ' ', model.reactions.get_by_id(ids).build_reaction_string(True, **('use_metabolite_names',)))
+                rxn['atps_modify'] = 'true'
+                return None
+
+    
+    def get_exchange(self, model_info, need_fluxes):

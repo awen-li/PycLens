@@ -1,0 +1,29 @@
+# Source Generated with Decompyle++
+# File: pobm-1.2.0-cpython-38-4f2005c96430.pyc (Python 3.8)
+
+'''
+Implementation
+'''
+import os as _os
+import shlex as _shlex
+import contextlib as _contextlib
+import sys as _sys
+import operator as _operator
+import itertools as _itertools
+import warnings as _warnings
+
+try:
+    from future_builtins import map
+finally:
+    pass
+except ImportError:
+    pass
+
+
+import pkg_resources
+import setuptools.command.test
+orig = test
+command
+from setuptools import Distribution
+
+def _save_argv(repl = None):

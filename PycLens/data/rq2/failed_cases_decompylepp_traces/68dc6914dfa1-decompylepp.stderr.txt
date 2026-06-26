@@ -1,0 +1,2 @@
+CreateObject: Got unsupported type 0x0
+Error loading file PycLens/data/rq2/failed_cases/ya-aioclient-0.6.4-cpython-38-68dc6914dfa1.pyc: std::bad_cast

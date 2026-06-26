@@ -1,0 +1,2 @@
+Bad MAGIC!
+Could not load file PycLens/data/rq2/failed_cases/oumuamua-0.4.0-cpython-311-f01f68bc78f8.pyc

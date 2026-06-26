@@ -1,0 +1,58 @@
+# Source Generated with Decompyle++
+# File: gseimiitb-1.1-cpython-38-34d39ec24125.pyc (Python 3.8)
+
+'''
+Copyright 2007-2011 Free Software Foundation, Inc.
+This file is part of GNU Radio
+
+GNU Radio Companion is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+GNU Radio Companion is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+'''
+from __future__ import absolute_import, print_function
+import logging
+import os
+import time
+import subprocess
+from gi.repository import Gtk, Gio, GLib, GObject
+from getpass import getuser
+from gi.repository import Pango
+from  import Constants, Dialogs, Actions, FileDialogs, Utils, Bars
+from MainWindow import MainWindow
+from PropsDialog import PropsDialog
+from core import Messages
+import psutil
+import sys
+import shutil
+from  import gparms as gp
+from  import outvars as ov
+from  import showparm as sparm
+from  import solveblocks as slvblk
+from  import outputblocks as outblk
+from  import displayname as disp
+from  import runprocess as runp
+from  import showlist as slist
+from canvas.connection import Connection
+from SolveBlock import SolveBlock
+from OutputBlock import OutputBlock
+from core.utils import gutils as gu
+from BlockTreeWindow import show_doc_1
+log = logging.getLogger(__name__)
+
+class Application(Gtk.Application):
+    '''
+    The action handler will setup all the major window components,
+    and handle button presses and flow graph operations from the GUI.
+    '''
+    
+    def __init__(self, file_paths, platform):

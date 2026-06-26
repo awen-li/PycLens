@@ -1,0 +1,514 @@
+# Source Generated with Decompyle++
+# File: springheel-7.0.2-cpython-38-373880b18f17.pyc (Python 3.8)
+
+'''Springheel -- a static site generator for webcomics.'''
+name = 'springheel'
+author = 'gargargarrick'
+__version__ = '7.0.0'
+import springheel.genchars as springheel
+import springheel.generatearchive as springheel
+import springheel.generatenav as springheel
+import springheel.genmultipleindex as springheel
+import springheel.gentrans as springheel
+import springheel.genrss as springheel
+import springheel.gentopnav as springheel
+import springheel.gettemplatenames as springheel
+import springheel.parsemeta as springheel
+import springheel.parsetranscript as springheel
+import springheel.springheelinit as springheel
+import springheel.genextra as springheel
+import springheel.socialbuttons as springheel
+import springheel.genmultilang as springheel
+import springheel.genjsonfeed as springheel
+import springheel.genchbook as springheel
+import springheel.logmsg as springheel
+import springheel.splitseps as springheel
+import shutil
+import configparser
+import os
+import datetime
+import sys
+from operator import itemgetter
+from slugify import slugify
+import html
+import json
+from tqdm import tqdm
+
+class Site:
+    '''
+    A Springheel comic site.
+
+    Attributes
+    ----------
+    comics : list
+        A List of comic series/categories.
+    sitemap : list
+        Dicts of HTML filenames and last-modified times for all pages.
+    jsonpoints : dict
+        Information about the site in JSON format.
+    config : Config
+        Sitewide configuration settings.
+    license : str
+        The license of the overall site.
+    copyright_statement : str
+        A copyright statement for the site.
+    authors : list
+        A list of strings describing authors whose work appears on the
+        site.
+    '''
+    
+    def __init__(self):
+        '''The constructor for the Site class.'''
+        self.comics = []
+        self.sitemap = []
+
+
+
+class Config(object):
+    '''A ConfigParser object for site preferences.'''
+    
+    def __init__(self, *file_names):
+        '''
+        The constructor for the Config class.
+
+        Parameters
+        ----------
+        file_names : str, optional
+            Filename of the configuration file.
+        '''
+        parser = configparser.ConfigParser()
+        parser.optionxform = str
+        found = parser.read(file_names, 'utf-8', **('encoding',))
+        if not found:
+            raise ValueError('No cfg file')
+        for name in ('Config',):
+            self.__dict__.update(parser.items(name))
+
+
+
+class Tag:
+    '''
+    A tag that classifies comic strips.
+
+    Attributes
+    ----------
+    name : str
+        The name of the tag.
+    escaped : str
+        An HTML-safe version of name (no &, <, or >).
+    slug : str
+        name slugified for URLs.
+    strips : list
+        Strips to which the tag applies.
+    rurl : str
+        HTML filename for the tag.
+    link : str
+        Hyperlink to the tag index URL.
+    '''
+    
+    def __init__(self, name):
+        '''
+        The constructor for Tag.
+
+        Parameters
+        ----------
+        name : str
+            The name of the tag.
+        '''
+        self.name = name
+        self.escaped = html.escape(name)
+        self.slug = slugify_url(name)
+        self.strips = []
+
+
+
+class Strip:
+    '''
+    An individual comic page.
+
+    Attributes
+    ----------
+    imagef : str
+        Input filename of the strip image.
+    metaf : str
+        Input filename of the strip\'s metadata file.
+    transf : str
+        Input filename of the strip\'s transcript file.
+    tags : list, optional
+        A list of Tags used by the strip.
+    metadata : dict
+        The strip\'s metadata.
+    commentary : str
+        The strip\'s creator commentary.
+    slugs : list
+        Title and series slugs.
+    title_slug : str
+        URL-safe slug for the strip\'s title.
+    series_slug : str
+        URL-safe slug for the strip\'s category.
+    category : str
+        The strip\'s category.
+    page : str
+        The strip\'s page number (directly from the meta file).
+    page_real_num : int, float, or tuple
+        The strip\'s page number converted to a real number (or a tuple
+        containing real numbers).
+    page_padded : str
+        The strip\'s page number formatted with zero-padding.
+    transcript_c : str
+        The HTML contents of the transcript (no heading, etc.).
+    conf_c : str
+        Contents of the strip\'s config file.
+    title : str
+        The title of the strip.
+    author : str
+        The strip\'s credited author.
+    authors : list
+        All individuals involved with a strip. If multiple people are
+        listed in the metadata file, separated by &, /, or +, they\'re
+        added separately to this list.
+    author_email : str
+        The strip\'s author\'s email address (for RSS feeds).
+    license : str
+        The copyright status of the strip.
+    copyright_statement : str
+        The copyright information used in the footer of the page.
+    mode : str
+        Debug parameter that currently does nothing.
+    height : str
+        The height of the strip image in pixels.
+    width : str
+        The width of the strip image in pixels.
+    date : datetime.datetime
+        The upload date of the strip.
+    date_s : str
+        date formatted according to ISO 8601 (YYYY-MM-dd).
+    date_fmt : str
+        date formatted according to either ISO 8601 or a locale that
+        is basically that, like Japanese. Used on archive pages.
+    year : int
+        The year in which the strip was published.
+    chapter : int/bool
+        The chapter number if a strip is part of a chapter. False if
+        it is not.
+    alt_text : str, optional
+        Extra text that displays below the strip. Despite the
+        name, is not really used as alt text. A more accessible
+        version of the title text some comics have.
+    figcaption : str, optional
+        alt_text wrapped in <figcaption> tags.
+    h1_title : str
+        The title used as a top-level heading for the strip.
+    header_title : str
+        The string used as an HTML <title> element.
+    transcript_block : list
+        The <div> elements used to make the transcript block.
+    tb : str
+        The formatted HTML transcript block, separated by newlines.
+    html_filename : str
+        The text used as the output filename (ending in ".html").
+    slug : str
+        The HTML filename without the extension, for use as a slug.
+    img : str
+        The output path of the strip image.
+    new_meta : str
+        The output filename for the metadata file.
+    new_transcr : str
+        The output filename for the transcript file.
+    statline : str
+        The "posted by x on y date" type line that appears at the
+        bottom of the commentary box. HTML paragraph.
+    page_url : str
+        The strip\'s ultimate URL/permalink.
+    clicense : str
+        The name of the strip\'s license.
+    file_name : str
+        The output filename for the strip image (without "pages/").
+    lang : str
+        ISO 639-1 code (2 letters) for the strip\'s language.
+    archive_link : str
+        The text that will link to the strip on the Archives page.
+    '''
+    
+    def __init__(self, imagef, metaf, transf):
+        """
+        The constructor for Strip.
+
+        Parameters
+        ----------
+        imagef : str
+            Filename of the strip image.
+        metaf : str
+            Filename of the strip's metadata file.
+        transf : str
+            Filename of the strip's transcript file.
+        """
+        self.imagef = imagef
+        self.metaf = metaf
+        self.transf = transf
+        self.tags = []
+
+
+
+class Comic:
+    """
+    A comic series or story.
+
+    Attributes
+    ----------
+    category : str
+        The name of the comic.
+    category_escaped : str
+        HTML-safe category (no &, <, or >).
+    last_page : int
+        The latest page of the comic.
+    first_page : int
+        The first page of the comic.
+    known_pages : list
+        A list of zero-padded page numbers for this category. Used for
+        navigation generation.
+    known_pages_raw : list
+        A list of page numbers for this category. These are the raw
+        numbers taken directly from metadata files, so they are strings.
+        Some may not be convertible to integers.
+    known_pages_real : list
+        A list of page numbers for this category. These are real numbers
+        -- ints, floats, or tuples containing ints and/or floats.
+    author : str
+        The comic's creator.
+    authors : list
+        A list of all authors associated with a comic. Used just in case
+        multiple people worked on different strips of a category.
+    email : str
+        The comic creator's email address, for RSS feeds.
+    header : str
+        Filename for the page header of the comic.
+    banner : str
+        The comic's banner that appears on the index page.
+    language : str
+        ISO 639-1 code (2 letters) for the comic's language.
+    mode : str
+        Debug parameter that currently does nothing.
+    status : str
+        Whether the comic is still updating or not.
+    chapters : bool
+        True if the comic is chaptered, False if not.
+    chapters_file : str, optional
+        If chapters is True, full path to the chapter file.
+    desc : str
+        A description of the comic for the index.
+    category_theme : str, optional
+        Theme used by the comic.
+    chars_file : str or None
+        If present, the filename of the character file.
+    slug : str
+        category slugified for URLs.
+    chapters_dicts : list, optional
+        Dicts with chapter numbers and titles.
+    chapters_list : list, optional
+        List of Chapters in the comic.
+    license : str
+        The comic's license.
+    clicense : str
+        The original license name specified in the conf file.
+    license_uri : str
+        The license URI specified in the conf file.
+    statuss : str
+        status but wrapped in <strong> tags.
+    pbp : list
+        all Strips in the comic, sorted by page number.
+    pbd : list
+        all Strips in the comic, sorted by date.
+    fbp_link : list
+        HTML filename of the first strip by page number.
+    lbp_link : list
+        HTML filename of the last strip by page number.
+    fbd_link : list
+        HTML filename of the first strip by date.
+    lbd_link : list
+        HTML filename of the last strip by date.
+    """
+    
+    def __init__(self, category):
+        '''
+        The constructor for the Comic class.
+
+        Parameters
+        ----------
+        category : str
+            The name of the comic.
+        '''
+        self.category = category
+        self.category_escaped = html.escape(category)
+
+    
+    class Chapter:
+        '''
+        A set of related Strips.
+
+        Attributes
+        ----------
+        chap_number : int
+            The number of the chapter.
+        chap_title : str
+            The title of the chapter.
+        chap_title_escaped : str
+            HTML-safe chap_title (no &, <, or >).
+        pages : list
+            All Strips in the chapter.
+        ch_outfn : str
+            The output filename for the chapter-view page. Formatted
+            like "{series_slug}_c{padded_chap_number}.html".
+        slug : str
+            Slug used for the chapter in the archive table of contents.
+        years : set
+            Initial publication years of comics in this chapter.
+        authors : set
+            All authors associated with the chapter. Used for making
+            copyright statements in chapter view, etc.
+        '''
+        
+        def __init__(self, chap_number, **kwargs):
+            '''
+            Constructor for the Chapter class.
+
+            Parameters
+            ----------
+            chap_number : int
+                The number of the chapter.
+            **kwargs
+                Optional parameters, namely the title.
+
+            Other Parameters
+            ----------------
+            chap_title : str
+                The title of the chapter.
+            '''
+            self.chap_number = chap_number
+            if 'chap_title' in kwargs.keys():
+                self.chap_title = kwargs['chap_title']
+                self.chap_title_escaped = html.escape(kwargs['chap_title'])
+            self.pages = []
+
+
+
+
+def copyTheme(site_theme_path, new_site_theme_path):
+    '''
+    Copy theme assets to the output folder.
+
+    Parameters
+    ----------
+    site_theme_path : str
+        The source directory for theme assets.
+    new_site_theme_path : str
+        The location in output/ whither the theme will be copied.
+    '''
+    files = os.listdir(site_theme_path)
+    for i in files:
+        source_path = os.path.join(site_theme_path, i)
+        new_path = os.path.join(new_site_theme_path, i)
+        if not os.path.exists(new_path):
+            
+            try:
+                shutil.copy(source_path, new_site_theme_path)
+            finally:
+                pass
+            except IsADirectoryError:
+                pass
+            
+            logmesg = '{i} already exists in the output. To overwrite, remove the existing file from output.'.format(i, **('i',))
+            continue
+            logmesg = 'Copied assets to {new_site_theme_path}'.format(new_site_theme_path, **('new_site_theme_path',))
+            logmsg.logMsg(logmesg, '.')
+            return None
+
+
+
+def copyButtons(site, old_buttons_path, socialbuttons_path, translated_strings):
+    '''
+    Copy buttons to the output folder.
+
+    Parameters
+    ----------
+    site : springheel.Site
+        The comic Site. Buttons from this Site will be copied.
+    old_buttons_path : str
+        The source directory for social buttons.
+    socialbuttons_path : str
+        The location in output/ whither the buttons will be copied.
+    translated_strings : dict
+        The translation file contents for this site.
+    '''
+    files = os.listdir(old_buttons_path)
+    logmesg = 'Social icons: {icons}'.format(site.config.social_icons, **('icons',))
+    logmsg.logMsg(logmesg, '.')
+    social_links = socialbuttons.getButtons(site, translated_strings)[0]
+    for item in files:
+        for d in social_links:
+            if item == d['image']:
+                source_path = os.path.join(old_buttons_path, item)
+                shutil.copy(source_path, socialbuttons_path)
+                continue
+            if item == 'rss.png':
+                source_path = os.path.join(old_buttons_path, item)
+                shutil.copy(source_path, socialbuttons_path)
+                continue
+                continue
+                if site.config.social_icons == 'True':
+                    logmesg = 'Copied social buttons to {socialbuttons_path}'.format(socialbuttons_path, **('socialbuttons_path',))
+                else:
+                    logmesg = 'Copied RSS feed button to {socialbuttons_path}'.format(socialbuttons_path, **('socialbuttons_path',))
+    logmsg.logMsg(logmesg, '.')
+
+
+def copyArrows(site, old_arrows_path, new_arrows_path):
+    '''
+    Copy navigation arrows to the output folder.
+
+    Parameters
+    ----------
+    old_arrow_path : str
+        The source directory for arrows.
+    new_arrow_path : str
+        The location in output/ whither the arrows will be copied.
+    '''
+    theme = site.config.site_style
+    arrtemplate = '{theme}_{dir}.png'
+    needed_dirs = [
+        'first',
+        'prev',
+        'next',
+        'last']
+    needed_arrows = (lambda .0: [ arrtemplate.format(theme, item, **('theme', 'dir')) for item in .0 ])(needed_dirs)
+    for arrow in needed_arrows:
+        old_arrow_path = os.path.join(old_arrows_path, arrow)
+        new_arrow_path = os.path.join(new_arrows_path, arrow)
+        if not os.path.exists(old_arrow_path) or os.path.exists(new_arrow_path):
+            shutil.copy(old_arrow_path, new_arrows_path)
+            logmesg = '{arrow} copied.'.format(arrow, **('arrow',))
+            logmsg.logMsg(logmesg, '.')
+            continue
+            logmesg = '{old_arrow_path} not found in the currently-set style {theme}.'.format(old_arrow_path, theme, **('old_arrow_path', 'theme'))
+            logmsg.logMsg(logmesg, '.')
+            return False
+        return ()
+
+
+def copyHeader(old_header_path, new_header_path):
+    '''
+    Copy a header/banner image to the output folder.
+
+    Parameters
+    ----------
+    old_header_path : str
+        The source directory for the image.
+    new_header_path : str
+        The location in output/ whither the header will be copied.
+    '''
+    shutil.copy(old_header_path, new_header_path)
+    logmesg = 'Site header copied.'
+    logmsg.logMsg(logmesg, '.')
+
+
+def copyMultiThemes(themes, c_path, o_path, assets_path):

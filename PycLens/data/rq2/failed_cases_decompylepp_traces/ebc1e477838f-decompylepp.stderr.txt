@@ -1,0 +1,2 @@
+Bad MAGIC!
+Could not load file PycLens/data/rq2/failed_cases/nocturnal-1.6.0-cpython-311-ebc1e477838f.pyc

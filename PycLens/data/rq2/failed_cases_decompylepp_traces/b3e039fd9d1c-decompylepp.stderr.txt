@@ -1,0 +1,1 @@
+Error decompyling PycLens/data/rq2/failed_cases/sceleto2-1.1.2-cpython-38-b3e039fd9d1c.pyc: std::bad_cast

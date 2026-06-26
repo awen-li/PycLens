@@ -1,0 +1,2 @@
+CreateObject: Got unsupported type 0x0
+Error loading file PycLens/data/rq2/failed_cases/whale-googleanalytics-1.26-cpython-39-c0988fea83f3.pyc: std::bad_cast

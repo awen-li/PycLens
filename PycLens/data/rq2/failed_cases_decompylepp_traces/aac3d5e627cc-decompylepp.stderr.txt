@@ -1,0 +1,2 @@
+CreateObject: Got unsupported type 0x6F
+Error loading file PycLens/data/rq2/failed_cases/clustcrdist-0.1.5-cpython-39-aac3d5e627cc.pyc: std::bad_cast

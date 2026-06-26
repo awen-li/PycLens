@@ -1,0 +1,2 @@
+CreateObject: Got unsupported type 0x0
+Error loading file PycLens/data/rq2/failed_cases/neurocollage-0.3.7-cpython-39-41972d29a53b.pyc: std::bad_cast

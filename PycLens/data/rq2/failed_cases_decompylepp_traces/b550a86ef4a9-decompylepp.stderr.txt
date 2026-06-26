@@ -1,0 +1,2 @@
+Bad MAGIC!
+Could not load file PycLens/data/rq2/failed_cases/euphoria-1.0.0-cpython-311-b550a86ef4a9.pyc

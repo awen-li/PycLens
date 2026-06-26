@@ -451,6 +451,7 @@ def analyze_tools(args: argparse.Namespace) -> int:
         data_dir=args.data_dir,
         magic_tags=magic_tags,
         run_tools=not args.count_only,
+        requested_tools=args.tools,
     )
     if args.count_only:
         denominator_summary = args.data_dir / "rq2" / "rq2_denominator_summary.csv"
@@ -472,7 +473,7 @@ def analyze_tools(args: argparse.Namespace) -> int:
     print(
         "tool analysis summary: pyc_files={pyc}, source_present={src}, source_less={src_less}, "
         "runtime_magic={magic}, marshal_ok={marshal_ok}, dis_ok={dis_ok}, "
-        "decompyle3_ok={decompyle3}, pylingual_ok={pylingual}".format(
+        "decompyle3_ok={decompyle3}, decompylepp_ok={decompylepp}, pylingual_ok={pylingual}".format(
             pyc=summary["pyc_files"],
             src=summary["source_present"],
             src_less=summary["source_less"],
@@ -480,6 +481,7 @@ def analyze_tools(args: argparse.Namespace) -> int:
             marshal_ok=summary["marshal_ok"],
             dis_ok=summary["dis_ok"],
             decompyle3=summary["decompyle3_ok"],
+            decompylepp=summary["decompylepp_ok"],
             pylingual=summary["pylingual_ok"],
         )
     )
@@ -543,6 +545,20 @@ def collect_failed_cases(args: argparse.Namespace) -> int:
     print(f"wrote RQ2 failed-case replay corpus to {args.data_dir / 'rq2' / 'failed_cases'}")
     print(f"wrote RQ2 failed-case manifest to {manifest}")
     print("wrote RQ2 failed-PYC reports:")
+    for path in reports:
+        print(f"  {path}")
+    return 0
+
+
+def analyze_failed_cases(args: argparse.Namespace) -> int:
+    print("[RQ2] running selected tool on copied failed .pyc cases")
+    reports = tool_analysis.analyze_failed_cases_with_tool(
+        data_dir=args.data_dir,
+        tool=args.tool,
+        timeout=args.timeout,
+    )
+    print(f"read RQ2 failed-case corpus from {args.data_dir / 'rq2' / 'failed_cases'}")
+    print("wrote failed-case tool reports:")
     for path in reports:
         print(f"  {path}")
     return 0
@@ -677,6 +693,7 @@ def reproduce_source(args: argparse.Namespace) -> int:
         data_dir=args.data_dir,
         timeout=args.timeout,
         workers=args.workers,
+        requested_tools=args.tools,
     )
     csv_out = args.data_dir / "rq4" / "source_reproduction.csv"
     finding_csv = args.data_dir / "rq4" / "source_reproduction_findings.csv"
@@ -913,6 +930,13 @@ def add_analyze_tools_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.add_argument("--workers", type=int, default=8, help="Parallel artifact analysis workers")
     parser.add_argument("--limit", type=int, help="Analyze only the first N bytecode-containing artifacts")
     parser.add_argument("--timeout", type=int, default=600, help="Per-.pyc timeout in seconds for each external analysis tool")
+    parser.add_argument(
+        "--tool",
+        dest="tools",
+        action="append",
+        metavar="TOOL",
+        help="External decompiler to run: decompyle3, decompylepp/pycdc, pylingual, or all. Repeat or use commas. Defaults to all.",
+    )
     parser.add_argument("--count-only", action="store_true", help="Only count RQ2 in-scope .pyc files and write denominator audit reports")
     parser.set_defaults(func=analyze_tools)
 
@@ -925,6 +949,17 @@ def add_collect_failed_cases_parser(subparsers: argparse._SubParsersAction) -> N
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for study data")
     parser.add_argument("--csv-in", type=Path, help="Existing RQ2 tool-analysis CSV; defaults to data/rq2/tool_analysis.csv")
     parser.set_defaults(func=collect_failed_cases)
+
+
+def add_analyze_failed_cases_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser(
+        "analyze-failed-cases",
+        help="RQ2: run Decompyle++ on copied failed .pyc cases under data/rq2/failed_cases.",
+    )
+    parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for study data")
+    parser.add_argument("--timeout", type=int, default=600, help="Per failed-case tool timeout in seconds")
+    parser.add_argument("--tool", default="decompylepp", help="Tool to run on failed cases; defaults to decompylepp")
+    parser.set_defaults(func=analyze_failed_cases)
 
 
 
@@ -1003,6 +1038,13 @@ def add_reproduce_source_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Root directory for study data")
     parser.add_argument("--timeout", type=int, default=600, help="Per-finding timeout in seconds")
     parser.add_argument("--workers", type=int, default=1, help="Number of findings to analyze concurrently")
+    parser.add_argument(
+        "--tool",
+        dest="tools",
+        action="append",
+        metavar="TOOL",
+        help="Decompiler to run for RQ4: decompyle3, decompylepp/pycdc, pylingual, or all. Repeat or use commas. Defaults to all.",
+    )
     parser.set_defaults(func=reproduce_source)
 
 
@@ -1075,6 +1117,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     add_prepare_analysis_env_parser(subparsers)
     add_analyze_tools_parser(subparsers)
     add_collect_failed_cases_parser(subparsers)
+    add_analyze_failed_cases_parser(subparsers)
     add_validate_roundtrip_parser(subparsers)
     add_fuzz_cpython_parser(subparsers)
     add_smoke_rq3_parser(subparsers)

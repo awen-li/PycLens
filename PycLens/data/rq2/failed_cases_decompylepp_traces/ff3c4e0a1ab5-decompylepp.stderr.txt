@@ -1,0 +1,5 @@
+CreateObject: Got unsupported type 0x1
+CreateObject: Got unsupported type 0x0
+CreateObject: Got unsupported type 0x0
+CreateObject: Got unsupported type 0x0
+Error loading file PycLens/data/rq2/failed_cases/radboy-0.0.1054-cpython-311-ff3c4e0a1ab5.pyc: std::bad_cast

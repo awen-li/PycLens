@@ -1,0 +1,18 @@
+# Source Generated with Decompyle++
+# File: bestfit-0.3-cpython-38-6a58169ea369.pyc (Python 3.8)
+
+from collections import defaultdict
+from tree import Tree
+from visitors import Transformer_InPlace
+from common import ParserConf
+from lexer import Token, PatternStr
+from parsers import earley
+from grammar import Rule, Terminal, NonTerminal
+
+def is_discarded_terminal(t):
+    if t.is_term:
+        pass
+    return t.filter_out
+
+
+def is_iter_empty(i):

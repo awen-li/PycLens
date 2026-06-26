@@ -1,0 +1,119 @@
+# Source Generated with Decompyle++
+# File: jembe-0.3.15-cpython-38-8db6662a7e0a.pyc (Python 3.8)
+
+from typing import TYPE_CHECKING, cast, Tuple, Union, TypeVar, Dict, List, Optional, Sequence, Deque, Any, NamedTuple
+from abc import ABC, abstractmethod
+import re
+from json import JSONDecodeError
+from copy import deepcopy
+from enum import Enum
+from collections import deque
+from itertools import accumulate, chain
+from functools import cached_property
+from operator import add
+from urllib.parse import unquote_plus
+from flask.globals import current_app
+from jinja2 import Undefined
+from lxml import etree
+from lxml.html import Element
+from flask import json, jsonify, g
+from werkzeug.exceptions import NotFound
+from werkzeug import Response
+from common import exec_name_to_full_name, is_direct_child_name, is_child_name, is_page_exec_name, parent_exec_name, load_param
+from exceptions import AccessDenied, Forbidden, JembeError, Unauthorized
+from component_config import ComponentConfig, RedisplayFlag
+if TYPE_CHECKING:
+    import jembe
+    from flask import Request
+    from jembe.component_config import ComponentListener
+
+class Event:
+    
+    def __init__(self, source_exec_name, source, event_name, to, params):
+        self.source_exec_name = source_exec_name
+        self.name = event_name
+        self.params = params
+        self.to = to
+        self.source = source
+
+    
+    def __repr__(self):
+        return 'Event: source={}, name={}, to={} params={}'.format(self.source_exec_name, self.name, self.to, self.params)
+
+    
+    def __getattr__(self, name):
+        if name in self.params.keys():
+            return self.params[name]
+        return None().__getattribute__(name)
+
+    
+    def __setattr__(self, name, value):
+        if 'params' in self.__dict__ and name in self.params:
+            self.params[name] = value
+        return super().__setattr__(name, value)
+
+    
+    def source_full_name(self):
+        if self.source:
+            return self.source._config.full_name
+        return None(self.source_exec_name)
+
+    source_full_name = cached_property(source_full_name)
+    
+    def source_name(self):
+        if self.source and self.source._config.name:
+            return self.source._config.name
+        return None(self.source_full_name).split('/')[-1]
+
+    source_name = cached_property(source_name)
+    __classcell__ = None
+
+
+class SystemEvents(Enum):
+    DISPLAY = '_display'
+    EXCEPTION = '_exception'
+
+TCommand = TypeVar('TCommand', 'Command', **('bound',))
+
+class Command(ABC):
+    jembe: 'jembe.Jembe' = 'Command'
+    
+    def __init__(self, component_exec_name):
+        self.component_exec_name = component_exec_name
+        self
+        self.is_mounted = False
+        self.is_deferred = False
+
+    
+    def mount(self, processor):
+        if self.is_mounted:
+            raise JembeError('Command {} is already mounted'.format(self.__repr__()))
+        self.is_mounted = True
+        self.processor = processor
+        return self
+
+    
+    def execute(self):
+        raise NotImplementedError()
+
+    execute = abstractmethod(execute)
+    
+    def __repr__(self):
+        return 'Command: {} Base'.format(self.component_exec_name)
+
+    
+    def get_before_emit_commands(self):
+        return ()
+
+    
+    def get_after_emit_commands(self):
+        return ()
+
+    
+    def component_full_name(self):
+        return exec_name_to_full_name(self.component_exec_name)
+
+    component_full_name = property(component_full_name)
+
+
+class CallActionCommand(Command):

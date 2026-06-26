@@ -58,7 +58,7 @@ TOOL_FAILURE_FIELDNAMES = [
     "source_path",
     "compiled_pyc",
 ]
-DECOMPILERS = ("decompyle3", "pylingual")
+DECOMPILERS = ("decompyle3", "decompylepp", "pylingual")
 CSV_WRITE_KWARGS = {
     "quoting": csv.QUOTE_MINIMAL,
     "escapechar": "\\",
@@ -90,6 +90,7 @@ def analyze_reproducibility(
     data_dir: Path,
     timeout: int,
     workers: int = 1,
+    requested_tools: Sequence[str] | None = None,
 ) -> list[ReproductionResult]:
     versions_csv = data_dir / "scan" / "cpython_versions.csv"
     interpreters = tool_analysis.load_interpreter_environment(versions_csv, data_dir=data_dir)
@@ -97,7 +98,11 @@ def analyze_reproducibility(
         if tag not in interpreters:
             interpreters[tag] = tool_analysis.find_interpreter(tag, tool_analysis.scanner.python_tag_to_executable(tag), data_dir)
     tool_envs = tool_analysis.load_tool_environment(data_dir, interpreters)
-    global_tools = tool_analysis.available_tools(data_dir)
+    selected_decompilers = tool_analysis.normalize_requested_tools(requested_tools) or DECOMPILERS
+    selected_decompilers = tuple(tool for tool in selected_decompilers if tool in DECOMPILERS)
+    if not selected_decompilers:
+        raise ValueError("no supported RQ4 decompiler selected")
+    global_tools = tool_analysis.select_optional_tools(tool_analysis.available_tools(data_dir), selected_decompilers)
     harness = data_dir / "rq4" / "harness.py"
     cpython_fuzz.write_harness(harness)
 
@@ -132,7 +137,7 @@ def analyze_reproducibility(
                 )
             continue
 
-        decompilers = tools_for_tag(tag, global_tools, tool_envs)
+        decompilers = tools_for_tag(tag, global_tools, tool_envs, selected_decompilers)
         print(f"[rq4] {tag}: findings={len(findings)}, workers={max(1, workers)}")
         if workers <= 1:
             for index, finding in enumerate(findings, start=1):
@@ -223,8 +228,9 @@ def tools_for_tag(
     tag: str,
     global_tools: dict[str, str | None],
     tool_envs: dict[str, dict[str, str | None]],
+    selected_decompilers: Sequence[str] = DECOMPILERS,
 ) -> dict[str, str | None]:
-    tools = {tool: global_tools.get(tool) for tool in DECOMPILERS}
+    tools = {tool: global_tools.get(tool) for tool in selected_decompilers}
     for tool, executable in tool_envs.get(tag, {}).items():
         if tool in tools and executable:
             tools[tool] = executable
@@ -417,8 +423,12 @@ def looks_like_python_source(text: str) -> bool:
     bad_prefixes = ("Usage:", "usage:", "Traceback", "Error:", "ERROR:")
     bad_fragments = (
         "Unsupported Python version",
+        "Unsupported opcode",
+        "Unsupported type",
         "Unknown magic number",
         "Unknown type",
+        "Invalid pyc",
+        "Could not load file",
         "ModuleNotFoundError",
         "ImportError",
         "SyntaxError:",
@@ -448,7 +458,7 @@ def looks_like_python_source(text: str) -> bool:
 def sanitize_decompiler_output(text: str) -> str:
     lines = []
     for line in text.splitlines():
-        if line.startswith("# uncompyle6") or line.startswith("# decompyle3"):
+        if line.startswith("# uncompyle6") or line.startswith("# decompyle3") or line.startswith("# pycdc") or line.startswith("# Decompyle++"):
             lines.append(line)
             continue
         lines.append(line)
@@ -496,7 +506,11 @@ def compile_source_to_pyc(interpreter: str, source_path: Path, pyc_path: Path, t
 
 
 def same_behavior(bytecode_status: str, source_status: str) -> bool:
-    return behavior_class(bytecode_status) == behavior_class(source_status)
+    bytecode_class = behavior_class(bytecode_status)
+    source_class = behavior_class(source_status)
+    if bytecode_class not in {"crash", "timeout", "exception"}:
+        return False
+    return bytecode_class == source_class
 
 
 def behavior_class(status: str) -> str:

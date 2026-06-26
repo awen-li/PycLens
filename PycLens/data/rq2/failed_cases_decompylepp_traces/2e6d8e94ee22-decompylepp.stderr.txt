@@ -1,0 +1,2 @@
+Bad MAGIC!
+Could not load file PycLens/data/rq2/failed_cases/verses-2.2.0-cpython-311-2e6d8e94ee22.pyc

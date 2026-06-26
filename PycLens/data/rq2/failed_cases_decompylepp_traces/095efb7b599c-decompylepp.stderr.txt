@@ -1,0 +1,2 @@
+Bad MAGIC!
+Could not load file PycLens/data/rq2/failed_cases/pypbem-1.1.0-cpython-310-095efb7b599c.pyc

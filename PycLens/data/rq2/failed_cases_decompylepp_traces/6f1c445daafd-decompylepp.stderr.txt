@@ -1,0 +1,2 @@
+Bad MAGIC!
+Could not load file PycLens/data/rq2/failed_cases/recycling-1.1.0-cpython-311-6f1c445daafd.pyc

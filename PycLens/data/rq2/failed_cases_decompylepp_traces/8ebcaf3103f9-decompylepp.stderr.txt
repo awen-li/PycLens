@@ -1,0 +1,2 @@
+CreateObject: Got unsupported type 0x0
+Error loading file PycLens/data/rq2/failed_cases/lifedata-0.1.1-cpython-38-8ebcaf3103f9.pyc: std::bad_cast

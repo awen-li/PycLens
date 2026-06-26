@@ -1,0 +1,2 @@
+CreateObject: Got unsupported type 0x0
+Error loading file PycLens/data/rq2/failed_cases/rosspy-0.1.7-cpython-38-133a0cbe74ec.pyc: std::bad_cast

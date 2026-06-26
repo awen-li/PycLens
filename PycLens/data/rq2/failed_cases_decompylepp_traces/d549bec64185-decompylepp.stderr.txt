@@ -1,0 +1,2 @@
+Bad MAGIC!
+Could not load file PycLens/data/rq2/failed_cases/wedding-1.0.1-cpython-311-d549bec64185.pyc

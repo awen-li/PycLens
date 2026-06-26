@@ -1,0 +1,25 @@
+# Source Generated with Decompyle++
+# File: flask-admin-plus-1.6.22-cpython-38-b856dfff925e.pyc (Python 3.8)
+
+import builtins as @py_builtins
+import _pytest.assertion.rewrite
+@pytest_ar = rewrite
+assertion
+import pytest
+from wtforms import fields, validators
+from flask_admin import form
+from flask_admin.form.fields import Select2Field, DateTimeField
+from flask_admin._compat import as_unicode
+from flask_admin._compat import iteritems
+from flask_admin.contrib.sqla import ModelView, filters, tools
+from flask_babelex import Babel
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import cast
+from sqlalchemy_utils import EmailType, ChoiceType, UUIDType, URLType, CurrencyType, ColorType, ArrowType, IPAddressType
+from  import setup
+from datetime import datetime, time, date
+import uuid
+import enum
+import arrow
+
+class CustomModelView(ModelView):

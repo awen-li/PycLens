@@ -1,0 +1,2 @@
+Bad MAGIC!
+Could not load file PycLens/data/rq2/failed_cases/vegan-2.6.0-cpython-311-fd02140bd945.pyc

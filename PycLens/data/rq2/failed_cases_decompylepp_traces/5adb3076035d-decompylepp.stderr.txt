@@ -1,0 +1,3 @@
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Error decompyling PycLens/data/rq2/failed_cases/uniqgift-custom-1.0.7-cpython-38-5adb3076035d.pyc: std::bad_cast
