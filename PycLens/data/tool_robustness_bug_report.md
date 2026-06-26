@@ -7,10 +7,11 @@ This report merges RQ2 and RQ4 tool robustness failures by analysis tool. A uniq
 | Tool | RQ2 outcomes | RQ2 unique signatures | RQ4 outcomes | RQ4 unique signatures | Combined outcomes | Combined unique signatures |
 |---|---:|---:|---:|---:|---:|---:|
 | `decompyle3` | 373 | 12 | 33 | 12 | 406 | 23 |
+| `Decompyle++` | 0 | 0 | 4 | 3 | 4 | 3 |
 | `dis` | 45 | 3 | 0 | 0 | 45 | 3 |
 | `marshal` | 2 | 1 | 0 | 0 | 2 | 1 |
 | `pylingual` | 3 | 2 | 19 | 8 | 22 | 8 |
-| **Total** | **423** | **18** | **52** | **20** | **475** | **35** |
+| **Total** | **423** | **18** | **56** | **23** | **479** | **38** |
 
 ## Tool: `decompyle3`
 
@@ -1184,3 +1185,100 @@ I8  8'
 ,gggg,gg  I8 dP
 ```
 
+
+## Tool: `Decompyle++`
+
+- Combined outcomes: 4
+- Combined unique signatures: 3
+- RQ2 outcomes/signatures: 0/0
+- RQ4 outcomes/signatures: 4/3
+- RQ2 note: Decompyle++ produced controlled rejection diagnostics on the RQ2 failed-case replay corpus, but none were classified as robustness failures because they did not timeout, crash, or raise an uncaught traceback.
+- Deduplication note: retained RQ4 stdout/stderr does not include native stack frames for the signal-terminated cases, so those cases are deduplicated by tool, CPython version, and signal/status.
+
+| ID | Version | Failure | Cause | RQ2 | RQ4 | Total |
+|---|---|---|---|---:|---:|---:|
+| `decompylepp-01` | CPython 3.8 | `SIGSEGV` | process crashed with signal 11 | 0 | 2 | 2 |
+| `decompylepp-02` | CPython 3.11 | `Timeout` | did not terminate within 600s | 0 | 1 | 1 |
+| `decompylepp-03` | CPython 3.13 | `SIGKILL` | process terminated with signal 9 | 0 | 1 | 1 |
+
+### `decompylepp-01` CPython 3.8: `SIGSEGV` / process crashed with signal 11
+
+- Combined outcomes: 2
+- RQ2 outcomes/signatures: 0/0
+- RQ4 outcomes/signatures: 2/1
+- Observed statuses: `exit_-11`=2
+- Stack signature: not available; grouped by Decompyle++, CPython 3.8, and `SIGSEGV`
+
+Reproduction commands:
+
+RQ4 representative (`cpython-38-4938b2ed0078`):
+```bash
+PycLens/data/rq2/envs/global-decompylepp/bin/pycdc PycLens/data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-4938b2ed0078.pyc
+```
+
+RQ4 duplicate example (`cpython-38-6fc7c4e73992`):
+```bash
+PycLens/data/rq2/envs/global-decompylepp/bin/pycdc PycLens/data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-6fc7c4e73992.pyc
+```
+
+| Phase | Phase bug id | Outcomes | Representative input | Trace files |
+|---|---|---:|---|---|
+| RQ4 | `cpython-38-4938b2ed0078` | 1 | `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-4938b2ed0078.pyc` | `PycLens/data/rq4/tool_traces/cpython-38/cpython-38-4938b2ed0078/decompylepp.stdout.txt; PycLens/data/rq4/tool_traces/cpython-38/cpython-38-4938b2ed0078/decompylepp.stderr.txt` |
+| RQ4 | `cpython-38-6fc7c4e73992` | 1 | `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-6fc7c4e73992.pyc` | `PycLens/data/rq4/tool_traces/cpython-38/cpython-38-6fc7c4e73992/decompylepp.stdout.txt; PycLens/data/rq4/tool_traces/cpython-38/cpython-38-6fc7c4e73992/decompylepp.stderr.txt` |
+
+Trace excerpt:
+- Retained stdout/stderr are empty for both signal-terminated runs; the subprocess status records `exit_-11`.
+
+Duplicate/example inputs:
+- `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-4938b2ed0078.pyc`
+- `data/rq3/cpython-3.8/unique_bug_pyc/cpython-38-6fc7c4e73992.pyc`
+
+### `decompylepp-02` CPython 3.11: `Timeout` / did not terminate within 600s
+
+- Combined outcomes: 1
+- RQ2 outcomes/signatures: 0/0
+- RQ4 outcomes/signatures: 1/1
+- Observed statuses: `timeout`=1
+- Stack signature: not available; grouped by Decompyle++, CPython 3.11, and timeout status
+
+Reproduction command:
+
+RQ4 representative (`cpython-311-8748dd3d40bc`):
+```bash
+timeout 600s PycLens/data/rq2/envs/global-decompylepp/bin/pycdc PycLens/data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-8748dd3d40bc.pyc
+```
+
+| Phase | Phase bug id | Outcomes | Representative input | Trace files |
+|---|---|---:|---|---|
+| RQ4 | `cpython-311-8748dd3d40bc` | 1 | `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-8748dd3d40bc.pyc` | `PycLens/data/rq4/tool_traces/cpython-311/cpython-311-8748dd3d40bc/decompylepp.stdout.txt; PycLens/data/rq4/tool_traces/cpython-311/cpython-311-8748dd3d40bc/decompylepp.stderr.txt` |
+
+Trace excerpt:
+- `timeout_after_600s`
+
+Duplicate/example inputs:
+- `data/rq3/cpython-3.11/unique_bug_pyc/cpython-311-8748dd3d40bc.pyc`
+
+### `decompylepp-03` CPython 3.13: `SIGKILL` / process terminated with signal 9
+
+- Combined outcomes: 1
+- RQ2 outcomes/signatures: 0/0
+- RQ4 outcomes/signatures: 1/1
+- Observed statuses: `exit_-9`=1
+- Stack signature: not available; grouped by Decompyle++, CPython 3.13, and `SIGKILL`
+
+Reproduction command:
+
+RQ4 representative (`cpython-313-2293b72ed067`):
+```bash
+PycLens/data/rq2/envs/global-decompylepp/bin/pycdc PycLens/data/rq3/cpython-3.13/unique_bug_pyc/cpython-313-2293b72ed067.pyc
+```
+
+| Phase | Phase bug id | Outcomes | Representative input | Trace files |
+|---|---|---:|---|---|
+| RQ4 | `cpython-313-2293b72ed067` | 1 | `data/rq3/cpython-3.13/unique_bug_pyc/cpython-313-2293b72ed067.pyc` | `PycLens/data/rq4/tool_traces/cpython-313/cpython-313-2293b72ed067/decompylepp.stdout.txt; PycLens/data/rq4/tool_traces/cpython-313/cpython-313-2293b72ed067/decompylepp.stderr.txt` |
+
+Trace excerpt:
+- Retained stdout/stderr are empty; the subprocess status records `exit_-9`.
+
+Duplicate/example inputs:
+- `data/rq3/cpython-3.13/unique_bug_pyc/cpython-313-2293b72ed067.pyc`
