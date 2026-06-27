@@ -3,7 +3,7 @@
 PYCLENS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export PYCLENS_ROOT
 
-PYCLENS_PYLINGUAL_HOME="$PYCLENS_ROOT/data/rq2/envs/global-pylingual"
+PYCLENS_PYLINGUAL_HOME="$PYCLENS_ROOT/PyLens/data/rq2/envs/global-pylingual"
 export PYCLENS_PYLINGUAL_HOME
 
 PYCLENS_HONGGFUZZ_HOME="$PYCLENS_ROOT/honggfuzz"
